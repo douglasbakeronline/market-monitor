@@ -23,14 +23,14 @@ const CONFIG = {
   buyFearConfirm: 25, greedScore: 76, greedMaxDrawdown: -3,
   buyResetDrawdown: -5, greedResetScore: 65, peakLookbackDays: 2500, historyPoints: 400,
   // Your research candidates, NOT recommendations. Edit freely.
-  // Stooq symbols: US = ticker.us, UK = ticker.uk.
+  // Yahoo Finance symbols: US = plain ticker (MSFT); UK = ticker.L (AZN.L).
   watchlist: [
-    { symbol: "msft.us", name: "Microsoft" },
-    { symbol: "googl.us", name: "Alphabet" },
-    { symbol: "v.us", name: "Visa" },
-    { symbol: "ma.us", name: "Mastercard" },
-    { symbol: "asml.us", name: "ASML" },
-    { symbol: "azn.uk", name: "AstraZeneca" },
+    { symbol: "MSFT", name: "Microsoft" },
+    { symbol: "GOOGL", name: "Alphabet" },
+    { symbol: "V", name: "Visa" },
+    { symbol: "MA", name: "Mastercard" },
+    { symbol: "ASML", name: "ASML" },
+    { symbol: "AZN.L", name: "AstraZeneca" },
   ],
 };
 
@@ -58,19 +58,23 @@ async function fetchFearGreed() {
   };
 }
 
+// Daily closes from Yahoo Finance's chart API (reliable from CI servers).
 async function fetchSeries(symbol, tries = 3) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=2y&interval=1d`;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
-      const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`,
-        { headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/537.36" } });
+      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/537.36" } });
       if (res.ok) {
-        const rows = (await res.text()).trim().split("\n").slice(1)
-          .map((r) => { const c = r.split(","); return { date: c[0], close: parseFloat(c[4]) }; })
+        const j = await res.json();
+        const r = j?.chart?.result?.[0];
+        const ts = r?.timestamp || [];
+        const closes = r?.indicators?.quote?.[0]?.close || [];
+        const rows = ts.map((t, i) => ({ date: new Date(t * 1000).toISOString().slice(0, 10), close: closes[i] }))
           .filter((x) => Number.isFinite(x.close));
         if (rows.length) return rows;
       }
     } catch { /* network blip, retry */ }
-    await new Promise((r) => setTimeout(r, 700 * attempt));
+    await new Promise((res) => setTimeout(res, 700 * attempt));
   }
   console.warn(`No data for ${symbol} after ${tries} tries.`);
   return [];
@@ -117,10 +121,10 @@ async function fetchMovers() {
 // Last 5 sessions for each watchlist ticker (daily % plus the 5-day total).
 async function fetchWatchlist() {
   const out = [];
-  await Promise.all(CONFIG.watchlist.map(async (w) => {
+  for (const w of CONFIG.watchlist) {
     try {
       const s = await fetchSeries(w.symbol);
-      if (s.length < 6) return;
+      if (s.length < 6) continue;
       const last = s[s.length - 1].close, base = s[s.length - 6].close;
       out.push({
         symbol: w.symbol.split(".")[0].toUpperCase(),
@@ -130,9 +134,8 @@ async function fetchWatchlist() {
         fiveDay: lastFiveChanges(s),
       });
     } catch { /* skip a ticker that fails rather than break the run */ }
-  }));
-  const order = CONFIG.watchlist.map((w) => w.name);
-  return out.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+  }
+  return out;
 }
 
 // --- Signals ----------------------------------------------------------------
@@ -220,7 +223,8 @@ const writeDashboardData = (p) => writeFile("./data.json", JSON.stringify(p));
 // --- Main -------------------------------------------------------------------
 
 async function main() {
-  const [fg, spx, ukx, movers, watchlist, state] = await Promise.all([fetchFearGreed(), fetchSeries("^spx"), fetchSeries("^ukx"), fetchMovers(), fetchWatchlist(), loadState()]);
+  const [fg, spx, ukx, movers, state] = await Promise.all([fetchFearGreed(), fetchSeries("^GSPC"), fetchSeries("^FTSE"), fetchMovers(), loadState()]);
+  const watchlist = await fetchWatchlist();
   const dd = drawdownFrom(spx);
   const fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
   const status = currentStatus(fg.score, dd.drawdownPct);
