@@ -21,6 +21,29 @@ const CONFIG = {
   ],
   buyFearConfirm: 25, greedScore: 76, greedMaxDrawdown: -3,
   buyResetDrawdown: -5, greedResetScore: 65, peakLookbackDays: 100, historyPoints: 400,
+
+  // Rebound watch: large, liquid names. A "rebound candidate" is one that has
+  // fallen >= reboundDropPct from its recent high over the last reboundWindow
+  // trading days AND posted an up day at the last close. Daily data (free tier),
+  // so this reflects the previous close, not the live open. Edit freely.
+  // Yahoo/AV symbols: US = plain ticker; UK = ticker.LON.
+  rebound: { dropPct: 8, window: 10 },
+  watchlist: [
+    { symbol: "MSFT", name: "Microsoft" },
+    { symbol: "GOOGL", name: "Alphabet" },
+    { symbol: "AAPL", name: "Apple" },
+    { symbol: "AMZN", name: "Amazon" },
+    { symbol: "NVDA", name: "Nvidia" },
+    { symbol: "META", name: "Meta" },
+    { symbol: "TSLA", name: "Tesla" },
+    { symbol: "AVGO", name: "Broadcom" },
+    { symbol: "AMD", name: "AMD" },
+    { symbol: "V", name: "Visa" },
+    { symbol: "JPM", name: "JPMorgan" },
+    { symbol: "AZN.LON", name: "AstraZeneca" },
+    { symbol: "SHEL.LON", name: "Shell" },
+    { symbol: "HSBA.LON", name: "HSBC" },
+  ],
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -89,6 +112,33 @@ function lastFiveChanges(series) {
   const tail = series.slice(-6), out = [];
   for (let i = 1; i < tail.length; i++)
     out.push({ date: tail[i].date, pct: Number((((tail[i].close - tail[i - 1].close) / tail[i - 1].close) * 100).toFixed(2)) });
+  return out;
+}
+
+// Rebound watch: for each name, has it fallen >= dropPct from its recent high
+// over the last `window` sessions AND posted an up day at the last close?
+// Paced at ~1 request / 2s to stay inside the free Alpha Vantage rate guidance.
+async function buildWatchlist() {
+  const out = [];
+  for (const w of CONFIG.watchlist) {
+    await sleep(2000);
+    const s = await fetchSeries(w.symbol);
+    if (s.length < 2) continue;
+    const recent = s.slice(-(CONFIG.rebound.window + 1));
+    const last = recent[recent.length - 1].close;
+    const prev = recent[recent.length - 2].close;
+    const high = Math.max(...recent.map((x) => x.close));
+    const dropFromHigh = ((last - high) / high) * 100;
+    const lastChange = ((last - prev) / prev) * 100;
+    out.push({
+      symbol: w.symbol.split(".")[0],
+      name: w.name,
+      price: Number(last.toFixed(2)),
+      dropFromHigh: Number(dropFromHigh.toFixed(1)),
+      lastChange: Number(lastChange.toFixed(1)),
+      rebound: dropFromHigh <= -CONFIG.rebound.dropPct && lastChange > 0,
+    });
+  }
   return out;
 }
 
@@ -174,19 +224,20 @@ async function main() {
   const [fg, state] = await Promise.all([fetchFearGreed(), loadState()]);
   const ns = { ...state, summarySent: { ...(state.summarySent || {}) }, fearLog: { ...(state.fearLog || {}) } };
 
-  // Prices: fetch from Alpha Vantage at most once per day, cache the rest.
+  // Prices + rebound watch: fetch from Alpha Vantage once per day, cache the rest.
   const today = localDate("Europe/London");
-  let dd, fiveDay;
+  let dd, fiveDay, watchlist;
   if (ns.priceCache && ns.priceCache.date === today && ns.priceCache.dd) {
-    dd = ns.priceCache.dd; fiveDay = ns.priceCache.fiveDay;
+    dd = ns.priceCache.dd; fiveDay = ns.priceCache.fiveDay; watchlist = ns.priceCache.watchlist || [];
     console.log(`Using cached prices for ${today}.`);
   } else {
     const spx = await fetchSeries("SPY");
-    await sleep(1500);
+    await sleep(2000);
     const ukx = await fetchSeries("ISF.LON");
     dd = drawdownFrom(spx);
     fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
-    if (spx.length) ns.priceCache = { date: today, dd, fiveDay }; // cache only on success
+    watchlist = await buildWatchlist();
+    if (spx.length) ns.priceCache = { date: today, dd, fiveDay, watchlist }; // cache only on success
   }
 
   const status = currentStatus(fg.score, dd.drawdownPct);
@@ -204,7 +255,7 @@ async function main() {
     updated: new Date().toISOString(), score: fg.score, rating: ratingFor(fg.score),
     comparisons: fg.comparisons, history: fg.history,
     drawdownPct: Number(dd.drawdownPct.toFixed(1)), last: Math.round(dd.last), peak: Math.round(dd.peak),
-    status, fiveDay, fearSessions,
+    status, fiveDay, fearSessions, watchlist,
   });
 
   const ev = evaluateAlerts(fg.score, dd, ns);
@@ -216,9 +267,13 @@ async function main() {
     const tz = market === "UK" ? "Europe/London" : "America/New_York", sumDay = localDate(tz);
     if (ns.summarySent[market] !== sumDay || process.env.FORCE_SUMMARY) {
       const sp = fiveDay.sp.at(-1), ft = fiveDay.ftse.at(-1), sign = (p) => (p == null ? "n/a" : (p >= 0 ? "+" : "") + p + "%");
+      const rebounds = (watchlist || []).filter((w) => w.rebound)
+        .sort((a, b) => a.dropFromHigh - b.dropFromHigh)
+        .map((w) => `${w.symbol} ${w.dropFromHigh}% off high, +${w.lastChange}% last`);
+      const reboundLine = rebounds.length ? `\nRebound watch: ${rebounds.join("; ")}` : "\nRebound watch: none today.";
       await notify({
         title: `${market} open · Fear & Greed ${fg.score} (${ratingFor(fg.score)})`,
-        body: `${status.label}. S&P ${dd.drawdownPct.toFixed(1)}% off peak.\nLast close: S&P 500 ${sign(sp?.pct)}, FTSE 100 ${sign(ft?.pct)}.`,
+        body: `${status.label}. S&P ${dd.drawdownPct.toFixed(1)}% off peak.\nLast close: S&P 500 ${sign(sp?.pct)}, FTSE 100 ${sign(ft?.pct)}.${reboundLine}`,
       });
       ns.summarySent[market] = sumDay;
       console.log(`Sent ${market} daily summary.`);
