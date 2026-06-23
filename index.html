@@ -27,7 +27,7 @@
   .score { font-size:54px; font-weight:700; line-height:1; letter-spacing:-0.03em; }
   .score-label { text-transform:uppercase; letter-spacing:0.12em; font-size:12px; font-weight:600; margin-top:6px; }
 
-  .status { border-radius:12px; padding:15px 17px; margin-top:18px; border:1px solid var(--line); background:var(--card); }
+  .status { border-radius:12px; padding:15px 17px; border:1px solid var(--line); background:var(--card); }
   .status .tag { display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:3px 9px; border-radius:999px; color:#fff; }
   .status .headline { font-weight:600; margin:10px 0 2px; }
   .status .note { color:var(--muted); font-size:14px; }
@@ -52,23 +52,9 @@
   .fd-p { font-weight:700; font-size:14px; margin-top:3px; }
   .fd-fear { font-weight:700; font-size:15px; margin-top:3px; }
   .fd-sub { font-size:9px; color:var(--muted); margin-top:1px; }
-  .fd-label { position:relative; }
-  .wl-sym { color:var(--muted); font-weight:400; font-size:12px; margin-left:4px; }
-  .wl-tot { float:right; font-size:12px; font-weight:700; }
 
   .chart-wrap { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 12px 8px; }
   #chart { width:100%; height:auto; }
-
-  .warn { background:#fdf3ec; border:1px solid #f0d4c2; border-left:4px solid var(--fear); border-radius:10px; padding:13px 15px; margin:14px 0; font-size:13px; line-height:1.55; color:#79461f; }
-  .warn b { color:var(--neg); }
-  .movers { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
-  .movers h3 { font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:0 0 6px; }
-  .mv-row { display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); }
-  .mv-sym { font-weight:700; font-size:13px; min-width:54px; }
-  .mv-name { color:var(--muted); font-size:12px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .mv-px { color:var(--muted); font-size:12px; min-width:54px; text-align:right; }
-  .mv-pct { font-weight:700; font-size:13px; min-width:54px; text-align:right; }
-  .mv-note { color:var(--muted); font-size:12px; line-height:1.5; padding:6px 0; }
 
   .cap { color:var(--muted); font-size:12px; line-height:1.5; margin:8px 0 0; }
   .cap.center { text-align:center; }
@@ -78,14 +64,17 @@
   @media (max-width:520px) {
     .wrap { padding:24px 14px 48px; }
     .cards { grid-template-columns:repeat(2,1fr); }
-    .movers { grid-template-columns:1fr; gap:18px; }
     .score { font-size:46px; }
     header h1 { font-size:22px; }
   }
-  @media (max-width:380px) {
-    .fd-d { font-size:9px; }
-    .fd-p { font-size:12px; }
-  }
+  @media (max-width:380px) { .fd-d { font-size:9px; } .fd-p { font-size:12px; } }
+  .wl-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .wl-name { font-weight:600; font-size:13px; flex:1; }
+  .wl-sym { color:var(--muted); font-weight:400; font-size:12px; margin-left:5px; }
+  .wl-metric { font-size:12px; text-align:right; min-width:92px; }
+  .wl-flag { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:#e7f6ee; color:var(--pos); min-width:70px; text-align:center; }
+  .wl-flag.off { background:#f2efe9; color:var(--muted); }
+  @media (max-width:520px){ .wl-row{flex-wrap:wrap;} .wl-name{flex-basis:100%;} .wl-metric{min-width:0;flex:1;text-align:left;} .wl-flag{min-width:0;} }
 </style>
 </head>
 <body>
@@ -95,7 +84,7 @@
     <p>Buy fear, build cash on greed. Signals, not advice.</p>
     <div class="updated" id="updated"></div>
   </header>
-  <div id="sampleBanner" class="samplebar" style="display:none">Showing <b>sample placeholder data</b>, not live values. Deploy the repo (with your FMP key) to see real numbers.</div>
+  <div id="sampleBanner" class="samplebar" style="display:none">Showing <b>sample placeholder data</b>, not live values. Deploy the repo to see real numbers.</div>
 
   <div class="gauge-wrap">
     <svg id="gauge" viewBox="0 0 300 180" aria-label="Fear and Greed gauge"></svg>
@@ -111,7 +100,7 @@
 
   <div class="block">
     <div class="dd" id="dd"></div>
-    <div class="cap">How far the S&amp;P 500 has fallen from its recent high. These drops are the dips this tracker exists to catch; -10% and beyond is where it starts getting interesting.</div>
+    <div class="cap">How far the S&amp;P 500 has fallen from its recent high. These drops are the dips this tracker exists to catch; -10% and beyond is where it starts getting interesting. (Tracked via SPY, the S&amp;P 500 ETF, so the level shown is SPY's; the percentage matches the index.)</div>
   </div>
 
   <div class="block">
@@ -132,21 +121,13 @@
   </div>
 
   <section id="watchlistSection" class="block" style="display:none">
-    <div class="sectionhead">Watchlist, last 5 sessions</div>
-    <div class="cap" style="margin:0 0 10px"><b>Research candidates, not recommendations.</b> A starting list to track; edit it in the script's <code>CONFIG.watchlist</code>. Run each through your own checks before buying. Not advice.</div>
+    <div class="sectionhead">Rebound watch, big-cap dips turning up</div>
     <div id="watchlist"></div>
-    <div class="cap">Daily % change per stock over the last five sessions, with the 5-day total on the right. Refreshes on the schedule, not live.</div>
-  </section>
-
-  <section id="moversSection" class="block" style="display:none">
-    <div class="sectionhead">Hot stocks, biggest one-day risers</div>
-    <div class="warn" id="moversWarn"></div>
-    <div class="movers" id="movers"></div>
-    <div class="cap">Each percentage is the move since today's open. A small or negative figure means the jump already happened earlier, so the stock may be cooling rather than heating up.</div>
+    <div class="cap">Large, liquid names down at least 8% from their recent high. A green "Rebound" flag marks those that also posted an up day, a possible turn. Daily close data, so it reflects the last close, not the live open. Research prompts, not buy signals: one up day after a fall is often a dead-cat bounce, not the bottom.</div>
   </section>
 
   <footer>
-   Fear &amp; Greed live from CNN; S&amp;P 500 / FTSE 100 from Alpha Vantage. Price panels refresh on the schedule, not live. Not affiliated with CNN. A personal tracker, not financial advice.
+    Fear &amp; Greed live from CNN; S&amp;P 500 / FTSE 100 from Alpha Vantage. Price panels refresh on the schedule, not live. Not affiliated with CNN. A personal tracker, not financial advice.
   </footer>
 </div>
 
@@ -162,12 +143,15 @@ const bandFor = (s) => BANDS.find((b) => s <= b.max) || BANDS[BANDS.length - 1];
 const STATUS_COLOR = { buy:"#18915f", greed:"#c0392b", watch:"#e3812f", neutral:"#9aa0a6" };
 const STATUS_TAG = { buy:"Buy", greed:"Greed", watch:"Watch", neutral:"Neutral" };
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function fmtDay(s){ const d=new Date(/^\d{4}-\d{2}-\d{2}$/.test(s)?s+"T00:00:00":s); return isNaN(d)?s:WD[d.getDay()]+" "+d.getDate(); }
+const isoET=(t)=>new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York"}).format(new Date(t));
 
 const SAMPLE = {
   updated:new Date().toISOString(), score:34, rating:"fear",
   comparisons:{ close:34, week:39, month:58, year:56 },
   history:Array.from({length:300},(_,i)=>({ t:Date.now()-(300-i)*86400000, y:Math.round(50+22*Math.sin(i/16)+8*Math.sin(i/5)) })),
-  drawdownPct:-4.2, last:7384, peak:7705,
+  drawdownPct:-4.2, last:601, peak:628,
   status:{ type:"neutral", label:"No active signal", note:"Sit tight. Nothing interesting right now." },
   fiveDay:{
     sp:[{date:"2026-06-16",pct:-0.8},{date:"2026-06-17",pct:-1.5},{date:"2026-06-18",pct:0.4},{date:"2026-06-19",pct:-2.6},{date:"2026-06-20",pct:-1.1}],
@@ -181,15 +165,13 @@ const SAMPLE = {
     {date:"2026-06-20",open:30,close:34,pct:13.3,basis:"oc"},
   ],
   watchlist:[
-    {symbol:"MSFT",name:"Microsoft",price:412.5,total:-3.4,fiveDay:[{date:"2026-06-16",pct:-0.4},{date:"2026-06-17",pct:-1.1},{date:"2026-06-18",pct:0.5},{date:"2026-06-19",pct:-1.8},{date:"2026-06-20",pct:-0.6}]},
-    {symbol:"GOOGL",name:"Alphabet",price:178.2,total:-2.1,fiveDay:[{date:"2026-06-16",pct:-0.2},{date:"2026-06-17",pct:-0.9},{date:"2026-06-18",pct:0.8},{date:"2026-06-19",pct:-1.4},{date:"2026-06-20",pct:-0.4}]},
-    {symbol:"ASML",name:"ASML",price:712.0,total:-6.8,fiveDay:[{date:"2026-06-16",pct:-1.2},{date:"2026-06-17",pct:-2.4},{date:"2026-06-18",pct:0.3},{date:"2026-06-19",pct:-3.1},{date:"2026-06-20",pct:-0.5}]},
-    {symbol:"AZN",name:"AstraZeneca",price:11240,total:1.2,fiveDay:[{date:"2026-06-16",pct:0.3},{date:"2026-06-17",pct:0.1},{date:"2026-06-18",pct:0.5},{date:"2026-06-19",pct:-0.2},{date:"2026-06-20",pct:0.5}]},
+    {symbol:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,rebound:true},
+    {symbol:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,rebound:true},
+    {symbol:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,rebound:false},
+    {symbol:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,rebound:false},
+    {symbol:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,rebound:false},
+    {symbol:"AZN",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,rebound:false},
   ],
-  movers:{ ukAvailable:true,
-    us:[{symbol:"PLTR",name:"Palantir Technologies",price:41.9,openPct:7.5},{symbol:"RIVN",name:"Rivian Automotive",price:14.1,openPct:6.1},{symbol:"AFRM",name:"Affirm Holdings",price:62.3,openPct:5.0},{symbol:"SMCI",name:"Super Micro Computer",price:48.2,openPct:4.2},{symbol:"CVNA",name:"Carvana",price:305.7,openPct:-1.3}],
-    uk:[{symbol:"RR.L",name:"Rolls-Royce Holdings",price:615.2,openPct:4.4},{symbol:"OCDO.L",name:"Ocado Group",price:312.4,openPct:3.1},{symbol:"BARC.L",name:"Barclays",price:268.9,openPct:-0.6}],
-  },
   _sample:true,
 };
 
@@ -201,8 +183,7 @@ function renderGauge(score){
   const cx=150,cy=155,r=118; let bands="",prev=0;
   for(const b of BANDS){ bands+=`<path d="${arc(cx,cy,r,angleFor(prev),angleFor(b.max))}" fill="none" stroke="${b.hex}" stroke-width="20"/>`; prev=b.max; }
   const [nx,ny]=polar(cx,cy,r-22,angleFor(score));
-  const needle=`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="#1a1a1a"/>`;
-  document.getElementById("gauge").innerHTML=bands+needle;
+  document.getElementById("gauge").innerHTML=bands+`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="#1a1a1a"/>`;
 }
 
 function renderChart(history){
@@ -217,18 +198,16 @@ function renderChart(history){
     `<text x="${padX+6}" y="${sy(0)-6}" fill="#18915f" font-size="10" font-weight="700">BUY ZONE</text>`+
     `<text x="${padX+6}" y="${sy(100)+13}" fill="#c0392b" font-size="10" font-weight="700">SELL ZONE</text>`;
   for(const v of [25,50,75]) g+=`<line x1="${padX}" y1="${sy(v)}" x2="${W-padX}" y2="${sy(v)}" stroke="#eee"/><text x="${W-padX}" y="${sy(v)-3}" text-anchor="end" fill="#bdb8b0" font-size="10">${v}</text>`;
-  // Quarter markers
   const seen=new Set();
   for(const d of history){ const dt=new Date(d.t), m=dt.getMonth();
     if([0,3,6,9].includes(m)){ const key=dt.getFullYear()+"-"+m; if(!seen.has(key)){ seen.add(key);
-      const x=sx(d.t); const lbl=MONTHS[m]+(m===0?" '"+String(dt.getFullYear()).slice(2):"");
+      const x=sx(d.t), lbl=MONTHS[m]+(m===0?" '"+String(dt.getFullYear()).slice(2):"");
       g+=`<line x1="${x}" y1="${padY}" x2="${x}" y2="${H-padY}" stroke="#ddd6cc" stroke-dasharray="2 3"/><text x="${x+3}" y="${H+13}" fill="#9aa0a6" font-size="10">${lbl}</text>`;
     }}}
   const pts=history.map(d=>`${sx(d.t).toFixed(1)},${sy(d.y).toFixed(1)}`).join(" ");
   document.getElementById("chart").innerHTML=g+`<polyline points="${pts}" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>`;
 }
 
-// Fear & Greed portion (gauge, score, comparison cards, chart, timestamp)
 function renderFG(fg){
   const band=bandFor(fg.score);
   renderGauge(fg.score);
@@ -246,19 +225,12 @@ function renderFG(fg){
   renderChart(fg.history);
 }
 
-const WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-function fmtDay(s){ const d=new Date(/^\d{4}-\d{2}-\d{2}$/.test(s)?s+"T00:00:00":s); return isNaN(d)?s:WD[d.getDay()]+" "+d.getDate(); }
-const isoET=(t)=>new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York"}).format(new Date(t));
-
 function fiveRow(list){
   return `<div class="fd-row">`+list.map(d=>{
     const col=d.pct>=0?"var(--pos)":"var(--neg)";
     return `<div class="fd-cell"><div class="fd-d">${fmtDay(d.date)}</div><div class="fd-p" style="color:${col}">${d.pct>=0?"+":""}${d.pct.toFixed(1)}%</div></div>`;
   }).join("")+`</div>`;
 }
-
-// Fear & Greed sessions: close is the day's index value, open is shown once
-// the monitor has captured it live (CNN publishes only one value per day).
 function fearRow(list){
   return `<div class="fd-row">`+list.map(s=>{
     const col=s.pct>=0?"var(--pos)":"var(--neg)";
@@ -266,19 +238,7 @@ function fearRow(list){
     return `<div class="fd-cell"><div class="fd-d">${fmtDay(s.date)}</div><div class="fd-fear">${s.close}</div>${open}<div class="fd-p" style="color:${col}">${s.pct>=0?"+":""}${s.pct.toFixed(1)}%</div></div>`;
   }).join("")+`</div>`;
 }
-function renderWatchlist(list){
-  const sec=document.getElementById("watchlistSection");
-  if(!list||!list.length){ sec.style.display="none"; return; }
-  sec.style.display="block";
-  document.getElementById("watchlist").innerHTML=list.map(w=>{
-    const tcol=w.total>=0?"var(--pos)":"var(--neg)";
-    return `<div class="fd-block"><div class="fd-label">${w.name} <span class="wl-sym">${w.symbol}</span><span class="wl-tot" style="color:${tcol}">${w.total>=0?"+":""}${w.total.toFixed(1)}% 5d</span></div>${fiveRow(w.fiveDay)}</div>`;
-  }).join("");
-}
-
-function renderFearBlock(sessions){
-  document.getElementById("fearblock").innerHTML=`<div class="fd-label">Fear &amp; Greed index</div>${fearRow(sessions)}`;
-}
+function renderFearBlock(sessions){ document.getElementById("fearblock").innerHTML=`<div class="fd-label">Fear &amp; Greed index</div>${fearRow(sessions)}`; }
 function buildFearSessionsClient(history,opens){
   const pts=history.slice(-6), res=[], start=Math.max(1,pts.length-5);
   for(let i=start;i<pts.length;i++){
@@ -290,14 +250,6 @@ function buildFearSessionsClient(history,opens){
   return res;
 }
 
-function moverRows(list){
-  return list.slice().sort((a,b)=>(b.openPct??-999)-(a.openPct??-999)).map(m=>{
-    const v=m.openPct, txt=v==null?"n/a":(v>=0?"+":"")+v.toFixed(1)+"%", col=v==null?"var(--muted)":v>=0?"var(--pos)":"var(--neg)";
-    return `<div class="mv-row"><span class="mv-sym">${m.symbol}</span><span class="mv-name">${m.name}</span><span class="mv-px">${Number(m.price).toLocaleString(undefined,{maximumFractionDigits:2})}</span><span class="mv-pct" style="color:${col}">${txt}</span></div>`;
-  }).join("");
-}
-
-// Price + movers portion (from data.json / sample)
 function renderStatic(d){
   const s=d.status;
   document.getElementById("status").innerHTML=`<span class="tag" style="background:${STATUS_COLOR[s.type]}">${STATUS_TAG[s.type]}</span><div class="headline">${s.label}</div><div class="note">${s.note}</div>`;
@@ -312,14 +264,21 @@ function renderStatic(d){
     window.__fearOpens={}; d.fearSessions.forEach(s=>{ if(s.open!=null) window.__fearOpens[s.date]=s.open; });
   }
   renderWatchlist(d.watchlist);
-  const mv=d.movers, sec=document.getElementById("moversSection");
-  if(!mv||((mv.us||[]).length===0&&(mv.uk||[]).length===0)){ sec.style.display="none"; return; }
+}
+
+function renderWatchlist(list){
+  const sec=document.getElementById("watchlistSection");
+  if(!list||!list.length){ sec.style.display="none"; return; }
   sec.style.display="block";
-  document.getElementById("moversWarn").innerHTML=`<b>Momentum, not a buy signal.</b> These are today's biggest one-day risers, so the move has already happened. Gainer lists skew towards small-caps and news spikes that often reverse, and this runs against the contrarian logic above. Use it as a watchlist, not a shopping list.`;
-  const ukBlock=mv.ukAvailable&&(mv.uk||[]).length?moverRows(mv.uk):`<div class="mv-note">UK movers need a data plan with LSE coverage. The US list runs on the free tier.</div>`;
-  document.getElementById("movers").innerHTML=
-    `<div><h3>US market <span style="font-weight:400;text-transform:none;letter-spacing:0">&middot; % from open</span></h3>${(mv.us||[]).length?moverRows(mv.us):'<div class="mv-note">No data.</div>'}</div>`+
-    `<div><h3>UK market <span style="font-weight:400;text-transform:none;letter-spacing:0">&middot; % from open</span></h3>${ukBlock}</div>`;
+  const sorted=list.slice().sort((a,b)=> (b.rebound-a.rebound) || (a.dropFromHigh-b.dropFromHigh));
+  document.getElementById("watchlist").innerHTML=sorted.map(w=>{
+    const dcol=w.dropFromHigh<=-8?"var(--neg)":"var(--muted)";
+    const lcol=w.lastChange>=0?"var(--pos)":"var(--neg)";
+    const flag=w.rebound?`<span class="wl-flag">Rebound</span>`:`<span class="wl-flag off">watching</span>`;
+    return `<div class="wl-row"><span class="wl-name">${w.name}<span class="wl-sym">${w.symbol}</span></span>`+
+      `<span class="wl-metric" style="color:${dcol}">${w.dropFromHigh}% off high</span>`+
+      `<span class="wl-metric" style="color:${lcol}">${w.lastChange>=0?"+":""}${w.lastChange}% last</span>${flag}</div>`;
+  }).join("");
 }
 
 function render(d){
@@ -341,8 +300,7 @@ async function patchLiveFG(){
       comparisons:{ close:Math.round(f.previous_close), week:Math.round(f.previous_1_week), month:Math.round(f.previous_1_month), year:Math.round(f.previous_1_year) },
       history, updated:Date.now(), live:true,
     });
-    if(document.getElementById("fearblock"))
-      renderFearBlock(buildFearSessionsClient(history, window.__fearOpens||{}));
+    if(document.getElementById("fearblock")) renderFearBlock(buildFearSessionsClient(history, window.__fearOpens||{}));
   }catch(e){ /* keep stored values already on screen */ }
 }
 
