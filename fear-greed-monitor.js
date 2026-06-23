@@ -58,19 +58,21 @@ async function fetchFearGreed() {
   };
 }
 
-// Daily closes from Yahoo Finance's chart API (reliable from CI servers).
+// Daily closes from Financial Modeling Prep (reliable from CI servers).
+// Uses FMP_KEY. Indices: ^GSPC (S&P 500), ^FTSE (FTSE 100).
 async function fetchSeries(symbol, tries = 3) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=2y&interval=1d`;
+  const key = process.env.FMP_KEY;
+  if (!key) { console.warn("No FMP_KEY set; price data unavailable."); return []; }
+  const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${encodeURIComponent(symbol)}?serietype=line&apikey=${key}`;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
-      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/537.36" } });
+      const res = await fetch(url);
       if (res.ok) {
         const j = await res.json();
-        const r = j?.chart?.result?.[0];
-        const ts = r?.timestamp || [];
-        const closes = r?.indicators?.quote?.[0]?.close || [];
-        const rows = ts.map((t, i) => ({ date: new Date(t * 1000).toISOString().slice(0, 10), close: closes[i] }))
-          .filter((x) => Number.isFinite(x.close));
+        const hist = j?.historical || [];
+        // FMP returns newest-first; reverse to oldest-first.
+        const rows = hist.map((d) => ({ date: d.date, close: d.close }))
+          .filter((x) => Number.isFinite(x.close)).reverse();
         if (rows.length) return rows;
       }
     } catch { /* network blip, retry */ }
@@ -223,7 +225,7 @@ const writeDashboardData = (p) => writeFile("./data.json", JSON.stringify(p));
 // --- Main -------------------------------------------------------------------
 
 async function main() {
-  const [fg, spx, ukx, movers, state] = await Promise.all([fetchFearGreed(), fetchSeries("^GSPC"), fetchSeries("^FTSE"), fetchMovers(), loadState()]);
+  const [fg, spx, ukx, movers, state] = await Promise.all([fetchFearGreed(), fetchSeries("SPY"), fetchSeries("^FTSE"), fetchMovers(), loadState()]);
   const watchlist = await fetchWatchlist();
   const dd = drawdownFrom(spx);
   const fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
