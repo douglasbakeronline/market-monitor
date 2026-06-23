@@ -54,7 +54,7 @@ async function fetchFearGreed() {
 async function fetchSeries(symbol, tries = 2) {
   const key = process.env.ALPHAVANTAGE_KEY;
   if (!key) { console.warn("No ALPHAVANTAGE_KEY set; price data unavailable."); return []; }
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=full&apikey=${key}`;
+  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=compact&apikey=${key}`;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
       const res = await fetch(url);
