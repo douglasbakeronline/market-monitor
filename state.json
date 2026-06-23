@@ -2,9 +2,13 @@
   "lastBuyTier": 0,
   "greedActive": false,
   "summarySent": {},
-  "fearLog": {},
+  "fearLog": {
+    "2026-06-23": {
+      "close": 28
+    }
+  },
   "priceCache": {
-    "date": "2026-01-02",
+    "date": "2026-06-23",
     "dd": {
       "last": 744.39,
       "peak": 759.57,
@@ -59,6 +63,7 @@
     "watchlist": [
       {
         "symbol": "MSFT",
+        "yahoo": "MSFT",
         "name": "Microsoft",
         "price": 367.34,
         "dropFromHigh": -11.8,
@@ -67,6 +72,7 @@
       },
       {
         "symbol": "GOOGL",
+        "yahoo": "GOOGL",
         "name": "Alphabet",
         "price": 349.68,
         "dropFromHigh": -6.3,
@@ -75,6 +81,7 @@
       },
       {
         "symbol": "AAPL",
+        "yahoo": "AAPL",
         "name": "Apple",
         "price": 297.01,
         "dropFromHigh": -3.4,
@@ -83,6 +90,7 @@
       },
       {
         "symbol": "AMZN",
+        "yahoo": "AMZN",
         "name": "Amazon",
         "price": 232.79,
         "dropFromHigh": -5.4,
@@ -91,6 +99,7 @@
       },
       {
         "symbol": "NVDA",
+        "yahoo": "NVDA",
         "name": "Nvidia",
         "price": 208.65,
         "dropFromHigh": -1.8,
@@ -99,6 +108,7 @@
       },
       {
         "symbol": "META",
+        "yahoo": "META",
         "name": "Meta",
         "price": 563.85,
         "dropFromHigh": -6.1,
@@ -107,6 +117,7 @@
       },
       {
         "symbol": "TSLA",
+        "yahoo": "TSLA",
         "name": "Tesla",
         "price": 405.05,
         "dropFromHigh": -1.5,
@@ -115,6 +126,7 @@
       },
       {
         "symbol": "AVGO",
+        "yahoo": "AVGO",
         "name": "Broadcom",
         "price": 392.13,
         "dropFromHigh": -4.7,
@@ -123,6 +135,7 @@
       },
       {
         "symbol": "AMD",
+        "yahoo": "AMD",
         "name": "AMD",
         "price": 551.63,
         "dropFromHigh": 0,
@@ -131,6 +144,7 @@
       },
       {
         "symbol": "V",
+        "yahoo": "V",
         "name": "Visa",
         "price": 326.6,
         "dropFromHigh": -2,
@@ -139,6 +153,7 @@
       },
       {
         "symbol": "JPM",
+        "yahoo": "JPM",
         "name": "JPMorgan",
         "price": 331.48,
         "dropFromHigh": -0.6,
@@ -147,6 +162,7 @@
       },
       {
         "symbol": "AZN",
+        "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "price": 13290,
         "dropFromHigh": -3.8,
@@ -155,6 +171,7 @@
       },
       {
         "symbol": "SHEL",
+        "yahoo": "SHEL.L",
         "name": "Shell",
         "price": 3008.5,
         "dropFromHigh": -8.2,
@@ -163,6 +180,7 @@
       },
       {
         "symbol": "HSBA",
+        "yahoo": "HSBA.L",
         "name": "HSBC",
         "price": 1451.4,
         "dropFromHigh": 0,
