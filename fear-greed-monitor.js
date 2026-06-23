@@ -58,16 +58,26 @@ async function fetchFearGreed() {
   };
 }
 
-async function fetchSeries(symbol) {
-  const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`);
-  if (!res.ok) throw new Error(`${symbol} fetch failed: ${res.status}`);
-  const csv = await res.text();
-  return csv.trim().split("\n").slice(1)
-    .map((r) => { const c = r.split(","); return { date: c[0], close: parseFloat(c[4]) }; })
-    .filter((x) => Number.isFinite(x.close));
+async function fetchSeries(symbol, tries = 3) {
+  for (let attempt = 1; attempt <= tries; attempt++) {
+    try {
+      const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`,
+        { headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/537.36" } });
+      if (res.ok) {
+        const rows = (await res.text()).trim().split("\n").slice(1)
+          .map((r) => { const c = r.split(","); return { date: c[0], close: parseFloat(c[4]) }; })
+          .filter((x) => Number.isFinite(x.close));
+        if (rows.length) return rows;
+      }
+    } catch { /* network blip, retry */ }
+    await new Promise((r) => setTimeout(r, 700 * attempt));
+  }
+  console.warn(`No data for ${symbol} after ${tries} tries.`);
+  return [];
 }
 
 function drawdownFrom(series) {
+  if (!series.length) return { last: 0, peak: 0, drawdownPct: 0 };
   const recent = series.slice(-CONFIG.peakLookbackDays);
   const last = recent[recent.length - 1].close;
   const peak = Math.max(...recent.map((x) => x.close));
