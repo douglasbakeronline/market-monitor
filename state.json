@@ -4,7 +4,7 @@
   "summarySent": {},
   "fearLog": {},
   "priceCache": {
-    "date": "2026-01-01",
+    "date": "2026-06-23",
     "dd": {
       "last": 744.39,
       "peak": 759.57,
@@ -55,6 +55,120 @@
           "pct": 0.67
         }
       ]
-    }
+    },
+    "watchlist": [
+      {
+        "symbol": "MSFT",
+        "name": "Microsoft",
+        "price": 367.34,
+        "dropFromHigh": -11.8,
+        "lastChange": -3.2,
+        "rebound": false
+      },
+      {
+        "symbol": "GOOGL",
+        "name": "Alphabet",
+        "price": 349.68,
+        "dropFromHigh": -6.3,
+        "lastChange": -5,
+        "rebound": false
+      },
+      {
+        "symbol": "AAPL",
+        "name": "Apple",
+        "price": 297.01,
+        "dropFromHigh": -3.4,
+        "lastChange": -0.3,
+        "rebound": false
+      },
+      {
+        "symbol": "AMZN",
+        "name": "Amazon",
+        "price": 232.79,
+        "dropFromHigh": -5.4,
+        "lastChange": -4.7,
+        "rebound": false
+      },
+      {
+        "symbol": "NVDA",
+        "name": "Nvidia",
+        "price": 208.65,
+        "dropFromHigh": -1.8,
+        "lastChange": -1,
+        "rebound": false
+      },
+      {
+        "symbol": "META",
+        "name": "Meta",
+        "price": 563.85,
+        "dropFromHigh": -6.1,
+        "lastChange": -2.3,
+        "rebound": false
+      },
+      {
+        "symbol": "TSLA",
+        "name": "Tesla",
+        "price": 405.05,
+        "dropFromHigh": -1.5,
+        "lastChange": 1.1,
+        "rebound": false
+      },
+      {
+        "symbol": "AVGO",
+        "name": "Broadcom",
+        "price": 392.13,
+        "dropFromHigh": -4.7,
+        "lastChange": -4.7,
+        "rebound": false
+      },
+      {
+        "symbol": "AMD",
+        "name": "AMD",
+        "price": 551.63,
+        "dropFromHigh": 0,
+        "lastChange": 2.7,
+        "rebound": false
+      },
+      {
+        "symbol": "V",
+        "name": "Visa",
+        "price": 326.6,
+        "dropFromHigh": -2,
+        "lastChange": -0.2,
+        "rebound": false
+      },
+      {
+        "symbol": "JPM",
+        "name": "JPMorgan",
+        "price": 331.48,
+        "dropFromHigh": -0.6,
+        "lastChange": 1.9,
+        "rebound": false
+      },
+      {
+        "symbol": "AZN",
+        "name": "AstraZeneca",
+        "price": 13290,
+        "dropFromHigh": -3.8,
+        "lastChange": 0.4,
+        "rebound": false
+      },
+      {
+        "symbol": "SHEL",
+        "name": "Shell",
+        "price": 3008.5,
+        "dropFromHigh": -8.2,
+        "lastChange": 0.5,
+        "rebound": true
+      },
+      {
+        "symbol": "HSBA",
+        "name": "HSBC",
+        "price": 1451.4,
+        "dropFromHigh": 0,
+        "lastChange": 1.4,
+        "rebound": false
+      }
+    ]
   }
 }
