@@ -69,7 +69,8 @@
   }
   @media (max-width:380px) { .fd-d { font-size:9px; } .fd-p { font-size:12px; } }
   .wl-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); }
-  .wl-name { font-weight:600; font-size:13px; flex:1; }
+  .wl-name { font-weight:600; font-size:13px; flex:1; color:var(--ink); text-decoration:none; }
+  .wl-name:hover { text-decoration:underline; }
   .wl-sym { color:var(--muted); font-weight:400; font-size:12px; margin-left:5px; }
   .wl-metric { font-size:12px; text-align:right; min-width:92px; }
   .wl-flag { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:#e7f6ee; color:var(--pos); min-width:70px; text-align:center; }
@@ -165,12 +166,12 @@ const SAMPLE = {
     {date:"2026-06-20",open:30,close:34,pct:13.3,basis:"oc"},
   ],
   watchlist:[
-    {symbol:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,rebound:true},
-    {symbol:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,rebound:true},
-    {symbol:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,rebound:false},
-    {symbol:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,rebound:false},
-    {symbol:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,rebound:false},
-    {symbol:"AZN",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,rebound:false},
+    {symbol:"NVDA",yahoo:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,rebound:true},
+    {symbol:"TSLA",yahoo:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,rebound:true},
+    {symbol:"AMD",yahoo:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,rebound:false},
+    {symbol:"META",yahoo:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,rebound:false},
+    {symbol:"MSFT",yahoo:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,rebound:false},
+    {symbol:"AZN",yahoo:"AZN.L",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,rebound:false},
   ],
   _sample:true,
 };
@@ -275,7 +276,8 @@ function renderWatchlist(list){
     const dcol=w.dropFromHigh<=-8?"var(--neg)":"var(--muted)";
     const lcol=w.lastChange>=0?"var(--pos)":"var(--neg)";
     const flag=w.rebound?`<span class="wl-flag">Rebound</span>`:`<span class="wl-flag off">watching</span>`;
-    return `<div class="wl-row"><span class="wl-name">${w.name}<span class="wl-sym">${w.symbol}</span></span>`+
+    const ysym=w.yahoo||w.symbol;
+    return `<div class="wl-row"><a class="wl-name" href="https://finance.yahoo.com/quote/${ysym}" target="_blank" rel="noopener">${w.name}<span class="wl-sym">${w.symbol} &#8599;</span></a>`+
       `<span class="wl-metric" style="color:${dcol}">${w.dropFromHigh}% off high</span>`+
       `<span class="wl-metric" style="color:${lcol}">${w.lastChange>=0?"+":""}${w.lastChange}% last</span>${flag}</div>`;
   }).join("");
