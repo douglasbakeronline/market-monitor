@@ -2,14 +2,13 @@
 //
 // Runs on a schedule in GitHub Actions. It:
 //   1. Pulls the live CNN Fear & Greed Index (score, comparisons, history).
-//   2. Pulls S&P 500 and FTSE 100 prices (drawdown + last 5 daily % changes).
-//   3. Records the Fear & Greed value at the US open and US close each day, so
-//      the dashboard can show per-day open/close over time (CNN only publishes
-//      one value per day, so this is built up live; it cannot be backfilled).
-//   4. Pulls top US/UK one-day gainers (FMP), with each stock's move since open.
-//   5. Writes data.json for the dashboard.
-//   6. Pushes phone alerts (ntfy): event-based buy/greed signals, plus a once-a-day
-//      summary roughly 15 minutes after the UK and US opens (DST-aware).
+//   2. Pulls S&P 500 (SPY) and FTSE 100 (ISF.LON) daily prices from Alpha
+//      Vantage for the drawdown and last-5-sessions, CACHED once per day to stay
+//      inside the free 25-requests/day limit.
+//   3. Records the Fear & Greed value at the US open and US close each day.
+//   4. Writes data.json for the dashboard.
+//   5. Pushes phone alerts (ntfy): buy/greed signals, plus a once-a-day summary
+//      about 15 minutes after the UK and US opens (DST-aware).
 
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -22,17 +21,9 @@ const CONFIG = {
   ],
   buyFearConfirm: 25, greedScore: 76, greedMaxDrawdown: -3,
   buyResetDrawdown: -5, greedResetScore: 65, peakLookbackDays: 2500, historyPoints: 400,
-  // Your research candidates, NOT recommendations. Edit freely.
-  // Yahoo Finance symbols: US = plain ticker (MSFT); UK = ticker.L (AZN.L).
-  watchlist: [
-    { symbol: "MSFT", name: "Microsoft" },
-    { symbol: "GOOGL", name: "Alphabet" },
-    { symbol: "V", name: "Visa" },
-    { symbol: "MA", name: "Mastercard" },
-    { symbol: "ASML", name: "ASML" },
-    { symbol: "AZN.L", name: "AstraZeneca" },
-  ],
 };
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function ratingFor(s) {
   if (s <= 24) return "extreme fear";
@@ -58,25 +49,29 @@ async function fetchFearGreed() {
   };
 }
 
-// Daily closes from Financial Modeling Prep (reliable from CI servers).
-// Uses FMP_KEY. Indices: ^GSPC (S&P 500), ^FTSE (FTSE 100).
-async function fetchSeries(symbol, tries = 3) {
-  const key = process.env.FMP_KEY;
-  if (!key) { console.warn("No FMP_KEY set; price data unavailable."); return []; }
-  const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${encodeURIComponent(symbol)}?serietype=line&apikey=${key}`;
+// Daily closes from Alpha Vantage. Free tier is 25 requests/day, so this is
+// called at most twice a day thanks to the cache in main().
+async function fetchSeries(symbol, tries = 2) {
+  const key = process.env.ALPHAVANTAGE_KEY;
+  if (!key) { console.warn("No ALPHAVANTAGE_KEY set; price data unavailable."); return []; }
+  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=full&apikey=${key}`;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
       const res = await fetch(url);
       if (res.ok) {
         const j = await res.json();
-        const hist = j?.historical || [];
-        // FMP returns newest-first; reverse to oldest-first.
-        const rows = hist.map((d) => ({ date: d.date, close: d.close }))
-          .filter((x) => Number.isFinite(x.close)).reverse();
-        if (rows.length) return rows;
+        const series = j["Time Series (Daily)"];
+        if (series) {
+          const rows = Object.entries(series)
+            .map(([date, v]) => ({ date, close: parseFloat(v["4. close"]) }))
+            .filter((x) => Number.isFinite(x.close))
+            .sort((a, b) => (a.date < b.date ? -1 : 1)); // oldest first
+          if (rows.length) return rows;
+        }
+        if (j.Note || j.Information) console.warn(`Alpha Vantage limit/info for ${symbol}: ${j.Note || j.Information}`);
       }
     } catch { /* network blip, retry */ }
-    await new Promise((res) => setTimeout(res, 700 * attempt));
+    await sleep(1500 * attempt);
   }
   console.warn(`No data for ${symbol} after ${tries} tries.`);
   return [];
@@ -94,49 +89,6 @@ function lastFiveChanges(series) {
   const tail = series.slice(-6), out = [];
   for (let i = 1; i < tail.length; i++)
     out.push({ date: tail[i].date, pct: Number((((tail[i].close - tail[i - 1].close) / tail[i - 1].close) * 100).toFixed(2)) });
-  return out;
-}
-
-async function fetchMovers() {
-  const key = process.env.FMP_KEY;
-  if (!key) return { us: [], uk: [], ukAvailable: false };
-  const pct = (x) => parseFloat(String(x).replace(/[()%+\s]/g, ""));
-  const fromOpen = (q) => (q.open ? Number((((q.price - q.open) / q.open) * 100).toFixed(2)) : null);
-  const mapRow = (q) => ({ symbol: q.symbol, name: q.name || q.symbol, price: q.price, openPct: fromOpen(q) });
-  const rank = (arr) => (Array.isArray(arr) ? arr : []).filter((q) => Number.isFinite(pct(q.changesPercentage)))
-    .sort((a, b) => pct(b.changesPercentage) - pct(a.changesPercentage)).slice(0, 10);
-  let us = [], uk = [], ukAvailable = true;
-  try {
-    const g = await fetch(`https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=${key}`);
-    if (g.ok) {
-      const top = rank(await g.json()), syms = top.map((r) => r.symbol).join(",");
-      let quotes = [];
-      try { const q = await fetch(`https://financialmodelingprep.com/api/v3/quote/${syms}?apikey=${key}`); if (q.ok) quotes = await q.json(); } catch {}
-      const openBy = Object.fromEntries((quotes || []).map((q) => [q.symbol, q.open]));
-      us = top.map((r) => mapRow({ ...r, open: openBy[r.symbol] }));
-    }
-  } catch {}
-  try { const r = await fetch(`https://financialmodelingprep.com/api/v3/quotes/LSE?apikey=${key}`); if (r.ok) uk = rank(await r.json()).map(mapRow); else ukAvailable = false; } catch { ukAvailable = false; }
-  return { us, uk, ukAvailable };
-}
-
-// Last 5 sessions for each watchlist ticker (daily % plus the 5-day total).
-async function fetchWatchlist() {
-  const out = [];
-  for (const w of CONFIG.watchlist) {
-    try {
-      const s = await fetchSeries(w.symbol);
-      if (s.length < 6) continue;
-      const last = s[s.length - 1].close, base = s[s.length - 6].close;
-      out.push({
-        symbol: w.symbol.split(".")[0].toUpperCase(),
-        name: w.name,
-        price: last,
-        total: Number((((last - base) / base) * 100).toFixed(2)),
-        fiveDay: lastFiveChanges(s),
-      });
-    } catch { /* skip a ticker that fails rather than break the run */ }
-  }
   return out;
 }
 
@@ -185,8 +137,6 @@ function openMarket() {
   if (isWeekday(us.weekday) && us.min >= 9 * 60 + 45 && us.min <= 11 * 60) return "US";
   return null;
 }
-
-// Which US-session edge are we near? Used to capture the index open/close.
 function usCaptureWindow() {
   const us = localParts("America/New_York");
   if (!isWeekday(us.weekday)) return null;
@@ -194,10 +144,6 @@ function usCaptureWindow() {
   if (us.min >= 15 * 60 + 45 && us.min <= 16 * 60 + 30) return "close";
   return null;
 }
-
-// Build the last 5 sessions of Fear & Greed. Close comes from the captured
-// close if we have it, otherwise CNN's daily value. Open comes only from our
-// own capture (CNN does not publish it), so older days show day-over-day %.
 function buildFearSessions(history, fearLog) {
   const pts = history.slice(-6), res = [], start = Math.max(1, pts.length - 5);
   for (let i = start; i < pts.length; i++) {
@@ -225,15 +171,26 @@ const writeDashboardData = (p) => writeFile("./data.json", JSON.stringify(p));
 // --- Main -------------------------------------------------------------------
 
 async function main() {
-  const [fg, spx, ukx, movers, state] = await Promise.all([fetchFearGreed(), fetchSeries("SPY"), fetchSeries("^FTSE"), fetchMovers(), loadState()]);
-  const watchlist = await fetchWatchlist();
-  const dd = drawdownFrom(spx);
-  const fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
-  const status = currentStatus(fg.score, dd.drawdownPct);
-
+  const [fg, state] = await Promise.all([fetchFearGreed(), loadState()]);
   const ns = { ...state, summarySent: { ...(state.summarySent || {}) }, fearLog: { ...(state.fearLog || {}) } };
 
-  // Capture the index open/close for the current US trading day.
+  // Prices: fetch from Alpha Vantage at most once per day, cache the rest.
+  const today = localDate("Europe/London");
+  let dd, fiveDay;
+  if (ns.priceCache && ns.priceCache.date === today && ns.priceCache.dd) {
+    dd = ns.priceCache.dd; fiveDay = ns.priceCache.fiveDay;
+    console.log(`Using cached prices for ${today}.`);
+  } else {
+    const spx = await fetchSeries("SPY");
+    const ukx = await fetchSeries("ISF.LON");
+    dd = drawdownFrom(spx);
+    fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
+    if (spx.length) ns.priceCache = { date: today, dd, fiveDay }; // cache only on success
+  }
+
+  const status = currentStatus(fg.score, dd.drawdownPct);
+
+  // Capture the Fear & Greed open/close for the current US trading day.
   const usDate = localDate("America/New_York"), cap = usCaptureWindow();
   if (cap === "open" && ns.fearLog[usDate]?.open == null) ns.fearLog[usDate] = { ...(ns.fearLog[usDate] || {}), open: fg.score };
   if (cap === "close") ns.fearLog[usDate] = { ...(ns.fearLog[usDate] || {}), close: fg.score };
@@ -246,7 +203,7 @@ async function main() {
     updated: new Date().toISOString(), score: fg.score, rating: ratingFor(fg.score),
     comparisons: fg.comparisons, history: fg.history,
     drawdownPct: Number(dd.drawdownPct.toFixed(1)), last: Math.round(dd.last), peak: Math.round(dd.peak),
-    status, fiveDay, fearSessions, movers, watchlist,
+    status, fiveDay, fearSessions,
   });
 
   const ev = evaluateAlerts(fg.score, dd, ns);
@@ -255,14 +212,14 @@ async function main() {
 
   const market = process.env.FORCE_SUMMARY ? "US" : openMarket();
   if (market) {
-    const tz = market === "UK" ? "Europe/London" : "America/New_York", today = localDate(tz);
-    if (ns.summarySent[market] !== today || process.env.FORCE_SUMMARY) {
+    const tz = market === "UK" ? "Europe/London" : "America/New_York", sumDay = localDate(tz);
+    if (ns.summarySent[market] !== sumDay || process.env.FORCE_SUMMARY) {
       const sp = fiveDay.sp.at(-1), ft = fiveDay.ftse.at(-1), sign = (p) => (p == null ? "n/a" : (p >= 0 ? "+" : "") + p + "%");
       await notify({
         title: `${market} open · Fear & Greed ${fg.score} (${ratingFor(fg.score)})`,
         body: `${status.label}. S&P ${dd.drawdownPct.toFixed(1)}% off peak.\nLast close: S&P 500 ${sign(sp?.pct)}, FTSE 100 ${sign(ft?.pct)}.`,
       });
-      ns.summarySent[market] = today;
+      ns.summarySent[market] = sumDay;
       console.log(`Sent ${market} daily summary.`);
     }
   }
