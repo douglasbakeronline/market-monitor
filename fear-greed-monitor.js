@@ -130,8 +130,11 @@ async function buildWatchlist() {
     const high = Math.max(...recent.map((x) => x.close));
     const dropFromHigh = ((last - high) / high) * 100;
     const lastChange = ((last - prev) / prev) * 100;
+    const base = w.symbol.split(".")[0];
+    const yahoo = w.symbol.endsWith(".LON") ? `${base}.L` : base; // Yahoo uses .L for LSE
     out.push({
-      symbol: w.symbol.split(".")[0],
+      symbol: base,
+      yahoo,
       name: w.name,
       price: Number(last.toFixed(2)),
       dropFromHigh: Number(dropFromHigh.toFixed(1)),
