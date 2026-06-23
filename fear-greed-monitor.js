@@ -20,7 +20,7 @@ const CONFIG = {
     { drawdown: -30, label: "Deep bear (-30%)", note: "Back up the truck (within your plan)." },
   ],
   buyFearConfirm: 25, greedScore: 76, greedMaxDrawdown: -3,
-  buyResetDrawdown: -5, greedResetScore: 65, peakLookbackDays: 2500, historyPoints: 400,
+  buyResetDrawdown: -5, greedResetScore: 65, peakLookbackDays: 100, historyPoints: 400,
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
