@@ -182,6 +182,7 @@ async function main() {
     console.log(`Using cached prices for ${today}.`);
   } else {
     const spx = await fetchSeries("SPY");
+    await sleep(1500);
     const ukx = await fetchSeries("ISF.LON");
     dd = drawdownFrom(spx);
     fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
