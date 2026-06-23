@@ -28,6 +28,7 @@ const CONFIG = {
   // so this reflects the previous close, not the live open. Edit freely.
   // Yahoo/AV symbols: US = plain ticker; UK = ticker.LON.
   rebound: { dropPct: 8, window: 10 },
+  dashboardUrl: "https://douglasbakeronline.github.io/market-monitor/",
   watchlist: [
     { symbol: "MSFT", name: "Microsoft" },
     { symbol: "GOOGL", name: "Alphabet" },
@@ -215,7 +216,16 @@ function buildFearSessions(history, fearLog) {
 async function notify({ title, body }) {
   const topic = process.env.NTFY_TOPIC;
   if (!topic) { console.log(`[no NTFY_TOPIC] ${title}\n${body}`); return; }
-  await fetch(`https://ntfy.sh/${topic}`, { method: "POST", headers: { Title: title, Priority: "default", Tags: "bar_chart" }, body });
+  await fetch(`https://ntfy.sh/${topic}`, {
+    method: "POST",
+    headers: {
+      Title: title,
+      Priority: "default",
+      Tags: "bar_chart",
+      Click: CONFIG.dashboardUrl, // tapping the notification opens the dashboard
+    },
+    body,
+  });
 }
 async function loadState() { try { return JSON.parse(await readFile("./state.json", "utf8")); } catch { return { lastBuyTier: 0, greedActive: false, summarySent: {}, fearLog: {} }; } }
 const saveState = (s) => writeFile("./state.json", JSON.stringify(s, null, 2));
