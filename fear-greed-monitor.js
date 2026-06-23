@@ -30,6 +30,7 @@ const CONFIG = {
   rebound: { dropPct: 8, window: 10 },
   dashboardUrl: "https://douglasbakeronline.github.io/market-monitor/",
   watchlist: [
+    { symbol: "SPCX", name: "SpaceX" },
     { symbol: "MSFT", name: "Microsoft" },
     { symbol: "GOOGL", name: "Alphabet" },
     { symbol: "AAPL", name: "Apple" },
