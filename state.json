@@ -1,7 +1,9 @@
 {
   "lastBuyTier": 0,
   "greedActive": false,
-  "summarySent": {},
+  "summarySent": {
+    "UK": "2026-06-24"
+  },
   "fearLog": {
     "2026-01-03": {
       "close": 28
