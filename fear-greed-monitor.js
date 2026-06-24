@@ -185,12 +185,15 @@ const localDate = (tz) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).for
 const isoET = (t) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date(t));
 const isWeekday = (wd) => !["Sat", "Sun"].includes(wd);
 
-function openMarket() {
+// Markets whose session is currently open-or-later for the day. A late GitHub
+// run still catches the session, and each market is deduped separately in main.
+function marketsInSession() {
+  const out = [];
   const uk = localParts("Europe/London");
-  if (isWeekday(uk.weekday) && uk.min >= 8 * 60 + 15 && uk.min <= 9 * 60 + 45) return "UK";
+  if (isWeekday(uk.weekday) && uk.min >= 8 * 60 && uk.min <= 16 * 60 + 30) out.push("UK");
   const us = localParts("America/New_York");
-  if (isWeekday(us.weekday) && us.min >= 9 * 60 + 45 && us.min <= 11 * 60) return "US";
-  return null;
+  if (isWeekday(us.weekday) && us.min >= 9 * 60 + 30 && us.min <= 16 * 60) out.push("US");
+  return out;
 }
 function usCaptureWindow() {
   const us = localParts("America/New_York");
@@ -276,22 +279,26 @@ async function main() {
   Object.assign(ns, ev.newState);
   for (const a of ev.alerts) { console.log(`ALERT ${a.title}`); await notify(a); }
 
-  const market = process.env.FORCE_SUMMARY ? "US" : openMarket();
-  if (market) {
-    const tz = market === "UK" ? "Europe/London" : "America/New_York", sumDay = localDate(tz);
-    if (ns.summarySent[market] !== sumDay || process.env.FORCE_SUMMARY) {
-      const sp = fiveDay.sp.at(-1), ft = fiveDay.ftse.at(-1), sign = (p) => (p == null ? "n/a" : (p >= 0 ? "+" : "") + p + "%");
-      const rebounds = (watchlist || []).filter((w) => w.rebound)
-        .sort((a, b) => a.dropFromHigh - b.dropFromHigh)
-        .map((w) => `${w.symbol} ${w.dropFromHigh}% off high, +${w.lastChange}% last`);
-      const reboundLine = rebounds.length ? `\nRebound watch: ${rebounds.join("; ")}` : "\nRebound watch: none today.";
-      await notify({
-        title: `${market} open · Fear & Greed ${fg.score} (${ratingFor(fg.score)})`,
-        body: `${status.label}. S&P ${dd.drawdownPct.toFixed(1)}% off peak.\nLast close: S&P 500 ${sign(sp?.pct)}, FTSE 100 ${sign(ft?.pct)}.${reboundLine}`,
-      });
-      ns.summarySent[market] = sumDay;
-      console.log(`Sent ${market} daily summary.`);
-    }
+  // Daily summary: evaluate each market independently. Each fires once per day
+  // on the first run at or after its open, so a late GitHub run still sends it.
+  const sign = (p) => (p == null ? "n/a" : (p >= 0 ? "+" : "") + p + "%");
+  const rebounds = (watchlist || []).filter((w) => w.rebound)
+    .sort((a, b) => a.dropFromHigh - b.dropFromHigh)
+    .map((w) => `${w.symbol} ${w.dropFromHigh}% off high, +${w.lastChange}% last`);
+  const reboundLine = rebounds.length ? `\nRebound watch: ${rebounds.join("; ")}` : "\nRebound watch: none today.";
+  const sp = fiveDay.sp.at(-1), ft = fiveDay.ftse.at(-1);
+
+  const due = process.env.FORCE_SUMMARY ? ["US"] : marketsInSession();
+  for (const market of due) {
+    const tz = market === "UK" ? "Europe/London" : "America/New_York";
+    const sumDay = localDate(tz);
+    if (ns.summarySent[market] === sumDay && !process.env.FORCE_SUMMARY) continue;
+    await notify({
+      title: `${market} open · Fear & Greed ${fg.score} (${ratingFor(fg.score)})`,
+      body: `${status.label}. S&P ${dd.drawdownPct.toFixed(1)}% off peak.\nLast close: S&P 500 ${sign(sp?.pct)}, FTSE 100 ${sign(ft?.pct)}.${reboundLine}`,
+    });
+    ns.summarySent[market] = sumDay;
+    console.log(`Sent ${market} daily summary.`);
   }
   await saveState(ns);
 }
