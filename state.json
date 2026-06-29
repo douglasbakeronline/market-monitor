@@ -3,7 +3,7 @@
   "greedActive": false,
   "summarySent": {
     "UK": "2026-06-26",
-    "US": "2026-06-26"
+    "US": "2026-06-29"
   },
   "fearLog": {
     "2026-01-03": {
@@ -11,7 +11,7 @@
     }
   },
   "priceCache": {
-    "date": "2026-06-27",
+    "date": "2026-06-29",
     "dd": {
       "last": 728.99,
       "peak": 759.57,
@@ -170,6 +170,24 @@
         "price": 329.05,
         "dropFromHigh": -1.8,
         "lastChange": -1.8,
+        "rebound": false
+      },
+      {
+        "symbol": "AZN",
+        "yahoo": "AZN.L",
+        "name": "AstraZeneca",
+        "price": 14318,
+        "dropFromHigh": 0,
+        "lastChange": 1.8,
+        "rebound": false
+      },
+      {
+        "symbol": "SHEL",
+        "yahoo": "SHEL.L",
+        "name": "Shell",
+        "price": 2898,
+        "dropFromHigh": -10,
+        "lastChange": -0.9,
         "rebound": false
       },
       {
