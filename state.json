@@ -2,12 +2,15 @@
   "lastBuyTier": 0,
   "greedActive": false,
   "summarySent": {
-    "UK": "2026-06-26",
-    "US": "2026-06-29"
+    "UK": "2026-06-30",
+    "US": "2026-06-30"
   },
   "fearLog": {
     "2026-01-03": {
       "close": 28
+    },
+    "2026-06-30": {
+      "open": 27
     }
   },
   "priceCache": {
