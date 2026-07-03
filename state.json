@@ -14,7 +14,7 @@
     }
   },
   "priceCache": {
-    "date": "2026-07-03",
+    "date": "2026-07-04",
     "dd": {
       "last": 744.78,
       "peak": 759.57,
@@ -45,10 +45,6 @@
       ],
       "ftse": [
         {
-          "date": "2026-06-26",
-          "pct": -0.27
-        },
-        {
           "date": "2026-06-29",
           "pct": -0.22
         },
@@ -63,6 +59,10 @@
         {
           "date": "2026-07-02",
           "pct": 1.79
+        },
+        {
+          "date": "2026-07-03",
+          "pct": 0.17
         }
       ]
     },
@@ -179,27 +179,27 @@
         "symbol": "AZN",
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
-        "price": 14538,
-        "dropFromHigh": 0,
-        "lastChange": 4.9,
+        "price": 14456,
+        "dropFromHigh": -0.6,
+        "lastChange": -0.6,
         "rebound": false
       },
       {
         "symbol": "SHEL",
         "yahoo": "SHEL.L",
         "name": "Shell",
-        "price": 2899,
-        "dropFromHigh": -3.6,
-        "lastChange": 0.9,
+        "price": 2891.5,
+        "dropFromHigh": -3.9,
+        "lastChange": -0.3,
         "rebound": false
       },
       {
         "symbol": "HSBA",
         "yahoo": "HSBA.L",
         "name": "HSBC",
-        "price": 1445.2,
-        "dropFromHigh": -0.4,
-        "lastChange": 0.3,
+        "price": 1451,
+        "dropFromHigh": 0,
+        "lastChange": 0.4,
         "rebound": false
       }
     ]
