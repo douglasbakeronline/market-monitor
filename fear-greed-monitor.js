@@ -117,34 +117,92 @@ function lastFiveChanges(series) {
   return out;
 }
 
-// Rebound watch: for each name, has it fallen >= dropPct from its recent high
-// over the last `window` sessions AND posted an up day at the last close?
-// Paced at ~1 request / 2s to stay inside the free Alpha Vantage rate guidance.
+const pct = (a, b) => (b ? ((a - b) / b) * 100 : 0);
+const r1 = (n) => Number(n.toFixed(1));
+
+// Rebound watch + per-stock detail for the accordion (today/yesterday/week/
+// month and a 30-session rebased series). All derived from one fetch per name.
 async function buildWatchlist() {
   const out = [];
   for (const w of CONFIG.watchlist) {
     await sleep(2000);
     const s = await fetchSeries(w.symbol);
     if (s.length < 2) continue;
-    const recent = s.slice(-(CONFIG.rebound.window + 1));
-    const last = recent[recent.length - 1].close;
-    const prev = recent[recent.length - 2].close;
-    const high = Math.max(...recent.map((x) => x.close));
-    const dropFromHigh = ((last - high) / high) * 100;
-    const lastChange = ((last - prev) / prev) * 100;
+    const c = s.map((x) => x.close);
+    const last = c[c.length - 1];
+    const recent = c.slice(-(CONFIG.rebound.window + 1));
+    const high = Math.max(...recent);
+    const dropFromHigh = pct(last, high);
+    const lastChange = pct(last, c[c.length - 2]);
     const base = w.symbol.split(".")[0];
-    const yahoo = w.symbol.endsWith(".LON") ? `${base}.L` : base; // Yahoo uses .L for LSE
+    const yahoo = w.symbol.endsWith(".LON") ? `${base}.L` : base;
+    const win = c.slice(-30), b0 = win[0];
     out.push({
       symbol: base,
       yahoo,
       name: w.name,
       price: Number(last.toFixed(2)),
-      dropFromHigh: Number(dropFromHigh.toFixed(1)),
-      lastChange: Number(lastChange.toFixed(1)),
+      dropFromHigh: r1(dropFromHigh),
+      lastChange: r1(lastChange),
+      today: r1(lastChange),
+      yesterday: c.length >= 3 ? r1(pct(c[c.length - 2], c[c.length - 3])) : null,
+      week: c.length >= 6 ? r1(pct(last, c[c.length - 6])) : null,
+      month: c.length >= 22 ? r1(pct(last, c[c.length - 22])) : null,
+      series: win.map((v) => Number((((v - b0) / b0) * 100).toFixed(2))),
       rebound: dropFromHigh <= -CONFIG.rebound.dropPct && lastChange > 0,
     });
   }
   return out;
+}
+
+// --- World markets (Option C: score + tiles + trend) ------------------------
+// US and UK reuse the series already fetched for the drawdown; only Europe,
+// Japan and China cost a new call each. Index proxies are liquid US-listed ETFs
+// because Alpha Vantage's free tier is unreliable on raw foreign indices.
+function marketSummary(name, symbol, s) {
+  if (!s || s.length < 22) return null;
+  const c = s.map((x) => x.close), last = c[c.length - 1];
+  const win = c.slice(-30), b0 = win[0];
+  return {
+    name, symbol,
+    dayPct: r1(pct(last, c[c.length - 2])),
+    weekPct: r1(pct(last, c[c.length - 6])),
+    series: win.map((v) => Number((((v - b0) / b0) * 100).toFixed(2))),
+  };
+}
+function worldScore(markets) {
+  let s = 0;
+  for (const m of markets) {
+    s += Math.max(-1, Math.min(1, m.dayPct / 1.5));  // day: ±1.5% saturates
+    s += Math.max(-1, Math.min(1, m.weekPct / 4));   // week: ±4% saturates
+  }
+  return Math.round(Math.max(-10, Math.min(10, s)));
+}
+function worldLabel(s) {
+  if (s >= 6) return "Risk-on, broad rally";
+  if (s >= 2) return "Mostly up";
+  if (s >= -1) return "Mixed / flat";
+  if (s >= -5) return "Mostly down";
+  return "Risk-off, broad sell-off";
+}
+async function fetchWorld(spx, ukx) {
+  const defs = [
+    { name: "US · S&P 500", symbol: "SPY", series: spx },
+    { name: "UK · FTSE 100", symbol: "ISF", series: ukx },
+    { name: "Europe · Euro Stoxx 50", symbol: "FEZ" },
+    { name: "Japan · Nikkei", symbol: "EWJ" },
+    { name: "China/HK · Hang Seng", symbol: "FXI" },
+  ];
+  const markets = [];
+  for (const d of defs) {
+    let series = d.series;
+    if (!series) { await sleep(2000); series = await fetchSeries(d.symbol); }
+    const m = marketSummary(d.name, d.symbol, series);
+    if (m) markets.push(m);
+  }
+  if (!markets.length) return null;
+  const score = worldScore(markets);
+  return { score, label: worldLabel(score), markets };
 }
 
 // --- Signals ----------------------------------------------------------------
@@ -243,9 +301,9 @@ async function main() {
 
   // Prices + rebound watch: fetch from Alpha Vantage once per day, cache the rest.
   const today = localDate("Europe/London");
-  let dd, fiveDay, watchlist;
+  let dd, fiveDay, watchlist, world;
   if (ns.priceCache && ns.priceCache.date === today && ns.priceCache.dd) {
-    dd = ns.priceCache.dd; fiveDay = ns.priceCache.fiveDay; watchlist = ns.priceCache.watchlist || [];
+    dd = ns.priceCache.dd; fiveDay = ns.priceCache.fiveDay; watchlist = ns.priceCache.watchlist || []; world = ns.priceCache.world || null;
     console.log(`Using cached prices for ${today}.`);
   } else {
     const spx = await fetchSeries("SPY");
@@ -253,8 +311,9 @@ async function main() {
     const ukx = await fetchSeries("ISF.LON");
     dd = drawdownFrom(spx);
     fiveDay = { sp: lastFiveChanges(spx), ftse: lastFiveChanges(ukx) };
+    world = await fetchWorld(spx, ukx);
     watchlist = await buildWatchlist();
-    if (spx.length) ns.priceCache = { date: today, dd, fiveDay, watchlist }; // cache only on success
+    if (spx.length) ns.priceCache = { date: today, dd, fiveDay, watchlist, world }; // cache only on success
   }
 
   const status = currentStatus(fg.score, dd.drawdownPct);
@@ -272,7 +331,7 @@ async function main() {
     updated: new Date().toISOString(), score: fg.score, rating: ratingFor(fg.score),
     comparisons: fg.comparisons, history: fg.history,
     drawdownPct: Number(dd.drawdownPct.toFixed(1)), last: Math.round(dd.last), peak: Math.round(dd.peak),
-    status, fiveDay, fearSessions, watchlist,
+    status, fiveDay, fearSessions, watchlist, world,
   });
 
   const ev = evaluateAlerts(fg.score, dd, ns);
