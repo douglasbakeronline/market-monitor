@@ -76,9 +76,8 @@ async function fetchFearGreed() {
 
 // Daily closes from Alpha Vantage. Free tier is 25 requests/day, so this is
 // called at most twice a day thanks to the cache in main().
-async function fetchSeries(symbol, tries = 2) {
-  const key = process.env.ALPHAVANTAGE_KEY;
-  if (!key) { console.warn("No ALPHAVANTAGE_KEY set; price data unavailable."); return []; }
+async function fetchSeries(symbol, tries = 2, key = process.env.ALPHAVANTAGE_KEY) {
+  if (!key) { console.warn(`No API key for ${symbol}; skipped.`); return []; }
   const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=compact&apikey=${key}`;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
@@ -186,6 +185,7 @@ function worldLabel(s) {
   return "Risk-off, broad sell-off";
 }
 async function fetchWorld(spx, ukx) {
+  const key2 = process.env.ALPHAVANTAGE_KEY_2 || process.env.ALPHAVANTAGE_KEY;
   const defs = [
     { name: "US · S&P 500", symbol: "SPY", series: spx },
     { name: "UK · FTSE 100", symbol: "ISF", series: ukx },
@@ -196,7 +196,7 @@ async function fetchWorld(spx, ukx) {
   const markets = [];
   for (const d of defs) {
     let series = d.series;
-    if (!series) { await sleep(2000); series = await fetchSeries(d.symbol); }
+    if (!series) { await sleep(2000); series = await fetchSeries(d.symbol, 2, key2); }
     const m = marketSummary(d.name, d.symbol, series);
     if (m) markets.push(m);
   }
