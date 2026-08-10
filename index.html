@@ -135,10 +135,10 @@
     </div>
     <div class="tiles" id="worldTiles"></div>
     <div class="world-chart-wrap">
-      <svg id="worldChart" viewBox="0 0 600 200" aria-label="World markets 30-session trend"></svg>
+      <svg id="worldChart" viewBox="0 0 600 224" aria-label="World markets 30-session trend"></svg>
       <div class="legend" id="worldLegend"></div>
     </div>
-    <div class="cap">Each market's move today and over the week, plus a 30-session trend with every line rebased to 0% at the start so they compare like-for-like. The score sums how many markets are up, and by how much, over the day and the week. Index proxies are liquid ETFs. Refreshes daily.</div>
+    <div class="cap"><b>What you're looking at:</b> the chart covers the last 30 trading sessions (about 6 weeks), each line rebased to 0% at the start so the five markets compare like-for-like, the axis shows how far each is up or down over that window. The tiles show each market today and over the past week. The score sums how many markets are up, and by how much, over the day and week. Index proxies are liquid ETFs. Refreshes daily.</div>
   </section>
 
   <div class="gauge-wrap">
@@ -264,11 +264,14 @@ function renderChart(history){
     `<text x="${padX+6}" y="${sy(100)+13}" fill="#c0392b" font-size="10" font-weight="700">SELL ZONE</text>`;
   for(const v of [25,50,75]) g+=`<line x1="${padX}" y1="${sy(v)}" x2="${W-padX}" y2="${sy(v)}" stroke="#eee"/><text x="${W-padX}" y="${sy(v)-3}" text-anchor="end" fill="#bdb8b0" font-size="10">${v}</text>`;
   const seen=new Set();
-  for(const d of history){ const dt=new Date(d.t), m=dt.getMonth();
-    if([0,3,6,9].includes(m)){ const key=dt.getFullYear()+"-"+m; if(!seen.has(key)){ seen.add(key);
-      const x=sx(d.t), lbl=MONTHS[m]+(m===0?" '"+String(dt.getFullYear()).slice(2):"");
-      g+=`<line x1="${x}" y1="${padY}" x2="${x}" y2="${H-padY}" stroke="#ddd6cc" stroke-dasharray="2 3"/><text x="${x+3}" y="${H+13}" fill="#9aa0a6" font-size="10">${lbl}</text>`;
-    }}}
+  for(const d of history){ const dt=new Date(d.t), m=dt.getMonth(), key=dt.getFullYear()+"-"+m;
+    if(!seen.has(key)){ seen.add(key);
+      const x=sx(d.t), isQ=[0,3,6,9].includes(m);
+      const lbl=MONTHS[m]+(m===0?" '"+String(dt.getFullYear()).slice(2):"");
+      g+=`<line x1="${x.toFixed(1)}" y1="${padY}" x2="${x.toFixed(1)}" y2="${H-padY}" stroke="${isQ?'#d3ccbe':'#ebe5da'}" stroke-dasharray="2 3"/>`+
+         `<text x="${(x+2).toFixed(1)}" y="${H+13}" fill="#9aa0a6" font-size="9">${lbl}</text>`;
+    }
+  }
   const pts=history.map(d=>`${sx(d.t).toFixed(1)},${sy(d.y).toFixed(1)}`).join(" ");
   document.getElementById("chart").innerHTML=g+`<polyline points="${pts}" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>`;
 }
@@ -362,19 +365,35 @@ function renderWorld(world){
       `<div class="t-week">wk <span style="color:${wcol}">${m.weekPct>=0?"+":""}${m.weekPct}%</span></div></div>`;
   }).join("");
 
-  // five-line chart, shared scale
+  // five-line chart, shared scale, with axis labels so the timeframe is clear
   const W=600,H=200,pad=10;
   const all=world.markets.flatMap(m=>m.series);
   const min=Math.min(0,...all), max=Math.max(0,...all), range=(max-min)||1;
   const len=Math.max(...world.markets.map(m=>m.series.length));
   const x=i=> pad + (i/(len-1))*(W-2*pad);
   const y=v=> pad + (1-(v-min)/range)*(H-2*pad);
-  let svg=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${W-pad}" y2="${y(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
-  svg+=`<text x="${W-pad}" y="${y(0)-4}" text-anchor="end" fill="var(--muted)" font-size="10">0%</text>`;
+  const fmt=v=> (v>=0?"+":"")+v.toFixed(1)+"%";
+  // weekly vertical gridlines (~5 trading sessions each), drawn under the lines
+  const wk=(n)=>{ const d=new Date(); d.setDate(d.getDate()-n*7); return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); };
+  let grid="";
+  for(let w=0; w<=6; w++){
+    const idx=(len-1)-w*5; if(idx<0) break;
+    const gx=x(idx);
+    grid+=`<line x1="${gx.toFixed(1)}" y1="${pad}" x2="${gx.toFixed(1)}" y2="${H-pad}" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4"/>`;
+    const anchor=w===0?"end":(idx===0?"start":"middle");
+    grid+=`<text x="${gx.toFixed(1)}" y="218" text-anchor="${anchor}" fill="var(--muted)" font-size="10">${w===0?"today":wk(w)}</text>`;
+  }
+  let svg=grid;
+  svg+=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${W-pad}" y2="${y(0).toFixed(1)}" stroke="var(--muted)" stroke-width="1" opacity="0.5"/>`;
+  // y-axis: top (max), zero, bottom (min)
+  svg+=`<text x="${pad}" y="${(y(max)+9).toFixed(1)}" fill="var(--muted)" font-size="10">${fmt(max)}</text>`;
+  svg+=`<text x="${W-pad}" y="${(y(0)-4).toFixed(1)}" text-anchor="end" fill="var(--muted)" font-size="10">0%</text>`;
+  svg+=`<text x="${pad}" y="${(y(min)-4).toFixed(1)}" fill="var(--muted)" font-size="10">${fmt(min)}</text>`;
   world.markets.forEach((m,idx)=>{
     const pts=m.series.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
     svg+=`<polyline points="${pts}" fill="none" stroke="${WORLD_COLOURS[idx%5]}" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>`;
   });
+  svg+=`<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="var(--line)" stroke-width="1"/>`;
   document.getElementById("worldChart").innerHTML=svg;
   document.getElementById("worldLegend").innerHTML=world.markets.map((m,idx)=>
     `<span><i style="background:${WORLD_COLOURS[idx%5]}"></i>${m.name}</span>`).join("");
