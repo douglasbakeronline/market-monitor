@@ -82,6 +82,36 @@
   .wl-flag { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:#e7f6ee; color:var(--pos); min-width:70px; text-align:center; }
   .wl-flag.off { background:#f2efe9; color:var(--muted); }
   @media (max-width:520px){ .wl-row{flex-wrap:wrap;} .wl-name{flex-basis:100%;} .wl-metric{min-width:0;flex:1;text-align:left;} .wl-flag{min-width:0;} }
+
+  /* World overview */
+  .world-head { display:flex; align-items:center; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .world-score { font-size:40px; font-weight:700; line-height:1; letter-spacing:-0.03em; min-width:70px; text-align:center; }
+  .world-meta .wl-lbl { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+  .world-meta .wl-verdict { font-weight:600; font-size:15px; margin-top:2px; }
+  .world-scale { color:var(--muted); font-size:12px; margin-top:3px; }
+  .tiles { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center; }
+  .tile .t-name { font-size:10px; color:var(--muted); line-height:1.25; min-height:26px; }
+  .tile .t-day { font-weight:700; font-size:14px; margin-top:5px; }
+  .tile .t-week { font-size:11px; color:var(--muted); margin-top:2px; }
+  .world-chart-wrap { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 12px 8px; margin-top:10px; }
+  #worldChart { width:100%; height:auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; padding:0 4px; }
+  .legend span { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; }
+  .legend i { width:10px; height:3px; border-radius:2px; display:inline-block; }
+  @media (max-width:520px){ .tiles{grid-template-columns:repeat(2,1fr);} .world-head{flex-wrap:wrap;} }
+
+  /* Accordion */
+  .wl-row { cursor:pointer; }
+  .wl-caret { color:var(--muted); font-size:11px; margin-left:6px; transition:transform 0.15s; display:inline-block; }
+  .wl-open .wl-caret { transform:rotate(90deg); }
+  .wl-detail { display:none; padding:12px 2px 4px; border-bottom:1px solid var(--line); margin-bottom:10px; }
+  .wl-detail.show { display:block; }
+  .wl-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+  .wl-stat { text-align:center; }
+  .wl-stat .k { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .wl-stat .v { font-weight:700; font-size:14px; margin-top:3px; }
+  @media (prefers-reduced-motion: reduce){ .wl-caret{ transition:none; } }
 </style>
 </head>
 <body>
@@ -92,6 +122,24 @@
     <div class="updated" id="updated"></div>
   </header>
   <div id="sampleBanner" class="samplebar" style="display:none">Showing <b>sample placeholder data</b>, not live values. Deploy the repo to see real numbers.</div>
+
+  <section id="worldSection" class="block" style="display:none">
+    <div class="sectionhead">World markets, holistic view</div>
+    <div class="world-head">
+      <div class="world-score" id="worldScore">0</div>
+      <div class="world-meta">
+        <div class="wl-lbl">Global risk score</div>
+        <div class="wl-verdict" id="worldVerdict">&mdash;</div>
+        <div class="world-scale">&minus;10 sell-off everywhere &nbsp;·&nbsp; +10 rally everywhere</div>
+      </div>
+    </div>
+    <div class="tiles" id="worldTiles"></div>
+    <div class="world-chart-wrap">
+      <svg id="worldChart" viewBox="0 0 600 200" aria-label="World markets 30-session trend"></svg>
+      <div class="legend" id="worldLegend"></div>
+    </div>
+    <div class="cap">Each market's move today and over the week, plus a 30-session trend with every line rebased to 0% at the start so they compare like-for-like. The score sums how many markets are up, and by how much, over the day and the week. Index proxies are liquid ETFs. Refreshes daily.</div>
+  </section>
 
   <div class="gauge-wrap">
     <svg id="gauge" viewBox="0 0 300 180" aria-label="Fear and Greed gauge"></svg>
@@ -172,13 +220,23 @@ const SAMPLE = {
     {date:"2026-06-20",open:30,close:34,pct:13.3,basis:"oc"},
   ],
   watchlist:[
-    {symbol:"NVDA",yahoo:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,rebound:true},
-    {symbol:"TSLA",yahoo:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,rebound:true},
-    {symbol:"AMD",yahoo:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,rebound:false},
-    {symbol:"META",yahoo:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,rebound:false},
-    {symbol:"MSFT",yahoo:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,rebound:false},
-    {symbol:"AZN",yahoo:"AZN.L",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,rebound:false},
+    {symbol:"NVDA",yahoo:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,today:2.1,yesterday:-1.2,week:-4.8,month:-11.4,series:[0,-2,-4,-3,-6,-8,-7,-9,-11,-10,-11,-9,-8,-10,-9,-11,-12,-10,-9,-8,-10,-9,-7,-8,-9,-11,-10,-9,-11,-9],rebound:true},
+    {symbol:"TSLA",yahoo:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,today:1.3,yesterday:0.4,week:-3.1,month:-9.2,series:[0,-1,-3,-2,-4,-6,-5,-7,-8,-7,-9,-8,-7,-8,-9,-8,-9,-8,-7,-6,-8,-7,-9,-8,-7,-9,-8,-7,-9,-8],rebound:true},
+    {symbol:"AMD",yahoo:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,today:-0.6,yesterday:-2.1,week:-6.4,month:-14.8,series:[0,-3,-5,-4,-7,-9,-8,-11,-13,-12,-14,-13,-12,-13,-14,-13,-15,-14,-13,-12,-14,-13,-15,-14,-13,-15,-14,-13,-15,-15],rebound:false},
+    {symbol:"META",yahoo:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,today:0.8,yesterday:-0.3,week:-2.2,month:-6.1,series:[0,-1,-2,-1,-3,-4,-3,-5,-6,-5,-6,-5,-4,-5,-6,-5,-6,-5,-4,-3,-5,-4,-6,-5,-4,-6,-5,-4,-6,-6],rebound:false},
+    {symbol:"MSFT",yahoo:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,today:-0.4,yesterday:0.6,week:-1.1,month:-3.4,series:[0,-0.5,-1,-0.8,-1.5,-2,-1.6,-2.5,-3,-2.6,-3.4,-3,-2.5,-3,-3.4,-3,-3.4,-3,-2.5,-2,-3,-2.6,-3.4,-3,-2.5,-3.4,-3,-2.5,-3.4,-3.4],rebound:false},
+    {symbol:"AZN",yahoo:"AZN.L",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,today:0.5,yesterday:0.1,week:0.9,month:1.2,series:[0,0.2,0.5,0.3,0.6,0.9,0.7,1,1.2,1,1.2,1.1,1,0.9,1.1,1,1.2,1.1,1,0.9,1.1,1,1.2,1.1,1,1.2,1.1,1,1.2,1.2],rebound:false},
   ],
+  world:{
+    score:-4, label:"Mostly down",
+    markets:[
+      {name:"US · S&P 500",symbol:"SPY",dayPct:-1.1,weekPct:-3.2,series:[0,-0.4,-1.1,-0.8,-1.9,-2.6,-2.1,-3.0,-3.4,-2.9,-3.2,-2.8,-2.4,-2.9,-3.2,-2.8,-3.2,-2.9,-2.5,-2.1,-2.8,-2.5,-3.1,-2.8,-2.4,-3.2,-2.9,-2.6,-3.4,-3.2]},
+      {name:"UK · FTSE 100",symbol:"ISF",dayPct:-0.5,weekPct:-0.8,series:[0,-0.2,-0.5,-0.3,-0.7,-0.9,-0.6,-0.9,-1.1,-0.9,-0.8,-0.7,-0.5,-0.7,-0.8,-0.6,-0.8,-0.7,-0.5,-0.3,-0.6,-0.5,-0.8,-0.6,-0.4,-0.8,-0.6,-0.5,-0.9,-0.8]},
+      {name:"Europe · Euro Stoxx 50",symbol:"FEZ",dayPct:-0.9,weekPct:-2.1,series:[0,-0.3,-0.9,-0.6,-1.4,-1.9,-1.5,-2.1,-2.4,-2.0,-2.1,-1.8,-1.5,-1.9,-2.1,-1.8,-2.1,-1.9,-1.6,-1.3,-1.8,-1.6,-2.0,-1.8,-1.5,-2.1,-1.9,-1.6,-2.2,-2.1]},
+      {name:"Japan · Nikkei",symbol:"EWJ",dayPct:0.3,weekPct:0.6,series:[0,0.1,0.3,0.2,0.4,0.6,0.5,0.7,0.6,0.5,0.6,0.7,0.6,0.5,0.7,0.6,0.5,0.4,0.6,0.7,0.5,0.6,0.4,0.5,0.7,0.6,0.5,0.7,0.6,0.6]},
+      {name:"China/HK · Hang Seng",symbol:"FXI",dayPct:-1.4,weekPct:-4.0,series:[0,-0.6,-1.4,-1.0,-2.4,-3.2,-2.6,-3.6,-4.2,-3.6,-4.0,-3.5,-3.0,-3.6,-4.0,-3.5,-4.0,-3.6,-3.1,-2.6,-3.5,-3.1,-3.9,-3.5,-3.0,-4.0,-3.6,-3.2,-4.2,-4.0]},
+    ],
+  },
   _sample:true,
 };
 
@@ -273,24 +331,92 @@ function renderStatic(d){
   renderWatchlist(d.watchlist);
 }
 
+// Small line chart used by both the world overview and the accordion.
+// values are percentages already rebased to 0 at the start.
+function sparkline(values, w, h, colour){
+  if(!values||values.length<2) return "";
+  const pad=6, min=Math.min(0,...values), max=Math.max(0,...values), range=(max-min)||1;
+  const x=i=> pad + (i/(values.length-1))*(w-2*pad);
+  const y=v=> pad + (1-(v-min)/range)*(h-2*pad);
+  const pts=values.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const zero=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${w-pad}" y2="${y(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+  return zero+`<polyline points="${pts}" fill="none" stroke="${colour}" stroke-width="2" stroke-linejoin="round"/>`;
+}
+
+const WORLD_COLOURS=["#c0392b","#e3812f","#2f6f9e","#18915f","#8a6fc0"];
+
+function renderWorld(world){
+  const sec=document.getElementById("worldSection");
+  if(!world||!world.markets||!world.markets.length){ sec.style.display="none"; return; }
+  sec.style.display="block";
+  const scoreEl=document.getElementById("worldScore");
+  scoreEl.textContent=(world.score>0?"+":"")+world.score;
+  scoreEl.style.color=world.score>=2?"var(--pos)":world.score<=-2?"var(--neg)":"var(--muted)";
+  document.getElementById("worldVerdict").textContent=world.label;
+
+  document.getElementById("worldTiles").innerHTML=world.markets.map(m=>{
+    const dcol=m.dayPct>=0?"var(--pos)":"var(--neg)";
+    const wcol=m.weekPct>=0?"var(--pos)":"var(--neg)";
+    return `<div class="tile"><div class="t-name">${m.name}</div>`+
+      `<div class="t-day" style="color:${dcol}">${m.dayPct>=0?"+":""}${m.dayPct}%</div>`+
+      `<div class="t-week">wk <span style="color:${wcol}">${m.weekPct>=0?"+":""}${m.weekPct}%</span></div></div>`;
+  }).join("");
+
+  // five-line chart, shared scale
+  const W=600,H=200,pad=10;
+  const all=world.markets.flatMap(m=>m.series);
+  const min=Math.min(0,...all), max=Math.max(0,...all), range=(max-min)||1;
+  const len=Math.max(...world.markets.map(m=>m.series.length));
+  const x=i=> pad + (i/(len-1))*(W-2*pad);
+  const y=v=> pad + (1-(v-min)/range)*(H-2*pad);
+  let svg=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${W-pad}" y2="${y(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+  svg+=`<text x="${W-pad}" y="${y(0)-4}" text-anchor="end" fill="var(--muted)" font-size="10">0%</text>`;
+  world.markets.forEach((m,idx)=>{
+    const pts=m.series.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    svg+=`<polyline points="${pts}" fill="none" stroke="${WORLD_COLOURS[idx%5]}" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>`;
+  });
+  document.getElementById("worldChart").innerHTML=svg;
+  document.getElementById("worldLegend").innerHTML=world.markets.map((m,idx)=>
+    `<span><i style="background:${WORLD_COLOURS[idx%5]}"></i>${m.name}</span>`).join("");
+}
+
 function renderWatchlist(list){
   const sec=document.getElementById("watchlistSection");
   if(!list||!list.length){ sec.style.display="none"; return; }
   sec.style.display="block";
   const sorted=list.slice().sort((a,b)=> (b.rebound-a.rebound) || (a.dropFromHigh-b.dropFromHigh));
-  document.getElementById("watchlist").innerHTML=sorted.map(w=>{
+  document.getElementById("watchlist").innerHTML=sorted.map((w,i)=>{
     const dcol=w.dropFromHigh<=-8?"var(--neg)":"var(--muted)";
     const lcol=w.lastChange>=0?"var(--pos)":"var(--neg)";
     const flag=w.rebound?`<span class="wl-flag">Rebound</span>`:`<span class="wl-flag off">watching</span>`;
     const ysym=w.yahoo||w.symbol;
-    return `<div class="wl-row"><a class="wl-name" href="https://finance.yahoo.com/quote/${ysym}" target="_blank" rel="noopener">${w.name}<span class="wl-sym">${w.symbol} &#8599;</span></a>`+
+    const stat=(k,v)=>{ const c=v==null?"var(--muted)":v>=0?"var(--pos)":"var(--neg)"; const t=v==null?"n/a":(v>=0?"+":"")+v+"%"; return `<div class="wl-stat"><div class="k">${k}</div><div class="v" style="color:${c}">${t}</div></div>`; };
+    const detail=`<div class="wl-detail" id="wd${i}">`+
+      `<div class="wl-stats">${stat("Today",w.today)}${stat("Yesterday",w.yesterday)}${stat("Week",w.week)}${stat("Month",w.month)}</div>`+
+      `<svg viewBox="0 0 320 70" style="width:100%;height:auto" aria-label="${w.name} 30-session trend">${sparkline(w.series,320,70,w.lastChange>=0?"var(--pos)":"var(--neg)")}</svg>`+
+      `<div class="cap" style="margin-top:6px">30 sessions, rebased to 0% at the start. <a href="https://finance.yahoo.com/quote/${ysym}" target="_blank" rel="noopener">Open ${w.symbol} on Yahoo &#8599;</a></div></div>`;
+    return `<div class="wl-row" data-detail="wd${i}" role="button" tabindex="0" aria-expanded="false">`+
+      `<span class="wl-name">${w.name}<span class="wl-sym">${w.symbol}</span><span class="wl-caret">&#9654;</span></span>`+
       `<span class="wl-metric" style="color:${dcol}">${w.dropFromHigh}% off high</span>`+
-      `<span class="wl-metric" style="color:${lcol}">${w.lastChange>=0?"+":""}${w.lastChange}% last</span>${flag}</div>`;
+      `<span class="wl-metric" style="color:${lcol}">${w.lastChange>=0?"+":""}${w.lastChange}% last</span>${flag}</div>${detail}`;
   }).join("");
+
+  // expand/collapse
+  document.querySelectorAll("#watchlist .wl-row").forEach(row=>{
+    const toggle=()=>{
+      const d=document.getElementById(row.dataset.detail);
+      const open=d.classList.toggle("show");
+      row.classList.toggle("wl-open",open);
+      row.setAttribute("aria-expanded",open?"true":"false");
+    };
+    row.addEventListener("click",toggle);
+    row.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } });
+  });
 }
 
 function render(d){
   document.getElementById("sampleBanner").style.display=d._sample?"block":"none";
+  renderWorld(d.world);
   renderFG({ score:d.score, comparisons:d.comparisons, history:d.history, updated:d.updated, live:false, _sample:d._sample });
   renderStatic(d);
 }
