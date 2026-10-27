@@ -1,36 +1,75 @@
-name: Market dip monitor
+name: Market monitor
 
+# GitHub's own schedule runs hours late, so it's only used to WAKE the job.
+# Each run does a catch-up pass, then sleeps until the next slot in
+# src/config.js (accurate to a minute or two), runs it, and starts the next
+# run itself. The cron lines restart the chain if it ever breaks.
 on:
   schedule:
-    # Times are UTC. GitHub cron has no daylight-saving awareness, so we run a
-    # few times around each open and let the script decide (it is timezone-aware)
-    # which run actually fires the daily summary. State stops duplicate alerts.
-    - cron: "20,50 7-8 * * 1-5"     # UK open window (covers BST and GMT)
-    - cron: "20,50 13-15 * * 1-5"   # US open window: summary + index open capture
-    - cron: "0,15 20-21 * * 1-5"    # US close window: index close capture (EDT/EST)
-  workflow_dispatch: {}             # run manually from the Actions tab
+    - cron: "5 2,4,6 * * 1-5"    # weekday wake-ups ahead of the UK open
+    - cron: "5 10,14,18 * * 1-5" # safety net during the day
+    - cron: "5 12,15 * * 0"      # Sunday: weekly digest
+  push:
+    branches: [main]
+    paths: [".github/workflows/monitor.yml", "monitor.js", "src/**", "research-list.json"]
+  workflow_dispatch: {}
+
+# Only one run at a time; a newer queued run replaces an older queued one.
+concurrency:
+  group: market-monitor
+  cancel-in-progress: false
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
-  check:
+  monitor:
     runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+      FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: "20"
-      - name: Run monitor
+          node-version: "24"
+
+      # A failed run must not break the chain, so these steps never stop the job.
+      - name: Catch-up run
+        continue-on-error: true
+        run: node monitor.js
+      - name: Save
+        continue-on-error: true
+        run: scripts/persist.sh
+
+      - name: Find next slot
+        id: next
+        run: node scripts/next-slot.js
+
+      - name: Wait for ${{ steps.next.outputs.slot }}
+        if: steps.next.outputs.within == 'true'
+        run: sleep ${{ steps.next.outputs.wait }}
+
+      - name: Run ${{ steps.next.outputs.slot }}
+        if: steps.next.outputs.within == 'true'
+        continue-on-error: true
         env:
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
-          ALPHAVANTAGE_KEY_2: ${{ secrets.ALPHAVANTAGE_KEY_2 }}
-        run: node fear-greed-monitor.js
-      - name: Persist data and state
+          SLOT: ${{ steps.next.outputs.slot }}
         run: |
-          git config user.name "dip-monitor"
-          git config user.email "bot@users.noreply.github.com"
-          git add state.json data.json
-          git diff --staged --quiet || git commit -m "Update monitor data"
-          git push
+          git pull -q --rebase origin main
+          node monitor.js
+      - name: Save slot
+        if: steps.next.outputs.within == 'true'
+        continue-on-error: true
+        env:
+          SLOT: ${{ steps.next.outputs.slot }}
+        run: scripts/persist.sh
+
+      - name: Start next run
+        if: steps.next.outputs.within == 'true' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run monitor.yml --ref main

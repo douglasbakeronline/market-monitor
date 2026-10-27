@@ -1,0 +1,22 @@
+{
+  "placeholder": true,
+  "note": "PLACEHOLDER: the dashboard watchlist until Douglas sends his own research list. Symbols use Yahoo format: US plain (MSFT), UK with .L (AZN.L).",
+  "stocks": [
+    { "symbol": "SPCX", "name": "SpaceX" },
+    { "symbol": "MSFT", "name": "Microsoft" },
+    { "symbol": "GOOGL", "name": "Alphabet" },
+    { "symbol": "AAPL", "name": "Apple" },
+    { "symbol": "AMZN", "name": "Amazon" },
+    { "symbol": "NVDA", "name": "Nvidia" },
+    { "symbol": "META", "name": "Meta" },
+    { "symbol": "TSLA", "name": "Tesla" },
+    { "symbol": "AVGO", "name": "Broadcom" },
+    { "symbol": "AMD", "name": "AMD" },
+    { "symbol": "V", "name": "Visa" },
+    { "symbol": "JPM", "name": "JPMorgan" },
+    { "symbol": "AZN.L", "name": "AstraZeneca" },
+    { "symbol": "SHEL.L", "name": "Shell" },
+    { "symbol": "HSBA.L", "name": "HSBC" },
+    { "symbol": "BRBY.L", "name": "Burberry" }
+  ]
+}

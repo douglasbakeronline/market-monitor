@@ -1,9 +1,13 @@
 {
-  "name": "market-dip-monitor",
-  "version": "1.0.0",
+  "name": "market-monitor",
+  "version": "2.0.0",
   "type": "module",
   "private": true,
+  "engines": { "node": ">=22" },
   "scripts": {
-    "start": "node fear-greed-monitor.js"
+    "start": "node monitor.js",
+    "dry-run": "DRY_RUN=1 node monitor.js",
+    "research": "DRY_RUN=1 FORCE_RESEARCH=1 node monitor.js",
+    "test": "node --test test/*.test.js"
   }
 }
