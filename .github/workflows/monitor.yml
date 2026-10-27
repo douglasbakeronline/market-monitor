@@ -3,7 +3,8 @@ name: Market monitor
 # GitHub's own schedule runs hours late, so it's only used to WAKE the job.
 # Each run does a catch-up pass, then sleeps until the next slot in
 # src/config.js (accurate to a minute or two), runs it, and starts the next
-# run itself. The cron lines restart the chain if it ever breaks.
+# run itself. Overnight and at weekends it relays (sleep ~5h40m, hand over).
+# The cron lines restart the chain if it ever breaks.
 on:
   schedule:
     - cron: "5 2,4,6 * * 1-5"    # weekday wake-ups ahead of the UK open
@@ -68,8 +69,14 @@ jobs:
           SLOT: ${{ steps.next.outputs.slot }}
         run: scripts/persist.sh
 
+      # Next slot too far away (overnight / weekend): wait as long as a job may,
+      # then hand over to a fresh run, so we never depend on GitHub's late cron.
+      - name: Relay towards ${{ steps.next.outputs.slot }}
+        if: steps.next.outputs.within != 'true'
+        run: sleep $(( ${{ steps.next.outputs.wait }} - 20400 > 20400 ? 20400 : ${{ steps.next.outputs.wait }} - 20400 ))
+
       - name: Start next run
-        if: steps.next.outputs.within == 'true' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run monitor.yml --ref main
