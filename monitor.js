@@ -13,7 +13,7 @@ import { forwardReturns, contextLine, mergeHistory } from "./src/context.js";
 import { runResearch } from "./src/runResearch.js";
 import { notify } from "./src/notify.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
-import { slotById } from "./src/schedule.js";
+import { slotById, inQuietHours } from "./src/schedule.js";
 import { partsIn, dateIn, isoWeek, sign } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
@@ -123,8 +123,19 @@ async function main() {
   Object.assign(state, ev.state);
   alerts.push(...ev.alerts, ...researchAlerts);
   const ctxLine = contextLine(ctx);
+  for (const a of alerts) if (["buy", "watch", "fear-no-dip"].includes(a.kind) && ctxLine) a.body += `\n${ctxLine}`;
+  const quiet = inQuietHours(now);
+  state.pending = state.pending || [];
+  if (!quiet && state.pending.length) {
+    for (const a of state.pending) { console.log(`ALERT (held overnight) ${a.title}`); await notify({ ...a, body: `${a.body}\n(Held from ${a.heldAt}.)` }); }
+    state.pending = [];
+  }
   for (const a of alerts) {
-    if (["buy", "watch", "fear-no-dip"].includes(a.kind) && ctxLine) a.body += `\n${ctxLine}`;
+    if (quiet && a.kind !== "health") {
+      console.log(`HELD for quiet hours: ${a.title}`);
+      state.pending = state.pending.filter((p) => p.title !== a.title).concat({ ...a, heldAt: new Date().toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" }) });
+      continue;
+    }
     console.log(`ALERT ${a.title}`);
     await notify(a);
   }
@@ -171,6 +182,7 @@ async function main() {
 }
 
 // --- Builders ------------------------------------------------------------------
+
 
 function buildWorld(series, sp) {
   const markets = CONFIG.world.map((w) => {

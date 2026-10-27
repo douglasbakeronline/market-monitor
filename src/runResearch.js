@@ -57,7 +57,9 @@ export async function runResearch({ regimeKey, state }) {
     next[it.symbol] = { lt, sw };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
-  const alerts = lines.length ? [{ kind: "research", priority: "default", tags: "mag", click: CONFIG.researchUrl,
+  // First run: record a baseline silently rather than announce everything as new.
+  const baseline = Object.keys(prev).length === 0;
+  const alerts = lines.length && !baseline ? [{ kind: "research", priority: "default", tags: "mag", click: CONFIG.researchUrl,
     title: `Research · ${lines.length} new signal${lines.length > 1 ? "s" : ""}`, body: lines.join("\n") }] : [];
 
   return {

@@ -78,5 +78,9 @@ export const CONFIG = {
   // monitor as unhealthy and stop evaluating price-based signals.
   staleHours: 96,
 
+  // Quiet hours (London): alerts are held and delivered at the next run after
+  // the window ends. Health alerts are never held.
+  quietHours: { start: "22:00", end: "07:00", tz: "Europe/London" },
+
   historyPoints: 400,
 };

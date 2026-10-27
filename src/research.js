@@ -80,8 +80,8 @@ export function swingVerdict(t, signals, earningsDays) {
 
 // --- Long-term score -------------------------------------------------------
 const P = {
-  forwardPE: [[8, 100], [12, 90], [18, 70], [25, 50], [35, 30], [50, 12], [70, 0]],
-  trailingPE: [[8, 100], [12, 88], [18, 68], [25, 50], [35, 30], [50, 12], [80, 0]],
+  forwardPE: [[8, 100], [12, 88], [16, 72], [20, 58], [25, 45], [35, 25], [50, 8], [70, 0]],
+  trailingPE: [[8, 100], [12, 85], [16, 70], [20, 56], [28, 40], [40, 20], [60, 5], [90, 0]],
   peg: [[0.5, 100], [1, 85], [1.5, 65], [2, 45], [3, 15], [4, 0]],
   evToEbitda: [[6, 100], [10, 80], [15, 60], [22, 38], [30, 18], [45, 0]],
   profitMargin: [[-0.1, 0], [0, 20], [0.05, 40], [0.12, 65], [0.2, 85], [0.3, 100]],
@@ -89,11 +89,11 @@ const P = {
   revenueGrowth: [[-0.1, 0], [0, 30], [0.05, 50], [0.1, 68], [0.2, 88], [0.35, 100]],
   earningsGrowth: [[-0.2, 0], [0, 30], [0.08, 55], [0.15, 72], [0.3, 92], [0.5, 100]],
   debtToEquity: [[0, 100], [30, 90], [80, 65], [150, 35], [250, 10], [400, 0]],
-  offHigh: [[-45, 70], [-30, 95], [-20, 90], [-10, 70], [-5, 50], [0, 30]],
-  vs200: [[-30, 45], [-15, 70], [-5, 85], [0, 80], [8, 60], [20, 35], [40, 10]],
+  offHigh: [[-45, 65], [-30, 95], [-20, 90], [-12, 70], [-6, 45], [0, 20]],
+  vs200: [[-30, 45], [-15, 70], [-5, 85], [0, 75], [8, 50], [20, 25], [40, 5]],
   rsi: [[25, 95], [35, 85], [45, 70], [55, 55], [65, 40], [75, 20], [85, 5]],
   upside: [[-15, 0], [0, 30], [10, 55], [20, 75], [35, 95], [50, 100]],
-  rec: [[1.2, 100], [1.8, 85], [2.3, 65], [2.8, 45], [3.3, 20], [4, 0]],
+  rec: [[1.2, 90], [1.8, 70], [2.3, 50], [2.8, 32], [3.3, 15], [4, 0]],
 };
 
 const metric = (key, label, value, display, why) => ({ key, label, value, display, score: value == null ? null : Math.round(interp(value, P[key])), why });
@@ -132,10 +132,10 @@ export function longTerm(f, t) {
 
   const pillar = (key, label, weight, items) => ({ key, label, weight, items, score: mean(items.map((i) => i.score)) == null ? null : Math.round(mean(items.map((i) => i.score))) });
   const pillars = [
-    pillar("quality", "Quality", 0.3, quality),
-    pillar("value", "Value", 0.3, value),
-    pillar("entry", "Entry", 0.25, entry),
-    pillar("sentiment", "Analysts", 0.15, sentiment),
+    pillar("quality", "Quality", 0.32, quality),
+    pillar("value", "Value", 0.32, value),
+    pillar("entry", "Entry", 0.26, entry),
+    pillar("sentiment", "Analysts", 0.1, sentiment),
   ];
   const avail = pillars.filter((p) => p.score != null);
   const wsum = avail.reduce((a, p) => a + p.weight, 0);
@@ -143,13 +143,19 @@ export function longTerm(f, t) {
   const get = (k) => pillars.find((p) => p.key === k)?.score;
   const coverage = Math.round((pillars.flatMap((p) => p.items).filter((i) => i.score != null).length / pillars.flatMap((p) => p.items).length) * 100);
 
-  let verdict = "Wait";
+  // Still falling? Quality at a discount is fine to buy, but in stages.
+  const falling = !!(t?.sma50 && t?.sma200 && t.last < t.sma50 && t.sma50 < t.sma200);
+  let verdict = "Wait", note = null;
   if (score == null) verdict = "No data";
-  else if ((get("value") ?? 50) < 35 || ((get("entry") ?? 50) < 35 && (t?.rsi ?? 50) > 70)) verdict = "Expensive";
-  else if (score >= 65 && (get("entry") ?? 0) >= 55 && (get("quality") ?? 50) >= 50) verdict = "Good entry";
-  else if (score >= 52) verdict = "Fair";
+  else if ((get("value") ?? 50) < 35) verdict = "Expensive";
+  else if ((get("entry") ?? 50) < 35 && (t?.rsi ?? 50) > 68) { verdict = "Stretched"; note = "Fundamentals may be fine, but the price has run hot. Wait for a pullback."; }
+  else if (score >= 72 && (get("entry") ?? 0) >= 70 && (get("quality") ?? 50) >= 55 && (get("value") ?? 50) >= 45) {
+    verdict = falling ? "Fair" : "Good entry";
+    if (falling) note = "Quality at a discount, but the trend is still down. Buy in stages rather than all at once.";
+  }
+  else if (score >= 55) verdict = "Fair";
 
-  return { score, verdict, pillars, coverage, financials: fin };
+  return { score, verdict, note, falling, pillars, coverage, financials: fin };
 }
 
 // Adjust the long-term verdict note for the market regime.

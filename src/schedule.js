@@ -24,3 +24,12 @@ export function nextSlot(now = new Date(), slots = CONFIG.slots) {
 }
 
 export const slotById = (id) => CONFIG.slots.find((s) => s.id === id) || null;
+
+// Is `now` inside the configured quiet hours?
+export function inQuietHours(now) {
+  const q = CONFIG.quietHours;
+  if (!q || process.env.FORCE_SUMMARY || process.env.IGNORE_QUIET) return false;
+  const m = partsIn(q.tz, now).min, toMin = (t) => +t.slice(0, 2) * 60 + +t.slice(3);
+  const s = toMin(q.start), e = toMin(q.end);
+  return s > e ? m >= s || m < e : m >= s && m < e;
+}

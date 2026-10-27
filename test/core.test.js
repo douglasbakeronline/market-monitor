@@ -4,7 +4,7 @@ import { dailyHistory } from "../src/data/feargreed.js";
 import { parseYahoo } from "../src/data/prices.js";
 import { sma, rsi, drawdown, macd, crossed } from "../src/indicators.js";
 import { zonedTime, partsIn, isoWeek, interp } from "../src/util.js";
-import { nextSlot } from "../src/schedule.js";
+import { nextSlot, inQuietHours } from "../src/schedule.js";
 import { regime, evaluateAlerts, deepestTier, buildFearSessions, snapshot } from "../src/signals.js";
 import { forwardReturns } from "../src/context.js";
 import { longTerm, swingSignals, swingVerdict, technicals } from "../src/research.js";
@@ -214,4 +214,11 @@ test("swing: oversold pullback in an uptrend is a setup; earnings soon is flagge
   const v = swingVerdict(t, [{ weight: 30 }], 3);
   assert.equal(v.verdict, "Setup (earnings risk)");
   assert.ok(v.stop < t.last);
+});
+
+test("quiet hours span midnight in London time", () => {
+  assert.equal(inQuietHours(new Date("2026-10-27T01:30:00Z")), true);
+  assert.equal(inQuietHours(new Date("2026-10-27T07:05:00Z")), false);
+  assert.equal(inQuietHours(new Date("2026-07-01T21:30:00Z")), true); // 22:30 BST
+  assert.equal(inQuietHours(new Date("2026-07-01T20:30:00Z")), false); // 21:30 BST
 });

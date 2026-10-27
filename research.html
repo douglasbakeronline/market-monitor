@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Research</title>
+<meta name="description" content="Your stock list scored for long-term value and short-term swing setups, with plain-English reasons.">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta name="theme-color" content="#f7f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .intro h1 { font-size: 26px; letter-spacing: -0.025em; margin: 22px 0 4px; }
+  .intro p { color: var(--ink-2); margin: 0; max-width: 64ch; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 22px 0 12px; }
+  .controls .grow { flex: 1; }
+  .controls select { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 10px; }
+  .count { font-size: 12px; color: var(--muted); margin: 0 2px 8px; }
+
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .head, .row { display: grid; grid-template-columns: minmax(160px, 1.5fr) 0.8fr 1.1fr 1.1fr 1.7fr 14px; gap: 14px; align-items: center; padding: 12px 16px; }
+  .head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); background: var(--card-2); }
+  .head button { all: unset; cursor: pointer; }
+  .head button:hover, .head button[aria-sort] { color: var(--ink); }
+  .row { border-top: 1px solid var(--line-2); cursor: pointer; }
+  .row:first-of-type { border-top: 0; }
+  .row:hover { background: var(--card-2); }
+  .row[aria-expanded="true"] { background: var(--card-2); }
+  .nm { font-weight: 650; }
+  .tk { color: var(--muted); font-size: 12px; }
+  .px { font-weight: 600; }
+  .scorecell { display: flex; align-items: center; gap: 9px; }
+  .ring { --v: 0; --c: var(--faint); width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 750; font-size: 12px;
+    background: radial-gradient(closest-side, var(--card) 76%, transparent 78% 100%), conic-gradient(var(--c) calc(var(--v) * 1%), var(--line-2) 0); }
+  .row:hover .ring, .row[aria-expanded="true"] .ring { background: radial-gradient(closest-side, var(--card-2) 76%, transparent 78% 100%), conic-gradient(var(--c) calc(var(--v) * 1%), var(--line-2) 0); }
+  .verdict { font-size: 12.5px; font-weight: 650; }
+  .sub { font-size: 11.5px; color: var(--muted); }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .caret { color: var(--faint); font-size: 10px; transition: transform .15s; }
+  .row[aria-expanded="true"] .caret { transform: rotate(90deg); }
+  .head .on { color: var(--ink); }
+  .earn { font-size: 11px; font-weight: 700; color: var(--watch); }
+
+  .detail { display: none; padding: 4px 16px 20px; background: var(--card-2); border-top: 1px dashed var(--line); }
+  .detail.show { display: block; }
+  .summary { font-size: 14px; color: var(--ink-2); margin: 14px 0 4px; max-width: 75ch; }
+  .note { font-size: 13px; margin: 8px 0 0; padding: 8px 12px; border-radius: 9px; background: var(--watch-bg); color: var(--watch); }
+  .note.good { background: var(--buy-bg); color: var(--buy); }
+  .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 16px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .panel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; color: var(--muted); display: flex; justify-content: space-between; }
+  .pillar { margin-top: 12px; }
+  .pillar:first-of-type { margin-top: 0; }
+  .ph { display: flex; justify-content: space-between; font-weight: 650; font-size: 13px; margin-bottom: 5px; }
+  .metrics { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
+  .metrics td { padding: 4px 0; border-top: 1px solid var(--line-2); vertical-align: top; }
+  .metrics td:nth-child(2) { text-align: right; font-weight: 600; white-space: nowrap; padding-left: 8px; }
+  .metrics td:nth-child(3) { width: 26px; text-align: right; }
+  .metrics .why { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+  .dotv { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .sig { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: start; font-size: 12.5px; margin-top: 4px; }
+  .sig .tag { justify-self: start; }
+  .sig .why { color: var(--muted); }
+  .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .range { position: relative; height: 32px; margin-top: 4px; }
+  .range .line { position: absolute; left: 0; right: 0; top: 11px; height: 4px; border-radius: 99px; background: var(--line); }
+  .range .fill { position: absolute; top: 11px; height: 4px; border-radius: 99px; background: var(--accent); opacity: .35; }
+  .range .mk { position: absolute; top: 6px; width: 3px; height: 14px; border-radius: 2px; background: var(--ink); transform: translateX(-50%); }
+  .range .lo, .range .hi { position: absolute; top: 18px; font-size: 10.5px; color: var(--muted); }
+  .range .hi { right: 0; }
+  .perf { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 14px; }
+  .links { display: flex; gap: 14px; font-size: 12.5px; margin-top: 12px; }
+  @media (max-width: 760px) {
+    .head { display: none; }
+    .row { grid-template-columns: 1fr auto 14px; grid-template-areas: "nm px c" "sc sc c" "tg tg c"; row-gap: 10px; }
+    .row > :nth-child(1) { grid-area: nm; } .row > :nth-child(2) { grid-area: px; text-align: right; }
+    .row > :nth-child(3), .row > :nth-child(4) { grid-area: sc; } .row > :nth-child(5) { grid-area: tg; } .row > :nth-child(6) { grid-area: c; }
+    .lens-lt .sw-only, .lens-sw .lt-only { display: none; }
+    .cols { grid-template-columns: 1fr; }
+    .perf { grid-template-columns: repeat(3, 1fr); }
+    .controls input[type=search] { flex-basis: 100%; }
+    .controls .grow { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 16 16" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11l4-4 3 3 5-6"/></svg></span><span class="brand-text">Market Monitor</span></div>
+    <nav class="nav" aria-label="Pages"><a href="./">Dashboard</a><a href="research.html" aria-current="page">Research</a></nav>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"></button>
+  </header>
+
+  <div class="intro">
+    <h1>Stock research</h1>
+    <p>Every stock on your list, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
+    <div class="meta" id="meta"></div>
+    <div id="banners"></div>
+  </div>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Lens">
+      <button type="button" data-lens="lt" aria-pressed="true">Long-term</button>
+      <button type="button" data-lens="sw" aria-pressed="false">Swing</button>
+    </div>
+    <div class="chips" id="filters" role="group" aria-label="Filter"></div>
+    <span class="grow"></span>
+    <input type="search" id="q" placeholder="Search" aria-label="Search stocks">
+  </div>
+  <div class="count" id="count"></div>
+  <div class="list lens-lt" id="list"></div>
+
+  <section class="section">
+    <div class="eyebrow">How the scores work</div>
+    <div class="grid-2">
+      <div class="card small">
+        <b>Long-term (0–100)</b>
+        <p class="muted" style="margin:6px 0 0">Weighted blend of <b>Quality</b> 32% (margins, return on equity, growth, debt), <b>Value</b> 32% (forward and trailing P/E, PEG, EV/EBITDA), <b>Entry</b> 26% (discount to the 52-week high, position vs the 200-day, RSI) and <b>Analysts</b> 10% (target upside, rating). <b>Good entry</b> needs 72+, a strong entry score and decent quality and value, and the stock mustn't still be in a downtrend. <b>Stretched</b> means the business may be fine but the price has run hot. Banks skip debt and EV ratios, which don't mean much for them.</p>
+      </div>
+      <div class="card small">
+        <b>Swing (0–100)</b>
+        <p class="muted" style="margin:6px 0 0">Starts at 50 and moves with each technical signal: trend (50/200-day), golden and death crosses, RSI oversold or overbought, MACD crosses, Bollinger extremes, pullbacks to the 50-day, 52-week breakouts and unusual volume. <b>Setup</b> is 65+, <b>Avoid</b> is 35 or below. The suggested stop is two ATRs (average true range) below the price. Earnings within a week are flagged because results can gap a stock either way.</p>
+      </div>
+    </div>
+    <p class="cap">Fundamentals and prices from Yahoo Finance, refreshed after each US close and on Sunday. Sector norms differ, so treat value scores as a starting point for your own research. Not financial advice.</p>
+  </section>
+
+  <footer>Data: Yahoo Finance. Edit the list in <code>research-list.json</code>. A personal tracker, not financial advice.</footer>
+</div>
+
+<script type="module">
+import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline } from "./assets/site.js";
+initTheme();
+const $ = (id) => document.getElementById(id);
+
+const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
+const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
+const FILTERS = [
+  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"],
+];
+const st = { lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set() };
+try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all" }); } catch {}
+const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter })); } catch {} };
+
+function ring(score) { return `<span class="ring" style="--v:${score ?? 0};--c:${toneVar(score)}">${score ?? "–"}</span>`; }
+const vtag = (v) => `<span class="verdict t-${VERDICT_TONE[v] || "neutral"}">${esc(v)}</span>`;
+
+function sortKey(it) {
+  switch (st.sort) {
+    case "name": return it.name.toLowerCase();
+    case "day": return it.perf?.day ?? -999;
+    case "lt": return it.longTerm.score ?? -1;
+    case "sw": return it.swing?.score ?? -1;
+    default: return st.lens === "lt" ? (it.longTerm.score ?? -1) : (it.swing?.score ?? -1);
+  }
+}
+
+function visible() {
+  const q = st.q.trim().toLowerCase();
+  return st.data.items.filter((it) => {
+    if (q && !(`${it.name} ${it.ticker} ${it.sector ?? ""}`.toLowerCase().includes(q))) return false;
+    if (st.filter === "good") return it.longTerm.verdict === "Good entry";
+    if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
+    if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
+    if (st.filter === "US" || st.filter === "UK") return it.market === st.filter;
+    return true;
+  }).sort((a, b) => {
+    const ka = sortKey(a), kb = sortKey(b);
+    const dir = st.sort === "name" ? 1 : st.dir;
+    return ka < kb ? -dir : ka > kb ? dir : 0;
+  });
+}
+
+function rowHtml(it, i) {
+  const bull = it.signals.filter((s) => s.tone === "bull"), bear = it.signals.filter((s) => s.tone === "bear");
+  const lens = st.lens === "lt"
+    ? [it.longTerm.pillars.filter((p) => p.score >= 70).map((p) => `<span class="tag bull">${esc(p.label)} ${p.score}</span>`), it.longTerm.pillars.filter((p) => p.score != null && p.score < 40).map((p) => `<span class="tag bear">${esc(p.label)} ${p.score}</span>`)].flat().slice(0, 3)
+    : [...bull.map((s) => `<span class="tag bull">${esc(s.label)}</span>`), ...bear.map((s) => `<span class="tag bear">${esc(s.label)}</span>`)].slice(0, 3);
+  const earn = it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 14 ? `<span class="earn">Earnings ${it.earnings.days === 0 ? "today" : fmtDay(it.earnings.date)}</span>` : "";
+  return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
+    <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}</div></div>
+    <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
+    <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term</div></div></div>
+    <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing</div></div></div>
+    <div><div class="tags">${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
+    <span class="caret">▶</span>
+  </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
+}
+
+function rangeBar(lo, hi, v, labelLo, labelHi, fillFrom, fillTo) {
+  if (lo == null || hi == null || v == null || hi <= lo) return `<div class="sub">n/a</div>`;
+  const p = (x) => Math.max(0, Math.min(100, ((x - lo) / (hi - lo)) * 100));
+  const fill = fillFrom != null ? `<span class="fill" style="left:${p(fillFrom)}%;width:${p(fillTo) - p(fillFrom)}%"></span>` : "";
+  return `<div class="range"><span class="line"></span>${fill}<span class="mk" style="left:${p(v)}%"></span><span class="lo">${labelLo}</span><span class="hi">${labelHi}</span></div>`;
+}
+
+function detailHtml(it) {
+  const lt = it.longTerm, sw = it.swing, t = it.tech || {}, c = it.currency;
+  const notes = [lt.note && `<div class="note">${esc(lt.note)}</div>`, it.regimeNote && `<div class="note ${/fear is on your side/.test(it.regimeNote) ? "good" : ""}">${esc(it.regimeNote)}</div>`, ...(sw?.notes || []).map((n) => `<div class="note">${esc(n)}</div>`)].filter(Boolean).join("");
+  const pillars = lt.pillars.map((p) => `<div class="pillar"><div class="ph"><span>${esc(p.label)}</span><span style="color:${toneVar(p.score)}">${p.score ?? "n/a"}</span></div>
+    <div class="bar"><i style="width:${p.score ?? 0}%;background:${toneVar(p.score)}"></i></div>
+    <table class="metrics">${p.items.map((m) => `<tr><td>${esc(m.label)}<span class="why">${esc(m.why)}</span></td><td>${esc(m.display)}</td><td><span class="dotv" style="background:${toneVar(m.score)}" title="${m.score ?? "n/a"}/100"></span></td></tr>`).join("")}</table></div>`).join("");
+  const sigs = it.signals.length ? `<div class="sig">${it.signals.map((s) => `<span class="tag ${s.tone}">${esc(s.label)}</span><span class="why">${esc(s.why)}</span>`).join("")}</div>` : `<p class="sub" style="margin:0">No technical signals firing. Nothing to trade here right now.</p>`;
+  const tgt = it.target;
+  const perf = [["Day", it.perf?.day], ["Week", it.perf?.week], ["Month", it.perf?.month], ["3 months", it.perf?.m3], ["1 year", it.perf?.y1]];
+  const yahoo = `https://finance.yahoo.com/quote/${encodeURIComponent(it.symbol)}`;
+  const finviz = it.market === "US" ? `<a href="https://finviz.com/quote.ashx?t=${encodeURIComponent(it.ticker)}" target="_blank" rel="noopener">Finviz ↗</a>` : "";
+  return `<p class="summary">${esc(it.summary)}</p>${notes}
+  <div class="cols">
+    <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
+    <div>
+      <div class="panel"><h3><span>Swing signals</span><span>${sw?.score ?? "n/a"}/100</span></h3>${sigs}
+        <div class="kv">
+          <div><div class="k">RSI (14)</div><div class="v">${t.rsi ?? "n/a"}</div></div>
+          <div><div class="k">vs 50-day</div><div class="v ${pnClass(t.vs50)}">${signPct(t.vs50)}</div></div>
+          <div><div class="k">vs 200-day</div><div class="v ${pnClass(t.vs200)}">${signPct(t.vs200)}</div></div>
+          <div><div class="k">Stop (2×ATR)</div><div class="v">${money(sw?.stop, c)}</div><div class="sub">${signPct(sw?.stopPct)}</div></div>
+          <div><div class="k">Daily range</div><div class="v">±${sw?.atrPct ?? "n/a"}%</div><div class="sub">average true range</div></div>
+          <div><div class="k">Volume</div><div class="v">${t.volRatio != null ? t.volRatio.toFixed(1) + "×" : "n/a"}</div><div class="sub">vs 20-day avg</div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px"><h3><span>Where it trades</span></h3>
+        <div class="k">52-week range</div>${rangeBar(t.low52, t.high52, it.price, money(t.low52, c), money(t.high52, c))}
+        <div class="k" style="margin-top:12px">Analyst targets${tgt?.analysts ? ` · ${tgt.analysts} analysts` : ""}</div>
+        ${tgt ? rangeBar(Math.min(tgt.low, it.price), Math.max(tgt.high, it.price), it.price, money(Math.min(tgt.low, it.price), c), money(Math.max(tgt.high, it.price), c), tgt.low, tgt.high) + `<div class="sub" style="margin-top:4px">Mean target ${money(tgt.mean, c)} (${signPct(((tgt.mean - it.price) / it.price) * 100)})</div>` : `<div class="sub">No analyst coverage.</div>`}
+        <div class="kv">
+          <div><div class="k">Market cap</div><div class="v">${bigMoney(it.marketCap, c)}</div></div>
+          <div><div class="k">Dividend</div><div class="v">${it.dividendYield != null ? (it.dividendYield * 100).toFixed(1) + "%" : "none"}</div></div>
+          <div><div class="k">Next earnings</div><div class="v">${it.earnings ? fmtDay(it.earnings.date) : "n/a"}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="perf">${perf.map(([k, v]) => `<div class="panel" style="padding:8px 10px"><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
+  <div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>
+  <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}</div>`;
+}
+
+function render() {
+  const items = visible();
+  const list = $("list");
+  list.className = `list lens-${st.lens}`;
+  const head = `<div class="head"><button data-sort="name">Stock</button><button data-sort="day">Price</button><button data-sort="lt" class="${st.lens === "lt" ? "on" : ""}">Long-term</button><button data-sort="sw" class="${st.lens === "sw" ? "on" : ""}">Swing</button><span>${st.lens === "lt" ? "Strengths / weaknesses" : "Signals"}</span><span></span></div>`;
+  list.innerHTML = head + (items.length ? items.map(rowHtml).join("") : `<div class="row" style="cursor:default"><span class="muted">No stocks match.</span></div>`);
+  $("count").textContent = `${items.length} of ${st.data.items.length} stocks · sorted by ${st.sort === "name" ? "name" : st.sort === "day" ? "today's move" : (st.sort || st.lens) === "sw" ? "swing score" : "long-term score"}`;
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === st.lens)));
+  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${l}</button>`).join("");
+  list.querySelectorAll(".row[data-sym]").forEach((row, i) => {
+    const toggle = () => {
+      const sym = row.dataset.sym, it = items[i], d = row.nextElementSibling;
+      if (st.open.has(sym)) { st.open.delete(sym); d.classList.remove("show"); row.setAttribute("aria-expanded", "false"); }
+      else { st.open.add(sym); d.innerHTML = detailHtml(it); d.classList.add("show"); row.setAttribute("aria-expanded", "true"); }
+    };
+    row.addEventListener("click", toggle);
+    row.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  });
+  list.querySelectorAll(".head button").forEach((b) => b.addEventListener("click", () => {
+    if (st.sort === b.dataset.sort) st.dir *= -1; else { st.sort = b.dataset.sort; st.dir = -1; }
+    render();
+  }));
+}
+
+document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { st.lens = b.dataset.lens; st.sort = null; save(); render(); }));
+$("filters").addEventListener("click", (e) => { const f = e.target.closest("[data-f]")?.dataset.f; if (f) { st.filter = f; save(); render(); } });
+$("q").addEventListener("input", (e) => { st.q = e.target.value; render(); });
+
+(async () => {
+  try {
+    const [r, d] = await Promise.all([fetch("research.json?t=" + Date.now()), fetch("data.json?t=" + Date.now()).catch(() => null)]);
+    if (!r.ok) throw 0;
+    st.data = await r.json();
+    const dash = d?.ok ? await d.json() : null;
+    const reg = dash?.regime;
+    $("meta").innerHTML = `<span>Updated ${esc(fmtDate(st.data.updated))} (${ago(st.data.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
+    const b = [];
+    if (st.data.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
+    if (st.data.failed?.length) b.push(`<div class="banner warn">Couldn't load: ${esc(st.data.failed.join(", "))}.</div>`);
+    $("banners").innerHTML = b.join("");
+    render();
+  } catch {
+    $("list").innerHTML = `<div class="row" style="cursor:default"><span class="muted">No research data yet. It's generated after each US close.</span></div>`;
+  }
+})();
+</script>
+</body>
+</html>
