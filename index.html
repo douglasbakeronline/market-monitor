@@ -3,464 +3,371 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Market Dip Monitor</title>
-<link rel="apple-touch-icon" href="data:image/png;base64,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">
-<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<title>Market Monitor</title>
+<meta name="description" content="Buy-the-dip and market-regime signals: Fear & Greed, drawdowns, trend, volatility and historical context.">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Dip Monitor">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#211d17">
+<meta name="apple-mobile-web-app-title" content="Market Monitor">
+<meta name="theme-color" content="#f7f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="assets/site.css">
 <style>
-  :root {
-    --bg:#faf9f7; --card:#fff; --ink:#1a1a1a; --muted:#767068; --line:#e7e3dc;
-    --xfear:#c0392b; --fear:#e3812f; --neutral:#9aa0a6; --greed:#4faf80; --xgreed:#18915f;
-    --pos:#18915f; --neg:#c0392b;
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%; }
-  .wrap { max-width:760px; margin:0 auto; padding:32px 18px 56px; }
-  header h1 { font-size:25px; font-weight:700; letter-spacing:-0.02em; margin:0; }
-  header p { color:var(--muted); margin:4px 0 0; }
-  .updated { color:var(--muted); font-size:12px; margin-top:6px; }
-  .live { display:inline-block; margin-left:8px; font-size:11px; font-weight:600; color:var(--pos); }
-  .live::before { content:"\25cf"; margin-right:4px; }
-  .samplebar { background:#fff8e6; border:1px solid #f0e2b8; color:#7a5b00; border-radius:9px; padding:9px 13px; font-size:13px; margin-top:12px; }
+  /* Regime hero */
+  .hero { padding: 20px; }
+  .hero .label { font-size: 26px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.15; margin: 12px 0 6px; }
+  .hero .action { color: var(--ink-2); font-size: 15px; max-width: 60ch; }
+  .factors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; }
+  .factor { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 11px; padding: 10px 11px; }
+  .factor .fv { font-weight: 700; font-size: 14px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+  .factor .fv::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+  .factor .fn { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  @media (max-width: 640px) { .factors { grid-template-columns: 1fr 1fr; } .hero .label { font-size: 22px; } }
 
-  .gauge-wrap { display:flex; flex-direction:column; align-items:center; margin:24px 0 0; }
-  #gauge { width:100%; max-width:300px; height:auto; }
-  .score { font-size:54px; font-weight:700; line-height:1; letter-spacing:-0.03em; }
-  .score-label { text-transform:uppercase; letter-spacing:0.12em; font-size:12px; font-weight:600; margin-top:6px; }
+  /* Gauge */
+  .fg { display: flex; flex-direction: column; align-items: center; }
+  #gauge { width: 100%; max-width: 250px; height: auto; }
+  .fg .score { font-size: 46px; font-weight: 750; line-height: 1; letter-spacing: -0.03em; margin-top: -8px; }
+  .fg .rating { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 700; margin-top: 6px; }
+  .cmp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin-top: 16px; }
+  .cmp div { text-align: center; }
+  .cmp .n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; font-weight: 700; font-size: 12px; margin-top: 4px; }
+  .comp { display: grid; grid-template-columns: 1fr 34px; gap: 4px 10px; align-items: center; font-size: 13px; }
+  .comp .bar { grid-column: 1 / -1; margin-bottom: 8px; }
+  .comp .sc { text-align: right; font-weight: 700; }
 
-  .status { border-radius:12px; padding:15px 17px; border:1px solid var(--line); background:var(--card); }
-  .status .tag { display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:3px 9px; border-radius:999px; color:#fff; }
-  .status .headline { font-weight:600; margin:10px 0 2px; }
-  .status .note { color:var(--muted); font-size:14px; }
+  /* Context table */
+  .ctx { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .ctx th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; padding: 0 8px 8px 0; }
+  .ctx td { padding: 9px 8px 9px 0; border-top: 1px solid var(--line-2); }
+  .ctx td:first-child { font-weight: 600; }
+  .ctx .hit { display: inline-block; min-width: 40px; }
+  .ctx .vs { color: var(--muted); font-size: 12px; }
 
-  .dd { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
-  .dd .big { font-size:22px; font-weight:700; }
-  .dd .sub { color:var(--muted); font-size:13px; }
+  /* Market cards */
+  .mkt .row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .mkt .lvl { color: var(--muted); font-size: 13px; }
+  .mkt .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+  .ladder { position: relative; height: 34px; margin: 6px 0 14px; }
+  .ladder .track { position: absolute; left: 0; right: 0; top: 13px; height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--buy) 0%, var(--buylite) 33%, var(--watch) 66%, var(--line) 100%); opacity: 0.35; }
+  .ladder .tick { position: absolute; top: 9px; width: 1px; height: 14px; background: var(--faint); }
+  .ladder .tl { position: absolute; top: 24px; font-size: 10px; color: var(--muted); transform: translateX(-50%); }
+  .ladder .dot { position: absolute; top: 9px; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 2px solid var(--card); transform: translateX(-50%); box-shadow: 0 0 0 1px var(--ink); }
 
-  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px; }
-  .card .k { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
-  .card .v { display:flex; align-items:center; gap:7px; margin-top:8px; }
-  .card .dot { width:22px; height:22px; border-radius:50%; color:#fff; font-size:11px; font-weight:700; display:grid; place-items:center; }
-  .card .r { font-size:12px; font-weight:600; }
+  /* Charts */
+  .chart { width: 100%; height: auto; display: block; }
+  .sess .lbl { font-size: 12px; font-weight: 600; margin: 12px 0 6px; }
+  .sess .lbl:first-child { margin-top: 0; }
 
-  .sectionhead { font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:0 0 8px; }
-  .fd-block { margin-bottom:12px; }
-  .fd-label { font-size:13px; font-weight:600; margin:0 0 6px; }
-  .fd-row { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
-  .fd-cell { background:var(--card); border:1px solid var(--line); border-radius:9px; padding:9px 4px; text-align:center; }
-  .fd-d { font-size:10px; color:var(--muted); }
-  .fd-p { font-weight:700; font-size:14px; margin-top:3px; }
-  .fd-fear { font-weight:700; font-size:15px; margin-top:3px; }
-  .fd-sub { font-size:9px; color:var(--muted); margin-top:1px; }
+  /* World */
+  .world-head { display: flex; align-items: center; gap: 16px; }
+  .world-score { font-size: 38px; font-weight: 750; letter-spacing: -0.03em; min-width: 64px; text-align: center; }
+  .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+  .tile { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px; }
+  .tile .tn { font-size: 10.5px; color: var(--muted); line-height: 1.25; min-height: 26px; }
+  .tile .td { font-weight: 700; font-size: 14px; margin-top: 4px; }
+  .tile .tw { font-size: 11px; color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--muted); }
+  .legend i { width: 10px; height: 3px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+  @media (max-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
 
-  .chart-wrap { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 12px 8px; }
-  #chart { width:100%; height:auto; }
-
-  .cap { color:var(--muted); font-size:12px; line-height:1.5; margin:8px 0 0; }
-  .cap.center { text-align:center; }
-  .block { margin-top:26px; }
-  footer { color:var(--muted); font-size:12px; margin-top:30px; line-height:1.6; }
-
-  @media (max-width:520px) {
-    .wrap { padding:24px 14px 48px; }
-    .cards { grid-template-columns:repeat(2,1fr); }
-    .score { font-size:46px; }
-    header h1 { font-size:22px; }
-  }
-  @media (max-width:380px) { .fd-d { font-size:9px; } .fd-p { font-size:12px; } }
-  .wl-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); }
-  .wl-name { font-weight:600; font-size:13px; flex:1; color:var(--ink); text-decoration:none; }
-  .wl-name:hover { text-decoration:underline; }
-  .wl-sym { color:var(--muted); font-weight:400; font-size:12px; margin-left:5px; }
-  .wl-metric { font-size:12px; text-align:right; min-width:92px; }
-  .wl-flag { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:#e7f6ee; color:var(--pos); min-width:70px; text-align:center; }
-  .wl-flag.off { background:#f2efe9; color:var(--muted); }
-  @media (max-width:520px){ .wl-row{flex-wrap:wrap;} .wl-name{flex-basis:100%;} .wl-metric{min-width:0;flex:1;text-align:left;} .wl-flag{min-width:0;} }
-
-  /* World overview */
-  .world-head { display:flex; align-items:center; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
-  .world-score { font-size:40px; font-weight:700; line-height:1; letter-spacing:-0.03em; min-width:70px; text-align:center; }
-  .world-meta .wl-lbl { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
-  .world-meta .wl-verdict { font-weight:600; font-size:15px; margin-top:2px; }
-  .world-scale { color:var(--muted); font-size:12px; margin-top:3px; }
-  .tiles { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px; }
-  .tile { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center; }
-  .tile .t-name { font-size:10px; color:var(--muted); line-height:1.25; min-height:26px; }
-  .tile .t-day { font-weight:700; font-size:14px; margin-top:5px; }
-  .tile .t-week { font-size:11px; color:var(--muted); margin-top:2px; }
-  .world-chart-wrap { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 12px 8px; margin-top:10px; }
-  #worldChart { width:100%; height:auto; }
-  .legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; padding:0 4px; }
-  .legend span { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; }
-  .legend i { width:10px; height:3px; border-radius:2px; display:inline-block; }
-  @media (max-width:520px){ .tiles{grid-template-columns:repeat(2,1fr);} .world-head{flex-wrap:wrap;} }
-
-  /* Accordion */
-  .wl-row { cursor:pointer; }
-  .wl-caret { color:var(--muted); font-size:11px; margin-left:6px; transition:transform 0.15s; display:inline-block; }
-  .wl-open .wl-caret { transform:rotate(90deg); }
-  .wl-detail { display:none; padding:12px 2px 4px; border-bottom:1px solid var(--line); margin-bottom:10px; }
-  .wl-detail.show { display:block; }
-  .wl-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
-  .wl-stat { text-align:center; }
-  .wl-stat .k { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
-  .wl-stat .v { font-weight:700; font-size:14px; margin-top:3px; }
-  @media (prefers-reduced-motion: reduce){ .wl-caret{ transition:none; } }
+  /* Research highlights + watchlist */
+  .hl { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .hl ul { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; }
+  .hl li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: 1px solid var(--line-2); }
+  @media (max-width: 640px) { .hl { grid-template-columns: 1fr; } }
+  .wl-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; align-items: center; padding: 10px 2px; border-top: 1px solid var(--line-2); cursor: pointer; font-size: 13px; }
+  .wl-row:first-child { border-top: 0; }
+  .wl-row .nm { font-weight: 600; }
+  .wl-row .sym { color: var(--muted); font-weight: 400; margin-left: 5px; font-size: 12px; }
+  .wl-row .caret { color: var(--faint); margin-left: 6px; display: inline-block; transition: transform .15s; font-size: 10px; }
+  .wl-row[aria-expanded="true"] .caret { transform: rotate(90deg); }
+  .wl-detail { display: none; padding: 4px 2px 14px; }
+  .wl-detail.show { display: block; }
+  @media (max-width: 520px) { .wl-row { grid-template-columns: 1fr auto; } .wl-row .hide-s { display: none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Market Dip Monitor</h1>
-    <p>Buy fear, build cash on greed. Signals, not advice.</p>
-    <div class="updated" id="updated"></div>
+  <header class="top">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 16 16" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11l4-4 3 3 5-6"/></svg></span><span class="brand-text">Market Monitor</span></div>
+    <nav class="nav" aria-label="Pages"><a href="./" aria-current="page">Dashboard</a><a href="research.html">Research</a></nav>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"></button>
   </header>
-  <div id="sampleBanner" class="samplebar" style="display:none">Showing <b>sample placeholder data</b>, not live values. Deploy the repo to see real numbers.</div>
+  <div class="meta" id="meta"></div>
+  <div id="banners"></div>
 
-  <section id="worldSection" class="block" style="display:none">
-    <div class="sectionhead">World markets, holistic view</div>
-    <div class="world-head">
-      <div class="world-score" id="worldScore">0</div>
-      <div class="world-meta">
-        <div class="wl-lbl">Global risk score</div>
-        <div class="wl-verdict" id="worldVerdict">&mdash;</div>
-        <div class="world-scale">&minus;10 sell-off everywhere &nbsp;·&nbsp; +10 rally everywhere</div>
+  <!-- 1. Regime -->
+  <section class="section" style="margin-top:20px">
+    <div class="card hero" id="hero"></div>
+    <p class="cap">One read on the market combining four lenses: how far the S&amp;P 500 is below its 52-week high, whether it's above its 200-day average (the long-term trend), the VIX (how nervous options traders are) and CNN's Fear &amp; Greed Index. <b>Buy signals need a real dip confirmed by fear.</b> "Overheated" means trim back to your target mix, not sell everything.</p>
+  </section>
+
+  <!-- 2. Fear & Greed -->
+  <section class="section">
+    <div class="eyebrow">Fear &amp; Greed</div>
+    <div class="grid-2">
+      <div class="card fg">
+        <svg id="gauge" viewBox="0 0 300 170" role="img" aria-label="Fear and Greed gauge"></svg>
+        <div class="score" id="score">--</div>
+        <div class="rating" id="rating"></div>
+        <div class="cmp" id="cmp"></div>
+      </div>
+      <div class="card">
+        <div class="k" style="margin-bottom:12px">What's driving it</div>
+        <div class="comp" id="components"></div>
       </div>
     </div>
-    <div class="tiles" id="worldTiles"></div>
-    <div class="world-chart-wrap">
-      <svg id="worldChart" viewBox="0 0 600 224" aria-label="World markets 30-session trend"></svg>
+    <p class="cap">CNN's index scores market mood from 0 (extreme fear) to 100 (extreme greed) by blending the seven signals on the right. The contrarian idea: be greedy when others are fearful.</p>
+  </section>
+
+  <!-- 3. Historical context -->
+  <section class="section" id="ctxSection" hidden>
+    <div class="eyebrow">What usually happens next</div>
+    <div class="card">
+      <p id="ctxLead" style="margin:0 0 14px;font-size:14px"></p>
+      <table class="ctx"><thead><tr><th>S&amp;P 500 after</th><th>Similar readings</th><th>Any day</th></tr></thead><tbody id="ctxBody"></tbody></table>
+    </div>
+    <p class="cap" id="ctxCap"></p>
+  </section>
+
+  <!-- 4. Markets -->
+  <section class="section">
+    <div class="eyebrow">Buy tiers</div>
+    <div class="grid-2" id="markets"></div>
+    <p class="cap">Drawdown from each index's highest close in the past year. Buy tiers start at -10%; each tier alerts once when fear (F&amp;G ≤ 25 or VIX ≥ 30) confirms it, and re-arms once the index is back within 5% of its high.</p>
+  </section>
+
+  <!-- 5. F&G history -->
+  <section class="section">
+    <div class="eyebrow">Sentiment over the past year</div>
+    <div class="card"><svg id="chart" class="chart" viewBox="0 0 800 200" role="img" aria-label="Fear and Greed history"></svg></div>
+    <div class="card sess" style="margin-top:10px" id="sessions"></div>
+    <p class="cap">Green band: panic, historically a buying zone. Red band: froth, stop adding. The session row shows Fear &amp; Greed at each US close; where the monitor captured the open too, the move is open-to-close.</p>
+  </section>
+
+  <!-- 6. World -->
+  <section class="section" id="worldSection" hidden>
+    <div class="eyebrow">World markets</div>
+    <div class="card">
+      <div class="world-head">
+        <div class="world-score" id="worldScore">0</div>
+        <div><div class="k">Global risk score</div><div style="font-weight:650;margin-top:2px" id="worldVerdict"></div><div class="small muted" id="worldSub"></div></div>
+      </div>
+      <div class="tiles" id="worldTiles"></div>
+      <svg id="worldChart" class="chart" viewBox="0 0 800 222" style="margin-top:14px" role="img" aria-label="World markets, last 30 sessions"></svg>
       <div class="legend" id="worldLegend"></div>
     </div>
-    <div class="cap"><b>What you're looking at:</b> the chart covers the last 30 trading sessions (about 6 weeks), each line rebased to 0% at the start so the five markets compare like-for-like, the axis shows how far each is up or down over that window. The tiles show each market today and over the past week. The score sums how many markets are up, and by how much, over the day and week. Index proxies are liquid ETFs. Refreshes daily.</div>
+    <p class="cap">Last 30 sessions, each index rebased to 0% so they compare like-for-like. The score adds up day and week moves across all five: -10 is a sell-off everywhere, +10 a rally everywhere.</p>
   </section>
 
-  <div class="gauge-wrap">
-    <svg id="gauge" viewBox="0 0 300 180" aria-label="Fear and Greed gauge"></svg>
-    <div class="score" id="score">--</div>
-    <div class="score-label" id="scoreLabel"></div>
-  </div>
-  <div class="cap center">The CNN Fear &amp; Greed Index scores market mood from 0 (extreme fear) to 100 (extreme greed), blending seven signals such as volatility and momentum. The contrarian idea: buy into fear, fade greed. This figure is pulled live from CNN on each refresh.</div>
-
-  <div class="block">
-    <div class="status" id="status"></div>
-    <div class="cap">The dashboard's current call. Buy signals fire only on a real dip confirmed by fear; the greed signal means stop buying and hold cash, not sell what you own.</div>
-  </div>
-
-  <div class="block">
-    <div class="dd" id="dd"></div>
-    <div class="cap">How far the S&amp;P 500 has fallen from its recent high. These drops are the dips this tracker exists to catch; -10% and beyond is where it starts getting interesting. (Tracked via SPY, the S&amp;P 500 ETF, so the level shown is SPY's; the percentage matches the index.)</div>
-  </div>
-
-  <div class="block">
-    <div class="cards" id="cards"></div>
-    <div class="cap">Past Fear &amp; Greed readings, so you can see which way sentiment has been trending rather than judging today's number in isolation.</div>
-  </div>
-
-  <div class="block">
-    <div class="sectionhead">Last 5 sessions</div>
-    <div id="fiveday"></div>
-    <div class="cap">Daily close-to-close % change for each index. The Fear &amp; Greed row shows the day's index value and its move; CNN publishes one figure a day, so an "open" appears only once the monitor has captured it live, and older days show the day-on-day change instead.</div>
-  </div>
-
-  <div class="block">
-    <div class="sectionhead">Fear &amp; Greed, recent movement</div>
-    <div class="chart-wrap"><svg id="chart" viewBox="0 0 600 192" aria-label="Index history"></svg></div>
-    <div class="cap">Green band is panic (historically a buying zone), red band is froth (stop buying). Vertical markers show the start of each quarter. Live from CNN.</div>
-  </div>
-
-  <section id="watchlistSection" class="block" style="display:none">
-    <div class="sectionhead">Rebound watch, big-cap dips turning up</div>
-    <div id="watchlist"></div>
-    <div class="cap">Large, liquid names down at least 8% from their recent high. A green "Rebound" flag marks those that also posted an up day, a possible turn. Daily close data, so it reflects the last close, not the live open. Research prompts, not buy signals: one up day after a fall is often a dead-cat bounce, not the bottom.</div>
+  <!-- 7. Research highlights -->
+  <section class="section" id="hlSection" hidden>
+    <div class="eyebrow">From your research list <a class="more" href="research.html">Open research →</a></div>
+    <div class="hl" id="hl"></div>
   </section>
 
-  <footer>
-    Fear &amp; Greed live from CNN; S&amp;P 500 / FTSE 100 from Alpha Vantage. Price panels refresh on the schedule, not live. Not affiliated with CNN. A personal tracker, not financial advice.
-  </footer>
+  <!-- 8. Rebound watch -->
+  <section class="section" id="wlSection" hidden>
+    <div class="eyebrow">Rebound watch</div>
+    <div class="card" id="watchlist" style="padding:6px 14px"></div>
+    <p class="cap">Big names at least 8% below their 10-day high. "Rebound" marks those that also rose last session: a prompt to research, not a buy signal. One up day after a fall is often a dead-cat bounce.</p>
+  </section>
+
+  <footer>Data: CNN Fear &amp; Greed, Yahoo Finance. Updated at the UK open, UK midday, US open, US midday and US close, plus a Sunday digest. A personal tracker, not financial advice.</footer>
 </div>
 
-<script>
+<script type="module">
+import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
+initTheme();
+
 const BANDS = [
-  { max:24, name:"Extreme Fear", hex:"#c0392b" },
-  { max:44, name:"Fear", hex:"#e3812f" },
-  { max:55, name:"Neutral", hex:"#9aa0a6" },
-  { max:75, name:"Greed", hex:"#4faf80" },
-  { max:100, name:"Extreme Greed", hex:"#18915f" },
+  { max: 24, name: "Extreme fear", c: "var(--xfear)" }, { max: 44, name: "Fear", c: "var(--fear)" },
+  { max: 55, name: "Neutral", c: "var(--mid)" }, { max: 75, name: "Greed", c: "var(--greed)" }, { max: 100, name: "Extreme greed", c: "var(--xgreed)" },
 ];
-const bandFor = (s) => BANDS.find((b) => s <= b.max) || BANDS[BANDS.length - 1];
-const STATUS_COLOR = { buy:"#18915f", greed:"#c0392b", watch:"#e3812f", neutral:"#9aa0a6" };
-const STATUS_TAG = { buy:"Buy", greed:"Greed", watch:"Watch", neutral:"Neutral" };
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-function fmtDay(s){ const d=new Date(/^\d{4}-\d{2}-\d{2}$/.test(s)?s+"T00:00:00":s); return isNaN(d)?s:WD[d.getDay()]+" "+d.getDate(); }
-const isoET=(t)=>new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York"}).format(new Date(t));
+const band = (s) => BANDS.find((b) => s <= b.max) || BANDS[4];
+const TONE_TAG = { buy: "Buy zone", "buy-lite": "Add steadily", watch: "Watch", caution: "Caution", greed: "Stop adding", sell: "Trim", neutral: "Steady" };
+const $ = (id) => document.getElementById(id);
 
-const SAMPLE = {
-  updated:new Date().toISOString(), score:34, rating:"fear",
-  comparisons:{ close:34, week:39, month:58, year:56 },
-  history:Array.from({length:300},(_,i)=>({ t:Date.now()-(300-i)*86400000, y:Math.round(50+22*Math.sin(i/16)+8*Math.sin(i/5)) })),
-  drawdownPct:-4.2, last:601, peak:628,
-  status:{ type:"neutral", label:"No active signal", note:"Sit tight. Nothing interesting right now." },
-  fiveDay:{
-    sp:[{date:"2026-06-16",pct:-0.8},{date:"2026-06-17",pct:-1.5},{date:"2026-06-18",pct:0.4},{date:"2026-06-19",pct:-2.6},{date:"2026-06-20",pct:-1.1}],
-    ftse:[{date:"2026-06-16",pct:-0.3},{date:"2026-06-17",pct:-0.9},{date:"2026-06-18",pct:0.6},{date:"2026-06-19",pct:-1.4},{date:"2026-06-20",pct:-0.5}],
-  },
-  fearSessions:[
-    {date:"2026-06-16",open:null,close:42,pct:-4.5,basis:"dod"},
-    {date:"2026-06-17",open:null,close:39,pct:-7.1,basis:"dod"},
-    {date:"2026-06-18",open:null,close:37,pct:-5.1,basis:"dod"},
-    {date:"2026-06-19",open:36,close:31,pct:-13.9,basis:"oc"},
-    {date:"2026-06-20",open:30,close:34,pct:13.3,basis:"oc"},
-  ],
-  watchlist:[
-    {symbol:"NVDA",yahoo:"NVDA",name:"Nvidia",price:142.3,dropFromHigh:-11.4,lastChange:2.1,today:2.1,yesterday:-1.2,week:-4.8,month:-11.4,series:[0,-2,-4,-3,-6,-8,-7,-9,-11,-10,-11,-9,-8,-10,-9,-11,-12,-10,-9,-8,-10,-9,-7,-8,-9,-11,-10,-9,-11,-9],rebound:true},
-    {symbol:"TSLA",yahoo:"TSLA",name:"Tesla",price:298.7,dropFromHigh:-9.2,lastChange:1.3,today:1.3,yesterday:0.4,week:-3.1,month:-9.2,series:[0,-1,-3,-2,-4,-6,-5,-7,-8,-7,-9,-8,-7,-8,-9,-8,-9,-8,-7,-6,-8,-7,-9,-8,-7,-9,-8,-7,-9,-8],rebound:true},
-    {symbol:"AMD",yahoo:"AMD",name:"AMD",price:118.5,dropFromHigh:-14.8,lastChange:-0.6,today:-0.6,yesterday:-2.1,week:-6.4,month:-14.8,series:[0,-3,-5,-4,-7,-9,-8,-11,-13,-12,-14,-13,-12,-13,-14,-13,-15,-14,-13,-12,-14,-13,-15,-14,-13,-15,-14,-13,-15,-15],rebound:false},
-    {symbol:"META",yahoo:"META",name:"Meta",price:602.1,dropFromHigh:-6.1,lastChange:0.8,today:0.8,yesterday:-0.3,week:-2.2,month:-6.1,series:[0,-1,-2,-1,-3,-4,-3,-5,-6,-5,-6,-5,-4,-5,-6,-5,-6,-5,-4,-3,-5,-4,-6,-5,-4,-6,-5,-4,-6,-6],rebound:false},
-    {symbol:"MSFT",yahoo:"MSFT",name:"Microsoft",price:412.5,dropFromHigh:-3.4,lastChange:-0.4,today:-0.4,yesterday:0.6,week:-1.1,month:-3.4,series:[0,-0.5,-1,-0.8,-1.5,-2,-1.6,-2.5,-3,-2.6,-3.4,-3,-2.5,-3,-3.4,-3,-3.4,-3,-2.5,-2,-3,-2.6,-3.4,-3,-2.5,-3.4,-3,-2.5,-3.4,-3.4],rebound:false},
-    {symbol:"AZN",yahoo:"AZN.L",name:"AstraZeneca",price:11240,dropFromHigh:-1.2,lastChange:0.5,today:0.5,yesterday:0.1,week:0.9,month:1.2,series:[0,0.2,0.5,0.3,0.6,0.9,0.7,1,1.2,1,1.2,1.1,1,0.9,1.1,1,1.2,1.1,1,0.9,1.1,1,1.2,1.1,1,1.2,1.1,1,1.2,1.2],rebound:false},
-  ],
-  world:{
-    score:-4, label:"Mostly down",
-    markets:[
-      {name:"US · S&P 500",symbol:"SPY",dayPct:-1.1,weekPct:-3.2,series:[0,-0.4,-1.1,-0.8,-1.9,-2.6,-2.1,-3.0,-3.4,-2.9,-3.2,-2.8,-2.4,-2.9,-3.2,-2.8,-3.2,-2.9,-2.5,-2.1,-2.8,-2.5,-3.1,-2.8,-2.4,-3.2,-2.9,-2.6,-3.4,-3.2]},
-      {name:"UK · FTSE 100",symbol:"ISF",dayPct:-0.5,weekPct:-0.8,series:[0,-0.2,-0.5,-0.3,-0.7,-0.9,-0.6,-0.9,-1.1,-0.9,-0.8,-0.7,-0.5,-0.7,-0.8,-0.6,-0.8,-0.7,-0.5,-0.3,-0.6,-0.5,-0.8,-0.6,-0.4,-0.8,-0.6,-0.5,-0.9,-0.8]},
-      {name:"Europe · Euro Stoxx 50",symbol:"FEZ",dayPct:-0.9,weekPct:-2.1,series:[0,-0.3,-0.9,-0.6,-1.4,-1.9,-1.5,-2.1,-2.4,-2.0,-2.1,-1.8,-1.5,-1.9,-2.1,-1.8,-2.1,-1.9,-1.6,-1.3,-1.8,-1.6,-2.0,-1.8,-1.5,-2.1,-1.9,-1.6,-2.2,-2.1]},
-      {name:"Japan · Nikkei",symbol:"EWJ",dayPct:0.3,weekPct:0.6,series:[0,0.1,0.3,0.2,0.4,0.6,0.5,0.7,0.6,0.5,0.6,0.7,0.6,0.5,0.7,0.6,0.5,0.4,0.6,0.7,0.5,0.6,0.4,0.5,0.7,0.6,0.5,0.7,0.6,0.6]},
-      {name:"China/HK · Hang Seng",symbol:"FXI",dayPct:-1.4,weekPct:-4.0,series:[0,-0.6,-1.4,-1.0,-2.4,-3.2,-2.6,-3.6,-4.2,-3.6,-4.0,-3.5,-3.0,-3.6,-4.0,-3.5,-4.0,-3.6,-3.1,-2.6,-3.5,-3.1,-3.9,-3.5,-3.0,-4.0,-3.6,-3.2,-4.2,-4.0]},
-    ],
-  },
-  _sample:true,
-};
+function render(d) {
+  // Meta + banners
+  const fresh = d.health?.ok !== false;
+  $("meta").innerHTML = `<span class="pill ${fresh ? "bg-buy" : "bg-sell"}">${fresh ? "Live data" : "Stale data"}</span><span>Updated ${esc(fmtDate(d.updated))} (${ago(d.updated)})</span>`;
+  const b = [];
+  if (d.health && !d.health.ok) b.push(`<div class="banner bad"><b>Signals paused.</b> ${esc(d.health.problems.join("; "))}. Showing the last good values.</div>`);
+  else if (Date.now() - Date.parse(d.updated) > 30 * 3600e3) b.push(`<div class="banner warn">This page hasn't refreshed for ${ago(d.updated).replace(" ago", "")}. The scheduler may be paused.</div>`);
+  $("banners").innerHTML = b.join("");
 
-function polar(cx,cy,r,deg){ const a=deg*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)]; }
-function arc(cx,cy,r,a0,a1){ const [x0,y0]=polar(cx,cy,r,a0),[x1,y1]=polar(cx,cy,r,a1); const lg=Math.abs(a1-a0)>180?1:0, sw=a1<a0?1:0; return `M ${x0} ${y0} A ${r} ${r} 0 ${lg} ${sw} ${x1} ${y1}`; }
-const angleFor = (s) => 180 - (s/100)*180;
-
-function renderGauge(score){
-  const cx=150,cy=155,r=118; let bands="",prev=0;
-  for(const b of BANDS){ bands+=`<path d="${arc(cx,cy,r,angleFor(prev),angleFor(b.max))}" fill="none" stroke="${b.hex}" stroke-width="20"/>`; prev=b.max; }
-  const [nx,ny]=polar(cx,cy,r-22,angleFor(score));
-  document.getElementById("gauge").innerHTML=bands+`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="#1a1a1a"/>`;
-}
-
-function renderChart(history){
-  const W=600,H=170,padX=8,padY=14;
-  const xs=history.map(d=>d.t), minX=Math.min(...xs), maxX=Math.max(...xs);
-  const sx=t=>padX+((t-minX)/(maxX-minX||1))*(W-2*padX);
-  const sy=y=>padY+(1-y/100)*(H-2*padY);
-  const zoneW=W-2*padX;
-  let g =
-    `<rect x="${padX}" y="${sy(24)}" width="${zoneW}" height="${sy(0)-sy(24)}" fill="#18915f" opacity="0.09"/>`+
-    `<rect x="${padX}" y="${sy(100)}" width="${zoneW}" height="${sy(76)-sy(100)}" fill="#c0392b" opacity="0.09"/>`+
-    `<text x="${padX+6}" y="${sy(0)-6}" fill="#18915f" font-size="10" font-weight="700">BUY ZONE</text>`+
-    `<text x="${padX+6}" y="${sy(100)+13}" fill="#c0392b" font-size="10" font-weight="700">SELL ZONE</text>`;
-  for(const v of [25,50,75]) g+=`<line x1="${padX}" y1="${sy(v)}" x2="${W-padX}" y2="${sy(v)}" stroke="#eee"/><text x="${W-padX}" y="${sy(v)-3}" text-anchor="end" fill="#bdb8b0" font-size="10">${v}</text>`;
-  const seen=new Set();
-  for(const d of history){ const dt=new Date(d.t), m=dt.getMonth(), key=dt.getFullYear()+"-"+m;
-    if(!seen.has(key)){ seen.add(key);
-      const x=sx(d.t), isQ=[0,3,6,9].includes(m);
-      const lbl=MONTHS[m]+(m===0?" '"+String(dt.getFullYear()).slice(2):"");
-      g+=`<line x1="${x.toFixed(1)}" y1="${padY}" x2="${x.toFixed(1)}" y2="${H-padY}" stroke="${isQ?'#d3ccbe':'#ebe5da'}" stroke-dasharray="2 3"/>`+
-         `<text x="${(x+2).toFixed(1)}" y="${H+13}" fill="#9aa0a6" font-size="9">${lbl}</text>`;
-    }
-  }
-  const pts=history.map(d=>`${sx(d.t).toFixed(1)},${sy(d.y).toFixed(1)}`).join(" ");
-  document.getElementById("chart").innerHTML=g+`<polyline points="${pts}" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>`;
-}
-
-function renderFG(fg){
-  const band=bandFor(fg.score);
-  renderGauge(fg.score);
-  document.getElementById("score").textContent=fg.score;
-  const lbl=document.getElementById("scoreLabel"); lbl.textContent=band.name; lbl.style.color=band.hex;
-  const u=document.getElementById("updated");
-  if(fg._sample){ u.textContent="Sample data, live once deployed"; }
-  else if(fg.live){ u.innerHTML="Live from CNN, "+new Date(fg.updated).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"})+`<span class="live">Live</span>`; }
-  else { u.textContent="Last stored "+new Date(fg.updated).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}); }
-  const labels={ close:"Prev close", week:"1 week", month:"1 month", year:"1 year" };
-  document.getElementById("cards").innerHTML=Object.entries(labels).map(([k,label])=>{
-    const v=fg.comparisons[k], b=bandFor(v);
-    return `<div class="card"><div class="k">${label}</div><div class="v"><span class="dot" style="background:${b.hex}">${v}</span><span class="r" style="color:${b.hex}">${b.name}</span></div></div>`;
-  }).join("");
-  renderChart(fg.history);
-}
-
-function fiveRow(list){
-  return `<div class="fd-row">`+list.map(d=>{
-    const col=d.pct>=0?"var(--pos)":"var(--neg)";
-    return `<div class="fd-cell"><div class="fd-d">${fmtDay(d.date)}</div><div class="fd-p" style="color:${col}">${d.pct>=0?"+":""}${d.pct.toFixed(1)}%</div></div>`;
-  }).join("")+`</div>`;
-}
-function fearRow(list){
-  return `<div class="fd-row">`+list.map(s=>{
-    const col=s.pct>=0?"var(--pos)":"var(--neg)";
-    const open=s.open!=null?`<div class="fd-sub">open ${s.open}</div>`:`<div class="fd-sub">&nbsp;</div>`;
-    return `<div class="fd-cell"><div class="fd-d">${fmtDay(s.date)}</div><div class="fd-fear">${s.close}</div>${open}<div class="fd-p" style="color:${col}">${s.pct>=0?"+":""}${s.pct.toFixed(1)}%</div></div>`;
-  }).join("")+`</div>`;
-}
-function renderFearBlock(sessions){ document.getElementById("fearblock").innerHTML=`<div class="fd-label">Fear &amp; Greed index</div>${fearRow(sessions)}`; }
-function buildFearSessionsClient(history,opens){
-  const pts=history.slice(-6), res=[], start=Math.max(1,pts.length-5);
-  for(let i=start;i<pts.length;i++){
-    const cur=pts[i], prev=pts[i-1], key=isoET(cur.t), open=opens[key]??null, close=cur.y;
-    let pct,basis;
-    if(open!=null){ pct=((close-open)/open)*100; basis="oc"; } else { pct=((cur.y-prev.y)/prev.y)*100; basis="dod"; }
-    res.push({ date:key, open, close, pct:Number(pct.toFixed(1)), basis });
-  }
-  return res;
-}
-
-function renderStatic(d){
-  const s=d.status;
-  document.getElementById("status").innerHTML=`<span class="tag" style="background:${STATUS_COLOR[s.type]}">${STATUS_TAG[s.type]}</span><div class="headline">${s.label}</div><div class="note">${s.note}</div>`;
-  const ddCol=d.drawdownPct<=-10?"var(--neg)":"var(--ink)";
-  document.getElementById("dd").innerHTML=`<span class="big" style="color:${ddCol}">${d.drawdownPct.toFixed(1)}%</span><span class="sub">S&amp;P 500 off its peak (${d.last.toLocaleString()} vs ${d.peak.toLocaleString()})</span>`;
-  document.getElementById("fiveday").innerHTML=
-    `<div class="fd-block"><div class="fd-label">S&amp;P 500</div>${fiveRow(d.fiveDay.sp)}</div>`+
-    `<div class="fd-block"><div class="fd-label">FTSE 100</div>${fiveRow(d.fiveDay.ftse)}</div>`+
-    `<div class="fd-block" id="fearblock"></div>`;
-  if(d.fearSessions&&d.fearSessions.length){
-    renderFearBlock(d.fearSessions);
-    window.__fearOpens={}; d.fearSessions.forEach(s=>{ if(s.open!=null) window.__fearOpens[s.date]=s.open; });
-  }
+  renderHero(d.regime);
+  renderFG(d);
+  renderContext(d.context);
+  renderMarkets(d);
+  renderChart(d.history || []);
+  renderSessions(d);
+  renderWorld(d.world);
+  renderHighlights(d.researchTop);
   renderWatchlist(d.watchlist);
 }
 
-// Small line chart used by both the world overview and the accordion.
-// values are percentages already rebased to 0 at the start.
-function sparkline(values, w, h, colour){
-  if(!values||values.length<2) return "";
-  const pad=6, min=Math.min(0,...values), max=Math.max(0,...values), range=(max-min)||1;
-  const x=i=> pad + (i/(values.length-1))*(w-2*pad);
-  const y=v=> pad + (1-(v-min)/range)*(h-2*pad);
-  const pts=values.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-  const zero=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${w-pad}" y2="${y(0).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
-  return zero+`<polyline points="${pts}" fill="none" stroke="${colour}" stroke-width="2" stroke-linejoin="round"/>`;
+function renderHero(r) {
+  if (!r) return;
+  $("hero").innerHTML = `<span class="pill bg-${r.tone}">${esc(TONE_TAG[r.tone] || r.tone)}</span>
+    <div class="label">${esc(r.label)}</div><div class="action">${esc(r.action)}</div>
+    <div class="factors">${(r.factors || []).map((f) => `<div class="factor"><div class="k">${esc(f.label)}</div><div class="fv t-${f.tone}">${esc(minus(f.value))}</div><div class="fn">${esc(f.note)}</div></div>`).join("")}</div>`;
 }
 
-const WORLD_COLOURS=["#c0392b","#e3812f","#2f6f9e","#18915f","#8a6fc0"];
+function polar(cx, cy, r, deg) { const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy - r * Math.sin(a)]; }
+function arc(cx, cy, r, a0, a1) { const [x0, y0] = polar(cx, cy, r, a0), [x1, y1] = polar(cx, cy, r, a1); return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`; }
+const ang = (s) => 180 - (s / 100) * 180;
 
-function renderWorld(world){
-  const sec=document.getElementById("worldSection");
-  if(!world||!world.markets||!world.markets.length){ sec.style.display="none"; return; }
-  sec.style.display="block";
-  const scoreEl=document.getElementById("worldScore");
-  scoreEl.textContent=(world.score>0?"+":"")+world.score;
-  scoreEl.style.color=world.score>=2?"var(--pos)":world.score<=-2?"var(--neg)":"var(--muted)";
-  document.getElementById("worldVerdict").textContent=world.label;
+function renderFG(d) {
+  if (d.score == null) return;
+  const cx = 150, cy = 150, r = 116; let prev = 0, g = "";
+  for (const b of BANDS) { g += `<path d="${arc(cx, cy, r, ang(prev) - 0.8, ang(b.max) + 0.8)}" fill="none" stroke="${b.c}" stroke-width="18" opacity="${d.score > prev && d.score <= b.max ? 1 : 0.35}"/>`; prev = b.max; }
+  const [nx, ny] = polar(cx, cy, r - 30, ang(d.score));
+  g += `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="6" fill="var(--ink)"/>`;
+  $("gauge").innerHTML = g;
+  const bd = band(d.score);
+  $("score").textContent = d.score;
+  $("rating").textContent = bd.name; $("rating").style.color = bd.c;
+  const labels = { close: "Prev close", week: "1 week", month: "1 month", year: "1 year" };
+  $("cmp").innerHTML = d.comparisons ? Object.entries(labels).map(([k, l]) => `<div><div class="k">${l}</div><span class="n" style="background:${band(d.comparisons[k]).c}">${d.comparisons[k]}</span></div>`).join("") : "";
+  $("components").innerHTML = (d.components || []).map((c) => `<span>${esc(c.label)}</span><span class="sc" style="color:${band(c.score).c}">${c.score}</span><div class="bar"><i style="width:${c.score}%;background:${band(c.score).c}"></i></div>`).join("") || `<span class="muted small">Component data unavailable.</span>`;
+}
 
-  document.getElementById("worldTiles").innerHTML=world.markets.map(m=>{
-    const dcol=m.dayPct>=0?"var(--pos)":"var(--neg)";
-    const wcol=m.weekPct>=0?"var(--pos)":"var(--neg)";
-    return `<div class="tile"><div class="t-name">${m.name}</div>`+
-      `<div class="t-day" style="color:${dcol}">${m.dayPct>=0?"+":""}${m.dayPct}%</div>`+
-      `<div class="t-week">wk <span style="color:${wcol}">${m.weekPct>=0?"+":""}${m.weekPct}%</span></div></div>`;
-  }).join("");
+function renderContext(c) {
+  if (!c?.horizons) return;
+  $("ctxSection").hidden = false;
+  const m6 = c.horizons.find((h) => h.key === "m6");
+  $("ctxLead").innerHTML = m6?.similar?.median != null
+    ? `Since ${c.since.slice(0, 4)}, Fear &amp; Greed has been between <b>${c.band[0]} and ${c.band[1]}</b> on ${c.days} days across ${c.episodes} separate episodes. Six months later the S&amp;P 500 was higher <b>${m6.similar.positive}%</b> of the time.`
+    : `Not enough history yet at this reading for a fair comparison.`;
+  const cell = (s) => s?.median == null ? `<span class="muted">n/a</span>` : `<span class="hit ${pnClass(s.median)}">${signPct(s.median)}</span> <span class="vs">${s.positive}% up</span>`;
+  $("ctxBody").innerHTML = c.horizons.map((h) => `<tr><td>${h.label}</td><td>${cell(h.similar)}</td><td>${cell(h.baseline)}</td></tr>`).join("");
+  $("ctxCap").innerHTML = `Median S&amp;P 500 return after days with a similar Fear &amp; Greed reading (±5), against all days since ${c.since.slice(0, 4)}. Overlapping days make this a guide, not a forecast: ${c.episodes} episodes is a small sample.`;
+}
 
-  // five-line chart, shared scale, with axis labels so the timeframe is clear
-  const W=600,H=200,pad=10;
-  const all=world.markets.flatMap(m=>m.series);
-  const min=Math.min(0,...all), max=Math.max(0,...all), range=(max-min)||1;
-  const len=Math.max(...world.markets.map(m=>m.series.length));
-  const x=i=> pad + (i/(len-1))*(W-2*pad);
-  const y=v=> pad + (1-(v-min)/range)*(H-2*pad);
-  const fmt=v=> (v>=0?"+":"")+v.toFixed(1)+"%";
-  // weekly vertical gridlines (~5 trading sessions each), drawn under the lines
-  const wk=(n)=>{ const d=new Date(); d.setDate(d.getDate()-n*7); return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); };
-  let grid="";
-  for(let w=0; w<=6; w++){
-    const idx=(len-1)-w*5; if(idx<0) break;
-    const gx=x(idx);
-    grid+=`<line x1="${gx.toFixed(1)}" y1="${pad}" x2="${gx.toFixed(1)}" y2="${H-pad}" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4"/>`;
-    const anchor=w===0?"end":(idx===0?"start":"middle");
-    grid+=`<text x="${gx.toFixed(1)}" y="218" text-anchor="${anchor}" fill="var(--muted)" font-size="10">${w===0?"today":wk(w)}</text>`;
-  }
-  let svg=grid;
-  svg+=`<line x1="${pad}" y1="${y(0).toFixed(1)}" x2="${W-pad}" y2="${y(0).toFixed(1)}" stroke="var(--muted)" stroke-width="1" opacity="0.5"/>`;
-  // y-axis: top (max), zero, bottom (min)
-  svg+=`<text x="${pad}" y="${(y(max)+9).toFixed(1)}" fill="var(--muted)" font-size="10">${fmt(max)}</text>`;
-  svg+=`<text x="${W-pad}" y="${(y(0)-4).toFixed(1)}" text-anchor="end" fill="var(--muted)" font-size="10">0%</text>`;
-  svg+=`<text x="${pad}" y="${(y(min)-4).toFixed(1)}" fill="var(--muted)" font-size="10">${fmt(min)}</text>`;
-  world.markets.forEach((m,idx)=>{
-    const pts=m.series.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-    svg+=`<polyline points="${pts}" fill="none" stroke="${WORLD_COLOURS[idx%5]}" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>`;
+function ladder(dd) {
+  const min = -35, pos = (v) => ((Math.max(min, Math.min(0, v)) - min) / -min) * 100;
+  const ticks = [-30, -20, -15, -10, 0].map((t) => `<span class="tick" style="left:${pos(t)}%"></span><span class="tl" style="left:${pos(t)}%">${minus(t)}%</span>`).join("");
+  return `<div class="ladder" aria-hidden="true"><span class="track"></span>${ticks}<span class="dot" style="left:${pos(dd)}%"></span></div>`;
+}
+
+function renderMarkets(d) {
+  const card = (snap, st) => {
+    if (!snap) return `<div class="card muted">No data.</div>`;
+    const tone = st?.type === "buy" ? "buy" : st?.type === "watch" ? "watch" : "neutral";
+    const tag = st?.tier ? st.tier : "No tier";
+    const next = st?.nextTier ? `${st.nextTier.distance.toFixed(1)} pts to ${esc(st.nextTier.label)}` : "Deepest tier reached";
+    return `<div class="card mkt">
+      <div class="row"><div class="k" style="margin-right:auto">${esc(snap.name)}</div><span class="pill bg-${tone}">${esc(tag)}</span></div>
+      <div class="row" style="margin-top:8px"><span class="big ${snap.drawdownPct <= -10 ? "neg" : ""}">${minus(snap.drawdownPct.toFixed(1))}%</span><span class="lvl">off high · ${num(snap.level, 0)} vs ${num(snap.peak, 0)} on ${fmtDM(snap.peakDate)}</span></div>
+      ${ladder(snap.drawdownPct)}
+      <div class="small muted">${next}</div>
+      <div class="stats">
+        <div><div class="k">vs 200-day</div><div class="v ${pnClass(snap.vs200Pct)}">${signPct(snap.vs200Pct)}</div></div>
+        <div><div class="k">Month</div><div class="v ${pnClass(snap.monthPct)}">${signPct(snap.monthPct)}</div></div>
+        <div><div class="k">Year to date</div><div class="v ${pnClass(snap.ytdPct)}">${signPct(snap.ytdPct)}</div></div>
+      </div>
+      <div class="strip">${(snap.fiveDay || []).map((x) => `<div><div class="d">${fmtDay(x.date)}</div><div class="p ${pnClass(x.pct)}">${signPct(x.pct)}</div></div>`).join("")}</div>
+    </div>`;
+  };
+  const m = d.markets || {};
+  $("markets").innerHTML = card(m.sp, d.status?.US) + card(m.ftse, d.status?.UK);
+}
+
+function renderChart(history) {
+  if (history.length < 2) return;
+  const W = 800, H = 176, px = 6, py = 10;
+  const ts = history.map((h) => h.t), x0 = Math.min(...ts), x1 = Math.max(...ts);
+  const sx = (t) => px + ((t - x0) / (x1 - x0 || 1)) * (W - 2 * px), sy = (y) => py + (1 - y / 100) * (H - 2 * py);
+  let g = `<rect x="${px}" y="${sy(25)}" width="${W - 2 * px}" height="${sy(0) - sy(25)}" fill="var(--zone-buy)"/>` +
+    `<rect x="${px}" y="${sy(100)}" width="${W - 2 * px}" height="${sy(75) - sy(100)}" fill="var(--zone-sell)"/>` +
+    `<text x="${px + 6}" y="${sy(0) - 6}" fill="var(--buy)" font-size="10" font-weight="700" letter-spacing=".06em">PANIC · BUY ZONE</text>` +
+    `<text x="${px + 6}" y="${sy(100) + 14}" fill="var(--sell)" font-size="10" font-weight="700" letter-spacing=".06em">FROTH · STOP ADDING</text>`;
+  for (const v of [25, 50, 75]) g += `<line x1="${px}" x2="${W - px}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)"/><text x="${W - px}" y="${sy(v) - 3}" text-anchor="end" fill="var(--faint)" font-size="10">${v}</text>`;
+  const seen = new Set(), M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  for (const h of history) { const dt = new Date(h.t), k = `${dt.getUTCFullYear()}-${dt.getUTCMonth()}`; if (seen.has(k)) continue; seen.add(k);
+    if (seen.size === 1) continue; const xx = sx(h.t).toFixed(1), m = dt.getUTCMonth();
+    g += `<line x1="${xx}" x2="${xx}" y1="${py}" y2="${H - py}" stroke="var(--line-2)"/><text x="${(+xx + 3).toFixed(1)}" y="${H + 14}" fill="var(--muted)" font-size="9.5">${M[m]}${m === 0 ? " '" + String(dt.getUTCFullYear()).slice(2) : ""}</text>`; }
+  const pts = history.map((h) => `${sx(h.t).toFixed(1)},${sy(h.y).toFixed(1)}`).join(" ");
+  const last = history[history.length - 1];
+  g += `<polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linejoin="round"/><circle cx="${sx(last.t)}" cy="${sy(last.y)}" r="3.5" fill="${band(last.y).c}" stroke="var(--card)" stroke-width="1.5"/>`;
+  $("chart").innerHTML = g;
+}
+
+function renderSessions(d) {
+  const fs = d.fearSessions || [];
+  $("sessions").innerHTML = `<div class="lbl">Fear &amp; Greed at the close</div><div class="strip">${fs.map((s) => `<div><div class="d">${fmtDay(s.date)}</div><div class="p" style="color:${band(s.close).c}">${s.close}</div><div class="s">${s.open != null ? `open ${s.open} · ` : ""}<span class="${pnClass(s.pct)}">${signPct(s.pct, 0)}</span></div></div>`).join("")}</div>`;
+}
+
+const WC = ["#c0392b", "#d9792b", "#2f6f9e", "#14855a", "#8a6fc0"];
+function renderWorld(w) {
+  if (!w?.markets?.length) return;
+  $("worldSection").hidden = false;
+  $("worldScore").textContent = (w.score > 0 ? "+" : "") + w.score;
+  $("worldScore").className = "world-score " + (w.score >= 2 ? "pos" : w.score <= -2 ? "neg" : "muted");
+  $("worldVerdict").textContent = w.label;
+  $("worldSub").textContent = `${w.above200} of ${w.markets.length} markets above their 200-day average`;
+  $("worldTiles").innerHTML = w.markets.map((m) => `<div class="tile"><div class="tn">${esc(m.name)}</div><div class="td ${pnClass(m.dayPct)}">${signPct(m.dayPct)}</div><div class="tw">week <span class="${pnClass(m.weekPct)}">${signPct(m.weekPct)}</span></div></div>`).join("");
+  const W = 800, H = 198, p = 10, all = w.markets.flatMap((m) => m.series), mn = Math.min(0, ...all), mx = Math.max(0, ...all), rg = mx - mn || 1;
+  const len = Math.max(...w.markets.map((m) => m.series.length)), x = (i) => p + (i / (len - 1)) * (W - 2 * p), y = (v) => p + (1 - (v - mn) / rg) * (H - 2 * p);
+  let s = "";
+  for (let k = 0; k <= 6; k++) { const i = len - 1 - k * 5; if (i < 0) break; s += `<line x1="${x(i)}" x2="${x(i)}" y1="${p}" y2="${H - p}" stroke="var(--line-2)"/><text x="${x(i)}" y="${H + 16}" text-anchor="${k === 0 ? "end" : i === 0 ? "start" : "middle"}" fill="var(--muted)" font-size="10">${k === 0 ? "latest" : `-${k}w`}</text>`; }
+  s += `<line x1="${p}" x2="${W - p}" y1="${y(0)}" y2="${y(0)}" stroke="var(--faint)" stroke-dasharray="3 3"/>`;
+  s += `<text x="${p}" y="${y(mx) + 10}" fill="var(--muted)" font-size="10">${signPct(mx)}</text><text x="${p}" y="${y(mn) - 4}" fill="var(--muted)" font-size="10">${signPct(mn)}</text>`;
+  w.markets.forEach((m, i) => { s += `<polyline points="${m.series.map((v, j) => `${x(j).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}" fill="none" stroke="${WC[i % 5]}" stroke-width="1.8" stroke-linejoin="round"/>`; });
+  $("worldChart").innerHTML = s;
+  $("worldLegend").innerHTML = w.markets.map((m, i) => `<span><i style="background:${WC[i % 5]}"></i>${esc(m.name)}</span>`).join("");
+}
+
+function renderHighlights(h) {
+  if (!h) return;
+  $("hlSection").hidden = false;
+  const list = (title, xs, fmt, empty) => `<div class="card"><div class="k">${title}</div><ul>${xs.length ? xs.map(fmt).join("") : `<li class="muted">${empty}</li>`}</ul></div>`;
+  $("hl").innerHTML =
+    list("Long-term", h.longTerm, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "Nothing scoring well right now.") +
+    list("Swing setups", h.swing, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "No setups today.") +
+    list("Earnings in the next week", h.earnings, (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
+}
+
+function renderWatchlist(list) {
+  if (!list?.length) return;
+  $("wlSection").hidden = false;
+  const sorted = list.slice().sort((a, b) => (b.rebound - a.rebound) || (a.dropFromHigh - b.dropFromHigh));
+  $("watchlist").innerHTML = sorted.map((w, i) => `
+    <div class="wl-row" role="button" tabindex="0" aria-expanded="false" data-i="${i}">
+      <span><span class="nm">${esc(w.name)}</span><span class="sym">${esc(w.symbol)}</span><span class="caret">▶</span></span>
+      <span class="hide-s ${w.dropFromHigh <= -8 ? "neg" : "muted"}">${signPct(w.dropFromHigh)} off high</span>
+      <span class="hide-s ${pnClass(w.lastChange)}">${signPct(w.lastChange)} last</span>
+      <span class="pill ${w.rebound ? "bg-buy" : "plain"}">${w.rebound ? "Rebound" : "Watching"}</span>
+    </div>
+    <div class="wl-detail" id="wd${i}">
+      <div class="grid-4" style="margin-bottom:10px">${[["Last session", w.lastChange], ["Session before", w.previous], ["Week", w.week], ["Month", w.month]].map(([k, v]) => `<div><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
+      <svg viewBox="0 0 320 64" class="chart">${sparkline(w.series, 320, 64, w.lastChange >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg>
+      <div class="cap" style="margin-top:6px">Last 30 sessions, rebased to 0%. <a href="https://finance.yahoo.com/quote/${encodeURIComponent(w.yahoo)}" target="_blank" rel="noopener">${esc(w.symbol)} on Yahoo ↗</a></div>
+    </div>`).join("");
+  document.querySelectorAll(".wl-row").forEach((row) => {
+    const t = () => { const d = $("wd" + row.dataset.i); const open = d.classList.toggle("show"); row.setAttribute("aria-expanded", String(open)); };
+    row.addEventListener("click", t);
+    row.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); t(); } });
   });
-  svg+=`<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="var(--line)" stroke-width="1"/>`;
-  document.getElementById("worldChart").innerHTML=svg;
-  document.getElementById("worldLegend").innerHTML=world.markets.map((m,idx)=>
-    `<span><i style="background:${WORLD_COLOURS[idx%5]}"></i>${m.name}</span>`).join("");
 }
 
-function renderWatchlist(list){
-  const sec=document.getElementById("watchlistSection");
-  if(!list||!list.length){ sec.style.display="none"; return; }
-  sec.style.display="block";
-  const sorted=list.slice().sort((a,b)=> (b.rebound-a.rebound) || (a.dropFromHigh-b.dropFromHigh));
-  document.getElementById("watchlist").innerHTML=sorted.map((w,i)=>{
-    const dcol=w.dropFromHigh<=-8?"var(--neg)":"var(--muted)";
-    const lcol=w.lastChange>=0?"var(--pos)":"var(--neg)";
-    const flag=w.rebound?`<span class="wl-flag">Rebound</span>`:`<span class="wl-flag off">watching</span>`;
-    const ysym=w.yahoo||w.symbol;
-    const stat=(k,v)=>{ const c=v==null?"var(--muted)":v>=0?"var(--pos)":"var(--neg)"; const t=v==null?"n/a":(v>=0?"+":"")+v+"%"; return `<div class="wl-stat"><div class="k">${k}</div><div class="v" style="color:${c}">${t}</div></div>`; };
-    const detail=`<div class="wl-detail" id="wd${i}">`+
-      `<div class="wl-stats">${stat("Today",w.today)}${stat("Yesterday",w.yesterday)}${stat("Week",w.week)}${stat("Month",w.month)}</div>`+
-      `<svg viewBox="0 0 320 70" style="width:100%;height:auto" aria-label="${w.name} 30-session trend">${sparkline(w.series,320,70,w.lastChange>=0?"var(--pos)":"var(--neg)")}</svg>`+
-      `<div class="cap" style="margin-top:6px">30 sessions, rebased to 0% at the start. <a href="https://finance.yahoo.com/quote/${ysym}" target="_blank" rel="noopener">Open ${w.symbol} on Yahoo &#8599;</a></div></div>`;
-    return `<div class="wl-row" data-detail="wd${i}" role="button" tabindex="0" aria-expanded="false">`+
-      `<span class="wl-name">${w.name}<span class="wl-sym">${w.symbol}</span><span class="wl-caret">&#9654;</span></span>`+
-      `<span class="wl-metric" style="color:${dcol}">${w.dropFromHigh}% off high</span>`+
-      `<span class="wl-metric" style="color:${lcol}">${w.lastChange>=0?"+":""}${w.lastChange}% last</span>${flag}</div>${detail}`;
-  }).join("");
-
-  // expand/collapse
-  document.querySelectorAll("#watchlist .wl-row").forEach(row=>{
-    const toggle=()=>{
-      const d=document.getElementById(row.dataset.detail);
-      const open=d.classList.toggle("show");
-      row.classList.toggle("wl-open",open);
-      row.setAttribute("aria-expanded",open?"true":"false");
-    };
-    row.addEventListener("click",toggle);
-    row.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } });
-  });
-}
-
-function render(d){
-  document.getElementById("sampleBanner").style.display=d._sample?"block":"none";
-  renderWorld(d.world);
-  renderFG({ score:d.score, comparisons:d.comparisons, history:d.history, updated:d.updated, live:false, _sample:d._sample });
-  renderStatic(d);
-}
-
-async function patchLiveFG(){
-  const FG="https://production.dataviz.cnn.io/index/fearandgreed/graphdata";
-  const PROXY="https://api.allorigins.win/raw?url=";
-  try{
-    const res=await fetch(PROXY+encodeURIComponent(FG),{cache:"no-store"});
-    if(!res.ok) throw new Error("proxy failed");
-    const data=await res.json(), f=data.fear_and_greed;
-    const history=(data.fear_and_greed_historical?.data||[]).slice(-400).map(p=>({t:p.x,y:Math.round(p.y)}));
-    renderFG({
-      score:Math.round(f.score),
-      comparisons:{ close:Math.round(f.previous_close), week:Math.round(f.previous_1_week), month:Math.round(f.previous_1_month), year:Math.round(f.previous_1_year) },
-      history, updated:Date.now(), live:true,
-    });
-    if(document.getElementById("fearblock")) renderFearBlock(buildFearSessionsClient(history, window.__fearOpens||{}));
-  }catch(e){ /* keep stored values already on screen */ }
-}
-
-(async function(){
-  try{ const res=await fetch("./data.json?t="+Date.now()); if(!res.ok) throw 0; render(await res.json()); }
-  catch(e){ render(SAMPLE); }
-  patchLiveFG();
+// Stored data first; then, if it's over an hour old, try a live Fear & Greed
+// reading via a public proxy (best effort, silently ignored on failure).
+(async () => {
+  let d;
+  try { const r = await fetch("data.json?t=" + Date.now()); if (!r.ok) throw 0; d = await r.json(); render(d); }
+  catch { $("hero").innerHTML = `<div class="label">No data yet</div><div class="action">The monitor hasn't produced data.json yet.</div>`; return; }
+  if (Date.now() - Date.parse(d.updated) < 3600e3) return;
+  try {
+    const r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent("https://production.dataviz.cnn.io/index/fearandgreed/graphdata"), { signal: AbortSignal.timeout(5000), cache: "no-store" });
+    const j = await r.json(), f = j.fear_and_greed;
+    if (!Number.isFinite(f?.score)) return;
+    renderFG({ ...d, score: Math.round(f.score), comparisons: { close: Math.round(f.previous_close), week: Math.round(f.previous_1_week), month: Math.round(f.previous_1_month), year: Math.round(f.previous_1_year) } });
+    $("meta").insertAdjacentHTML("beforeend", `<span class="pill bg-buy plain">F&amp;G live</span>`);
+  } catch { /* keep stored values */ }
 })();
 </script>
 </body>
