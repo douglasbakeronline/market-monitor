@@ -11,7 +11,7 @@
   "trimActive": false,
   "fearNoDipActive": true,
   "summarySent": {
-    "UK": "2026-10-26",
+    "UK": "2026-10-27",
     "US": "2026-10-26"
   },
   "digestSent": null,
@@ -124,14 +124,14 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 27,
+      "score": 28,
       "rating": "fear",
-      "asOf": "2026-10-26T23:59:53+00:00",
+      "asOf": "2026-10-27T07:59:01+00:00",
       "comparisons": {
-        "close": 21,
-        "week": 21,
+        "close": 27,
+        "week": 30,
         "month": 37,
-        "year": 32
+        "year": 37
       },
       "components": [
         {
@@ -143,13 +143,13 @@
         {
           "key": "stock_price_strength",
           "label": "Stock price strength",
-          "score": 23,
-          "rating": "extreme fear"
+          "score": 27,
+          "rating": "fear"
         },
         {
           "key": "stock_price_breadth",
           "label": "Stock price breadth",
-          "score": 26,
+          "score": 27,
           "rating": "fear"
         },
         {
@@ -1425,12 +1425,17 @@
         },
         {
           "date": "2026-10-26",
-          "t": 1793059193000,
-          "y": 27
+          "t": 1792972800000,
+          "y": 28
+        },
+        {
+          "date": "2026-10-27",
+          "t": 1793087941000,
+          "y": 28
         }
       ]
     },
-    "fgAt": "2026-10-27T02:35:10.288Z",
+    "fgAt": "2026-10-27T08:15:00.586Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1509,27 +1514,23 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10767.33,
-        "date": "2026-10-26",
-        "asOf": "2026-10-26T16:35:29.000Z",
+        "level": 10767.81,
+        "date": "2026-10-27",
+        "asOf": "2026-10-27T08:00:00.000Z",
         "currency": "GBP",
         "drawdownPct": -1.3,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10706.15,
-        "sma200": 10512.58,
+        "sma50": 10707.1,
+        "sma200": 10515.73,
         "vs200Pct": 2.4,
         "above200": true,
         "rsi14": 55.3,
-        "dayPct": 0.7,
-        "weekPct": 0,
-        "monthPct": 0.7,
+        "dayPct": 0,
+        "weekPct": 0.3,
+        "monthPct": 0.8,
         "ytdPct": 8.4,
         "fiveDay": [
-          {
-            "date": "2026-10-20",
-            "pct": -0.29
-          },
           {
             "date": "2026-10-21",
             "pct": 0.19
@@ -1545,47 +1546,51 @@
           {
             "date": "2026-10-26",
             "pct": 0.72
+          },
+          {
+            "date": "2026-10-27",
+            "pct": 0
           }
         ],
         "series": [
           0,
-          0.29,
-          1.48,
-          0.01,
-          0.76,
+          1.19,
+          -0.28,
           0.47,
-          0.44,
-          0.21,
-          0.35,
-          0.25,
-          -0.2,
-          -0.49,
-          -2.16,
-          -1.84,
-          -1.5,
-          -1.09,
-          -1.87,
-          -2.03,
-          -0.99,
-          -0.02,
-          -0.07,
-          0.63,
-          1.71,
-          2.1,
-          1,
-          0.7,
-          0.89,
-          0.63,
-          0.3,
-          1.02
+          0.19,
+          0.16,
+          -0.08,
+          0.06,
+          -0.03,
+          -0.48,
+          -0.77,
+          -2.43,
+          -2.12,
+          -1.78,
+          -1.37,
+          -2.15,
+          -2.31,
+          -1.28,
+          -0.3,
+          -0.36,
+          0.34,
+          1.42,
+          1.81,
+          0.71,
+          0.42,
+          0.6,
+          0.34,
+          0.02,
+          0.74,
+          0.74
         ]
       },
       "vix": {
-        "level": 18.39,
-        "dayPct": -5.4,
-        "date": "2026-10-26"
+        "level": 18.49,
+        "dayPct": 0.5,
+        "date": "2026-10-27"
       },
-      "at": "2026-10-27T02:35:10.288Z"
+      "at": "2026-10-27T08:15:00.586Z"
     },
     "watchlist": [
       {
@@ -2280,22 +2285,22 @@
       }
     ],
     "context": {
-      "score": 27,
+      "score": 28,
       "band": [
-        22,
-        32
+        23,
+        33
       ],
       "since": "2020-07-15",
-      "days": 231,
-      "episodes": 24,
+      "days": 233,
+      "episodes": 25,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 221,
+            "n": 224,
             "median": 1.9,
-            "positive": 73
+            "positive": 72
           },
           "baseline": {
             "n": 1557,
@@ -2307,8 +2312,8 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 214,
-            "median": 3.9,
+            "n": 215,
+            "median": 3.7,
             "positive": 67
           },
           "baseline": {
@@ -2321,9 +2326,9 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 205,
-            "median": 6.5,
-            "positive": 74
+            "n": 204,
+            "median": 6.6,
+            "positive": 75
           },
           "baseline": {
             "n": 1452,
@@ -2335,9 +2340,9 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 185,
-            "median": 12.3,
-            "positive": 56
+            "n": 186,
+            "median": 12,
+            "positive": 54
           },
           "baseline": {
             "n": 1327,
@@ -2348,14 +2353,5 @@
       ]
     }
   },
-  "pending": [
-    {
-      "kind": "fear-no-dip",
-      "priority": "low",
-      "tags": "eyes",
-      "title": "HEADS-UP · Fear without a dip",
-      "body": "Fear & Greed 27 (fear) but the S&P is only 1.8% off its high. Sentiment often cracks before prices: get your shopping list ready.\nSince 2020, when F&G was 22–32, the S&P was up 74% of the time 6 months later (median +6.5%, vs +9.1% on any day).",
-      "heldAt": "01:34"
-    }
-  ]
+  "pending": []
 }
