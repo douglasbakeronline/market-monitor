@@ -73,7 +73,11 @@ jobs:
       # then hand over to a fresh run, so we never depend on GitHub's late cron.
       - name: Relay towards ${{ steps.next.outputs.slot }}
         if: steps.next.outputs.within != 'true'
-        run: sleep $(( ${{ steps.next.outputs.wait }} - 20400 > 20400 ? 20400 : ${{ steps.next.outputs.wait }} - 20400 ))
+        env:
+          WAIT: ${{ steps.next.outputs.wait }}
+        run: |
+          s=$(( WAIT - 20400 )); [ "$s" -gt 20400 ] && s=20400
+          echo "Relaying: sleeping ${s}s"; sleep "$s"
 
       - name: Start next run
         if: github.ref == 'refs/heads/main'
