@@ -1439,7 +1439,7 @@
         }
       ]
     },
-    "fgAt": "2026-10-28T08:15:00.227Z",
+    "fgAt": "2026-10-28T08:15:23.956Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1518,22 +1518,22 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10687.02,
+        "level": 10670.62,
         "date": "2026-10-28",
-        "asOf": "2026-10-28T08:00:00.000Z",
+        "asOf": "2026-10-28T08:00:24.000Z",
         "currency": "GBP",
-        "drawdownPct": -2,
+        "drawdownPct": -2.2,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10704.66,
-        "sma200": 10517.84,
-        "vs200Pct": 1.6,
+        "sma50": 10704.33,
+        "sma200": 10517.76,
+        "vs200Pct": 1.5,
         "above200": true,
-        "rsi14": 49.8,
-        "dayPct": 0,
-        "weekPct": -0.6,
-        "monthPct": 0.5,
-        "ytdPct": 7.6,
+        "rsi14": 48.7,
+        "dayPct": -0.1,
+        "weekPct": -0.8,
+        "monthPct": 0.3,
+        "ytdPct": 7.4,
         "fiveDay": [
           {
             "date": "2026-10-22",
@@ -1553,7 +1553,7 @@
           },
           {
             "date": "2026-10-28",
-            "pct": 0
+            "pct": -0.15
           }
         ],
         "series": [
@@ -1586,7 +1586,7 @@
           -1.16,
           -0.45,
           -1.2,
-          -1.19
+          -1.35
         ]
       },
       "vix": {
@@ -1594,7 +1594,7 @@
         "dayPct": -0.3,
         "date": "2026-10-28"
       },
-      "at": "2026-10-28T08:15:00.227Z"
+      "at": "2026-10-28T08:15:23.956Z"
     },
     "watchlist": [
       {
@@ -2154,7 +2154,7 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 12756,
+        "price": 12754,
         "date": "2026-10-28",
         "dropFromHigh": -1.7,
         "lastChange": -0.8,
@@ -2191,7 +2191,7 @@
           6.95,
           5.67,
           5.92,
-          5.11
+          5.09
         ],
         "rebound": false
       },
@@ -2200,13 +2200,13 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3927.5,
-        "date": "2026-10-27",
-        "dropFromHigh": -2.6,
-        "lastChange": -1.8,
+        "price": 3932,
+        "date": "2026-10-28",
+        "dropFromHigh": -2.5,
+        "lastChange": -1.7,
         "previous": -0.8,
-        "week": 0.7,
-        "month": 7.5,
+        "week": 0.8,
+        "month": 7.6,
         "series": [
           0,
           -0.15,
@@ -2237,7 +2237,7 @@
           8.72,
           12.76,
           11.83,
-          9.81
+          9.94
         ],
         "rebound": false
       },
@@ -2246,13 +2246,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1291.4,
-        "date": "2026-10-27",
-        "dropFromHigh": -9.7,
-        "lastChange": -5.4,
+        "price": 1293.76,
+        "date": "2026-10-28",
+        "dropFromHigh": -9.6,
+        "lastChange": -5.2,
         "previous": 1,
-        "week": -6.8,
-        "month": -14.8,
+        "week": -6.6,
+        "month": -14.7,
         "series": [
           0,
           1.96,
@@ -2283,7 +2283,7 @@
           -9.36,
           -10.33,
           -9.44,
-          -14.35
+          -14.2
         ],
         "rebound": false
       }
