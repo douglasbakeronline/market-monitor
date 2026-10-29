@@ -14,10 +14,10 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Delete leftover branches `probe` (and `dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
-1. **Scanner alerts and summary lines:** surface new full-score good entries and top swing setups from the index scan in the UK/US summaries and the digest (no separate pings).
-2. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
-3. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (needs ~1 month of data).
-4. **Portfolio view:** holdings, weights vs target, rebalancing prompts tied to the trim signal (needs holdings from Douglas, or a placeholder).
+1. **Portfolio view and trade log (agreed in the 29 Oct strategy deck):** pots with target weights (core index, dip reserve, long-term picks, swing), current value vs target, a trade log where every trade records the rule that triggered it, and rebalancing prompts. Keep amounts out of the public repo: read holdings from a private source or let Douglas enter them in the browser (localStorage), not committed files.
+2. **Congress-trade flag:** check for a free, reliable feed of US House/Senate trade disclosures; if one exists, add a "Congress buying" tag on Research and scan pages, tracked in the track record like any other signal. Use only as a tie-breaker.
+3. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
+4. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (needs ~1 month of data).
 5. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds.
 6. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
 
