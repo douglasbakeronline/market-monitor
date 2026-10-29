@@ -143,6 +143,15 @@ const st = { lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, 
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter })); } catch {} };
 
+const chg = (v) => v == null || v === 0 ? "" : ` <span class="${v > 0 ? "pos" : "neg"}" title="Change over the past week">${v > 0 ? "▲" : "▼"}${Math.abs(v)}</span>`;
+function scoreTrend(pts) {
+  const v = (pts || []).filter((p) => p[1] != null);
+  if (v.length < 2) return `<p class="sub" style="margin:0">Builds up day by day: there's ${v.length ? "one day" : "no history"} so far.</p>`;
+  const W = 600, H = 70, pad = 6, x = (i) => pad + (i / (v.length - 1)) * (W - 2 * pad), y = (s) => pad + (1 - s / 100) * (H - 2 * pad);
+  const line = (k, col) => `<polyline points="${v.map((p, i) => `${x(i).toFixed(1)},${y(p[k] ?? 50).toFixed(1)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart" style="width:100%;height:auto"><line x1="${pad}" x2="${W - pad}" y1="${y(65)}" y2="${y(65)}" stroke="var(--line)" stroke-dasharray="3 3"/>${line(1, "var(--ink)")}${line(2, "var(--accent)")}</svg>
+    <div class="sub" style="display:flex;gap:14px;margin-top:4px"><span>— long-term</span><span style="color:var(--accent)">— swing</span><span>dashed line: 65</span><span style="margin-left:auto">${fmtDay(v[0][0])} to ${fmtDay(v[v.length - 1][0])}</span></div>`;
+}
 function ring(score) { return `<span class="ring" style="--v:${score ?? 0};--c:${toneVar(score)}">${score ?? "–"}</span>`; }
 const vtag = (v) => `<span class="verdict t-${VERDICT_TONE[v] || "neutral"}">${esc(v)}</span>`;
 
@@ -181,8 +190,8 @@ function rowHtml(it, i) {
   return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
     <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}</div></div>
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
-    <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term</div></div></div>
-    <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing</div></div></div>
+    <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
+    <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>
     <div><div class="tags">${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
     <span class="caret">▶</span>
   </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
@@ -206,7 +215,9 @@ function detailHtml(it) {
   const perf = [["Day", it.perf?.day], ["Week", it.perf?.week], ["Month", it.perf?.month], ["3 months", it.perf?.m3], ["1 year", it.perf?.y1]];
   const yahoo = `https://finance.yahoo.com/quote/${encodeURIComponent(it.symbol)}`;
   const finviz = it.market === "US" ? `<a href="https://finviz.com/quote.ashx?t=${encodeURIComponent(it.ticker)}" target="_blank" rel="noopener">Finviz ↗</a>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${notes}
+  const lr = it.lastResults;
+  const results = lr ? (lr.pending ? `<div class="note">Reported ${fmtDay(lr.date)}: the reaction shows after the next close.</div>` : `<div class="note ${lr.pct >= 0 ? "good" : ""}">Results ${fmtDay(lr.date)}: ${signPct(lr.pct)} from the close before to the close after.</div>`) : "";
+  return `<p class="summary">${esc(it.summary)}</p>${results}${notes}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -233,6 +244,7 @@ function detailHtml(it) {
     </div>
   </div>
   <div class="perf">${perf.map(([k, v]) => `<div class="panel" style="padding:8px 10px"><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
+  <div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>
   <div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>
   <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}</div>`;
 }

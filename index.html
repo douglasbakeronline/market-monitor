@@ -85,6 +85,13 @@
   .wl-detail { display: none; padding: 4px 2px 14px; }
   .wl-detail.show { display: block; }
   @media (max-width: 520px) { .wl-row { grid-template-columns: 1fr auto; } .wl-row .hide-s { display: none; } }
+  .tr-head { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+  .tr-row { display: grid; grid-template-columns: 74px 1fr auto auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .tr-row .when { color: var(--muted); font-size: 12px; }
+  .tr-row .what b { font-weight: 650; }
+  .tr-row .num { text-align: right; min-width: 64px; }
+  .tr-row .num .sub { display: block; font-size: 11px; color: var(--muted); }
+  @media (max-width: 520px) { .tr-row { grid-template-columns: 60px 1fr auto; } .tr-row .vs { display: none; } }
 </style>
 </head>
 <body>
@@ -167,6 +174,16 @@
     <div class="hl" id="hl"></div>
   </section>
 
+  <!-- Track record -->
+  <section class="section" id="trSection" hidden>
+    <div class="eyebrow">Track record</div>
+    <div class="card">
+      <div class="tr-head" id="trHead"></div>
+      <div id="trList"></div>
+    </div>
+    <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against the S&amp;P 500 over the same period. For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
+  </section>
+
   <!-- 8. Rebound watch -->
   <section class="section" id="wlSection" hidden>
     <div class="eyebrow">Rebound watch</div>
@@ -207,6 +224,7 @@ function render(d) {
   renderWorld(d.world);
   renderHighlights(d.researchTop);
   renderWatchlist(d.watchlist);
+  renderTrack(d.trackRecord);
 }
 
 function renderHero(r) {
@@ -329,6 +347,27 @@ function renderHighlights(h) {
     list("Long-term", h.longTerm, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "Nothing scoring well right now.") +
     list("Swing setups", h.swing, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "No setups today.") +
     list("Earnings in the next week", h.earnings, (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
+}
+
+const DOWN_GOOD = new Set(["greed", "trim"]);
+const KIND = { buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed", trim: "Trim", "research-lt": "Long-term entry", "research-swing": "Swing setup" };
+function renderTrack(tr) {
+  if (!tr?.recent?.length) return;
+  $("trSection").hidden = false;
+  const s = tr.summary;
+  const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
+  $("trHead").innerHTML = stat("Signals logged", s.total, s.since ? `since ${fmtDM(s.since)}` : "") +
+    stat(s.basis === "m1" ? "Right after 1 month" : "Right so far", s.hitRate == null ? "n/a" : `${s.hitRate}%`, `${s.scored} scored`) +
+    stat("Beat the S&amp;P", s.beatSp == null ? "n/a" : `${s.beatSp}%`, "same period");
+  const tone = (k, v) => v == null ? "muted" : (DOWN_GOOD.has(k) ? (v < 0 ? "pos" : "neg") : pnClass(v));
+  $("trList").innerHTML = tr.recent.map((x) => {
+    const p = x.perf || {};
+    const days = p.sessions != null ? `${p.sessions} session${p.sessions === 1 ? "" : "s"}` : "pending";
+    return `<div class="tr-row"><span class="when">${fmtDM(x.date)}</span>
+      <span class="what"><b>${esc(x.ticker || x.name)}</b> <span class="muted">${esc(KIND[x.kind] || x.kind)}</span></span>
+      <span class="num ${tone(x.kind, p.now)}">${signPct(p.now)}<span class="sub">${days}</span></span>
+      <span class="num vs ${tone(x.kind, p.vsSp)}">${p.vsSp == null ? "n/a" : signPct(p.vsSp)}<span class="sub">vs S&amp;P</span></span></div>`;
+  }).join("");
 }
 
 function renderWatchlist(list) {

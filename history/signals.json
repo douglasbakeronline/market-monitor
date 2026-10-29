@@ -1,0 +1,25 @@
+[
+  {
+    "kind": "fear-no-dip",
+    "at": "2026-10-27T01:34:19+00:00",
+    "date": "2026-10-26",
+    "symbol": "^GSPC",
+    "ticker": "S&P 500",
+    "name": "S&P 500",
+    "price": 7676.77,
+    "label": "HEADS-UP \u00b7 Fear without a dip",
+    "id": "2026-10-26:fear-no-dip:^GSPC"
+  },
+  {
+    "kind": "research-lt",
+    "at": "2026-10-29T20:10:19+00:00",
+    "date": "2026-10-29",
+    "symbol": "AMZN",
+    "ticker": "AMZN",
+    "name": "Amazon",
+    "price": 243.79,
+    "currency": "USD",
+    "label": "Long-term good entry (75)",
+    "id": "2026-10-29:research-lt:AMZN"
+  }
+]

@@ -103,12 +103,12 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
       const dd = snap.drawdownPct, tier = deepestTier(dd);
       const lastBuy = ns.buyTier[market] ?? 0, lastWatch = ns.watchTier[market] ?? 0;
       if (tier && panic && tier.drawdown < lastBuy) {
-        alerts.push({ kind: "buy", priority: "high", tags: "green_circle,moneybag",
+        alerts.push({ kind: "buy", market, priority: "high", tags: "green_circle,moneybag",
           title: `BUY · ${snap.name} ${tier.label}`,
           body: `${snap.name} ${dd.toFixed(1)}% off its 52-week high. Fear & Greed ${score} (${ratingFor(score)})${vix?.level ? `, VIX ${vix.level.toFixed(1)}` : ""}.\n${tier.note}` });
         ns.buyTier[market] = tier.drawdown;
       } else if (tier && !panic && fgOk && tier.drawdown < lastWatch && tier.drawdown < lastBuy) {
-        alerts.push({ kind: "watch", priority: "default", tags: "yellow_circle",
+        alerts.push({ kind: "watch", market, priority: "default", tags: "yellow_circle",
           title: `WATCH · ${snap.name} ${tier.label}`,
           body: `${snap.name} ${dd.toFixed(1)}% off its high, but sentiment isn't panicking (F&G ${score}). Scale in slowly; wait for fear to confirm bigger adds.` });
         ns.watchTier[market] = tier.drawdown;
