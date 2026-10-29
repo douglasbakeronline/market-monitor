@@ -270,6 +270,7 @@ function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRec
     if (h.movers?.length) L.push(`Biggest score changes this week: ${h.movers.map((x) => `${x.ticker} ${x.change > 0 ? "+" : ""}${x.change} (now ${x.score})`).join(", ")}.`);
     if (h.earnings.length) L.push(`Earnings next 7 days: ${h.earnings.map((e) => `${e.ticker} ${e.date}`).join(", ")}.`);
   }
+  if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
   if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatSp}% beat the S&P.`);
   return L.join("\n");
 }

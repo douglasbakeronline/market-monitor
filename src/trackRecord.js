@@ -59,7 +59,8 @@ export function evaluate(log, rowsBySymbol, spRows) {
 
 // Headline numbers: hit rate at one month (or "so far" if nothing is a month old yet).
 export function summarise(log) {
-  const scored = log.filter((s) => s.perf?.now != null);
+  // A signal needs at least a week of trading before it says anything.
+  const scored = log.filter((s) => s.perf?.now != null && (s.perf.sessions ?? 0) >= 5);
   const right = (s, v) => (DOWN_IS_GOOD.has(s.kind) ? v < 0 : v > 0);
   const m1 = scored.filter((s) => s.perf.m1 != null);
   const basis = m1.length >= 3 ? "m1" : "now";

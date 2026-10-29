@@ -357,8 +357,8 @@ function renderTrack(tr) {
   const s = tr.summary;
   const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
   $("trHead").innerHTML = stat("Signals logged", s.total, s.since ? `since ${fmtDM(s.since)}` : "") +
-    stat(s.basis === "m1" ? "Right after 1 month" : "Right so far", s.hitRate == null ? "n/a" : `${s.hitRate}%`, `${s.scored} scored`) +
-    stat("Beat the S&amp;P", s.beatSp == null ? "n/a" : `${s.beatSp}%`, "same period");
+    stat(s.basis === "m1" ? "Right after 1 month" : "Right so far", s.hitRate == null ? "Too early" : `${s.hitRate}%`, s.scored ? `${s.scored} scored` : "each needs a week") +
+    stat("Beat the S&amp;P", s.beatSp == null ? "Too early" : `${s.beatSp}%`, "same period");
   const tone = (k, v) => v == null ? "muted" : (DOWN_GOOD.has(k) ? (v < 0 ? "pos" : "neg") : pnClass(v));
   $("trList").innerHTML = tr.recent.map((x) => {
     const p = x.perf || {};

@@ -23,9 +23,10 @@ test("evaluate scores returns at horizons and against the S&P", () => {
 
 test("for greed and trim, a fall afterwards counts as right", () => {
   const log = [
-    { kind: "greed", perf: { now: -3, vsSp: 0 } },
-    { kind: "buy", perf: { now: 4, vsSp: 1 } },
-    { kind: "research-lt", perf: { now: -2, vsSp: -1 } },
+    { kind: "greed", perf: { now: -3, vsSp: 0, sessions: 6 } },
+    { kind: "buy", perf: { now: 4, vsSp: 1, sessions: 6 } },
+    { kind: "research-lt", perf: { now: -2, vsSp: -1, sessions: 6 } },
+    { kind: "buy", perf: { now: 9, vsSp: 9, sessions: 2 } },
   ];
   const s = summarise(log);
   assert.equal(s.basis, "now");
@@ -51,4 +52,8 @@ test("earnings reaction spans the results day (before or after the bell)", () =>
   assert.deepEqual(lastReaction(e.G, r, "2026-10-29"), { date: "2026-10-28", pending: false, pct: -12, from: "2026-10-27", to: "2026-10-29" });
   assert.equal(lastReaction(["2026-10-29"], r, "2026-10-29").pending, true);
   assert.equal(lastReaction(["2026-11-05"], r, "2026-10-29"), null, "future dates are not reactions");
+});
+
+test("signals younger than a week are not scored", () => {
+  assert.equal(summarise([{ kind: "buy", perf: { now: 1, sessions: 2 } }]).hitRate, null);
 });
