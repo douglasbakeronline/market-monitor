@@ -6,7 +6,7 @@ import { sleep } from "../util.js";
 
 let session = null;
 
-async function yahooSession() {
+export async function yahooSession() {
   if (session) return session;
   const c = await fetch("https://fc.yahoo.com", { headers: { "user-agent": UA }, redirect: "manual", signal: AbortSignal.timeout(15000) });
   const cookie = c.headers.getSetCookie().map((x) => x.split(";")[0]).join("; ");
