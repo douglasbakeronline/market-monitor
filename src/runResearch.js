@@ -52,8 +52,11 @@ export async function runResearch({ regimeKey, state }) {
   for (const it of items) {
     const p = prev[it.symbol] || {};
     const lt = it.longTerm.verdict, sw = it.swing?.verdict ?? null;
-    if (lt === "Good entry" && p.lt !== "Good entry") lines.push(`${it.ticker}: long-term good entry (${it.longTerm.score}/100)`);
-    if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")})`);
+    const ed = it.earnings?.days;
+    const earn = ed != null && ed >= 0 && ed <= 7 ? ` Earnings ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: consider waiting for the results.` : "";
+    const move = it.perf?.day != null ? `, ${it.perf.day >= 0 ? "+" : ""}${it.perf.day}% today` : "";
+    if (lt === "Good entry" && p.lt !== "Good entry") lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
+    if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
     next[it.symbol] = { lt, sw };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
