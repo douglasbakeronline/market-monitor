@@ -1443,7 +1443,7 @@
         }
       ]
     },
-    "fgAt": "2026-10-29T11:59:59.894Z",
+    "fgAt": "2026-10-29T12:00:26.857Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1522,15 +1522,15 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10732.63,
+        "level": 10732.05,
         "date": "2026-10-29",
-        "asOf": "2026-10-29T11:45:00.000Z",
+        "asOf": "2026-10-29T11:45:27.000Z",
         "currency": "GBP",
         "drawdownPct": -1.6,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10704.59,
-        "sma200": 10520.35,
+        "sma50": 10704.58,
+        "sma200": 10520.34,
         "vs200Pct": 2,
         "above200": true,
         "rsi14": 52.8,
@@ -1557,7 +1557,7 @@
           },
           {
             "date": "2026-10-29",
-            "pct": 0.36
+            "pct": 0.35
           }
         ],
         "series": [
@@ -1590,15 +1590,15 @@
           1.02,
           0.26,
           0.33,
-          0.69
+          0.68
         ]
       },
       "vix": {
-        "level": 17.1,
-        "dayPct": 1.1,
+        "level": 17.11,
+        "dayPct": 1.2,
         "date": "2026-10-29"
       },
-      "at": "2026-10-29T11:59:59.894Z"
+      "at": "2026-10-29T12:00:26.857Z"
     },
     "watchlist": [
       {
@@ -2158,7 +2158,7 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13008,
+        "price": 13006,
         "date": "2026-10-29",
         "dropFromHigh": 0,
         "lastChange": 1.9,
@@ -2195,7 +2195,7 @@
           2.83,
           2.58,
           2.11,
-          4.06
+          4.05
         ],
         "rebound": false
       },
@@ -2204,7 +2204,7 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 4067.16,
+        "price": 4067,
         "date": "2026-10-29",
         "dropFromHigh": 0,
         "lastChange": 2.8,
@@ -2250,13 +2250,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1297.96,
+        "price": 1297.6,
         "date": "2026-10-29",
         "dropFromHigh": -9.1,
         "lastChange": 0.1,
         "previous": 0.4,
         "week": -5,
-        "month": -13.3,
+        "month": -13.4,
         "series": [
           0,
           1.4,
@@ -2287,7 +2287,7 @@
           -9.73,
           -14.62,
           -14.28,
-          -14.19
+          -14.21
         ],
         "rebound": true
       }
