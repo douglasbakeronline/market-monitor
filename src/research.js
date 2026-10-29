@@ -71,7 +71,7 @@ export function swingVerdict(t, signals, earningsDays) {
   let verdict = score >= 65 ? "Setup" : score <= 35 ? "Avoid" : "Neutral";
   const notes = [];
   if (earningsDays != null && earningsDays >= 0 && earningsDays <= 7) {
-    notes.push(`Earnings in ${earningsDays} day${earningsDays === 1 ? "" : "s"}: price can gap either way. Size down or wait.`);
+    notes.push(`Earnings ${earningsDays === 0 ? "today" : earningsDays === 1 ? "tomorrow" : `in ${earningsDays} days`}: price can gap either way. Size down or wait.`);
     if (verdict === "Setup") verdict = "Setup (earnings risk)";
   }
   const stop = t.atr ? r2(t.last - 2 * t.atr) : null;

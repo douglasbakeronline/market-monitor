@@ -23,9 +23,12 @@ async function main() {
   const cons = await fetchConstituents();
   let universe = [];
   const seen = new Set();
+  const seenName = new Set();
   for (const [index, list] of Object.entries(cons.indices)) for (const c of list) {
-    if (seen.has(c.symbol)) continue;
-    seen.add(c.symbol);
+    // One line per company: drop extra share classes (GOOG/GOOGL, FOX/FOXA...).
+    const base = c.name.replace(/\s*\(?class [a-z]\)?/i, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
+    if (seen.has(c.symbol) || seenName.has(base)) continue;
+    seen.add(c.symbol); seenName.add(base);
     universe.push({ ...c, index });
   }
   if (process.env.SCAN_LIMIT) universe = universe.slice(0, +process.env.SCAN_LIMIT);
@@ -72,19 +75,21 @@ async function main() {
   const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: u.index === "FTSE100" ? "UK" : "US",
-      name: f.name || u.name, sector: f.sector || u.sector, industry: f.industry ?? null, currency: f.currency ?? null,
-      price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
+      name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
+      pe: r1(f.forwardPE > 0 ? f.forwardPE : f.trailingPE > 0 ? f.trailingPE : null), price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
       perf: { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct) },
       tech: { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio) },
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       earnings: f.nextEarnings ? { date: f.nextEarnings, days: earningsDays } : null,
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
       swing, signals, deep: isDeep,
+      // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
+      rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
     };
     item.summary = summarise(item);
     return item;
-  }).sort((a, b) => (b.longTerm.score ?? -1) - (a.longTerm.score ?? -1));
+  }).sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));
 
   // What's new since the previous scan (full-score good entries and setups).
   const prev = await readJson("scan.json", null);

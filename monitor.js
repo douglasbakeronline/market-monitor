@@ -91,6 +91,7 @@ async function main() {
 
   // --- 6. Research -------------------------------------------------------------
   const existingResearch = await readJson("research.json", null);
+  const scan = await readJson("scan.json", null);
   let researchAlerts = [], researchEvents = [], researchRows = {}, research = existingResearch;
   if (slot?.research || process.env.FORCE_RESEARCH || hoursSince(existingResearch?.updated) > 26) {
     try {
@@ -169,7 +170,7 @@ async function main() {
   }
   for (const market of due) {
     const tz = market === "UK" ? "Europe/London" : "America/New_York";
-    await notify({ title: `${market} open · ${reg.label}`, body: summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research }), priority: "default", tags: market === "UK" ? "gb" : "us" });
+    await notify({ title: `${market} open · ${reg.label}`, body: summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan }), priority: "default", tags: market === "UK" ? "gb" : "us" });
     state.summarySent[market] = dateIn(tz);
     console.log(`Sent ${market} summary.`);
   }
@@ -178,7 +179,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord }), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -232,7 +233,19 @@ function researchHighlights(r) {
   return { updated: r.updated, longTerm: lt, swing: sw, earnings, reactions, movers, placeholder: r.placeholder };
 }
 
-function summaryBody({ reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research }) {
+// One line on the index scan for summaries: good entries and new names.
+function scanLine(scan, market) {
+  if (!scan?.items?.length || Date.now() - Date.parse(scan.updated) > 4 * 86400000) return null;
+  const pool = scan.items.filter((i) => !market || i.market === market);
+  const good = pool.filter((i) => i.deep && i.longTerm.verdict === "Good entry");
+  const fresh = good.filter((i) => scan.newGood?.includes(i.symbol)).map((i) => i.ticker);
+  const setups = pool.filter((i) => i.swing?.verdict?.startsWith("Setup")).length;
+  const idx = market === "UK" ? "FTSE 100" : market === "US" ? "S&P 500" : "Index";
+  if (!good.length && !setups) return null;
+  return `${idx} scan: ${good.length} good entr${good.length === 1 ? "y" : "ies"}${good.length ? ` (top: ${good.slice(0, 3).map((i) => i.ticker).join(", ")})` : ""}${fresh.length ? `, new: ${fresh.join(", ")}` : ""}; ${setups} swing setup${setups === 1 ? "" : "s"}.`;
+}
+
+function summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan }) {
   const L = [];
   if (fg) L.push(`F&G ${fg.score} (${ratingFor(fg.score)})${fg.comparisons ? `, prev close ${fg.comparisons.close}, week ago ${fg.comparisons.week}` : ""}${fgOk ? "" : " [stale]"}${vix ? `. VIX ${vix.level.toFixed(1)}` : ""}.`);
   if (sp) L.push(`S&P 500 ${Math.round(sp.level).toLocaleString("en-GB")}: ${sp.drawdownPct.toFixed(1)}% off high, ${sp.vs200Pct >= 0 ? "+" : ""}${sp.vs200Pct?.toFixed(1)}% vs 200-day.`);
@@ -243,6 +256,8 @@ function summaryBody({ reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, researc
   if (ctxLine) L.push(ctxLine);
   const reb = (watchlist || []).filter((w) => w.rebound).sort((a, b) => a.dropFromHigh - b.dropFromHigh).map((w) => `${w.symbol} ${w.dropFromHigh}%`);
   L.push(`Rebound watch: ${reb.length ? reb.join(", ") : "none"}.`);
+  const sl = scanLine(scan, market);
+  if (sl) L.push(sl);
   const h = researchHighlights(research);
   if (h) {
     const mk = (xs) => xs.map((x) => x.ticker).join(", ");
@@ -254,7 +269,7 @@ function summaryBody({ reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, researc
   return L.join("\n");
 }
 
-function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord }) {
+function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }) {
   const L = [];
   const tr = trackRecord?.summary;
   L.push(`Regime: ${reg.label}. ${reg.action}`);
@@ -270,6 +285,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRec
     if (h.movers?.length) L.push(`Biggest score changes this week: ${h.movers.map((x) => `${x.ticker} ${x.change > 0 ? "+" : ""}${x.change} (now ${x.score})`).join(", ")}.`);
     if (h.earnings.length) L.push(`Earnings next 7 days: ${h.earnings.map((e) => `${e.ticker} ${e.date}`).join(", ")}.`);
   }
+  const sl = scanLine(scan, null);
+  if (sl) L.push(sl);
   if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
   if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatSp}% beat the S&P.`);
   return L.join("\n");

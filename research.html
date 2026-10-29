@@ -16,6 +16,7 @@
   .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 22px 0 12px; }
   .controls .grow { flex: 1; }
   .controls select { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 10px; }
+  .controls select { max-width: 220px; }
   .count { font-size: 12px; color: var(--muted); margin: 0 2px 8px; }
 
   .list { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
@@ -94,12 +95,17 @@
 
   <div class="intro">
     <h1>Stock research</h1>
-    <p>Every stock on your list, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
+    <p>Your stocks, or every company in the S&amp;P 500 and FTSE 100, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
     <div class="meta" id="meta"></div>
     <div id="banners"></div>
   </div>
 
-  <div class="controls">
+  <div class="seg source" role="group" aria-label="Source" id="sourceSeg" style="margin-top:22px">
+    <button type="button" data-src="list" aria-pressed="true">Your list</button>
+    <button type="button" data-src="scan" aria-pressed="false">Index scan</button>
+  </div>
+
+  <div class="controls" style="margin-top:14px">
     <div class="seg" role="group" aria-label="Lens">
       <button type="button" data-lens="lt" aria-pressed="true">Long-term</button>
       <button type="button" data-lens="sw" aria-pressed="false">Swing</button>
@@ -108,8 +114,13 @@
     <span class="grow"></span>
     <input type="search" id="q" placeholder="Search" aria-label="Search stocks">
   </div>
+  <div class="controls scan-only" id="scanControls" hidden style="margin-top:0">
+    <select id="sector" aria-label="Sector"><option value="">All sectors</option></select>
+    <div class="chips" id="extras" role="group" aria-label="Screens"></div>
+  </div>
   <div class="count" id="count"></div>
   <div class="list lens-lt" id="list"></div>
+  <div style="text-align:center;margin-top:12px" id="moreWrap" hidden><button class="chip" type="button" id="more">Show more</button></div>
 
   <section class="section">
     <div class="eyebrow">How the scores work</div>
@@ -139,9 +150,12 @@ const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sel
 const FILTERS = [
   ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"],
 ];
-const st = { lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set() };
-try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all" }); } catch {}
-const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter })); } catch {} };
+const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["new", "New today"]];
+const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
+try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
+const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
+const peOf = (it) => it.pe ?? it.longTerm?.pillars?.find((p) => p.key === "value")?.items?.find((m) => m.key === "forwardPE" || m.key === "trailingPE")?.value ?? null;
+const isNew = (it) => st.source === "scan" && (st.data.newGood?.includes(it.symbol) || st.data.newSetups?.includes(it.symbol));
 
 const chg = (v) => v == null || v === 0 ? "" : ` <span class="${v > 0 ? "pos" : "neg"}" title="Change over the past week">${v > 0 ? "▲" : "▼"}${Math.abs(v)}</span>`;
 function scoreTrend(pts) {
@@ -159,9 +173,9 @@ function sortKey(it) {
   switch (st.sort) {
     case "name": return it.name.toLowerCase();
     case "day": return it.perf?.day ?? -999;
-    case "lt": return it.longTerm.score ?? -1;
+    case "lt": return it.rank ?? it.longTerm.score ?? -1;
     case "sw": return it.swing?.score ?? -1;
-    default: return st.lens === "lt" ? (it.longTerm.score ?? -1) : (it.swing?.score ?? -1);
+    default: return st.lens === "lt" ? (it.rank ?? it.longTerm.score ?? -1) : (it.swing?.score ?? -1);
   }
 }
 
@@ -169,6 +183,16 @@ function visible() {
   const q = st.q.trim().toLowerCase();
   return st.data.items.filter((it) => {
     if (q && !(`${it.name} ${it.ticker} ${it.sector ?? ""}`.toLowerCase().includes(q))) return false;
+    if (st.source === "scan") {
+      if (st.sector && it.sector !== st.sector) return false;
+      const x = st.extras, pe = peOf(it);
+      if (x.has("full") && !it.deep) return false;
+      if (x.has("oversold") && !(it.tech?.rsi < 30)) return false;
+      if (x.has("above200") && !(it.tech?.vs200 > 0)) return false;
+      if (x.has("pe20") && !(pe > 0 && pe <= 20)) return false;
+      if (x.has("div3") && !(it.dividendYield >= 0.03)) return false;
+      if (x.has("new") && !isNew(it)) return false;
+    }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
@@ -188,11 +212,11 @@ function rowHtml(it, i) {
     : [...bull.map((s) => `<span class="tag bull">${esc(s.label)}</span>`), ...bear.map((s) => `<span class="tag bear">${esc(s.label)}</span>`)].slice(0, 3);
   const earn = it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 14 ? `<span class="earn">Earnings ${it.earnings.days === 0 ? "today" : fmtDay(it.earnings.date)}</span>` : "";
   return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
-    <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}</div></div>
+    <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}${it.index ? ` · ${esc(it.index)}` : ""}</div></div>
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
     <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
     <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>
-    <div><div class="tags">${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
+    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${!it.deep && st.source === "scan" ? `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
     <span class="caret">▶</span>
   </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
 }
@@ -217,7 +241,8 @@ function detailHtml(it) {
   const finviz = it.market === "US" ? `<a href="https://finviz.com/quote.ashx?t=${encodeURIComponent(it.ticker)}" target="_blank" rel="noopener">Finviz ↗</a>` : "";
   const lr = it.lastResults;
   const results = lr ? (lr.pending ? `<div class="note">Reported ${fmtDay(lr.date)}: the reaction shows after the next close.</div>` : `<div class="note ${lr.pct >= 0 ? "good" : ""}">Results ${fmtDay(lr.date)}: ${signPct(lr.pct)} from the close before to the close after.</div>`) : "";
-  return `<p class="summary">${esc(it.summary)}</p>${results}${notes}
+  const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.</div>` : "";
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${results}${notes}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -244,20 +269,25 @@ function detailHtml(it) {
     </div>
   </div>
   <div class="perf">${perf.map(([k, v]) => `<div class="panel" style="padding:8px 10px"><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
-  <div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>
-  <div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>
+  ${it.scoreHistory ? `<div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>` : ""}
+  ${it.series?.length ? `<div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>` : ""}
   <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}</div>`;
 }
 
 function render() {
-  const items = visible();
+  const all = visible(), items = all.slice(0, st.limit);
   const list = $("list");
   list.className = `list lens-${st.lens}`;
   const head = `<div class="head"><button data-sort="name">Stock</button><button data-sort="day">Price</button><button data-sort="lt" class="${st.lens === "lt" ? "on" : ""}">Long-term</button><button data-sort="sw" class="${st.lens === "sw" ? "on" : ""}">Swing</button><span>${st.lens === "lt" ? "Strengths / weaknesses" : "Signals"}</span><span></span></div>`;
   list.innerHTML = head + (items.length ? items.map(rowHtml).join("") : `<div class="row" style="cursor:default"><span class="muted">No stocks match.</span></div>`);
-  $("count").textContent = `${items.length} of ${st.data.items.length} stocks · sorted by ${st.sort === "name" ? "name" : st.sort === "day" ? "today's move" : (st.sort || st.lens) === "sw" ? "swing score" : "long-term score"}`;
-  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === st.lens)));
-  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${l}</button>`).join("");
+  $("moreWrap").hidden = all.length <= items.length;
+  $("more").textContent = `Show more (${all.length - items.length} left)`;
+  $("scanControls").hidden = st.source !== "scan";
+  $("extras").innerHTML = EXTRAS.map(([k, l]) => `<button class="chip" type="button" data-x="${k}" aria-pressed="${st.extras.has(k)}">${l}</button>`).join("");
+  document.querySelectorAll("#sourceSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.src === st.source)));
+  $("count").textContent = `${all.length} of ${st.data.items.length} stocks · sorted by ${st.sort === "name" ? "name" : st.sort === "day" ? "today's move" : (st.sort || st.lens) === "sw" ? "swing score" : "long-term score"}`;
+  document.querySelectorAll(".seg:not(.source) button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === st.lens)));
+  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${st.source === "scan" ? ({ US: "S&P 500", UK: "FTSE 100" }[k] || l) : l}</button>`).join("");
   list.querySelectorAll(".row[data-sym]").forEach((row, i) => {
     const toggle = () => {
       const sym = row.dataset.sym, it = items[i], d = row.nextElementSibling;
@@ -273,27 +303,38 @@ function render() {
   }));
 }
 
-document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { st.lens = b.dataset.lens; st.sort = null; save(); render(); }));
+document.querySelectorAll(".seg:not(.source) button").forEach((b) => b.addEventListener("click", () => { st.lens = b.dataset.lens; st.sort = null; save(); render(); }));
 $("filters").addEventListener("click", (e) => { const f = e.target.closest("[data-f]")?.dataset.f; if (f) { st.filter = f; save(); render(); } });
-$("q").addEventListener("input", (e) => { st.q = e.target.value; render(); });
+$("q").addEventListener("input", (e) => { st.q = e.target.value; st.limit = 100; render(); });
+$("extras").addEventListener("click", (e) => { const x = e.target.closest("[data-x]")?.dataset.x; if (!x) return; st.extras.has(x) ? st.extras.delete(x) : st.extras.add(x); st.limit = 100; render(); });
+$("sector").addEventListener("change", (e) => { st.sector = e.target.value; st.limit = 100; render(); });
+$("more").addEventListener("click", () => { st.limit += 100; render(); });
+$("sourceSeg").addEventListener("click", (e) => { const s = e.target.closest("[data-src]")?.dataset.src; if (s && s !== st.source) { st.source = s; st.open.clear(); st.limit = 100; save(); load(); } });
 
-(async () => {
+async function load() {
+  const file = st.source === "scan" ? "scan.json" : "research.json";
   try {
-    const [r, d] = await Promise.all([fetch("research.json?t=" + Date.now()), fetch("data.json?t=" + Date.now()).catch(() => null)]);
-    if (!r.ok) throw 0;
-    st.data = await r.json();
-    const dash = d?.ok ? await d.json() : null;
-    const reg = dash?.regime;
-    $("meta").innerHTML = `<span>Updated ${esc(fmtDate(st.data.updated))} (${ago(st.data.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
+    if (!st.cache[file]) { const r = await fetch(`${file}?t=${Date.now()}`); if (!r.ok) throw 0; st.cache[file] = await r.json(); }
+    st.data = st.cache[file];
+    if (st.dash === null) { try { const d = await fetch("data.json?t=" + Date.now()); st.dash = d.ok ? await d.json() : false; } catch { st.dash = false; } }
+    const reg = st.dash?.regime, D = st.data;
+    $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
-    if (st.data.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.data.failed?.length) b.push(`<div class="banner warn">Couldn't load: ${esc(st.data.failed.join(", "))}.</div>`);
+    if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(" and ")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}</div>`);
+    if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
+    const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();
+    $("sector").innerHTML = `<option value="">All sectors</option>` + sectors.map((x) => `<option ${x === st.sector ? "selected" : ""}>${esc(x)}</option>`).join("");
     render();
   } catch {
-    $("list").innerHTML = `<div class="row" style="cursor:default"><span class="muted">No research data yet. It's generated after each US close.</span></div>`;
+    $("banners").innerHTML = "";
+    $("list").innerHTML = `<div class="row" style="cursor:default"><span class="muted">${st.source === "scan" ? "No index scan yet. It runs each weeknight after the US close." : "No research data yet. It's generated after each US close."}</span></div>`;
+    $("count").textContent = "";
+    document.querySelectorAll("#sourceSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.src === st.source)));
   }
-})();
+}
+load();
 </script>
 </body>
 </html>
