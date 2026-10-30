@@ -1,12 +1,12 @@
 # Strategy notes (agreed plan; percentages and dates only, no personal amounts)
 
-Status: agreed in principle 30 Oct 2026. Platform: Trading 212 Stocks & Shares ISA. Horizon: long term (5+ years), no planned need for the money, but Douglas wants flexibility. Approach: evidence-based, anti-speculative. Douglas places every trade; Claude describes what the rules say.
+Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a real-money swing pot. Platform: Trading 212 Stocks & Shares ISA. Horizon: long term (5+ years), no planned need for the money, but Douglas wants flexibility. Approach: evidence-based, anti-speculative. Douglas places every trade; Claude describes what the rules say.
 
 ## Pots (target weights)
-- Core 75%: one global all-world accumulating ETF in GBP (Vanguard FTSE All-World, VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal.
-- Opportunity reserve 10%: cash in the ISA earning interest. Deployed a third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30). Doubles as flexibility buffer. If unused after 12 months, half moves to core.
+- Core 70%: one global all-world accumulating ETF in GBP (Vanguard FTSE All-World, VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal.
+- Opportunity reserve 15%: cash in the ISA earning interest. Deployed a third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30). Doubles as flexibility buffer. If unused after 12 months, half moves to core.
 - Long-term picks 15%: 5 to 8 quality companies rated "Good entry", spread across sectors, max ~5% of portfolio each, built in 2 to 3 tranches, never within 7 days before results.
-- Swing: no real money. Paper-traded from the scanner for at least 3 months; only funded if paper results show positive expectancy after costs.
+- Swing: no real money (Douglas's choice, 30 Oct). Paper-traded from the scanner for at least 3 months; only funded if paper results show positive expectancy after costs.
 
 ## Core schedule
 - Half of the core on 30 Oct 2026 (or the next trading day).

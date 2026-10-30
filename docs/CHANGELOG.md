@@ -4,6 +4,9 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 26 October 2026
 
+### Fri 30 Oct
+- **Plan agreed:** core 70% (VWRP), long-term picks 15%, opportunity reserve 15%, swing paper-traded only. Half the core invested 30 Oct, the rest in three monthly instalments (Dec, Jan, Feb). Strategy notes and research log added for the daily sessions; daily research-and-build session starts Mon 2 Nov 08:33.
+
 ### Thu 29 Oct
 - **Scanner highlights in summaries.** The UK/US summaries and Sunday digest now include a line from the index scan (good entries, new names, swing setups). Strategy deck written for Douglas (kept private, not in this repo); its build items are on the roadmap.
 - **Index scanner (S&P 500 + FTSE 100).** Nightly two-stage scan of ~600 companies: quick score for all, full fundamentals for the top ~100 candidates and every swing setup. New "Index scan" view on the Research page with Finviz-style screens (sector, full scores, RSI < 30, above 200-day, P/E ≤ 20, dividend ≥ 3%, new today). Runs in its own workflow so it can never delay alerts. *Why:* Douglas asked whether the tool covered whole indices; it only covered 16 placeholder stocks.
