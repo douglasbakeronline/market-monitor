@@ -17,7 +17,7 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - 6 Apr 2027: pay in the savings and resume monthly core purchases.
 - If a confirmed buy tier fires: bring the next core purchase forward and use the dip reserve (held as cash inside the ISA).
 - Pullback rule (agreed 30 Oct): if the S&P 500 or FTSE 100 is 5% or more below its 52-week high before a scheduled core date, make that core purchase now.
-- Goal (Douglas, 30 Oct): grow to £100,000. The main levers are time and monthly contributions; the daily playback should show progress towards it once the portfolio view exists.
+- Goal (Douglas, 30 Oct): grow to £100,000. Monthly contribution: £200 (from Apr 2027 into the ISA; until then into savings and paid in on 6 Apr). The main levers are time and monthly contributions; the daily playback should show progress towards it once the portfolio view exists.
 
 ## Picks (chosen 30 Oct from the 29 Oct scan)
 - HSBC (HSBA.L): banking, UK/Asia, income.
