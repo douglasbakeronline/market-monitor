@@ -15,12 +15,15 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 
 ## Next up (in priority order)
 0. **Bug: swing stops too tight on some FTSE stocks.** DCC and EZJ showed 2×ATR stops only 0.5% to 1.2% below price on 29 Oct (US names look normal at 5% to 8%). Likely Yahoo returning flat or missing intraday highs/lows for some LSE bars. Fix: guard ATR with a close-to-close volatility floor and flag stocks with poor OHLC data; add a test.
-1. **Portfolio view and trade log (agreed in the 29 Oct strategy deck):** pots with target weights (core index, dip reserve, long-term picks, swing), current value vs target, a trade log where every trade records the rule that triggered it, and rebalancing prompts. Keep amounts out of the public repo: read holdings from a private source or let Douglas enter them in the browser (localStorage), not committed files.
-2. **Congress-trade flag:** check for a free, reliable feed of US House/Senate trade disclosures; if one exists, add a "Congress buying" tag on Research and scan pages, tracked in the track record like any other signal. Use only as a tie-breaker.
-3. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
-4. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (needs ~1 month of data).
-5. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds.
-6. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
+1. **Co-pilot reframe (Douglas, 30 Oct):** the monitor becomes an investing co-pilot: pots vs target weights from docs/STRATEGY-NOTES.md, what is due this week, plan adherence, then signals and research. Dashboard top section should answer "what, if anything, should I do this week?"
+2. **Swing paper-trading log:** record scanner swing setups as paper trades (entry, 2×ATR stop, 2R target, 20-session exit) and score them automatically; the swing pot is only funded if this shows positive expectancy after 3+ months.
+3. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag.
+4. **Portfolio view and trade log (agreed in the 29 Oct strategy deck):** pots with target weights (core index, dip reserve, long-term picks, swing), current value vs target, a trade log where every trade records the rule that triggered it, and rebalancing prompts. Keep amounts out of the public repo: read holdings from a private source or let Douglas enter them in the browser (localStorage), not committed files.
+5. **Congress-trade flag (fold into 3):** check for a free, reliable feed of US House/Senate trade disclosures; if one exists, add a "Congress buying" tag on Research and scan pages, tracked in the track record like any other signal. Use only as a tie-breaker.
+6. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
+7. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (needs ~1 month of data).
+8. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds.
+9. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
 
 ## Later
 - More indices (Euro Stoxx 50, Nasdaq 100) in the scanner.
