@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -0.7,
+      "now": -0.6,
       "nowDate": "2026-10-30",
       "sessions": 4,
-      "spNow": -0.7,
+      "spNow": -0.6,
       "vsSp": 0
     }
   },
@@ -29,11 +29,11 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": -2.7,
+      "now": -2.3,
       "nowDate": "2026-10-30",
       "sessions": 1,
       "spNow": -1.2,
-      "vsSp": -1.5
+      "vsSp": -1.1
     }
   }
 ]
