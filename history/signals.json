@@ -7,8 +7,15 @@
     "ticker": "S&P 500",
     "name": "S&P 500",
     "price": 7676.77,
-    "label": "HEADS-UP \u00b7 Fear without a dip",
-    "id": "2026-10-26:fear-no-dip:^GSPC"
+    "label": "HEADS-UP · Fear without a dip",
+    "id": "2026-10-26:fear-no-dip:^GSPC",
+    "perf": {
+      "now": 0.6,
+      "nowDate": "2026-10-29",
+      "sessions": 3,
+      "spNow": 0.6,
+      "vsSp": 0
+    }
   },
   {
     "kind": "research-lt",
@@ -20,6 +27,13 @@
     "price": 243.79,
     "currency": "USD",
     "label": "Long-term good entry (75)",
-    "id": "2026-10-29:research-lt:AMZN"
+    "id": "2026-10-29:research-lt:AMZN",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-10-29",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
+    }
   }
 ]
