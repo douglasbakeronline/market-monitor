@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -1.8,
+      "now": -1.3,
       "nowDate": "2026-10-30",
       "sessions": 4,
-      "spNow": -1.8,
+      "spNow": -1.3,
       "vsSp": 0
     }
   },
@@ -29,11 +29,87 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": -2.5,
+      "now": -1.4,
       "nowDate": "2026-10-30",
       "sessions": 1,
-      "spNow": -2.4,
-      "vsSp": -0.1
+      "spNow": -1.8,
+      "vsSp": 0.4
+    }
+  },
+  {
+    "id": "2026-10-30:research-swing:MSFT",
+    "kind": "research-swing",
+    "at": "2026-10-30T20:10:20.118Z",
+    "date": "2026-10-30",
+    "symbol": "MSFT",
+    "ticker": "MSFT",
+    "name": "Microsoft",
+    "price": 521.91,
+    "currency": "USD",
+    "label": "Swing setup (70)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-10-30",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
+    }
+  },
+  {
+    "id": "2026-10-30:research-lt:NVDA",
+    "kind": "research-lt",
+    "at": "2026-10-30T20:10:20.118Z",
+    "date": "2026-10-30",
+    "symbol": "NVDA",
+    "ticker": "NVDA",
+    "name": "Nvidia",
+    "price": 204.64,
+    "currency": "USD",
+    "label": "Long-term good entry (83)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-10-30",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
+    }
+  },
+  {
+    "id": "2026-10-30:research-swing:V",
+    "kind": "research-swing",
+    "at": "2026-10-30T20:10:20.118Z",
+    "date": "2026-10-30",
+    "symbol": "V",
+    "ticker": "V",
+    "name": "Visa",
+    "price": 413.48,
+    "currency": "USD",
+    "label": "Swing setup (68)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-10-30",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
+    }
+  },
+  {
+    "id": "2026-10-30:research-swing:SHEL.L",
+    "kind": "research-swing",
+    "at": "2026-10-30T20:10:20.118Z",
+    "date": "2026-10-30",
+    "symbol": "SHEL.L",
+    "ticker": "SHEL",
+    "name": "Shell",
+    "price": 4036.5,
+    "currency": "GBp",
+    "label": "Swing setup (68)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-10-30",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
     }
   }
 ]
