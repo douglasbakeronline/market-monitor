@@ -148,7 +148,7 @@ async function main() {
     state.pending = [];
   }
   for (const a of alerts) {
-    if (quiet && a.kind !== "health") {
+    if (quiet && a.kind !== "health" && a.priority !== "urgent") {
       console.log(`HELD for quiet hours: ${a.title}`);
       state.pending = state.pending.filter((p) => p.title !== a.title).concat({ ...a, heldAt: new Date().toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" }) });
       continue;

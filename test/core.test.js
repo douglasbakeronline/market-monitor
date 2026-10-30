@@ -222,3 +222,21 @@ test("quiet hours span midnight in London time", () => {
   assert.equal(inQuietHours(new Date("2026-07-01T21:30:00Z")), true); // 22:30 BST
   assert.equal(inQuietHours(new Date("2026-07-01T20:30:00Z")), false); // 21:30 BST
 });
+
+test("crash watch: urgent alert once per market per day on a 3% fall", () => {
+  const m = { US: snap({ dayPct: -3.4, drawdownPct: -6, date: "2026-11-02" }) };
+  let r = evaluateAlerts({ markets: m, fg: { score: 30 }, vix: { level: 24, dayPct: 10, date: "2026-11-02" }, pricesOk: true, fgOk: true }, {});
+  const c = r.alerts.filter((a) => a.kind === "crash");
+  assert.equal(c.length, 1);
+  assert.equal(c[0].priority, "urgent");
+  assert.match(c[0].body, /do not sell the core/);
+  r = evaluateAlerts({ markets: m, fg: { score: 30 }, vix: null, pricesOk: true, fgOk: true }, r.state);
+  assert.equal(r.alerts.filter((a) => a.kind === "crash").length, 0, "no repeat same day");
+});
+
+test("crash watch: VIX spike and no alert on stale prices", () => {
+  const r = evaluateAlerts({ markets: { US: snap({ dayPct: -1, date: "d" }) }, fg: { score: 30 }, vix: { level: 33, dayPct: 40, date: "d" }, pricesOk: true, fgOk: true }, {});
+  assert.ok(r.alerts.some((a) => /VIX spike/.test(a.title)));
+  const s = evaluateAlerts({ markets: { US: snap({ dayPct: -5, date: "d" }) }, fg: { score: 30 }, vix: null, pricesOk: false, fgOk: true }, {});
+  assert.equal(s.alerts.filter((a) => a.kind === "crash").length, 0);
+});

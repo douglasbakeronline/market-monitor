@@ -41,6 +41,10 @@ export const CONFIG = {
   // its own, so it needs extreme greed AND a stretched market AND calm vol.
   trim: { enabled: true, minScore: 80, minAbove200Pct: 10, maxVix: 15, resetScore: 65 },
 
+  // Crash watch: an urgent alert (sent even in quiet hours) when an index
+  // falls this much in a day, or the VIX spikes. Fires once per market per day.
+  crash: { dayDrop: -3, vixLevel: 30, vixJump: 25 },
+
   // "Fear without a dip": sentiment has turned but prices haven't (yet).
   fearNoDip: { maxScore: 30, minDrawdown: -5, resetScore: 40 },
 
@@ -68,9 +72,12 @@ export const CONFIG = {
   // one so timings are accurate to a minute or two, not hours.
   slots: [
     { id: "uk-open", tz: "Europe/London", time: "08:15", days: [1, 2, 3, 4, 5], summary: "UK" },
+    { id: "uk-morning", tz: "Europe/London", time: "10:15", days: [1, 2, 3, 4, 5] },
     { id: "uk-midday", tz: "Europe/London", time: "12:00", days: [1, 2, 3, 4, 5] },
     { id: "us-open", tz: "America/New_York", time: "09:45", days: [1, 2, 3, 4, 5], summary: "US", fearCapture: "open" },
+    { id: "us-late-morning", tz: "America/New_York", time: "11:00", days: [1, 2, 3, 4, 5] },
     { id: "us-midday", tz: "America/New_York", time: "12:45", days: [1, 2, 3, 4, 5] },
+    { id: "us-afternoon", tz: "America/New_York", time: "14:30", days: [1, 2, 3, 4, 5] },
     { id: "us-close", tz: "America/New_York", time: "16:10", days: [1, 2, 3, 4, 5], fearCapture: "close", research: true },
     { id: "weekly-digest", tz: "Europe/London", time: "18:00", days: [0], digest: true, research: true },
   ],

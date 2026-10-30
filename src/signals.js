@@ -148,6 +148,26 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
     }
     if (score >= f.resetScore) ns.fearNoDipActive = false;
   }
+
+  // Crash watch (intraday): big one-day falls and VIX spikes, urgent.
+  if (pricesOk) {
+    const c = CONFIG.crash;
+    ns.crashDate = { ...(ns.crashDate || {}) };
+    for (const [market, snap] of Object.entries(markets)) {
+      if (!snap || snap.dayPct == null || snap.dayPct > c.dayDrop || ns.crashDate[market] === snap.date) continue;
+      const next = CONFIG.buyTiers.find((t) => snap.drawdownPct > t.drawdown);
+      alerts.push({ kind: "crash", priority: "urgent", tags: "rotating_light",
+        title: `CRASH WATCH · ${snap.name} ${snap.dayPct.toFixed(1)}% today`,
+        body: `${snap.name} is down ${Math.abs(snap.dayPct).toFixed(1)}% today and ${Math.abs(snap.drawdownPct).toFixed(1)}% below its 52-week high.${fgOk ? ` Fear & Greed ${score}.` : ""}${vix?.level ? ` VIX ${vix.level.toFixed(1)}.` : ""}\nPlan: do not sell the core. Check stop orders are in place on swing trades; no new swing trades today.${next ? ` Next buy tier: ${next.label} (${Math.abs(next.drawdown - snap.drawdownPct).toFixed(1)} points away).` : ""} A buy-tier alert follows if one is confirmed.` });
+      ns.crashDate[market] = snap.date;
+    }
+    if (vix?.level >= c.vixLevel && (vix.dayPct ?? 0) >= c.vixJump && ns.vixSpikeDate !== vix.date) {
+      alerts.push({ kind: "crash", priority: "urgent", tags: "rotating_light",
+        title: `CRASH WATCH · VIX spike to ${vix.level.toFixed(1)}`,
+        body: `The VIX (fear gauge) jumped ${vix.dayPct.toFixed(0)}% today to ${vix.level.toFixed(1)}. Markets are panicking.\nPlan: do not sell the core; check swing stops; watch for buy-tier alerts.` });
+      ns.vixSpikeDate = vix.date;
+    }
+  }
   return { alerts, state: ns };
 }
 
