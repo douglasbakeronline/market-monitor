@@ -8,13 +8,14 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - Long-term picks 15%: five companies in five sectors, tilted away from what the core already holds (US mega-cap tech). Up to 3% of the portfolio each, in tranches of 1% (about a third of a position); never within 7 days before results.
 - Swing 10%: real money from 16 Nov 2026, US setups only until the FTSE stop bug is fixed. Max 4 open trades, risk at most 0.2% of the portfolio per trade (2% of the swing pot), stop order placed at entry, exit at 2R or 20 sessions, pause and review if the pot falls 25%.
 
-## Schedule (first month)
-- 30 Oct: set up ISA, pies (Core, Picks, Swing), cash interest. No buying.
-- Mon 2 Nov: first quarter of the core (1/4 of 60% = 15% of portfolio).
-- Mon 9 Nov: first tranche of each pick, only if still "Good entry" and no results within 7 days.
-- Mon 16 Nov: second quarter of the core; swing alerts start.
-- Sun 29 Nov: month-one review.
-- Then core monthly on the first trading day of Dec, Jan, Feb, Mar, Apr, May (1/12 of the core each).
+## Schedule (revised 30 Oct for the ISA allowance)
+- Douglas had already used part of this tax year's ISA allowance, so about 70% of the new money goes into the ISA now and about 30% waits in easy-access savings until the new allowance on 6 April 2027.
+- Existing ISA index funds (VUAG, VWRP, VUKG) count as core; only VWRP is added to from now on. Existing ISA cash is reused (no allowance needed).
+- Expion360 (XPON), a speculative legacy holding: Douglas to decide whether to sell and move the proceeds to the core.
+- Mon 2 Nov: first core purchase. Mon 9 Nov: first tranche of each pick (only if still "Good entry", no results within 7 days). Mon 16 Nov: second core purchase; swing alerts start (US only at first).
+- Dec 2026 to Mar 2027: no new money (allowance used); dividends and any sale proceeds reinvested per the plan.
+- 6 Apr 2027: pay in the savings and resume monthly core purchases.
+- If a confirmed buy tier fires: bring the next core purchase forward and use the dip reserve (held as cash inside the ISA).
 
 ## Picks (chosen 30 Oct from the 29 Oct scan)
 - HSBC (HSBA.L): banking, UK/Asia, income.
