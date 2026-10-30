@@ -11,11 +11,13 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 ## Schedule (revised 30 Oct for the ISA allowance)
 - Douglas had already used part of this tax year's ISA allowance, so about 70% of the new money goes into the ISA now and about 30% waits in easy-access savings until the new allowance on 6 April 2027.
 - Existing ISA index funds (VUAG, VWRP, VUKG) count as core; only VWRP is added to from now on. Existing ISA cash is reused (no allowance needed).
-- Expion360 (XPON), a speculative legacy holding: Douglas to decide whether to sell and move the proceeds to the core.
-- Mon 2 Nov: first core purchase. Mon 9 Nov: first tranche of each pick (only if still "Good entry", no results within 7 days). Mon 16 Nov: second core purchase; swing alerts start (US only at first).
+- Expion360 (XPON), a speculative legacy holding: decided 30 Oct to sell (cancel the old $11.95 limit order) and move the proceeds to the core.
+- Mon 2 Nov: first core purchase. Mon 2 Nov: first tranche of each pick as well (brought forward 30 Oct; only if the 08:33 playback confirms each is still "Good entry" with no results within 7 days). Mon 16 Nov: second core purchase; swing alerts start (US only at first).
 - Dec 2026 to Mar 2027: no new money (allowance used); dividends and any sale proceeds reinvested per the plan.
 - 6 Apr 2027: pay in the savings and resume monthly core purchases.
 - If a confirmed buy tier fires: bring the next core purchase forward and use the dip reserve (held as cash inside the ISA).
+- Pullback rule (agreed 30 Oct): if the S&P 500 or FTSE 100 is 5% or more below its 52-week high before a scheduled core date, make that core purchase now.
+- Goal (Douglas, 30 Oct): grow to £100,000. The main levers are time and monthly contributions; the daily playback should show progress towards it once the portfolio view exists.
 
 ## Picks (chosen 30 Oct from the 29 Oct scan)
 - HSBC (HSBA.L): banking, UK/Asia, income.
