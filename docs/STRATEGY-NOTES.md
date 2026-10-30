@@ -2,23 +2,30 @@
 
 Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a real-money swing pot. Platform: Trading 212 Stocks & Shares ISA. Horizon: long term (5+ years), no planned need for the money, but Douglas wants flexibility. Approach: evidence-based, anti-speculative. Douglas places every trade; Claude describes what the rules say.
 
-## Pots (target weights)
-- Core 70%: one global all-world accumulating ETF in GBP (Vanguard FTSE All-World, VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal.
-- Opportunity reserve 15%: cash in the ISA earning interest. Deployed a third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30). Doubles as flexibility buffer. If unused after 12 months, half moves to core.
-- Long-term picks 15%: 5 to 8 quality companies rated "Good entry", spread across sectors, max ~5% of portfolio each, built in 2 to 3 tranches, never within 7 days before results.
-- Swing: no real money (Douglas's choice, 30 Oct). Paper-traded from the scanner for at least 3 months; only funded if paper results show positive expectancy after costs.
+## Pots (target weights; Douglas chose the original strategy-deck split on 30 Oct 13:18)
+- Core 60%: Vanguard FTSE All-World (VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal.
+- Dip reserve 15%: cash in the ISA. A third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30); the first tier also brings forward the next core instalment. Half moves to core if unused after 12 months.
+- Long-term picks 15%: five companies in five sectors, tilted away from what the core already holds (US mega-cap tech). Up to 3% of the portfolio each, in tranches of 1% (about a third of a position); never within 7 days before results.
+- Swing 10%: real money from 16 Nov 2026, US setups only until the FTSE stop bug is fixed. Max 4 open trades, risk at most 0.2% of the portfolio per trade (2% of the swing pot), stop order placed at entry, exit at 2R or 20 sessions, pause and review if the pot falls 25%.
 
-## Core schedule (gradual, agreed 30 Oct)
-- Core invested in 7 equal monthly instalments (1/7 of the core each): 30 Oct 2026, then the first trading day of Dec 2026, Jan, Feb, Mar, Apr, May 2027.
-- If a confirmed buy tier fires, the next two instalments go in immediately (prices are cheaper), and the plan is reviewed.
-- Each month before an instalment, the daily session checks the plan still makes sense and flags any proposed change to Douglas.
-- Evidence: lump sum beats drip-feeding about two-thirds of the time (gap ~2% over 12 months); Douglas prefers the flexibility of going in gradually, which is a reasonable trade-off (Vanguard; Monevator).
+## Schedule (first month)
+- 30 Oct: set up ISA, pies (Core, Picks, Swing), cash interest. No buying.
+- Mon 2 Nov: first quarter of the core (1/4 of 60% = 15% of portfolio).
+- Mon 9 Nov: first tranche of each pick, only if still "Good entry" and no results within 7 days.
+- Mon 16 Nov: second quarter of the core; swing alerts start.
+- Sun 29 Nov: month-one review.
+- Then core monthly on the first trading day of Dec, Jan, Feb, Mar, Apr, May (1/12 of the core each).
 
-## Picks shortlist (as of 30 Oct 2026; reviewed daily)
-- Meta (META), HSBC (HSBA.L), Charles Schwab (SCHW), Newmont (NEM), Constellation Brands (STZ): eligible for a first tranche once Douglas confirms rule below.
-- CF Industries (CF): after results on 4 Nov 2026.
-- Amazon (AMZN), Lloyds (LLOY.L), NatWest (NWG.L): reported 29/30 Oct; review the price reaction before any buy.
-- Open decision: may a first tranche go in during a "healthy uptrend", or only on pullbacks? Awaiting Douglas.
+## Picks (chosen 30 Oct from the 29 Oct scan)
+- HSBC (HSBA.L): banking, UK/Asia, income.
+- Meta (META): the one growth name (already ~1.5% of VWRP).
+- Newmont (NEM): gold miner, diversifier.
+- Constellation Brands (STZ): consumer staples (beer).
+- VICI Properties (VICI): property/casino REIT, income; lowest quality score, treat as income holding.
+- Bench: Charles Schwab (SCHW), CF Industries (CF, after 4 Nov results), Lloyds (LLOY.L), NatWest (NWG.L), Amazon (AMZN), Glencore (GLEN.L). Replacements come from sectors the pot doesn't already own.
+
+## Key dates
+- 3 Nov US midterms; 4 Nov CF results; 5 Nov Bank of England; 17 Nov Nvidia results (5% of VWRP).
 
 ## Things Douglas raised (for research)
 - Presidential cycle: claim seen that the months before midterms are best. Evidence says the opposite: midterm years average ~4.6% vs 11.2% other years; the 12 months after midterms average ~13.9% (Oppenheimer, since 1948). Midterm election 3 Nov 2026. Context only, not a timing rule (small sample, ~19 cycles).
