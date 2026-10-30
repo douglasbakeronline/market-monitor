@@ -5,6 +5,9 @@ Human-readable record of what changed and why. The weekly review deck is built f
 ## Week of 26 October 2026
 
 ### Fri 30 Oct
+- **Trends page** (Douglas asked to track trending, tech, AI and growth stocks, Finviz as reference): 8 hand-picked themes (AI chips, AI platforms, AI software, AI infrastructure and power, cybersecurity, consumer/fintech growth, space and defence, healthcare innovation) with benchmark ETFs, an S&P 500 sector heatmap, and momentum/52-week-high/movers lists from the nightly scan. Built nightly by trends.js after the scan. Ticker links go to Finviz (US) or Yahoo (UK).
+- **Reviews page** listing public-safe weekly reviews (no personal holdings or amounts); full personal reviews stay private as PDFs.
+- **Crash watch:** urgent alerts for a 3%+ daily index fall or VIX spike; two extra weekday checks.
 - **Plan agreed:** core 70% (VWRP), long-term picks 15%, opportunity reserve 15%, swing paper-traded only. Half the core invested 30 Oct, the rest in three monthly instalments (Dec, Jan, Feb). Strategy notes and research log added for the daily sessions; daily research-and-build session starts Mon 2 Nov 08:33.
 
 ### Thu 29 Oct

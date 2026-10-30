@@ -1,0 +1,15 @@
+{
+  "reviews": [
+    {
+      "title": "Launch week",
+      "period": "26 October to 1 November 2026",
+      "headline": "Market Monitor rebuilt from a single alert script into a monitoring and research system, with reliable timings and daily development.",
+      "points": [
+        "Alerts now run at exact times (7 checks each weekday) instead of about 5 hours late",
+        "New Research page, nightly scan of all S&P 500 and FTSE 100 companies, and a Trends page for AI, tech and growth themes",
+        "Track record, score history, earnings reactions and urgent crash-watch alerts added",
+        "Daily research-and-build sessions start on Monday 2 November"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Trends</title>
+<meta name="description" content="AI, tech and growth themes, momentum leaders and a sector heatmap.">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta name="theme-color" content="#f7f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .intro h1 { font-size: 26px; letter-spacing: -0.025em; margin: 22px 0 4px; }
+  .intro p { color: var(--ink-2); margin: 0; max-width: 66ch; }
+  .themes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  @media (max-width: 680px) { .themes { grid-template-columns: minmax(0,1fr); } }
+  .theme { cursor: pointer; display: flex; flex-direction: column; gap: 10px; }
+  .theme[aria-expanded="true"] { grid-column: 1 / -1; }
+  .theme .top { display: flex; align-items: baseline; gap: 10px; }
+  .theme .nm { font-weight: 650; font-size: 15px; flex: 1; }
+  .theme .big { font-size: 22px; }
+  .theme .note { font-size: 12.5px; color: var(--muted); }
+  .theme .row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; }
+  .theme .row b { font-weight: 650; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding: 6px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; }
+  .tbl td { text-align: right; padding: 7px 6px; border-top: 1px solid var(--line-2); white-space: nowrap; }
+  .tbl td.nm { white-space: normal; }
+  .tbl .tk { font-weight: 650; } .tbl .sub { color: var(--muted); font-size: 11.5px; display: block; }
+  .tbl a { color: inherit; text-decoration: none; } .tbl a:hover { text-decoration: underline; }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .heat { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .cell { border-radius: 10px; padding: 10px 12px; color: #fff; min-height: 76px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cell .s { font-size: 12px; font-weight: 600; line-height: 1.25; }
+  .cell .v { font-size: 18px; font-weight: 750; }
+  .cell .m { font-size: 11px; opacity: .85; }
+  .lists { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; } .lists > *, .themes > * { min-width: 0; }
+  @media (max-width: 680px) { .lists { grid-template-columns: minmax(0,1fr); } }
+  .seg { margin-bottom: 10px; max-width: 100%; overflow-x: auto; scrollbar-width: none; } .seg button { white-space: nowrap; }
+  .trend { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 16 16" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11l4-4 3 3 5-6"/></svg></span><span class="brand-text">Market Monitor</span></div>
+    <nav class="nav" aria-label="Pages"><a href="./">Dashboard</a><a href="research.html">Research</a><a href="trends.html" aria-current="page">Trends</a><a href="reviews.html">Reviews</a></nav>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"></button>
+  </header>
+
+  <div class="intro">
+    <h1>Trends</h1>
+    <p>What’s leading the market: AI and tech themes, growth stocks, momentum leaders and how each sector is doing. Use it to spot what’s moving; use the Research page to decide what’s worth buying.</p>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <section class="section">
+    <div class="eyebrow">Themes · ranked by 3-month performance</div>
+    <div class="seg" role="group" aria-label="Period" id="period"></div>
+    <div class="themes" id="themes"></div>
+    <p class="cap">Each theme’s figure is the median of its leading companies. “vs S&amp;P” compares the theme’s 3-month return with the S&amp;P 500. Tap a theme to see every company. Themes and companies are hand-picked and reviewed weekly.</p>
+  </section>
+
+  <section class="section">
+    <div class="eyebrow">S&amp;P 500 sectors</div>
+    <div class="heat" id="heat"></div>
+    <p class="cap">Median move of the companies in each sector. Green is up, red is down; deeper colour means a bigger move. “Above 200-day” is the share of the sector in a long-term uptrend.</p>
+  </section>
+
+  <section class="section">
+    <div class="eyebrow">Momentum and movers · S&amp;P 500 and FTSE 100</div>
+    <div class="lists">
+      <div class="card"><div class="k" style="margin-bottom:6px">Strongest over 3 months</div><div class="scroll" id="momentum"></div></div>
+      <div class="card"><div class="k" style="margin-bottom:6px">At or near 52-week highs</div><div class="scroll" id="highs"></div></div>
+      <div class="card"><div class="k" style="margin-bottom:6px">Biggest gainers, last session</div><div class="scroll" id="gainers"></div></div>
+      <div class="card"><div class="k" style="margin-bottom:6px">Biggest fallers, last session</div><div class="scroll" id="losers"></div></div>
+    </div>
+    <p class="cap">Strong momentum often persists for months, but it also reverses sharply; trending stocks are a list to research, not to chase. Long-term and swing scores come from the nightly scan. Tap a ticker to open its Finviz page (US) or Yahoo page (UK). * = results due within a week.</p>
+  </section>
+
+  <footer>Data: Yahoo Finance, refreshed each weeknight after the US close. A personal tracker, not financial advice.</footer>
+</div>
+
+<script type="module">
+import { initTheme, esc, signPct, pnClass, money, fmtDate, ago, sparkline } from "./assets/site.js";
+initTheme();
+const $ = (id) => document.getElementById(id);
+const PERIODS = [["day", "Day"], ["week", "Week"], ["month", "Month"], ["m3", "3 months"], ["ytd", "Year to date"], ["y1", "1 year"]];
+let period = "m3";
+try { period = localStorage.getItem("mm-trend-period") || "m3"; } catch {}
+const open = new Set();
+let D;
+
+const link = (s) => s.symbol?.endsWith(".L") || s.symbol?.startsWith("^") ? `https://finance.yahoo.com/quote/${encodeURIComponent(s.symbol)}` : `https://finviz.com/quote.ashx?t=${encodeURIComponent(s.ticker)}`;
+const trendTag = (t) => t === "up" ? `<span class="trend bg-buy">UP</span>` : t === "down" ? `<span class="trend bg-sell">DOWN</span>` : t ? `<span class="trend bg-neutral">MIXED</span>` : "";
+
+function themeCard(th) {
+  const s = th.summary, v = s[period], isOpen = open.has(th.key);
+  const rows = th.stocks.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub">${esc((x.name || "").slice(0, 28))}</span></td>
+    <td>${money(x.price, x.currency)}</td><td class="${pnClass(x.day)}">${signPct(x.day)}</td><td class="${pnClass(x.month)}">${signPct(x.month)}</td><td class="${pnClass(x.m3)}">${signPct(x.m3)}</td><td class="${pnClass(x.ytd)}">${signPct(x.ytd)}</td>
+    <td>${x.rsi ?? "n/a"}</td><td class="${pnClass(x.offHigh)}">${signPct(x.offHigh)}</td><td>${trendTag(x.trend)}</td></tr>`).join("");
+  const etf = th.etf ? `<span>ETF <b>${esc(th.etf.ticker)}</b> <span class="${pnClass(th.etf[period])}">${signPct(th.etf[period])}</span></span>` : "";
+  return `<div class="card theme" role="button" tabindex="0" aria-expanded="${isOpen}" data-k="${th.key}">
+    <div class="top"><span class="nm">${esc(th.name)}</span><span class="big ${pnClass(v)}" style="font-weight:750">${signPct(v)}</span></div>
+    <svg viewBox="0 0 300 40" class="chart" aria-hidden="true">${sparkline(medianSeries(th), 300, 40, (s.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg>
+    <div class="row"><span>vs S&amp;P (3m) <b class="${pnClass(s.rs3m)}">${signPct(s.rs3m)}</b></span><span><b>${s.uptrend}/${s.count}</b> in uptrends</span>${s.newHighs ? `<span><b>${s.newHighs}</b> at highs</span>` : ""}${etf}</div>
+    <div class="note">${esc(th.note)}</div>
+    ${isOpen ? `<div class="scroll" onclick="event.stopPropagation()"><table class="tbl"><tr><th>Company</th><th>Price</th><th>Day</th><th>Month</th><th>3m</th><th>YTD</th><th>RSI</th><th>Off high</th><th>Trend</th></tr>${rows}</table></div>` : ""}
+  </div>`;
+}
+function medianSeries(th) {
+  const ss = th.stocks.map((s) => s.series).filter((x) => x?.length);
+  if (!ss.length) return [];
+  const n = Math.min(...ss.map((x) => x.length));
+  return Array.from({ length: n }, (_, i) => { const v = ss.map((x) => x[x.length - n + i] - x[x.length - n]).sort((a, b) => a - b); return v[Math.floor(v.length / 2)]; });
+}
+
+function heatColour(v) {
+  if (v == null) return "var(--neutral)";
+  const a = Math.min(1, Math.abs(v) / 8);
+  return v >= 0 ? `color-mix(in srgb, #14855a ${30 + a * 70}%, #6b7280)` : `color-mix(in srgb, #b3332a ${30 + a * 70}%, #6b7280)`;
+}
+function listTable(arr, k) {
+  if (!arr?.length) return `<p class="small muted">None right now.</p>`;
+  const k2 = k === "day" ? "month" : "month";
+  return `<table class="tbl"><tr><th>Company</th><th>${k === "day" ? "Day" : "3m"}</th><th>Month</th><th>Long-term</th><th>Swing</th></tr>${arr.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub">${esc((x.name || "").slice(0, 22))}</span></td><td class="${pnClass(x[k])}">${signPct(x[k])}</td><td class="${pnClass(x[k2])}">${signPct(x[k2])}</td><td>${x.lt ?? "n/a"}<span class="sub">${esc((x.ltVerdict || "").replace(" entry", ""))}</span></td><td>${x.sw ?? "n/a"}<span class="sub">${esc((x.swVerdict || "").replace(" (earnings risk)", "*"))}</span></td></tr>`).join("")}</table>`;
+}
+
+function render() {
+  $("period").innerHTML = PERIODS.map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join("");
+  $("period").className = "seg";
+  const th = D.themes.slice().sort((a, b) => (b.summary[period] ?? -999) - (a.summary[period] ?? -999));
+  $("themes").innerHTML = th.map(themeCard).join("");
+  document.querySelectorAll(".theme").forEach((el) => {
+    const t = () => { const k = el.dataset.k; open.has(k) ? open.delete(k) : open.add(k); render(); };
+    el.addEventListener("click", t);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); t(); } });
+  });
+  $("heat").innerHTML = D.sectors.map((s) => { const v = s[period === "ytd" || period === "y1" ? "m3" : period]; return `<div class="cell" style="background:${heatColour(v)}"><span class="s">${esc(s.name)}</span><span class="v">${signPct(v)}</span><span class="m">${s.above200}% above 200-day · ${s.count}</span></div>`; }).join("");
+}
+
+$("period").addEventListener("click", (e) => { const p = e.target.closest("[data-p]")?.dataset.p; if (p) { period = p; try { localStorage.setItem("mm-trend-period", p); } catch {} render(); } });
+
+(async () => {
+  try {
+    const r = await fetch("trends.json?t=" + Date.now()); if (!r.ok) throw 0;
+    D = await r.json();
+    $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${D.benchmark ? `<span class="pill plain">S&amp;P 500: ${signPct(D.benchmark.month)} month, ${signPct(D.benchmark.m3)} 3 months</span>` : ""}`;
+    render();
+    $("momentum").innerHTML = listTable(D.leaders.momentum, "m3");
+    $("highs").innerHTML = listTable(D.leaders.newHighs, "m3");
+    $("gainers").innerHTML = listTable(D.leaders.gainersToday, "day");
+    $("losers").innerHTML = listTable(D.leaders.losersToday, "day");
+  } catch { $("themes").innerHTML = `<p class="muted">No trends data yet. It’s built each weeknight after the US close.</p>`; }
+})();
+</script>
+</body>
+</html>
