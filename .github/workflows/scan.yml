@@ -8,7 +8,7 @@ on:
     - cron: "30 21 * * 1-5"
   push:
     branches: [main]
-    paths: [".github/workflows/scan.yml", "scan.js", "src/data/constituents.js", "src/data/quotes.js"]
+    paths: [".github/workflows/scan.yml", "scan.js", "trends.js", "src/themes.js", "src/data/constituents.js", "src/data/quotes.js"]
   workflow_dispatch: {}
 
 concurrency:
@@ -29,7 +29,10 @@ jobs:
           node-version: "24"
       - name: Scan
         run: node scan.js
+      - name: Trends
+        continue-on-error: true
+        run: node trends.js
       - name: Save
         env:
           COMMIT_MSG: Update index scan
-        run: scripts/persist.sh scan.json data/constituents.json
+        run: scripts/persist.sh scan.json data/constituents.json trends.json
