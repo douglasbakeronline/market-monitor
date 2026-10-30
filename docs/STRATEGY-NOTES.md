@@ -8,11 +8,11 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - Long-term picks 15%: 5 to 8 quality companies rated "Good entry", spread across sectors, max ~5% of portfolio each, built in 2 to 3 tranches, never within 7 days before results.
 - Swing: no real money (Douglas's choice, 30 Oct). Paper-traded from the scanner for at least 3 months; only funded if paper results show positive expectancy after costs.
 
-## Core schedule
-- Half of the core on 30 Oct 2026 (or the next trading day).
-- The other half in three equal monthly instalments: first trading day of Dec 2026, Jan 2027, Feb 2027.
-- If a confirmed buy tier fires before then, remaining instalments come forward.
-- Evidence: lump sum beats drip-feeding about two-thirds of the time (gap ~2%); a short stagger is accepted for behavioural reasons (Vanguard; Monevator).
+## Core schedule (gradual, agreed 30 Oct)
+- Core invested in 7 equal monthly instalments (1/7 of the core each): 30 Oct 2026, then the first trading day of Dec 2026, Jan, Feb, Mar, Apr, May 2027.
+- If a confirmed buy tier fires, the next two instalments go in immediately (prices are cheaper), and the plan is reviewed.
+- Each month before an instalment, the daily session checks the plan still makes sense and flags any proposed change to Douglas.
+- Evidence: lump sum beats drip-feeding about two-thirds of the time (gap ~2% over 12 months); Douglas prefers the flexibility of going in gradually, which is a reasonable trade-off (Vanguard; Monevator).
 
 ## Picks shortlist (as of 30 Oct 2026; reviewed daily)
 - Meta (META), HSBC (HSBA.L), Charles Schwab (SCHW), Newmont (NEM), Constellation Brands (STZ): eligible for a first tranche once Douglas confirms rule below.
