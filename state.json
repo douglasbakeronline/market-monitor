@@ -11,7 +11,7 @@
   "trimActive": false,
   "fearNoDipActive": true,
   "summarySent": {
-    "UK": "2026-10-29",
+    "UK": "2026-10-30",
     "US": "2026-10-29"
   },
   "digestSent": null,
@@ -136,14 +136,14 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 35,
+      "score": 34,
       "rating": "fear",
-      "asOf": "2026-10-29T23:59:48+00:00",
+      "asOf": "2026-10-30T07:57:01+00:00",
       "comparisons": {
-        "close": 36,
-        "week": 20,
-        "month": 31,
-        "year": 42
+        "close": 35,
+        "week": 17,
+        "month": 30,
+        "year": 37
       },
       "components": [
         {
@@ -155,13 +155,13 @@
         {
           "key": "stock_price_strength",
           "label": "Stock price strength",
-          "score": 32,
+          "score": 33,
           "rating": "fear"
         },
         {
           "key": "stock_price_breadth",
           "label": "Stock price breadth",
-          "score": 35,
+          "score": 40,
           "rating": "fear"
         },
         {
@@ -173,8 +173,8 @@
         {
           "key": "market_volatility_vix",
           "label": "Market volatility",
-          "score": 50,
-          "rating": "neutral"
+          "score": 42,
+          "rating": "fear"
         },
         {
           "key": "safe_haven_demand",
@@ -1437,12 +1437,17 @@
         },
         {
           "date": "2026-10-29",
-          "t": 1793318388000,
-          "y": 35
+          "t": 1793232000000,
+          "y": 34
+        },
+        {
+          "date": "2026-10-30",
+          "t": 1793347021000,
+          "y": 34
         }
       ]
     },
-    "fgAt": "2026-10-30T02:35:10.454Z",
+    "fgAt": "2026-10-30T08:15:00.649Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1521,27 +1526,23 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10722.07,
-        "date": "2026-10-29",
-        "asOf": "2026-10-29T16:35:29.000Z",
+        "level": 10721.51,
+        "date": "2026-10-30",
+        "asOf": "2026-10-30T08:00:00.000Z",
         "currency": "GBP",
         "drawdownPct": -1.7,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10704.38,
-        "sma200": 10520.29,
+        "sma50": 10703.85,
+        "sma200": 10522.72,
         "vs200Pct": 1.9,
         "above200": true,
         "rsi14": 52.1,
-        "dayPct": 0.3,
-        "weekPct": 0,
-        "monthPct": 1.1,
+        "dayPct": 0,
+        "weekPct": 0.3,
+        "monthPct": 2.8,
         "ytdPct": 8,
         "fiveDay": [
-          {
-            "date": "2026-10-23",
-            "pct": -0.32
-          },
           {
             "date": "2026-10-26",
             "pct": 0.72
@@ -1557,47 +1558,51 @@
           {
             "date": "2026-10-29",
             "pct": 0.26
+          },
+          {
+            "date": "2026-10-30",
+            "pct": -0.01
           }
         ],
         "series": [
           0,
-          0.75,
-          0.46,
-          0.43,
-          0.2,
-          0.34,
-          0.24,
-          -0.21,
+          -0.29,
+          -0.31,
+          -0.55,
+          -0.41,
           -0.5,
-          -2.17,
-          -1.85,
-          -1.51,
-          -1.1,
-          -1.88,
-          -2.04,
-          -1,
-          -0.03,
-          -0.08,
-          0.62,
-          1.7,
-          2.09,
-          0.99,
-          0.69,
-          0.88,
-          0.62,
-          0.29,
-          1.02,
+          -0.95,
+          -1.24,
+          -2.89,
+          -2.58,
+          -2.25,
+          -1.84,
+          -2.61,
+          -2.77,
+          -1.74,
+          -0.77,
+          -0.83,
+          -0.13,
+          0.94,
+          1.33,
+          0.24,
+          -0.06,
+          0.13,
+          -0.13,
+          -0.45,
           0.26,
-          0.33,
-          0.59
+          -0.49,
+          -0.41,
+          -0.16,
+          -0.16
         ]
       },
       "vix": {
-        "level": 17.2,
-        "dayPct": 1.7,
-        "date": "2026-10-29"
+        "level": 18.52,
+        "dayPct": 7.7,
+        "date": "2026-10-30"
       },
-      "at": "2026-10-30T02:35:10.454Z"
+      "at": "2026-10-30T08:15:00.649Z"
     },
     "watchlist": [
       {
@@ -2292,22 +2297,22 @@
       }
     ],
     "context": {
-      "score": 35,
+      "score": 34,
       "band": [
-        30,
-        40
+        29,
+        39
       ],
       "since": "2020-07-15",
-      "days": 253,
-      "episodes": 31,
+      "days": 249,
+      "episodes": 28,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 245,
+            "n": 238,
             "median": 1.6,
-            "positive": 67
+            "positive": 68
           },
           "baseline": {
             "n": 1560,
@@ -2319,9 +2324,9 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 232,
+            "n": 223,
             "median": 3.6,
-            "positive": 69
+            "positive": 68
           },
           "baseline": {
             "n": 1518,
@@ -2333,7 +2338,7 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 212,
+            "n": 207,
             "median": 8.1,
             "positive": 77
           },
@@ -2347,9 +2352,9 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 187,
-            "median": 12.3,
-            "positive": 63
+            "n": 182,
+            "median": 12,
+            "positive": 59
           },
           "baseline": {
             "n": 1330,
