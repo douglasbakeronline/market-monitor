@@ -1,0 +1,22 @@
+name: Dry run
+on:
+  push:
+    branches: [dryrun]
+permissions:
+  contents: write
+jobs:
+  dry:
+    if: "!contains(github.event.head_commit.message, 'dry-run output')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "24" }
+      - run: |
+          set +e
+          DRY_RUN=1 node trends.js > run.log 2>&1; echo "exit=$?" >> run.log
+          node scripts/next-slot.js >> run.log
+          mkdir -p dry-run && mv run.log dry-run/
+      - run: |
+          git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
+          git add -f dry-run && git commit -qm "dry-run output" && git push -q
