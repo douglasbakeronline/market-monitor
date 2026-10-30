@@ -1447,7 +1447,7 @@
         }
       ]
     },
-    "fgAt": "2026-10-30T12:00:00.798Z",
+    "fgAt": "2026-10-30T12:00:21.888Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1526,22 +1526,22 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10741.91,
+        "level": 10739.88,
         "date": "2026-10-30",
-        "asOf": "2026-10-30T11:45:00.000Z",
+        "asOf": "2026-10-30T11:45:21.000Z",
         "currency": "GBP",
-        "drawdownPct": -1.5,
+        "drawdownPct": -1.6,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10704.25,
-        "sma200": 10522.83,
+        "sma50": 10704.21,
+        "sma200": 10522.82,
         "vs200Pct": 2.1,
         "above200": true,
-        "rsi14": 53.5,
+        "rsi14": 53.4,
         "dayPct": 0.2,
         "weekPct": 0.5,
         "monthPct": 3,
-        "ytdPct": 8.2,
+        "ytdPct": 8.1,
         "fiveDay": [
           {
             "date": "2026-10-26",
@@ -1561,7 +1561,7 @@
           },
           {
             "date": "2026-10-30",
-            "pct": 0.18
+            "pct": 0.17
           }
         ],
         "series": [
@@ -1594,15 +1594,15 @@
           -0.49,
           -0.41,
           -0.16,
-          0.03
+          0.01
         ]
       },
       "vix": {
-        "level": 18.57,
+        "level": 18.58,
         "dayPct": 8,
         "date": "2026-10-30"
       },
-      "at": "2026-10-30T12:00:00.798Z"
+      "at": "2026-10-30T12:00:21.888Z"
     },
     "watchlist": [
       {
@@ -2208,7 +2208,7 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 4043,
+        "price": 4041.5,
         "date": "2026-10-30",
         "dropFromHigh": 0,
         "lastChange": 0.1,
@@ -2245,7 +2245,7 @@
           12.58,
           13.42,
           15.75,
-          15.9
+          15.85
         ],
         "rebound": false
       },
@@ -2254,13 +2254,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1279.71,
+        "price": 1279.4,
         "date": "2026-10-30",
         "dropFromHigh": -10.4,
         "lastChange": -1,
         "previous": -0.3,
-        "week": -5.3,
-        "month": -10.9,
+        "week": -5.4,
+        "month": -11,
         "series": [
           0,
           -1.59,
@@ -2291,7 +2291,7 @@
           -15.8,
           -15.46,
           -15.73,
-          -16.57
+          -16.59
         ],
         "rebound": false
       }
