@@ -1,15 +1,17 @@
 {
   "reviews": [
     {
-      "title": "Launch week",
+      "title": "Week 1: launch and co-pilot",
       "period": "26 October to 1 November 2026",
-      "headline": "Market Monitor rebuilt from a single alert script into a monitoring and research system, with reliable timings and daily development.",
+      "headline": "Market Monitor rebuilt into a reliable monitoring and research system; the Dashboard now opens with what the plan says is due this week, and a backtest found no edge in the swing rules.",
       "points": [
-        "Alerts now run at exact times (7 checks each weekday) instead of about 5 hours late",
-        "New Research page, nightly scan of all S&P 500 and FTSE 100 companies, and a Trends page for AI, tech and growth themes",
-        "Track record, score history, earnings reactions and urgent crash-watch alerts added",
+        "All 22 scheduled checks ran on time, within 20 seconds of each slot",
+        "New: index scanner, track record, Trends and Reviews pages, crash watch, and a plan-this-week panel",
+        "Takeover-pinned stocks (DCC, Intertek, easyJet) are now excluded from swing setups",
+        "One-year swing backtest: +0.04R per trade vs +0.10R for random entry, so the recommendation is paper only for now",
         "Daily research-and-build sessions start on Monday 2 November"
-      ]
+      ],
+      "pdf": "review-2026-11-01.pdf"
     }
   ]
 }

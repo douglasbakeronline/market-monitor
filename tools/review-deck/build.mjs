@@ -25,7 +25,7 @@ const slide = (s, n) => {
   if (s.type === "summary") {
     body = `<p class="lede">${md(s.headline)}</p><div class="kpis">${(s.kpis || []).map((k) => `<div class="kpi"><div class="kl">${esc(k.label)}</div><div class="kv" style="color:${TONE[k.tone] || TONE.neutral}">${esc(k.value)}</div><div class="kn">${md(k.note || "")}</div></div>`).join("")}</div>`;
   } else if (s.type === "list") {
-    body = `<div class="list ${s.items.length > 4 ? "dense" : ""}">${s.items.map((i) => `<div class="li"><div class="lt">${i.tag ? `<span class="tag ${i.tone || ""}">${esc(i.tag)}</span>` : ""}${md(i.title)}</div>${i.detail ? `<div class="ld">${md(i.detail)}</div>` : ""}</div>`).join("")}</div>`;
+    body = `<div class="list ${s.items.length > 4 ? "dense" : ""}">${s.items.map((i) => `<div class="li"><div class="lt">${i.tag ? `<span class="tag ${i.tone || ""}">${esc(i.tag)}</span>` : ""}<span>${md(i.title)}</span></div>${i.detail ? `<div class="ld">${md(i.detail)}</div>` : ""}</div>`).join("")}</div>`;
   } else if (s.type === "table") {
     body = `<table><thead><tr>${s.columns.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr>${r.map((v) => `<td>${md(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   } else if (s.type === "two") {
@@ -63,7 +63,7 @@ h2 { font-size: 40px; letter-spacing: -.025em; margin: 10px 0 26px; line-height:
 .list { display: grid; gap: 14px; }
 .list.dense { grid-template-columns: 1fr 1fr; gap: 14px 22px; }
 .li { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 15px 20px; }
-.lt { font-weight: 650; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.lt { font-weight: 550; font-size: 20px; display: flex; align-items: baseline; gap: 10px; } .lt b { font-weight: 720; } .lt .tag { position: relative; top: -2px; }
 .ld { font-size: 16px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
 .dense .lt { font-size: 18px; } .dense .ld { font-size: 14.5px; }
 .tag { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; background: #eceae5; color: var(--ink2); white-space: nowrap; }
@@ -96,8 +96,13 @@ if (flag === "--png" && pngDir) {
   mkdirSync(pngDir, { recursive: true });
   const n = await page.locator(".slide").count();
   for (let i = 0; i < n; i++) await page.locator(".slide").nth(i).screenshot({ path: path.join(pngDir, `slide-${String(i + 1).padStart(2, "0")}.png`) });
-  // Overflow check: content must not spill past the footer.
-  const over = await page.evaluate(() => [...document.querySelectorAll(".slide")].map((s, i) => { const b = s.querySelector(".body"), n = s.querySelector(".note"); const lim = s.getBoundingClientRect().bottom - 60; return [i + 1, Math.max(b ? b.getBoundingClientRect().bottom : 0, n ? n.getBoundingClientRect().bottom : 0, ...[...s.querySelectorAll(".body *")].map((e) => e.getBoundingClientRect().bottom)) > lim]; }).filter((x) => x[1]).map((x) => x[0]));
+  // Overflow check: content must not spill past the footer. (.body itself
+  // stretches to fill the slide, so only its contents and the note count.)
+  const over = await page.evaluate(() => [...document.querySelectorAll(".slide")].map((s, i) => {
+    const top = s.getBoundingClientRect().top, lim = s.offsetHeight - 55; // footer rule sits ~52px up
+    const els = [...s.querySelectorAll(".body *, .note")];
+    return [i + 1, els.some((e) => e.getBoundingClientRect().bottom - top > lim)];
+  }).filter((x) => x[1]).map((x) => x[0]));
   console.log(over.length ? `OVERFLOW on slides: ${over.join(", ")}` : "No overflow.");
 }
 await browser.close();
