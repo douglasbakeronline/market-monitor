@@ -1,0 +1,46 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { copilot, pullbackAlert, pickStatus, copilotLines, PLAN } from "../src/plan.js";
+
+const sp = (dd) => ({ name: "S&P 500", drawdownPct: dd });
+const ftse = (dd) => ({ name: "FTSE 100", drawdownPct: dd });
+const item = (verdict, days) => ({ ticker: "X", longTerm: { verdict, score: 80 }, earnings: days == null ? null : { days } });
+
+test("Monday 2 Nov: core and picks are due; picks gated by verdict and results", () => {
+  const items = { "HSBA.L": item("Good entry"), META: item("Good entry", 3), NEM: item("Good entry"), STZ: item("Fair"), VICI: item("Good entry", 30) };
+  const cp = copilot({ today: "2026-11-02", sp: sp(-3), ftse: ftse(-2), items });
+  assert.deepEqual(cp.actions.map((a) => a.kind), ["core", "picks"]);
+  const picks = cp.actions.find((a) => a.kind === "picks");
+  assert.equal(picks.status, "partial");
+  assert.match(picks.note, /3 of 5/);
+  assert.equal(cp.picks.find((p) => p.symbol === "META").ok, false);
+});
+
+test("pullback rule fires at 5% before the next core date, once", () => {
+  const cp = copilot({ today: "2026-11-05", sp: sp(-5.4), ftse: ftse(-2), items: {} });
+  assert.equal(cp.pullback.triggered, true);
+  assert.equal(cp.pullback.nextCore.date, "2026-11-16");
+  assert.equal(cp.actions[0].kind, "pullback");
+  const state = {};
+  assert.ok(pullbackAlert(cp, state));
+  assert.equal(pullbackAlert(cp, state), null, "only once per core date");
+});
+
+test("pullback rule ignores the April core date (money can't enter the ISA early)", () => {
+  const cp = copilot({ today: "2026-12-10", sp: sp(-8), ftse: ftse(-6), items: {} });
+  assert.equal(cp.pullback.triggered, false);
+  assert.equal(cp.pullback.nextCore, null);
+  assert.match(cp.headline, /Nothing due/);
+});
+
+test("not triggered at -4.9%; lines say how far off the trigger", () => {
+  const cp = copilot({ today: "2026-11-09", sp: sp(-4.9), ftse: ftse(-1), items: {} });
+  assert.equal(cp.pullback.triggered, false);
+  assert.ok(copilotLines(cp).some((l) => /fires at -5%/.test(l)));
+});
+
+test("pick with no data is not ok and says so", () => {
+  const p = pickStatus(PLAN.picks[0], null);
+  assert.equal(p.ok, null);
+  assert.equal(p.ticker, "HSBA");
+});

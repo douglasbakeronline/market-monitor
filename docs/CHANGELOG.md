@@ -4,6 +4,16 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 26 October 2026
 
+### Sun 1 Nov (weekly sprint)
+- **"Your plan this week" at the top of the Dashboard** (co-pilot reframe, Douglas 30 Oct). Reads the agreed plan (`src/plan.js`, dates and percentages only) and shows what is due in the next seven days, a tranche check for each of the five picks (still a good entry, no results within 7 days), the pullback rule's distance to its trigger, and key dates. *Why:* the top of the page should answer "what, if anything, should I do this week?"
+- **Pullback-rule alert.** If the S&P 500 or FTSE 100 is 5%+ below its high before a scheduled core date, one high-priority alert says to bring that purchase forward (the April 2027 date is excluded: that money can't enter the ISA early). Plan lines also lead the Monday UK summary and the Sunday digest.
+- **Pots and goal panel, private to the browser.** Enter pot values, monthly top-up and goal; see weights vs the 60/15/15/10 targets, drift of 5+ points, and time to goal at 6/8/10%. Saved in localStorage only, so no amounts reach the public repo.
+- **Swing paper-trading log.** Every clean swing setup from the nightly scan is logged (entry next open, 2×ATR stop, 2R target, 20-session exit) in `history/paper-trades.json` and scored nightly; summary and recent trades on the Dashboard. *Why:* the swing pot should prove itself before real money.
+- **Swing backtest** (`tools/swing-backtest.mjs`): the same rules replayed over the past year on all 603 index stocks. Result in the research log: no edge over random entry (details there).
+- **Fixed: swing stops too tight on some stocks.** Not a data bug: DCC, Intertek, easyJet, Bio-Techne and AES have prices pinned by takeover offers (daily moves under 0.4% vs a usual 1.5% to 2.7%). Such stocks are now flagged "Price pinned", never a swing setup, and their long-term verdict says the upside is capped. Stops also get a floor of 2× the stock's normal daily move.
+- **Research list** now includes the five picks and the bench, so their earnings dates and full scores feed the tranche check; stocks newly added to the list are recorded silently instead of triggering "new signal" alerts.
+- **Public repo scrub:** removed a legacy holding name and a personal amount from the strategy notes and research log (they remain in older git history).
+
 ### Fri 30 Oct
 - **Trends page** (Douglas asked to track trending, tech, AI and growth stocks, Finviz as reference): 8 hand-picked themes (AI chips, AI platforms, AI software, AI infrastructure and power, cybersecurity, consumer/fintech growth, space and defence, healthcare innovation) with benchmark ETFs, an S&P 500 sector heatmap, and momentum/52-week-high/movers lists from the nightly scan. Built nightly by trends.js after the scan. Ticker links go to Finviz (US) or Yahoo (UK).
 - **Reviews page** listing public-safe weekly reviews (no personal holdings or amounts); full personal reviews stay private as PDFs.

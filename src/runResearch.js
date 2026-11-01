@@ -66,6 +66,8 @@ export async function runResearch({ regimeKey, state }) {
   const at = new Date().toISOString();
   for (const it of items) {
     const p = prev[it.symbol] || {};
+    // A stock just added to the list is recorded silently, not announced as new.
+    if (!prev[it.symbol]) { next[it.symbol] = { lt: it.longTerm.verdict, sw: it.swing?.verdict ?? null }; continue; }
     const lt = it.longTerm.verdict, sw = it.swing?.verdict ?? null;
     const ed = it.earnings?.days;
     const earn = ed != null && ed >= 0 && ed <= 7 ? ` Earnings ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: consider waiting for the results.` : "";

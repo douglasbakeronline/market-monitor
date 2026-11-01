@@ -8,23 +8,26 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - No paid services. No secrets in the repo (it's public).
 
 ## Waiting on Douglas
-- His own research list (Research page still uses a 16-stock placeholder).
+- **Swing pot on 16 Nov: fund it or keep it on paper?** The 1 Nov backtest found no edge (+0.04R per trade vs +0.10R for random entry with the same exits; see RESEARCH-LOG). Recommendation: paper only for now.
+- Strategy notes conflict: the 30 Oct changelog says "swing paper-traded only", STRATEGY-NOTES says real money from 16 Nov. Needs one answer (follows from the decision above).
+- OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
+- His own research list (Research page still uses a placeholder, now including the picks and bench).
 - Optional `FINNHUB_KEY` secret.
 - Whether to keep the trim signal (on, strict).
-- Delete leftover branches `probe` (and `dryrun` is reused for testing; keep it).
+- Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
-0. **Bug: swing stops too tight on some FTSE stocks.** DCC and EZJ showed 2×ATR stops only 0.5% to 1.2% below price on 29 Oct (US names look normal at 5% to 8%). Likely Yahoo returning flat or missing intraday highs/lows for some LSE bars. Fix: guard ATR with a close-to-close volatility floor and flag stocks with poor OHLC data; add a test.
-1. **Goal tracker:** progress to the growth target in Douglas’s private notes with projections at 6/8/10% and the effect of monthly top-ups; pullback-rule alert (index 5%+ off its high before a scheduled core date).
-1b. **Co-pilot reframe (Douglas, 30 Oct):** the monitor becomes an investing co-pilot: pots vs target weights from docs/STRATEGY-NOTES.md, what is due this week, plan adherence, then signals and research. Dashboard top section should answer "what, if anything, should I do this week?"
-2. **Swing paper-trading log:** record scanner swing setups as paper trades (entry, 2×ATR stop, 2R target, 20-session exit) and score them automatically; the swing pot is only funded if this shows positive expectancy after 3+ months.
-3. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag.
-4. **Portfolio view and trade log (agreed in the 29 Oct strategy deck):** pots with target weights (core index, dip reserve, long-term picks, swing), current value vs target, a trade log where every trade records the rule that triggered it, and rebalancing prompts. Keep amounts out of the public repo: read holdings from a private source or let Douglas enter them in the browser (localStorage), not committed files.
-5. **Congress-trade flag (fold into 3):** check for a free, reliable feed of US House/Senate trade disclosures; if one exists, add a "Congress buying" tag on Research and scan pages, tracked in the track record like any other signal. Use only as a tie-breaker.
-6. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
-7. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (needs ~1 month of data).
-8. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds.
-9. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
+1. **Trade log (browser only):** record each real trade with the rule that triggered it (core date, pick tranche, dip tier, pullback rule), feed the pots panel from it, and show plan adherence ("4 of 4 scheduled actions done on time").
+2. **Swing retune (only if Douglas wants swing kept alive):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
+3. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
+4. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
+5. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds; same harness style as the swing backtest.
+6. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
+7. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
+8. **Paper-trade view on the Research page:** filter by market and setup score, with an equity curve in R.
+
+## Done (recent)
+- 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
 - More indices (Euro Stoxx 50, Nasdaq 100) in the scanner.

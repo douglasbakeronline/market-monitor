@@ -12,7 +12,8 @@ import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, summarise } from "./src/research.js";
 import { readJson, writeJson } from "./src/state.js";
-import { r1, r2, sleep, dateIn } from "./src/util.js";
+import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
+import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100" };
@@ -38,10 +39,11 @@ async function main() {
   console.log(`Quotes: ${Object.keys(quotes).length}`);
 
   // Stage 1
-  const items = [], failed = [];
+  const items = [], failed = [], rowsBySymbol = {};
   for (const u of universe) {
     try {
       const prices = await fetchDaily(u.symbol, { range: "1y" });
+      rowsBySymbol[u.symbol] = prices.rows;
       const t = technicals(prices.rows);
       if (!t) throw new Error("not enough history");
       const f = quoteToFundamentals(quotes[u.symbol]) || {};
@@ -99,13 +101,36 @@ async function main() {
   const newGood = hasPrev ? out.filter((i) => i.deep && i.longTerm.verdict === "Good entry" && !prevGood.has(i.symbol)).map((i) => i.symbol) : [];
   const newSetups = hasPrev ? out.filter((i) => i.swing?.verdict?.startsWith("Setup") && !prevSetup.has(i.symbol)).map((i) => i.symbol) : [];
 
+  // Swing paper trades: score open ones, then log tonight's clean setups.
+  // Only after both markets have closed, so no trade is judged on a part-day bar.
+  const paperLog = await readJson("history/paper-trades.json", []);
+  let paper = paperLog;
+  if (marketsClosed()) {
+    paper = paperLog.map((t) => updateTrade(t, rowsBySymbol[t.symbol]));
+    const setups = out.filter((i) => i.swing?.verdict === "Setup").map((i) => ({ symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market,
+      currency: i.currency, price: i.price, stop: i.swing.stop, score: i.swing.score, date: i.date }));
+    for (const [date, group] of Object.entries(Object.groupBy(setups, (x) => x.date))) paper = addSetups(paper, group, date);
+  } else console.log("Paper trades: markets open, not updated.");
+  await writeJson("history/paper-trades.json", paper, true);
+  const paperSummary = summarisePaper(paper);
+  console.log(`Paper trades: ${paperSummary.open} open, ${paperSummary.closed} closed${paperSummary.avgR != null ? `, ${paperSummary.avgR}R average` : ""}.`);
+
   await writeJson("scan.json", {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, items: out,
+    newGood, newSetups, paper: paperSummary, items: out,
   });
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
+}
+
+// True when neither London nor New York is in its trading session.
+function marketsClosed(at = new Date()) {
+  const ny = partsIn("America/New_York", at), lon = partsIn("Europe/London", at);
+  const weekend = (p) => p.weekday === 0 || p.weekday === 6;
+  const nyOpen = !weekend(ny) && ny.min >= 9 * 60 + 30 && ny.min < 16 * 60 + 15;
+  const lonOpen = !weekend(lon) && lon.min >= 8 * 60 && lon.min < 16 * 60 + 45;
+  return !nyOpen && !lonOpen;
 }
 
 main().catch((e) => { console.error("Scan failed:", e); process.exit(1); });

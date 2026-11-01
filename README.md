@@ -2,7 +2,7 @@
 
 A free, self-running market dashboard with phone alerts, plus a stock research page.
 
-- **Dashboard** (`index.html`): one "market regime" headline built from four lenses (S&P 500 drawdown, trend vs the 200-day average, VIX, CNN Fear & Greed), what historically happened next at today's sentiment level, S&P 500 and FTSE 100 buy tiers, world markets and a rebound watchlist.
+- **Dashboard** (`index.html`): what the agreed plan says is due this week (with a tranche check for each pick and the pullback rule), a private pots-and-goal panel stored only in your browser, one "market regime" headline built from four lenses (S&P 500 drawdown, trend vs the 200-day average, VIX, CNN Fear & Greed), what historically happened next at today's sentiment level, S&P 500 and FTSE 100 buy tiers, world markets and a rebound watchlist.
 - **Research** (`research.html`): every stock on your list scored for **long-term** investing (quality, value, entry, analysts) and **swing** trading (trend, RSI, MACD, Bollinger, volume, breakouts), with plain-English reasons, a suggested stop and earnings warnings.
 - **Alerts** (ntfy): buy tiers, "fear without a dip", greed and trim signals, research signals, a summary after each open and a Sunday digest.
 
@@ -14,10 +14,13 @@ GitHub Actions runs `monitor.js` at these times (local market time, daylight sav
 
 | Slot | Time | Does |
 |---|---|---|
-| UK open | 08:15 London | Signals + UK summary |
+| UK open | 08:15 London | Signals + UK summary (with this week's plan on Mondays) |
+| UK morning | 10:15 London | Signals + crash watch |
 | UK midday | 12:00 London | Signals |
 | US open | 09:45 New York | Signals + US summary + F&G open capture |
+| US late morning | 11:00 New York | Signals + crash watch |
 | US midday | 12:45 New York | Signals |
+| US afternoon | 14:30 New York | Signals |
 | US close | 16:10 New York | Signals + F&G close capture + research refresh |
 | Weekly digest | Sunday 18:00 London | Digest + research refresh |
 
@@ -66,6 +69,7 @@ FORCE_SUMMARY=US NTFY_TOPIC=your-topic node monitor.js   # send a real summary n
 - **Greed:** F&G ≥ 76 with the S&P within 3% of its high: stop adding.
 - **Trim:** F&G ≥ 80, S&P 10%+ above its 200-day and VIX ≤ 15: rebalance, don't dump.
 - **Research:** a stock newly becomes a long-term "Good entry" or a swing "Setup".
+- **Pullback rule:** the S&P 500 or FTSE 100 is 5%+ below its high before a scheduled core purchase: bring it forward.
 
 ## Layout
 
@@ -75,7 +79,10 @@ src/config.js           everything tunable
 src/data/               CNN, Yahoo prices, Yahoo/Finnhub fundamentals
 src/signals.js          snapshots, regime, alert rules
 src/context.js          historical forward returns
-src/research.js         long-term and swing scoring
+src/research.js         long-term and swing scoring (flags takeover-pinned prices)
+src/plan.js             the agreed plan as data (dates, weights, picks) and the weekly co-pilot
+src/paperTrades.js      swing paper-trading log, scored nightly by scan.js
+tools/swing-backtest.mjs  one-off replay of the swing rules over the past year
 src/runResearch.js      builds research.json
 src/schedule.js         slot timing
 scripts/                next-slot finder, commit/push helper

@@ -10,8 +10,8 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 
 ## Schedule (revised 30 Oct for the ISA allowance)
 - Douglas had already used part of this tax year's ISA allowance, so about 70% of the new money goes into the ISA now and about 30% waits in easy-access savings until the new allowance on 6 April 2027.
-- Existing ISA index funds (VUAG, VWRP, VUKG) count as core; only VWRP is added to from now on. Existing ISA cash is reused (no allowance needed).
-- Expion360 (XPON), a speculative legacy holding: decided 30 Oct to sell (cancel the old $11.95 limit order) and move the proceeds to the core.
+- Existing index funds in the ISA count as core; only VWRP is added to from now on. Existing ISA cash is reused (no allowance needed).
+- A speculative legacy holding: decided 30 Oct to sell it and move the proceeds to the core.
 - Mon 2 Nov: first core purchase. Mon 2 Nov: first tranche of each pick as well (brought forward 30 Oct; only if the 08:33 playback confirms each is still "Good entry" with no results within 7 days). Mon 16 Nov: second core purchase; swing alerts start (US only at first).
 - Dec 2026 to Mar 2027: no new money (allowance used); dividends and any sale proceeds reinvested per the plan.
 - 6 Apr 2027: pay in the savings and resume monthly core purchases.

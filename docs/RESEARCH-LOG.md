@@ -2,13 +2,20 @@
 
 Dated findings that shape the rules. Newest first. Each entry: question, finding, strength of evidence, sources, implications.
 
+## 2026-11-01: Do the swing rules have an edge?
+- Question: before real money goes into the swing pot on 16 Nov, would the agreed swing rules (scanner "Setup", entry next open, 2×ATR stop, 2R target, 20-session exit) have made money over the past year?
+- Finding: No edge. 3,804 closed trades on S&P 500 and FTSE 100 stocks (Nov 2025 to Oct 2026): 42% winners, average **+0.04R** per trade (US +0.06R, UK -0.02R). A baseline that enters on any day with the same stops and targets did better: +0.10R. Higher setup scores helped a little (75+: +0.14R on 589 trades, still barely above the baseline). Results swung by month from -0.54R (Mar 2026) to +0.53R (Feb 2026). Trading 212's 0.15% FX fee each way on US shares costs roughly 0.05R to 0.1R per trade at typical stop widths, which wipes out the edge.
+- Strength: Moderate. Large sample, but one year of a mostly rising market, today's index members only (survivorship), overlapping trades, and earnings dates not filtered historically.
+- Sources: own backtest, `tools/swing-backtest.mjs`, run 1 Nov 2026 on Yahoo daily data.
+- Implication: recommend keeping the swing pot on paper (live paper log started 30 Oct) rather than funding it on 16 Nov; revisit after 3 months of live paper results, or retune the setups (for example only score 75+ in an uptrend) and re-test. Decision for Douglas.
+
 ## 2026-10-30: Is the run-up to the midterms the strongest period for the S&P 500?
 - Finding: No. Since 1948 the S&P 500 averaged ~4.6% in midterm years vs ~11.2% in the other three years; the strong window is the 12 months after the midterms (~13.9% average vs ~5.8% for comparable periods). 2026 has not followed the usual midterm weakness.
 - Strength: Weak to moderate. Long record but only ~19 cycles; averages hide big variation; widely known, so may be partly priced in.
 - Sources: Oppenheimer, "The Midterm Election Effect on Markets" (2026); Bank of America via investinglive.
 - Implication: No rule change. Do not time the core on it. Mention as context in summaries around 3 Nov 2026.
 
-## 2026-10-30: Lump sum or drip-feed £20k?
+## 2026-10-30: Lump sum or drip-feed the new money?
 - Finding: Lump sum beat 12-month drip-feeding about two-thirds of the time in the UK and US; average gap ~2.2% (UK). Drip-feeding wins in steady falls and helps nervous investors stay invested.
 - Strength: Strong (Vanguard study across decades and countries, replicated elsewhere).
 - Sources: Vanguard, "Cost averaging: invest now or temporarily hold your cash?"; Monevator, "Lump sum investing versus drip feeding".

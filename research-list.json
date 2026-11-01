@@ -1,14 +1,14 @@
 {
   "placeholder": true,
-  "note": "PLACEHOLDER: the dashboard watchlist until Douglas sends his own research list. Symbols use Yahoo format: US plain (MSFT), UK with .L (AZN.L).",
+  "note": "PLACEHOLDER: the dashboard watchlist plus the plan's five picks and bench (docs/STRATEGY-NOTES.md), until Douglas sends his own research list. Symbols use Yahoo format: US plain (MSFT), UK with .L (AZN.L).",
   "stocks": [
     { "symbol": "SPCX", "name": "SpaceX" },
     { "symbol": "MSFT", "name": "Microsoft" },
     { "symbol": "GOOGL", "name": "Alphabet" },
     { "symbol": "AAPL", "name": "Apple" },
-    { "symbol": "AMZN", "name": "Amazon" },
+    { "symbol": "AMZN", "name": "Amazon", "notes": "Plan bench" },
     { "symbol": "NVDA", "name": "Nvidia" },
-    { "symbol": "META", "name": "Meta" },
+    { "symbol": "META", "name": "Meta", "notes": "Plan pick" },
     { "symbol": "TSLA", "name": "Tesla" },
     { "symbol": "AVGO", "name": "Broadcom" },
     { "symbol": "AMD", "name": "AMD" },
@@ -16,7 +16,15 @@
     { "symbol": "JPM", "name": "JPMorgan" },
     { "symbol": "AZN.L", "name": "AstraZeneca" },
     { "symbol": "SHEL.L", "name": "Shell" },
-    { "symbol": "HSBA.L", "name": "HSBC" },
-    { "symbol": "BRBY.L", "name": "Burberry" }
+    { "symbol": "HSBA.L", "name": "HSBC", "notes": "Plan pick" },
+    { "symbol": "BRBY.L", "name": "Burberry" },
+    { "symbol": "NEM", "name": "Newmont", "notes": "Plan pick" },
+    { "symbol": "STZ", "name": "Constellation Brands", "notes": "Plan pick" },
+    { "symbol": "VICI", "name": "VICI Properties", "notes": "Plan pick" },
+    { "symbol": "SCHW", "name": "Charles Schwab", "notes": "Plan bench" },
+    { "symbol": "CF", "name": "CF Industries", "notes": "Plan bench" },
+    { "symbol": "LLOY.L", "name": "Lloyds", "notes": "Plan bench" },
+    { "symbol": "NWG.L", "name": "NatWest", "notes": "Plan bench" },
+    { "symbol": "GLEN.L", "name": "Glencore", "notes": "Plan bench" }
   ]
 }

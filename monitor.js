@@ -15,7 +15,8 @@ import { notify } from "./src/notify.js";
 import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
-import { partsIn, dateIn, isoWeek, sign } from "./src/util.js";
+import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
+import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
 
@@ -126,6 +127,12 @@ async function main() {
   const ev = evaluateAlerts({ markets: { US: sp, UK: ftse }, fg, vix, pricesOk, fgOk }, state);
   Object.assign(state, ev.state);
   alerts.push(...ev.alerts, ...researchAlerts);
+
+  // Co-pilot: what the agreed plan says is due, plus the pullback rule.
+  const planItems = Object.fromEntries([...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
+  const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems });
+  const pb = pullbackAlert(cp, state);
+  if (pb) alerts.push(pb);
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;
@@ -158,6 +165,7 @@ async function main() {
   }
 
   // --- 9. Daily summaries ----------------------------------------------------------
+  const lon0 = partsIn("Europe/London");
   const due = [];
   if (process.env.FORCE_SUMMARY) due.push(process.env.FORCE_SUMMARY.toUpperCase() === "UK" ? "UK" : "US");
   else for (const market of ["UK", "US"]) {
@@ -170,7 +178,8 @@ async function main() {
   }
   for (const market of due) {
     const tz = market === "UK" ? "Europe/London" : "America/New_York";
-    await notify({ title: `${market} open · ${reg.label}`, body: summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan }), priority: "default", tags: market === "UK" ? "gb" : "us" });
+    const planLines = market === "UK" && (lon0.weekday === 1 || cp.actions.some((a) => a.inDays <= 1)) ? copilotLines(cp) : [];
+    await notify({ title: `${market} open · ${reg.label}`, body: [...planLines, summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan })].join("\n"), priority: "default", tags: market === "UK" ? "gb" : "us" });
     state.summarySent[market] = dateIn(tz);
     console.log(`Sent ${market} summary.`);
   }
@@ -179,7 +188,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -192,7 +201,8 @@ async function main() {
     comparisons: fg?.comparisons ?? null, components: fg?.components ?? [],
     history: (fg?.history ?? []).slice(-CONFIG.historyPoints).map((h) => ({ t: h.t, d: h.date, y: h.y })),
     regime: reg, status, markets: { sp, ftse, vix }, context: ctx, fearSessions, world, watchlist,
-    researchTop: researchHighlights(research), trackRecord,
+    researchTop: researchHighlights(research), trackRecord, copilot: cp,
+    paper: scan?.paper ?? null,
   });
   await writeJson("history/fear-greed.json", fgHistory);
   await saveState(state);

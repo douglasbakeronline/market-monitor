@@ -13,6 +13,47 @@
 <meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="assets/site.css">
 <style>
+  /* Plan this week (co-pilot) */
+  .plan-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .plan-head .label { font-size: 22px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.2; margin-right: auto; }
+  .act { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line-2); }
+  .act:first-of-type { margin-top: 10px; }
+  .act .when { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 9px; text-align: center; padding: 5px 2px; line-height: 1.15; }
+  .act .when b { display: block; font-size: 17px; letter-spacing: -0.02em; }
+  .act .when span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .act .t { font-weight: 650; font-size: 14.5px; }
+  .act .d { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+  .act .n { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .plan-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; margin-top: 12px; }
+  .picks { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .picks td { padding: 7px 6px 7px 0; border-top: 1px solid var(--line-2); vertical-align: top; }
+  .picks tr:first-child td { border-top: 0; }
+  .picks .tk { font-weight: 650; white-space: nowrap; }
+  .picks .ok { text-align: right; white-space: nowrap; font-weight: 650; }
+  .picks .why { display: block; color: var(--muted); font-size: 11.5px; }
+  .pb-meter { position: relative; height: 8px; border-radius: 99px; background: var(--line-2); margin: 12px 0 6px; }
+  .pb-meter i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: var(--watch); }
+  .pb-meter .mark { position: absolute; top: -4px; width: 2px; height: 16px; background: var(--ink); }
+  .kd { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; }
+  .kd li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--line-2); }
+  .kd li span:last-child { color: var(--muted); white-space: nowrap; }
+  @media (max-width: 640px) { .plan-grid { grid-template-columns: 1fr; } .act { grid-template-columns: 46px 1fr; } .act .pill { grid-column: 2; justify-self: start; } }
+
+  /* Private portfolio + goal (browser only) */
+  .pf-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .pf-form label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+  .pf-form input { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); border-radius: 9px; padding: 7px 9px; min-width: 0; width: 100%; }
+  .pf-bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; margin: 6px 0 2px; background: var(--line-2); }
+  .pf-bar i { display: block; height: 100%; }
+  .pf-row { display: grid; grid-template-columns: 1fr 60px 60px 70px; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-2); align-items: center; }
+  .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
+  .pf-row span:not(:first-child) { text-align: right; }
+  .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .proj > div { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 10px; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  @media (max-width: 640px) { .pf-form { grid-template-columns: 1fr 1fr; } .proj { grid-template-columns: 1fr; } .pf-row { grid-template-columns: 1fr 48px 48px 60px; } }
+
   /* Regime hero */
   .hero { padding: 20px; }
   .hero .label { font-size: 26px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.15; margin: 12px 0 6px; }
@@ -104,6 +145,30 @@
   <div class="meta" id="meta"></div>
   <div id="banners"></div>
 
+  <!-- 0. Plan this week -->
+  <section class="section" id="planSection" style="margin-top:20px" hidden>
+    <div class="eyebrow">Your plan this week <a class="more" href="https://github.com/douglasbakeronline/market-monitor/blob/main/docs/STRATEGY-NOTES.md" target="_blank" rel="noopener">The agreed plan ↗</a></div>
+    <div class="card">
+      <div class="plan-head"><div class="label" id="planHead"></div><span class="small muted" id="planNext"></span></div>
+      <div id="planActions"></div>
+    </div>
+    <div class="plan-grid">
+      <div class="card"><div class="k">Long-term picks · tranche check</div><table class="picks" id="planPicks"></table></div>
+      <div class="card">
+        <div class="k">Pullback rule</div><div id="planPb"></div>
+        <div class="k" style="margin-top:16px">Key dates</div><ul class="kd" id="planDates"></ul>
+      </div>
+    </div>
+    <p class="cap">What the agreed plan says is due in the next seven days. A pick tranche passes when the stock is still a long-term <b>good entry</b> with no results due within a week. The pullback rule brings the next core purchase forward if the S&amp;P 500 or FTSE 100 falls 5% or more below its high first. You place every trade; this is a checklist, not advice.</p>
+  </section>
+
+  <!-- 0b. Private portfolio and goal -->
+  <section class="section" id="pfSection">
+    <div class="eyebrow">Your pots and goal <span class="pill plain" style="margin-left:4px">This browser only</span></div>
+    <div class="card" id="pfCard"></div>
+    <p class="cap">Amounts you enter here are saved in this browser and never leave it: nothing is sent to the server or the public repo. Projections assume steady growth after costs; real returns vary a lot from year to year.</p>
+  </section>
+
   <!-- 1. Regime -->
   <section class="section" style="margin-top:20px">
     <div class="card hero" id="hero"></div>
@@ -184,6 +249,16 @@
     <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against the S&amp;P 500 over the same period. For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
   </section>
 
+  <!-- Swing paper trading -->
+  <section class="section" id="ppSection" hidden>
+    <div class="eyebrow">Swing paper trading</div>
+    <div class="card">
+      <div class="tr-head" id="ppHead"></div>
+      <div id="ppList"></div>
+    </div>
+    <p class="cap">Every clean swing setup from the nightly index scan is logged as a paper trade under the swing rules: buy at the next open, stop at 2× the average daily range, take profit at twice the risk (2R), or sell after 20 sessions. <b>Average R</b> is the result per trade in units of risk: above zero means the rules make money before costs. No real money is involved.</p>
+  </section>
+
   <!-- 8. Rebound watch -->
   <section class="section" id="wlSection" hidden>
     <div class="eyebrow">Rebound watch</div>
@@ -191,7 +266,7 @@
     <p class="cap">Big names at least 8% below their 10-day high. "Rebound" marks those that also rose last session: a prompt to research, not a buy signal. One up day after a fall is often a dead-cat bounce.</p>
   </section>
 
-  <footer>Data: CNN Fear &amp; Greed, Yahoo Finance. Updated at the UK open, UK midday, US open, US midday and US close, plus a Sunday digest. A personal tracker, not financial advice.</footer>
+  <footer>Data: CNN Fear &amp; Greed, Yahoo Finance. Updated eight times each weekday from the UK open to the US close, plus a Sunday digest. A personal tracker, not financial advice.</footer>
 </div>
 
 <script type="module">
@@ -225,7 +300,104 @@ function render(d) {
   renderHighlights(d.researchTop);
   renderWatchlist(d.watchlist);
   renderTrack(d.trackRecord);
+  renderPlan(d.copilot);
+  renderPaper(d.paper);
 }
+
+// --- Plan this week ------------------------------------------------------------
+const STATUS = { due: ["Due", "bg-watch"], go: ["Go", "bg-buy"], partial: ["Partly", "bg-watch"], hold: ["Hold", "bg-neutral"] };
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const dayBox = (ymd) => { const d = new Date(ymd + "T12:00:00Z"); return `<div class="when"><span>${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]}</span><b>${d.getUTCDate()}</b><span>${MON[d.getUTCMonth()]}</span></div>`; };
+const inDays = (n) => n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`;
+function renderPlan(cp) {
+  if (!cp) return;
+  $("planSection").hidden = false;
+  $("planHead").textContent = cp.headline.replace(/;.*/, "");
+  $("planNext").textContent = cp.actions.length && cp.upcoming[0] ? `Then: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)}` : cp.upcoming[0] ? `Next: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)} (${inDays(cp.upcoming[0].inDays)})` : "";
+  $("planActions").innerHTML = cp.actions.map((a) => { const [l, c] = STATUS[a.status] || STATUS.due; return `<div class="act">${dayBox(a.date)}<div><div class="t">${esc(a.title)}</div><div class="d">${esc(a.detail)}</div>${a.note ? `<div class="n">${esc(a.note)}</div>` : ""}</div><span class="pill ${c}">${l}</span></div>`; }).join("");
+  $("planPicks").innerHTML = cp.picks.map((p) => `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}<span class="why">${esc(p.reason)}</span></td><td class="ok ${p.ok ? "pos" : p.ok === false ? "t-watch" : "muted"}">${p.ok ? "Pass" : p.ok === false ? "Wait" : "n/a"}</td></tr>`).join("");
+  const pb = cp.pullback;
+  if (!pb.nextCore) $("planPb").innerHTML = `<p class="small muted" style="margin:6px 0 0">No core purchase left that can come forward before the new ISA allowance.</p>`;
+  else {
+    const fill = Math.max(0, Math.min(100, (pb.drawdown / pb.threshold) * 100));
+    $("planPb").innerHTML = `<div class="pb-meter" role="img" aria-label="${esc(pb.index)} ${pb.drawdown}% off its high; rule fires at ${pb.threshold}%"><i style="width:${fill}%;${pb.triggered ? "background:var(--buy)" : ""}"></i><span class="mark" style="left:calc(100% - 2px)"></span></div>
+      <div class="small"><b class="${pb.triggered ? "t-buy" : ""}">${pb.triggered ? "Triggered" : `${minus(pb.distance.toFixed(1))} pts to go`}</b> <span class="muted">· ${esc(pb.index)} ${minus(pb.drawdown.toFixed(1))}% off its high; fires at ${minus(pb.threshold)}%. Next core date ${fmtDM(pb.nextCore.date)}.</span></div>`;
+  }
+  $("planDates").innerHTML = cp.dates.length ? cp.dates.map((k) => `<li><span>${esc(k.title)}</span><span>${fmtDay(k.date)} ${MON[+k.date.slice(5, 7) - 1]}</span></li>`).join("") : `<li class="muted">Nothing in the next three weeks.</li>`;
+}
+
+// --- Swing paper trading ----------------------------------------------------------
+async function renderPaper(s) {
+  if (!s || !s.total) return;
+  $("ppSection").hidden = false;
+  const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
+  $("ppHead").innerHTML = stat("Trades logged", s.total, s.since ? `since ${fmtDM(s.since)} · ${s.open} open` : "") +
+    stat("Win rate", s.winRate == null ? "Too early" : `${s.winRate}%`, `${s.closed} closed`) +
+    stat("Average R", s.avgR == null ? "Too early" : `<span class="${pnClass(s.avgR)}">${minus(`${s.avgR > 0 ? "+" : ""}${s.avgR}R`)}</span>`, s.closed ? `US ${s.us.avgR ?? "n/a"} · UK ${s.uk.avgR ?? "n/a"}` : "needs closed trades");
+  try {
+    const log = await (await fetch("history/paper-trades.json?t=" + Date.now())).json();
+    const recent = log.filter((t) => t.status !== "void").sort((a, b) => (b.signalDate > a.signalDate ? 1 : -1)).slice(0, 8);
+    $("ppList").innerHTML = recent.map((t) => {
+      const r = t.status === "closed" ? t.r : t.openR;
+      const sub = t.status === "closed" ? `${{ stop: "stopped", target: "target hit", time: "time exit" }[t.reason]} · ${t.sessions}d` : t.status === "pending" ? "buys at next open" : `open · ${t.sessions ?? 0}d`;
+      return `<div class="tr-row"><span class="when">${fmtDM(t.signalDate)}</span><span class="what"><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)}${t.score ? ` · setup ${t.score}` : ""}</span></span><span class="num ${pnClass(r)}">${r == null ? "New" : minus(`${r > 0 ? "+" : ""}${r}R`)}<span class="sub">${sub}</span></span><span class="num vs muted">${t.stop}<span class="sub">stop</span></span></div>`;
+    }).join("");
+  } catch { /* summary only */ }
+}
+
+// --- Private pots and goal (localStorage only) -------------------------------------
+const PF_KEY = "mm-portfolio";
+const POTS = [["core", "Core index", 60, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing", 10, "var(--caution)"]];
+const gbp = (v) => "£" + Math.round(v).toLocaleString("en-GB");
+function loadPf() { try { return JSON.parse(localStorage.getItem(PF_KEY) || "null"); } catch { return null; } }
+function savePf(v) { try { localStorage.setItem(PF_KEY, JSON.stringify(v)); } catch {} }
+function yearsTo(target, start, monthly, rate) {
+  let v = start, m = 0; const g = Math.pow(1 + rate, 1 / 12);
+  while (v < target && m < 600) { v = v * g + monthly; m++; }
+  return m >= 600 ? null : m / 12;
+}
+const fv = (start, monthly, rate, years) => { let v = start; const g = Math.pow(1 + rate, 1 / 12); for (let m = 0; m < years * 12; m++) v = v * g + monthly; return v; };
+function renderPf(edit = false) {
+  const pf = loadPf();
+  const card = $("pfCard");
+  if (!pf && !edit) {
+    card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (60/15/15/10) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
+    $("pfStart").onclick = () => renderPf(true);
+    return;
+  }
+  if (!pf || edit) {
+    const v = pf || {};
+    card.innerHTML = `<div class="k">Set up your pots</div><p class="small muted" style="margin:4px 0 0">Enter today's value of each pot and your goal. Leave anything blank you'd rather not track.</p>
+      <form class="pf-form" id="pfForm">${POTS.map(([k, n]) => `<label>${n} (£)<input inputmode="decimal" name="${k}" value="${v[k] ?? ""}"></label>`).join("")}
+      <label>Other savings (£)<input inputmode="decimal" name="savings" value="${v.savings ?? ""}"></label>
+      <label>Monthly top-up (£)<input inputmode="decimal" name="monthly" value="${v.monthly ?? ""}"></label>
+      <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="pfSave" type="button">Save in this browser</button><button class="btn" id="pfCancel" type="button">Cancel</button>${pf ? `<button class="btn" id="pfClear" type="button" style="margin-left:auto">Clear</button>` : ""}</div>`;
+    $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); savePf(o); renderPf(); };
+    $("pfCancel").onclick = () => renderPf();
+    if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); }; }
+    return;
+  }
+  const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0);
+  const rows = POTS.map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
+  const drift = rows.filter((r) => Math.abs(r.gap) >= 5);
+  const hint = !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
+  const monthly = pf.monthly || 0, goal = pf.goal;
+  const proj = goal ? [0.06, 0.08, 0.1].map((r) => { const y = yearsTo(goal, all, monthly, r); return `<div><div class="k">At ${r * 100}% a year</div><div class="v">${y == null ? "50+ years" : `${y.toFixed(1)} years`}</div><div class="small muted">${gbp(fv(all, monthly, r, 10))} after 10 years</div></div>`; }).join("") : "";
+  const prog = goal ? Math.min(100, (all / goal) * 100) : null;
+  card.innerHTML = `<div class="plan-head"><div><div class="k">Total</div><div class="big">${gbp(all)}</div>${pf.savings ? `<div class="small muted">${gbp(total)} in the pots + ${gbp(pf.savings)} savings</div>` : ""}</div>
+      ${goal ? `<div style="margin-left:auto;text-align:right"><div class="k">Goal</div><div class="v">${gbp(goal)}</div><div class="small muted">${prog.toFixed(0)}% of the way</div></div>` : ""}</div>
+    ${goal ? `<div class="bar" style="margin-top:10px"><i style="width:${prog}%;background:var(--buy)"></i></div>` : ""}
+    <div class="k" style="margin-top:16px">Pots vs target</div>
+    <div class="pf-bar">${rows.map((r) => `<i style="width:${r.w}%;background:${r.c}"></i>`).join("")}</div>
+    <div class="pf-row small muted"><span></span><span>Now</span><span>Target</span><span>Gap</span></div>
+    ${rows.map((r) => `<div class="pf-row"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.t}%</span><span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${r.gap >= 0 ? "+" : "\u2212"}${Math.abs(r.gap).toFixed(0)} pts</span></div>`).join("")}
+    <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
+    ${goal ? `<div class="k" style="margin-top:16px">Time to goal${monthly ? ` with ${gbp(monthly)} a month` : ""}</div><div class="proj">${proj}</div>` : ""}
+    <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
+  $("pfEdit").onclick = () => renderPf(true);
+}
+renderPf();
 
 function renderHero(r) {
   if (!r) return;

@@ -17,6 +17,12 @@ export function technicals(rows) {
   const win = rows.slice(-252);
   const high52 = Math.max(...win.map((r) => r.high ?? r.close)), low52 = Math.min(...win.map((r) => r.low ?? r.close));
   const priorHigh = Math.max(...rows.slice(-253, -1).map((r) => r.close));
+  // Daily close-to-close volatility (standard deviation of log returns, %):
+  // last 21 sessions vs the past year. A collapse to a fraction of normal
+  // usually means the price is pinned by a takeover offer (DCC, Intertek and
+  // Bio-Techne in Oct 2026), where ATR stops and swing signals mean nothing.
+  const vol21 = dailyVol(c.slice(-22)), vol252 = dailyVol(c.slice(-253));
+  const pinned = vol21 != null && vol252 != null && vol21 < 0.5 && vol21 < vol252 * 0.3;
   return {
     last, date: rows[n].date,
     sma20: s20[n], sma50: s50[n], sma200: s200[n],
@@ -32,8 +38,18 @@ export function technicals(rows) {
     dayPct: changeOver(c, 1), weekPct: changeOver(c, 5), monthPct: changeOver(c, 21), m3Pct: changeOver(c, 63), y1Pct: changeOver(c, 252),
     high52, low52, offHigh: pct(last, high52), rangePos: high52 > low52 ? (last - low52) / (high52 - low52) : null,
     breakout: last >= priorHigh * 0.995 && rows.length > 200,
+    vol21, vol252, pinned,
     series: rebase(c, 120),
   };
+}
+
+// Standard deviation of daily log returns, in percent.
+export function dailyVol(closes) {
+  const r = [];
+  for (let i = 1; i < closes.length; i++) if (closes[i] > 0 && closes[i - 1] > 0) r.push(Math.log(closes[i] / closes[i - 1]));
+  if (r.length < 10) return null;
+  const m = r.reduce((a, b) => a + b, 0) / r.length;
+  return Math.sqrt(r.reduce((a, x) => a + (x - m) ** 2, 0) / (r.length - 1)) * 100;
 }
 
 // --- Swing signals ---------------------------------------------------------
@@ -41,6 +57,8 @@ export function technicals(rows) {
 export function swingSignals(t) {
   if (!t) return [];
   const s = [];
+  if (t.pinned) return [{ key: "pinned", label: "Price pinned", tone: "bear", weight: -30,
+    why: `Daily moves have shrunk to ${t.vol21.toFixed(2)}% from a usual ${t.vol252.toFixed(1)}%: usually a takeover offer or pending deal. Technical signals and ATR stops don't work here.` }];
   const up = t.sma50 && t.sma200 && t.last > t.sma50 && t.sma50 > t.sma200;
   const down = t.sma50 && t.sma200 && t.last < t.sma50 && t.sma50 < t.sma200;
   if (up) s.push({ key: "uptrend", label: "Uptrend", tone: "bull", weight: 10, why: "Price above the 50-day, 50-day above the 200-day." });
@@ -74,8 +92,12 @@ export function swingVerdict(t, signals, earningsDays) {
     notes.push(`Earnings ${earningsDays === 0 ? "today" : earningsDays === 1 ? "tomorrow" : `in ${earningsDays} days`}: price can gap either way. Size down or wait.`);
     if (verdict === "Setup") verdict = "Setup (earnings risk)";
   }
-  const stop = t.atr ? r2(t.last - 2 * t.atr) : null;
-  return { score, verdict, stop, stopPct: stop ? r1(pct(stop, t.last)) : null, atrPct: r1(t.atrPct), notes };
+  if (t.pinned) { verdict = "Avoid"; notes.push("Price pinned (likely a takeover offer): not a swing candidate."); }
+  // Stop: 2x ATR, but never tighter than 2x the stock's normal (one-year)
+  // daily move, so a quiet spell can't produce a stop a normal day would hit.
+  const dist = t.atr ? Math.max(2 * t.atr, t.vol252 != null ? 2 * (t.vol252 / 100) * t.last : 0) : null;
+  const stop = dist ? r2(t.last - dist) : null;
+  return { score, verdict, stop, stopPct: stop ? r1(pct(stop, t.last)) : null, atrPct: r1(t.atrPct), pinned: !!t.pinned, notes };
 }
 
 // --- Long-term score -------------------------------------------------------
@@ -154,6 +176,7 @@ export function longTerm(f, t) {
     if (falling) note = "Quality at a discount, but the trend is still down. Buy in stages rather than all at once.";
   }
   else if (score >= 55) verdict = "Fair";
+  if (t?.pinned && score != null) { verdict = "Wait"; note = "Price pinned, most likely by a takeover offer: the upside is probably capped at the offer price."; }
 
   return { score, verdict, note, falling, pillars, coverage, financials: fin };
 }
