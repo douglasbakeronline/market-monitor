@@ -10,12 +10,12 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -1,
+      "now": -1.1,
       "nowDate": "2026-11-02",
       "sessions": 5,
-      "spNow": -1,
-      "w1": -1,
-      "w1Sp": -1,
+      "spNow": -1.1,
+      "w1": -1.1,
+      "w1Sp": -1.1,
       "vsSp": 0
     }
   },
@@ -53,8 +53,8 @@
       "now": -0.4,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0.3,
-      "vsSp": -0.7
+      "spNow": 0.2,
+      "vsSp": -0.6
     }
   },
   {
@@ -69,10 +69,10 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": 0.7,
+      "now": 0.6,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0.3,
+      "spNow": 0.2,
       "vsSp": 0.4
     }
   },
@@ -91,8 +91,8 @@
       "now": 3,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0.3,
-      "vsSp": 2.7
+      "spNow": 0.2,
+      "vsSp": 2.8
     }
   },
   {
@@ -110,8 +110,8 @@
       "now": -2.9,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0.3,
-      "vsSp": -3.2
+      "spNow": 0.2,
+      "vsSp": -3.1
     }
   }
 ]
