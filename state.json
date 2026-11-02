@@ -189,7 +189,7 @@
         {
           "key": "market_momentum_sp500",
           "label": "Market momentum",
-          "score": 14,
+          "score": 13,
           "rating": "extreme fear"
         },
         {
@@ -213,7 +213,7 @@
         {
           "key": "market_volatility_vix",
           "label": "Market volatility",
-          "score": 13,
+          "score": 12,
           "rating": "extreme fear"
         },
         {
@@ -1482,14 +1482,14 @@
         }
       ]
     },
-    "fgAt": "2026-11-02T21:10:00.553Z",
+    "fgAt": "2026-11-02T21:10:48.044Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7541.4,
         "date": "2026-11-02",
-        "asOf": "2026-11-02T21:09:59.000Z",
+        "asOf": "2026-11-02T21:10:47.000Z",
         "currency": "USD",
         "drawdownPct": -3.5,
         "peak": 7818.93,
@@ -1633,11 +1633,11 @@
         ]
       },
       "vix": {
-        "level": 21.31,
-        "dayPct": 9.7,
+        "level": 21.52,
+        "dayPct": 10.8,
         "date": "2026-11-02"
       },
-      "at": "2026-11-02T21:10:00.553Z"
+      "at": "2026-11-02T21:10:48.044Z"
     },
     "watchlist": [
       {
