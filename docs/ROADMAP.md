@@ -14,19 +14,21 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - His own research list (Research page still uses a placeholder, now including the picks and bench).
 - Optional `FINNHUB_KEY` secret.
 - Whether to keep the trim signal (on, strict).
+- **Sector-relative valuation and a cyclical cap (research log 2 Nov):** OK to let it change verdicts, including for Newmont and CF? Until then it ships as display-only notes.
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
 1. **Trade log (browser only):** record each real trade with the rule that triggered it (core date, pick tranche, dip tier, pullback rule), feed the pots panel from it, and show plan adherence ("4 of 4 scheduled actions done on time").
 2. **Swing retune (only if Douglas wants swing kept alive):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
 3. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
-4. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands.
+4. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
 5. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds; same harness style as the swing backtest.
 6. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
 7. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
 8. **Paper-trade view on the Research page:** filter by market and setup score, with an equity curve in R.
 
 ## Done (recent)
+- 2 Nov: tranche check uses the latest results date when no next date is published (HSBC, Newmont).
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later

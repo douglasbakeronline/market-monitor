@@ -55,3 +55,8 @@ test("pick with no next date but recent results passes with a clear reason", () 
   const none = { ...recent, lastEarnings: null };
   assert.match(pickStatus(PLAN.picks[0], none, "2026-11-02").reason, /No results date known/);
 });
+
+test("headline keeps fund tickers in capitals", () => {
+  const cp = copilot({ today: "2026-11-03", sp: sp(-3), ftse: ftse(-2), items: {} });
+  assert.match(cp.headline, /second core purchase \(VWRP\)/);
+});

@@ -95,7 +95,7 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
   const dates = plan.keyDates.filter((k) => k.date >= today && days(today, k.date) <= 21).map((k) => ({ ...k, inDays: days(today, k.date) }));
   const headline = actions.length
     ? `${actions.length} plan action${actions.length > 1 ? "s" : ""} this week`
-    : `Nothing due this week${upcoming[0] ? `; next: ${upcoming[0].title.toLowerCase()} in ${upcoming[0].inDays} days` : ""}`;
+    : `Nothing due this week${upcoming[0] ? `; next: ${upcoming[0].title.charAt(0).toLowerCase() + upcoming[0].title.slice(1)} in ${upcoming[0].inDays} days` : ""}`;
   return { today, headline, actions, upcoming, pullback, picks, dates, pots: plan.pots };
 }
 

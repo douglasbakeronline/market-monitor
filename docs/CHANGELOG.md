@@ -2,6 +2,12 @@
 
 Human-readable record of what changed and why. The weekly review deck is built from this file, the git log and the live data. Newest first. Bot data commits ("Update monitor data", "Update index scan") are not listed.
 
+## Week of 2 November 2026
+
+### Mon 2 Nov
+- **Fixed: tranche check said "No results date known" for HSBC and Newmont** although both reported in late October (27 Oct and 22 Oct). Yahoo drops the date once results are out and before the next date is announced. The research and scan now keep the latest results date (`lastEarnings`), and a pick that reported within 60 days passes with "Reported Tue 27 Oct; next results not due for weeks." *Why:* a vague "check before buying" on the first tranche day made Douglas do a manual lookup the tool can answer.
+- **Fixed:** the "Nothing due this week" headline lower-cased the whole title ("vwrp").
+
 ## Week of 26 October 2026
 
 ### Sun 1 Nov (weekly sprint)
