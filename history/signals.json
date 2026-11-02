@@ -31,11 +31,11 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 2.1,
+      "now": 2,
       "nowDate": "2026-11-02",
       "sessions": 2,
       "spNow": -1.9,
-      "vsSp": 4
+      "vsSp": 3.9
     }
   },
   {
@@ -50,10 +50,10 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -0.9,
+      "now": -1,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0,
+      "spNow": -0.1,
       "vsSp": -0.9
     }
   },
@@ -69,10 +69,10 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -0.1,
+      "now": -0.2,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0,
+      "spNow": -0.1,
       "vsSp": -0.1
     }
   },
@@ -91,8 +91,8 @@
       "now": 3,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0,
-      "vsSp": 3
+      "spNow": -0.1,
+      "vsSp": 3.1
     }
   },
   {
@@ -110,8 +110,8 @@
       "now": -2.9,
       "nowDate": "2026-11-02",
       "sessions": 1,
-      "spNow": 0,
-      "vsSp": -2.9
+      "spNow": -0.1,
+      "vsSp": -2.8
     }
   }
 ]
