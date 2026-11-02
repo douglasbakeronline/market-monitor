@@ -34,6 +34,11 @@ export function recordEarnings(earnings, symbol, date) {
   return out;
 }
 
+// Latest results date on or before today (YYYY-MM-DD), or null.
+export function latestPast(dates, today) {
+  return (dates || []).filter((d) => d && d <= today).sort().at(-1) ?? null;
+}
+
 // The move around the most recent results that have already happened:
 // close before the results day to close after it, so it captures the reaction
 // whether the company reported before the open or after the close.

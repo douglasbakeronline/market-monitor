@@ -4,7 +4,7 @@ import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, summarise } from "./research.js";
 import { readJson, writeJson } from "./state.js";
-import { recordScores, scoreChange, recordEarnings, lastReaction } from "./stockHistory.js";
+import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
 
 export async function loadList() {
@@ -24,6 +24,7 @@ export async function runResearch({ regimeKey, state }) {
       const t = technicals(prices.rows);
       rowsBySymbol[s.symbol] = prices.rows;
       earnings = recordEarnings(earnings, s.symbol, f?.nextEarnings);
+      earnings = recordEarnings(earnings, s.symbol, f?.lastEarnings);
       const signals = swingSignals(t);
       const earningsDays = daysUntil(f?.nextEarnings, today);
       const lt = longTerm(f, t);
@@ -38,6 +39,7 @@ export async function runResearch({ regimeKey, state }) {
         tech: t ? { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), rangePos: r2(t.rangePos), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio), sma50: r2(t.sma50), sma200: r2(t.sma200) } : null,
         target: f?.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
         earnings: f?.nextEarnings ? { date: f.nextEarnings, days: earningsDays } : null,
+        lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
         longTerm: lt, swing, signals,
         regimeNote: regimeNote(regimeKey, lt.verdict),

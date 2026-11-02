@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { logSignals, evaluate, summarise } from "../src/trackRecord.js";
-import { recordScores, scoreChange, recordEarnings, lastReaction } from "../src/stockHistory.js";
+import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "../src/stockHistory.js";
 
 const rows = (start, closes) => closes.map((c, i) => ({ date: new Date(Date.parse(start) + i * 86400000).toISOString().slice(0, 10), close: c }));
 
@@ -56,4 +56,9 @@ test("earnings reaction spans the results day (before or after the bell)", () =>
 
 test("signals younger than a week are not scored", () => {
   assert.equal(summarise([{ kind: "buy", perf: { now: 1, sessions: 2 } }]).hitRate, null);
+});
+
+test("latestPast picks the most recent date on or before today", () => {
+  assert.equal(latestPast(["2026-07-29", "2026-10-27", "2027-02-24", null], "2026-11-02"), "2026-10-27");
+  assert.equal(latestPast([], "2026-11-02"), null);
 });

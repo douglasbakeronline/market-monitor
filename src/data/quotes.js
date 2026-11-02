@@ -25,10 +25,11 @@ export function quoteToFundamentals(q) {
   const rating = parseFloat(String(q.averageAnalystRating || "").split(" ")[0]);
   const et = q.earningsTimestamp || q.earningsTimestampStart;
   const next = et && et * 1000 > Date.now() - 86400000 ? new Date(et * 1000).toISOString().slice(0, 10) : null;
+  const last = et && !next ? new Date(et * 1000).toISOString().slice(0, 10) : null; // latest results already out
   return {
     name: q.longName || q.shortName || null, currency: q.currency || null, marketCap: q.marketCap ?? null,
     trailingPE: q.trailingPE ?? null, forwardPE: q.forwardPE ?? null, priceToBook: q.priceToBook ?? null,
     dividendYield: q.trailingAnnualDividendYield ?? null,
-    recommendationMean: Number.isFinite(rating) ? rating : null, nextEarnings: next, source: "quote",
+    recommendationMean: Number.isFinite(rating) ? rating : null, nextEarnings: next, lastEarnings: last, source: "quote",
   };
 }

@@ -25,3 +25,11 @@ test("batch quote maps onto the scorer's fields", () => {
   assert.equal(f.dividendYield, 0.04);
   assert.ok(f.nextEarnings);
 });
+
+test("quote earnings timestamp in the past becomes lastEarnings, not nextEarnings", () => {
+  const f = quoteToFundamentals({ earningsTimestamp: Date.parse("2026-10-27T06:00:00Z") / 1000 });
+  assert.equal(f.nextEarnings, null);
+  assert.equal(f.lastEarnings, "2026-10-27");
+  const g = quoteToFundamentals({ earningsTimestamp: Date.now() / 1000 + 86400 * 3 });
+  assert.equal(g.lastEarnings, null);
+});

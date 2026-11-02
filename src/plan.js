@@ -35,6 +35,7 @@ export const PLAN = {
   ],
   pullbackPct: -5,   // core purchase comes forward if an index is this far off its high
   pickNoResultsDays: 7,
+  recentResultsDays: 60, // latest results this recent means the next are weeks away (quarterly reporters)
 };
 
 const DAY = 86400000;
@@ -42,17 +43,24 @@ const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / DAY);
 
 // Pick status from research items (or scan items). A tranche is "ok" when the
 // pick is a long-term good entry and has no results due within 7 days.
-export function pickStatus(pick, item) {
+export function pickStatus(pick, item, today = null) {
   if (!item) return { ...pick, ticker: pick.symbol.replace(/\.L$/, ""), ok: null, reason: "No data yet." };
   const verdict = item.longTerm?.verdict ?? null, score = item.longTerm?.score ?? null;
   const ed = item.earnings?.days ?? null;
   const resultsSoon = ed != null && ed >= 0 && ed <= PLAN.pickNoResultsDays;
+  // No next date published yet: if the latest results came out recently, the
+  // next ones are about a quarter away, so the 7-day rule can't bite.
+  const last = item.lastEarnings ?? null;
+  const sinceLast = ed == null && last && today ? days(last, today) : null;
+  const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";
   const ok = good && !resultsSoon;
   const reason = resultsSoon ? `Results ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: wait until after.`
     : !good ? `Not a good entry today: hold off this tranche.`
-    : ed == null ? "No results date known; check before buying." : `Next results in ${ed} days.`;
-  return { ...pick, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+    : ed != null ? `Next results in ${ed} days.`
+    : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
+    : "No results date known; check before buying.";
+  return { ...pick, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
 // What does the plan say for the coming week? `today` is a London date.
@@ -68,7 +76,7 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
   };
   pullback.distance = worst ? Math.round((worst.drawdownPct - plan.pullbackPct) * 10) / 10 : null;
 
-  const picks = plan.picks.map((p) => pickStatus(p, items[p.symbol]));
+  const picks = plan.picks.map((p) => pickStatus(p, items[p.symbol], today));
   const actions = plan.schedule.filter((s) => s.date >= today && s.date <= end).map((s) => {
     const a = { ...s, inDays: days(today, s.date) };
     if (s.kind === "picks") {

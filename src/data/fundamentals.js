@@ -43,6 +43,7 @@ export function parseYahooSummary(r) {
   const earn = (r.calendarEvents?.earnings?.earningsDate || []).map(raw).filter(Boolean).sort((a, b) => a - b);
   const now = Date.now() / 1000;
   const next = earn.find((t) => t > now - 86400) ?? null;
+  const last = earn.filter((t) => t <= now - 86400).at(-1) ?? null; // results already out
   return {
     name: p.longName || p.shortName || null,
     currency: p.currency || null,
@@ -75,6 +76,7 @@ export function parseYahooSummary(r) {
     recommendationKey: fd.recommendationKey || null,
     analysts: raw(fd.numberOfAnalystOpinions),
     nextEarnings: next ? new Date(next * 1000).toISOString().slice(0, 10) : null,
+    lastEarnings: last ? new Date(last * 1000).toISOString().slice(0, 10) : null,
     source: "yahoo",
   };
 }

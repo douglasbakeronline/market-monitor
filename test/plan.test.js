@@ -44,3 +44,14 @@ test("pick with no data is not ok and says so", () => {
   assert.equal(p.ok, null);
   assert.equal(p.ticker, "HSBA");
 });
+
+test("pick with no next date but recent results passes with a clear reason", () => {
+  const recent = { ticker: "HSBA", longTerm: { verdict: "Good entry", score: 84 }, earnings: null, lastEarnings: "2026-10-27" };
+  const p = pickStatus(PLAN.picks[0], recent, "2026-11-02");
+  assert.equal(p.ok, true);
+  assert.match(p.reason, /Reported Tue 27 Oct; next results not due for weeks/);
+  const old = { ...recent, lastEarnings: "2026-07-29" };
+  assert.match(pickStatus(PLAN.picks[0], old, "2026-11-02").reason, /No results date known/);
+  const none = { ...recent, lastEarnings: null };
+  assert.match(pickStatus(PLAN.picks[0], none, "2026-11-02").reason, /No results date known/);
+});
