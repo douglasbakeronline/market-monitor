@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Tue 3 Nov
+- **Fixed: an investment trust topped the long-term scan.** Polar Capital Technology Trust scored 96 ("Good entry", new today) on a P/E of 1.8. A trust's "earnings" are its portfolio gains, so P/E, margins and ROE say nothing about value. Closed-end funds (FTSE sector "Closed End Investments", or a name ending "Investment Trust plc") now show the verdict "Investment trust" with no score or pillar strengths, and a note to judge them on the discount to net asset value, costs and holdings. Affects PCT, FCIT, SMT, ALW and PSH; US REITs named "Investment Trust" (Federal Realty) are still scored as companies. *Why:* the scan's top slot and "new good entries" line should never be a fund.
+- **Research log:** is extreme fear on its own a buy signal? No: low sentiment predicts little; F&G stays a confirmation for price-based tiers.
+
 ### Mon 2 Nov
 - **Fixed: tranche check said "No results date known" for HSBC and Newmont** although both reported in late October (27 Oct and 22 Oct). Yahoo drops the date once results are out and before the next date is announced. The research and scan now keep the latest results date (`lastEarnings`), and a pick that reported within 60 days passes with "Reported Tue 27 Oct; next results not due for weeks." *Why:* a vague "check before buying" on the first tranche day made Douglas do a manual lookup the tool can answer.
 - **Fixed:** the "Nothing due this week" headline lower-cased the whole title ("vwrp").

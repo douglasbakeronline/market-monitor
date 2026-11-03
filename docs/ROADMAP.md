@@ -18,7 +18,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
-1. **Trade log (browser only):** record each real trade with the rule that triggered it (core date, pick tranche, dip tier, pullback rule), feed the pots panel from it, and show plan adherence ("4 of 4 scheduled actions done on time").
+1. **Trade log (browser only):** (not started yet) record each real trade with the rule that triggered it (core date, pick tranche, dip tier, pullback rule), feed the pots panel from it, and show plan adherence ("4 of 4 scheduled actions done on time").
 2. **Swing retune (only if Douglas wants swing kept alive):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
 3. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
 4. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
@@ -27,7 +27,12 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 7. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
 8. **Paper-trade view on the Research page:** filter by market and setup score, with an equity curve in R.
 
+## Data notes (spot checks)
+- 3 Nov: stops (2×ATR), P/E and yields checked on WDC, TMUS, UAL: consistent. Yahoo's latest-results date is stale for some UK names (Unilever shows Feb 2026); the pick check then says "no results date" (safe, not a false pass), but worth a fallback from `history/earnings.json` or company calendars. Kenvue's price stopped on 30 Oct (likely delisted after the Kimberly-Clark deal); drop names whose last bar is 3+ sessions old.
+- 3 Nov: earnings dated the day before the scan show "-1 days" in the scan list; harmless, but could read "reported yesterday".
+
 ## Done (recent)
+- 3 Nov: investment trusts are no longer scored as companies (PCT had topped the scan at 96).
 - 2 Nov: tranche check uses the latest results date when no next date is published (HSBC, Newmont).
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
