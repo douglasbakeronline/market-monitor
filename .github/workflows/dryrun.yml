@@ -1,0 +1,23 @@
+name: Dry run
+on:
+  push:
+    branches: [dryrun]
+permissions:
+  contents: write
+jobs:
+  dry:
+    if: "!contains(github.event.head_commit.message, 'dry-run output')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "24" }
+      - run: |
+          set +e
+          mkdir -p dry-run
+          DRY_RUN=1 FORCE_RESEARCH=1 FORCE_SUMMARY=UK FORCE_DIGEST=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+      - run: |
+          git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
+          git add -f dry-run && git commit -qm "dry-run output" && git push -q
