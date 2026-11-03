@@ -1487,7 +1487,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-03T10:14:59.950Z",
+    "fgAt": "2026-11-03T10:15:21.137Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1566,18 +1566,18 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10707.53,
+        "level": 10708.87,
         "date": "2026-11-03",
-        "asOf": "2026-11-03T09:59:58.000Z",
+        "asOf": "2026-11-03T10:00:20.000Z",
         "currency": "GBP",
-        "drawdownPct": -1.9,
+        "drawdownPct": -1.8,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10699.97,
-        "sma200": 10528.5,
+        "sma50": 10700,
+        "sma200": 10528.51,
         "vs200Pct": 1.7,
         "above200": true,
-        "rsi14": 50.5,
+        "rsi14": 50.6,
         "dayPct": -0.5,
         "weekPct": 0.2,
         "monthPct": 2,
@@ -1601,7 +1601,7 @@
           },
           {
             "date": "2026-11-03",
-            "pct": -0.5
+            "pct": -0.49
           }
         ],
         "series": [
@@ -1634,15 +1634,15 @@
           0.16,
           0.23,
           0.52,
-          0.02
+          0.03
         ]
       },
       "vix": {
-        "level": 21.33,
-        "dayPct": 0.9,
+        "level": 21.31,
+        "dayPct": 0.8,
         "date": "2026-11-03"
       },
-      "at": "2026-11-03T10:14:59.950Z"
+      "at": "2026-11-03T10:15:21.137Z"
     },
     "watchlist": [
       {
@@ -2248,13 +2248,13 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3920.5,
+        "price": 3920,
         "date": "2026-11-03",
         "dropFromHigh": -2.9,
         "lastChange": 0,
         "previous": -2.9,
         "week": -0.2,
-        "month": 8,
+        "month": 7.9,
         "series": [
           0,
           1.7,
@@ -2285,7 +2285,7 @@
           12.79,
           12.75,
           9.53,
-          9.51
+          9.5
         ],
         "rebound": false
       },
@@ -2294,7 +2294,7 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1278.2,
+        "price": 1278.4,
         "date": "2026-11-03",
         "dropFromHigh": -8.6,
         "lastChange": -0.4,
@@ -2331,7 +2331,7 @@
           -14.66,
           -15.69,
           -15.26,
-          -15.61
+          -15.59
         ],
         "rebound": false
       }
