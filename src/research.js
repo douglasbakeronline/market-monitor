@@ -118,6 +118,11 @@ const P = {
   rec: [[1.2, 90], [1.8, 70], [2.3, 50], [2.8, 32], [3.3, 15], [4, 0]],
 };
 
+// Investment trusts (closed-end funds) report portfolio gains as earnings, so
+// P/E, margins and ROE describe last year's market, not a business: PCT showed
+// a P/E of 1.8 and topped the scan on 3 Nov 2026. They are not scored.
+export const isInvestmentTrust = (f) => !!(f?.closedEnd || /closed end/i.test(f?.sector || "") || /investment trust/i.test(f?.name || ""));
+
 const metric = (key, label, value, display, why) => ({ key, label, value, display, score: value == null ? null : Math.round(interp(value, P[key])), why });
 
 export function longTerm(f, t) {
@@ -177,6 +182,9 @@ export function longTerm(f, t) {
   }
   else if (score >= 55) verdict = "Fair";
   if (t?.pinned && score != null) { verdict = "Wait"; note = "Price pinned, most likely by a takeover offer: the upside is probably capped at the offer price."; }
+  if (isInvestmentTrust(f)) {
+    return { score: null, verdict: "Investment trust", note: "A fund, not a company: its P/E and margins reflect portfolio gains. Judge it on the discount to net asset value, costs and the holdings, so it is not scored.", falling, pillars, coverage, financials: fin, trust: true };
+  }
 
   return { score, verdict, note, falling, pillars, coverage, financials: fin };
 }

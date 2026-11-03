@@ -48,6 +48,7 @@ async function main() {
       if (!t) throw new Error("not enough history");
       const f = quoteToFundamentals(quotes[u.symbol]) || {};
       f.sector = u.sector;
+      f.closedEnd = u.sector === "Closed End Investments";
       const earningsDays = daysUntil(f.nextEarnings, today);
       const signals = swingSignals(t);
       items.push({ u, t, f, signals, earningsDays, lt: longTerm(f, t), swing: swingVerdict(t, signals, earningsDays), deep: false });
