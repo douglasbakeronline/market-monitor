@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": 0.4,
+      "now": 0.3,
       "nowDate": "2026-11-04",
       "sessions": 7,
-      "spNow": 0.4,
+      "spNow": 0.3,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -31,11 +31,11 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 10.6,
+      "now": 10,
       "nowDate": "2026-11-04",
       "sessions": 4,
-      "spNow": -0.1,
-      "vsSp": 10.7
+      "spNow": -0.2,
+      "vsSp": 10.2
     }
   },
   {
@@ -50,10 +50,10 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 6.5,
+      "now": 6.4,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.7,
+      "spNow": 1.6,
       "vsSp": 4.8
     }
   },
@@ -69,11 +69,11 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -0.6,
+      "now": -0.4,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.7,
-      "vsSp": -2.3
+      "spNow": 1.6,
+      "vsSp": -2
     }
   },
   {
@@ -88,11 +88,11 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 4.4,
+      "now": 5,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.7,
-      "vsSp": 2.7
+      "spNow": 1.6,
+      "vsSp": 3.4
     }
   },
   {
@@ -110,8 +110,8 @@
       "now": -6,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.7,
-      "vsSp": -7.7
+      "spNow": 1.6,
+      "vsSp": -7.6
     }
   },
   {
@@ -129,8 +129,8 @@
       "now": 4.4,
       "nowDate": "2026-11-04",
       "sessions": 2,
-      "spNow": 2.2,
-      "vsSp": 2.2
+      "spNow": 2.1,
+      "vsSp": 2.3
     }
   },
   {
@@ -145,11 +145,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 6.7,
+      "now": 6.6,
       "nowDate": "2026-11-04",
       "sessions": 1,
       "spNow": 1.8,
-      "vsSp": 4.9
+      "vsSp": 4.8
     }
   },
   {
