@@ -1491,7 +1491,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-04T10:15:01.110Z",
+    "fgAt": "2026-11-04T10:15:32.536Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1570,18 +1570,18 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10719.67,
+        "level": 10720.45,
         "date": "2026-11-04",
-        "asOf": "2026-11-04T10:00:01.000Z",
+        "asOf": "2026-11-04T10:00:32.000Z",
         "currency": "GBP",
         "drawdownPct": -1.7,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10695.26,
-        "sma200": 10531.06,
+        "sma50": 10695.27,
+        "sma200": 10531.07,
         "vs200Pct": 1.8,
         "above200": true,
-        "rsi14": 51.5,
+        "rsi14": 51.6,
         "dayPct": 0.8,
         "weekPct": 0.2,
         "monthPct": 1.7,
@@ -1605,7 +1605,7 @@
           },
           {
             "date": "2026-11-04",
-            "pct": 0.76
+            "pct": 0.77
           }
         ],
         "series": [
@@ -1638,15 +1638,15 @@
           0.47,
           0.76,
           -0.39,
-          0.37
+          0.38
         ]
       },
       "vix": {
-        "level": 18.54,
+        "level": 18.53,
         "dayPct": -11,
         "date": "2026-11-04"
       },
-      "at": "2026-11-04T10:15:01.110Z"
+      "at": "2026-11-04T10:15:32.536Z"
     },
     "watchlist": [
       {
@@ -2252,12 +2252,12 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3857,
+        "price": 3855,
         "date": "2026-11-04",
         "dropFromHigh": -4.5,
         "lastChange": -0.2,
         "previous": -1.5,
-        "week": -2.5,
+        "week": -2.6,
         "month": 5.6,
         "series": [
           0,
@@ -2289,7 +2289,7 @@
           10.86,
           7.69,
           6.11,
-          5.93
+          5.88
         ],
         "rebound": false
       },
@@ -2298,13 +2298,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1304.6,
+        "price": 1305.58,
         "date": "2026-11-04",
         "dropFromHigh": -6.7,
-        "lastChange": 3.7,
+        "lastChange": 3.8,
         "previous": -2,
-        "week": 0.6,
-        "month": -11.4,
+        "week": 0.7,
+        "month": -11.3,
         "series": [
           0,
           0.83,
@@ -2335,7 +2335,7 @@
           -14.86,
           -14.43,
           -16.12,
-          -13.02
+          -12.95
         ],
         "rebound": false
       }
