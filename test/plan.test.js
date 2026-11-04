@@ -60,3 +60,13 @@ test("headline keeps fund tickers in capitals", () => {
   const cp = copilot({ today: "2026-11-03", sp: sp(-3), ftse: ftse(-2), items: {} });
   assert.match(cp.headline, /second core purchase \(VWRP\)/);
 });
+
+test("results dated yesterday read as reported, not 'in -1 days'", () => {
+  const it = { ticker: "CF", longTerm: { verdict: "Good entry", score: 85 }, earnings: { date: "2026-11-04", days: -1 }, lastEarnings: null };
+  const p = pickStatus(PLAN.picks[0], it, "2026-11-05");
+  assert.equal(p.ok, true);
+  assert.equal(p.earningsDays, null);
+  assert.equal(p.lastEarnings, "2026-11-04");
+  assert.match(p.reason, /Reported Wed 4 Nov/);
+  assert.doesNotMatch(p.reason, /-1/);
+});

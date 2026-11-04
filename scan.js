@@ -10,7 +10,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, summarise } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, summarise, sessionsBehind, STALE_SESSIONS } from "./src/research.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -54,6 +54,13 @@ async function main() {
       items.push({ u, t, f, signals, earningsDays, lt: longTerm(f, t), swing: swingVerdict(t, signals, earningsDays), deep: false });
     } catch (e) { failed.push(u.symbol); }
     await sleep(120);
+  }
+  // Drop stocks that have stopped trading: their last bar is days behind the market's.
+  const latest = {};
+  for (const it of items) if (!latest[it.u.index] || it.t.date > latest[it.u.index]) latest[it.u.index] = it.t.date;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i], behind = sessionsBehind(it.t.date, latest[it.u.index]);
+    if (behind >= STALE_SESSIONS) { console.log(`Stale: ${it.u.symbol} last traded ${it.t.date} (${behind} sessions behind), dropped.`); failed.push(it.u.symbol); items.splice(i, 1); }
   }
   console.log(`Stage 1: ${items.length} scored, ${failed.length} failed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
