@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": 0.3,
+      "now": 0.2,
       "nowDate": "2026-11-04",
       "sessions": 7,
-      "spNow": 0.3,
+      "spNow": 0.2,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -31,11 +31,11 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 10,
+      "now": 9.1,
       "nowDate": "2026-11-04",
       "sessions": 4,
-      "spNow": -0.2,
-      "vsSp": 10.2
+      "spNow": -0.4,
+      "vsSp": 9.5
     }
   },
   {
@@ -50,11 +50,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 6.4,
+      "now": 6.5,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.6,
-      "vsSp": 4.8
+      "spNow": 1.4,
+      "vsSp": 5.1
     }
   },
   {
@@ -69,11 +69,11 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -0.4,
+      "now": -2.2,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.6,
-      "vsSp": -2
+      "spNow": 1.4,
+      "vsSp": -3.6
     }
   },
   {
@@ -88,11 +88,11 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 5,
+      "now": 5.6,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.6,
-      "vsSp": 3.4
+      "spNow": 1.4,
+      "vsSp": 4.2
     }
   },
   {
@@ -110,8 +110,8 @@
       "now": -6,
       "nowDate": "2026-11-04",
       "sessions": 3,
-      "spNow": 1.6,
-      "vsSp": -7.6
+      "spNow": 1.4,
+      "vsSp": -7.4
     }
   },
   {
@@ -126,11 +126,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 4.4,
+      "now": 3.3,
       "nowDate": "2026-11-04",
       "sessions": 2,
-      "spNow": 2.1,
-      "vsSp": 2.3
+      "spNow": 2,
+      "vsSp": 1.3
     }
   },
   {
@@ -145,11 +145,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 6.5,
+      "now": 6.7,
       "nowDate": "2026-11-04",
       "sessions": 1,
-      "spNow": 1.8,
-      "vsSp": 4.7
+      "spNow": 1.6,
+      "vsSp": 5.1
     }
   },
   {
@@ -164,8 +164,46 @@
     "currency": "USD",
     "label": "Long-term good entry (85)",
     "perf": {
+      "now": -4.5,
+      "nowDate": "2026-11-04",
+      "sessions": 1,
+      "spNow": 1.6,
+      "vsSp": -6.1
+    }
+  },
+  {
+    "id": "2026-11-04:research-swing:AAPL",
+    "kind": "research-swing",
+    "at": "2026-11-04T21:10:25.387Z",
+    "date": "2026-11-04",
+    "symbol": "AAPL",
+    "ticker": "AAPL",
+    "name": "Apple",
+    "price": 349.51,
+    "currency": "USD",
+    "label": "Swing setup (74)",
+    "perf": {
       "now": 0,
-      "nowDate": "2026-11-03",
+      "nowDate": "2026-11-04",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
+    }
+  },
+  {
+    "id": "2026-11-04:research-swing:AMZN",
+    "kind": "research-swing",
+    "at": "2026-11-04T21:10:25.387Z",
+    "date": "2026-11-04",
+    "symbol": "AMZN",
+    "ticker": "AMZN",
+    "name": "Amazon",
+    "price": 266.03,
+    "currency": "USD",
+    "label": "Swing setup (74)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-11-04",
       "sessions": 0,
       "spNow": 0,
       "vsSp": 0
