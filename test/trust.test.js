@@ -11,6 +11,7 @@ test("investment trusts are detected from the FTSE sector, Yahoo sector or name"
   assert.ok(isInvestmentTrust({ sector: "Closed End Investments" }));
   assert.ok(isInvestmentTrust({ name: "Scottish Mortgage Investment Trust PLC" }));
   assert.equal(isInvestmentTrust({ sector: "Financial Services", name: "Lloyds Banking Group plc" }), false);
+  assert.equal(isInvestmentTrust({ sector: "Real Estate", name: "Federal Realty Investment Trust" }), false, "a US REIT is a company");
   assert.equal(isInvestmentTrust(null), false);
 });
 
@@ -22,4 +23,5 @@ test("an investment trust is not scored, so it cannot be a Good entry", () => {
   assert.equal(lt.verdict, "Investment trust");
   assert.match(lt.note, /net asset value/);
   assert.ok(lt.pillars.length, "pillars kept for display");
+  assert.ok(lt.pillars.every((p) => p.score == null), "no pillar scores, so no false strengths");
 });
