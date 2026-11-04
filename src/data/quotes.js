@@ -29,7 +29,9 @@ export function quoteToFundamentals(q) {
   return {
     name: q.longName || q.shortName || null, currency: q.currency || null, marketCap: q.marketCap ?? null,
     trailingPE: q.trailingPE ?? null, forwardPE: q.forwardPE ?? null, priceToBook: q.priceToBook ?? null,
-    dividendYield: q.trailingAnnualDividendYield ?? null,
+    // Yahoo divides a London stock's dividend (pounds) by its price (pence),
+    // so the quote yield is 100× too small for GBp quotes (GSK showed 0.04%).
+    dividendYield: q.trailingAnnualDividendYield == null ? null : q.currency === "GBp" ? q.trailingAnnualDividendYield * 100 : q.trailingAnnualDividendYield,
     recommendationMean: Number.isFinite(rating) ? rating : null, nextEarnings: next, lastEarnings: last, source: "quote",
   };
 }

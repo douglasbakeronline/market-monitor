@@ -100,6 +100,21 @@ export function swingVerdict(t, signals, earningsDays) {
   return { score, verdict, stop, stopPct: stop ? r1(pct(stop, t.last)) : null, atrPct: r1(t.atrPct), pinned: !!t.pinned, notes };
 }
 
+// Weekday sessions between two YYYY-MM-DD dates (a's bar is this many sessions
+// behind b's). Holidays count as sessions, which only makes the check gentler.
+export function sessionsBehind(a, b) {
+  if (!a || !b || a >= b) return 0;
+  let n = 0;
+  for (let d = new Date(a + "T12:00:00Z"); d.toISOString().slice(0, 10) < b; d.setUTCDate(d.getUTCDate() + 1)) {
+    const next = new Date(d.getTime() + 86400000).getUTCDay();
+    if (next !== 0 && next !== 6) n++;
+  }
+  return n;
+}
+// A stock whose last daily bar is this many sessions behind its market has
+// stopped trading (delisted, suspended, taken over): Kenvue, 30 Oct 2026.
+export const STALE_SESSIONS = 3;
+
 // --- Long-term score -------------------------------------------------------
 const P = {
   forwardPE: [[8, 100], [12, 88], [16, 72], [20, 58], [25, 45], [35, 25], [50, 8], [70, 0]],

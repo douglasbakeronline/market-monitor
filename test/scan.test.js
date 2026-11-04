@@ -33,3 +33,18 @@ test("quote earnings timestamp in the past becomes lastEarnings, not nextEarning
   const g = quoteToFundamentals({ earningsTimestamp: Date.now() / 1000 + 86400 * 3 });
   assert.equal(g.lastEarnings, null);
 });
+
+import { sessionsBehind as sb } from "../src/research.js";
+test("sessionsBehind counts weekday sessions only", () => {
+  assert.equal(sb("2026-11-03", "2026-11-03"), 0);
+  assert.equal(sb("2026-11-02", "2026-11-03"), 1);
+  assert.equal(sb("2026-10-30", "2026-11-02"), 1, "Fri to Mon is one session");
+  assert.equal(sb("2026-10-30", "2026-11-04"), 3, "Kenvue case: stale");
+  assert.equal(sb(null, "2026-11-04"), 0);
+});
+
+test("quote dividend yield is rescaled for pence-quoted London stocks", () => {
+  assert.equal(quoteToFundamentals({ currency: "GBp", trailingAnnualDividendYield: 0.000434 }).dividendYield.toFixed(4), "0.0434");
+  assert.equal(quoteToFundamentals({ currency: "USD", trailingAnnualDividendYield: 0.02 }).dividendYield, 0.02);
+  assert.equal(quoteToFundamentals({ currency: "GBp" }).dividendYield, null);
+});

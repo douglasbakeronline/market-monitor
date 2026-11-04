@@ -46,11 +46,14 @@ const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / DAY);
 export function pickStatus(pick, item, today = null) {
   if (!item) return { ...pick, ticker: pick.symbol.replace(/\.L$/, ""), ok: null, reason: "No data yet." };
   const verdict = item.longTerm?.verdict ?? null, score = item.longTerm?.score ?? null;
-  const ed = item.earnings?.days ?? null;
+  // A results date in the past (Yahoo keeps it for a day or so after the
+  // release) means the results are out: treat it as the latest results date.
+  const rawEd = item.earnings?.days ?? null;
+  const ed = rawEd != null && rawEd < 0 ? null : rawEd;
   const resultsSoon = ed != null && ed >= 0 && ed <= PLAN.pickNoResultsDays;
   // No next date published yet: if the latest results came out recently, the
   // next ones are about a quarter away, so the 7-day rule can't bite.
-  const last = item.lastEarnings ?? null;
+  const last = rawEd != null && rawEd < 0 && item.earnings?.date ? item.earnings.date : item.lastEarnings ?? null;
   const sinceLast = ed == null && last && today ? days(last, today) : null;
   const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";
