@@ -34,8 +34,8 @@
       "now": 10.6,
       "nowDate": "2026-11-04",
       "sessions": 4,
-      "spNow": -0.2,
-      "vsSp": 10.8
+      "spNow": -0.1,
+      "vsSp": 10.7
     }
   },
   {
@@ -69,11 +69,11 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -0.7,
+      "now": -0.6,
       "nowDate": "2026-11-04",
       "sessions": 3,
       "spNow": 1.7,
-      "vsSp": -2.4
+      "vsSp": -2.3
     }
   },
   {
