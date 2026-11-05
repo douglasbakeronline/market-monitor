@@ -4,6 +4,11 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Thu 5 Nov
+- **Trade log on the Dashboard (browser only).** Log each real trade with the rule behind it (scheduled core purchase, pullback rule, pick tranche, dip tier, swing, reinvestment, rebalance or off-plan). The card shows plan adherence ("2 of 2 scheduled actions done on time"), each scheduled core and pick date as On time, Late, Open or Not logged, recent trades, and off-plan trades. The pots panel adds net invested per pot from the log. Export and Import keep a backup file. Saved in localStorage only; nothing reaches the public repo. Logic in `src/tradeLog.js` with tests. *Why:* roadmap item 1; the co-pilot should show whether the plan is being followed, not just what is due.
+- **Fixed: no 1-year return for any US stock in the scan** (498 of 598 stocks). The scan downloads one year of prices, which holds about 251 US sessions after holidays, one short of the fixed 252-session lookback. The 1-year change now falls back to the first bar when the data spans a year. Affected the Trends page 1-year medians and the scan's 1-year column, and would have blocked the planned 12-month momentum test.
+- **Research log:** does a cash reserve for dips beat investing straight away? Usually not: several studies find waiting for dips costs return. The reserve is behavioural insurance; two options to shrink the drag are proposed.
+
 ### Wed 4 Nov
 - **Fixed: London dividend yields were 100× too small in the scan.** For the ~500 stocks that only get the quick pass, the yield came from Yahoo's quote, which divides a pound dividend by a pence price (GSK showed 0.04% instead of about 4%). Pence-quoted yields are now rescaled; the fully scored names already used the right figure. *Why:* the "dividend 3%+" screen silently missed most FTSE 100 income stocks.
 - **Fixed: a pick that reported yesterday read "Next results in -1 days".** Yahoo keeps the results date for a day after the release; the tranche check now treats a past date as the latest results ("Reported Wed 4 Nov; next results not due for weeks"). Matters for CF Industries (bench), which reports today.
