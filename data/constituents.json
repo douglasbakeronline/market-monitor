@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29T21:41:38.622Z",
+  "updated": "2026-11-05T22:51:02.295Z",
   "indices": {
     "SP500": [
       {
@@ -1617,12 +1617,6 @@
         "symbol": "JPM"
       },
       {
-        "ticker": "KVUE",
-        "name": "Kenvue",
-        "sector": "Consumer Staples",
-        "symbol": "KVUE"
-      },
-      {
         "ticker": "KDP",
         "name": "Keurig Dr Pepper",
         "sector": "Consumer Staples",
@@ -2083,6 +2077,12 @@
         "name": "Occidental Petroleum",
         "sector": "Energy",
         "symbol": "OXY"
+      },
+      {
+        "ticker": "OKTA",
+        "name": "Okta, Inc.",
+        "sector": "Information Technology",
+        "symbol": "OKTA"
       },
       {
         "ticker": "ODFL",
