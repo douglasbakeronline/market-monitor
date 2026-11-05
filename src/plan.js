@@ -23,7 +23,7 @@ export const PLAN = {
     { date: "2026-11-02", kind: "core", title: "First core purchase (VWRP)", detail: "Half of this tax year's core money." },
     { date: "2026-11-02", kind: "picks", title: "First tranche of each pick", detail: "About a third of each position, only where the pick is still a good entry with no results within 7 days." },
     { date: "2026-11-16", kind: "core", title: "Second core purchase (VWRP)", detail: "The rest of this tax year's core money." },
-    { date: "2026-11-16", kind: "swing", title: "Swing alerts start (US only)", detail: "Max 4 open trades, stop order placed at entry, exit at 2R or 20 sessions." },
+    { date: "2026-11-16", kind: "swing", title: "Swing stays on paper (no real trades)", detail: "Decided 5 Nov: no edge in the backtest, so swing setups stay paper-traded while stricter rules are tested." },
     // Can't come forward: the money can't enter the ISA before the new allowance.
     { date: "2027-04-06", kind: "core", pullback: false, title: "New ISA allowance: pay in savings, resume monthly core", detail: "Move the money held in easy-access savings into the ISA." },
   ],

@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Thu 5 Nov (afternoon)
+- **Decision: swing stays on paper, and gets retuned** (Douglas, 5 Nov). The 16 Nov "swing alerts start" step in the plan now reads "Swing stays on paper"; STRATEGY-NOTES and the roadmap updated. *Why:* the 1 Nov backtest found no edge over random entry.
+- **More build sessions:** automatic build-only sessions now run on weekdays at 11:41, 14:41, 19:41 and 22:41 and at weekends at 10:41 and 15:41, alongside the 08:33 daily session and the Sunday review. *Why:* Douglas wants the roadmap to move much faster.
+
 ### Thu 5 Nov
 - **Trade log on the Dashboard (browser only).** Log each real trade with the rule behind it (scheduled core purchase, pullback rule, pick tranche, dip tier, swing, reinvestment, rebalance or off-plan). The card shows plan adherence ("2 of 2 scheduled actions done on time"), each scheduled core and pick date as On time, Late, Open or Not logged, recent trades, and off-plan trades. The pots panel adds net invested per pot from the log. Export and Import keep a backup file. Saved in localStorage only; nothing reaches the public repo. Logic in `src/tradeLog.js` with tests. *Why:* roadmap item 1; the co-pilot should show whether the plan is being followed, not just what is due.
 - **Fixed: no 1-year return for any US stock in the scan** (498 of 598 stocks). The scan downloads one year of prices, which holds about 251 US sessions after holidays, one short of the fixed 252-session lookback. The 1-year change now falls back to the first bar when the data spans a year. Affected the Trends page 1-year medians and the scan's 1-year column, and would have blocked the planned 12-month momentum test.
