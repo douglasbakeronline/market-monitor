@@ -63,12 +63,22 @@ test("a cheap P/E in an expensive sector scores well against peers; a cyclical i
   const note = sectorValueNote(f, peer, now, alt);
   assert.equal(note.ratio, 0.17);
   assert.match(note.note, /83% below/);
-  assert.match(note.note, /peak earnings/);
+  assert.match(note.note, /peak earnings, so value is capped at 60/);
+  assert.match(note.note, /vs the Information Technology median/);
   assert.equal(note.valueNow, v(now));
   assert.equal(note.changed, alt.verdict !== now.verdict);
   // A non-cyclical at the same discount keeps its high value score.
   const sw = { ...f, industry: "Software - Infrastructure" };
   assert.ok(v(longTerm(sw, tech, peerFor(sw, medians))) > 90);
+});
+
+test("an expensive cyclical gets no peak-earnings line", () => {
+  const f = { ...strong, sector: "Consumer Cyclical", industry: "Auto Manufacturers", forwardPE: 150 };
+  const medians = { "Consumer Discretionary": { n: 59, pe: 18, forwardPE: 18 } };
+  const peer = peerFor(f, medians);
+  const note = sectorValueNote(f, peer, longTerm(f, tech), longTerm(f, tech, peer));
+  assert.equal(note.cyclical, true);
+  assert.doesNotMatch(note.note, /peak earnings/);
 });
 
 test("no peer note without a sector median or a score", () => {

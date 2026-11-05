@@ -197,7 +197,7 @@ export function longTerm(f, t, peer = null) {
 
   const pillar = (key, label, weight, items) => ({ key, label, weight, items, score: mean(items.map((i) => i.score)) == null ? null : Math.round(mean(items.map((i) => i.score))) });
   const valuePillar = pillar("value", "Value", 0.32, value);
-  if (peer?.cyclical && valuePillar.score != null) valuePillar.score = Math.min(valuePillar.score, CYCLICAL_VALUE_CAP);
+  if (peer?.cyclical && valuePillar.score > CYCLICAL_VALUE_CAP) { valuePillar.score = CYCLICAL_VALUE_CAP; valuePillar.capped = true; }
   const pillars = [
     pillar("quality", "Quality", 0.32, quality),
     valuePillar,

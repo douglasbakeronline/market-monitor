@@ -93,13 +93,13 @@ export function sectorValueNote(f, peer, now, alt) {
   if (!peer || !now || now.score == null || !alt) return null;
   const pe = f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null;
   const ratio = pe && peer.pe ? pe / peer.pe : null;
-  const vNow = now.pillars.find((p) => p.key === "value")?.score ?? null, vAlt = alt.pillars.find((p) => p.key === "value")?.score ?? null;
+  const vNow = now.pillars.find((p) => p.key === "value")?.score ?? null, altValue = alt.pillars.find((p) => p.key === "value"), vAlt = altValue?.score ?? null;
   const parts = [];
   if (ratio != null) {
     const d = Math.round((ratio - 1) * 100);
-    parts.push(`P/E ${pe.toFixed(1)} vs a ${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
+    parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
   }
-  if (peer.cyclical) parts.push("Cyclical: a low P/E may mark peak earnings, so value is capped.");
+  if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
   if (peer.sector === "Real Estate") parts.push("REITs are better judged on funds from operations than P/E.");
   if (vAlt != null && vNow != null) parts.push(`Value vs peers would score ${vAlt} (now ${vNow})${alt.verdict !== now.verdict ? `; the verdict would be ${alt.verdict} (now ${now.verdict})` : ""}.`);
   return {

@@ -2,6 +2,13 @@
 
 Dated findings that shape the rules. Newest first. Each entry: question, finding, strength of evidence, sources, implications.
 
+## 2026-11-05 (night): What would sector-relative value change today?
+- Question: before asking Douglas to let sector-relative valuation change verdicts (research log 2 Nov), how big is the effect on the live scan?
+- Finding: dry run on real data (599 stocks, 109 with full scores). Sector median forward P/E ranges from 11.1 (Energy) and 11.5 (Financials) to 18.7 (Industrials) and 33.9 (Real Estate). With P/E scored against the sector median (the median scores 58, as a P/E of 20 does today) and the value pillar capped at 60 for cyclicals, 7 of 109 full-score verdicts change: CF Industries, Super Micro and Glencore drop from Good entry to Fair; none gains Good entry. Micron, Nvidia and the oil producers stay Good entry on quality and entry, with value capped. 29 of the 109 are flagged cyclical. Among quick-scored stocks the main shifts are expensive financials (Visa, Moody's, exchanges) turning Expensive and most REITs improving, because REIT P/Es are high across the sector.
+- Strength: Descriptive only (one day's scan), not a test of returns.
+- Sources: own dry run, `scan.js` with `src/sectorValue.js`, 5 Nov 2026.
+- Implication: a modest, targeted change that mostly removes cyclicals at possible peak earnings from Good entry, as intended. Two gaps before switching: REITs need P/FFO rather than P/E, and EV/EBITDA medians need data for every stock. Decision for Douglas (roadmap, Waiting on Douglas).
+
 ## 2026-11-05 (evening): Can stricter swing setups beat random entry after costs?
 - Question: Douglas kept swing on paper but asked for a retune (5 Nov). Do stricter setups (score 75+, uptrend only, US only, no results within 10 days, or combinations) beat entering at random by a clear margin after Trading 212 costs?
 - Method: `tools/swing-backtest.mjs` on Yahoo daily data, 598 S&P 500 and FTSE 100 stocks, signals Nov 2022 to Nov 2026 (15,716 closed setup trades; 45,325 random-entry trades with the same 2×ATR stop, 2R target and 20-session exit). Costs per trade in R: 0.3% of the entry on US shares (FX both ways), 0.5% on UK shares (stamp duty). Each variant is compared with random entry under the same market, trend and results conditions. "Clear" means +0.1R per trade over that baseline, a positive net result, 200+ trades and ahead in at least three of every four years. Results dates are projected quarterly from known dates (US only, approximate).
