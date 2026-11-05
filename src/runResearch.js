@@ -4,6 +4,7 @@ import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, summarise } from "./research.js";
 import { readJson, writeJson } from "./state.js";
+import { peerFor, sectorValueNote } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
 
@@ -18,6 +19,8 @@ export async function runResearch({ regimeKey, state }) {
   const today = dateIn("Europe/London");
   const items = [], failed = [], rowsBySymbol = {};
   let earnings = await readJson("history/earnings.json", {});
+  // Sector medians from the latest index scan (display-only peer valuation).
+  const medians = (await readJson("scan.json", null))?.sectorMedians ?? null;
   for (const s of stocks) {
     try {
       const [prices, f] = [await fetchDaily(s.symbol, { range: "2y" }), await fetchFundamentals(s.symbol)];
@@ -28,6 +31,8 @@ export async function runResearch({ regimeKey, state }) {
       const signals = swingSignals(t);
       const earningsDays = daysUntil(f?.nextEarnings, today);
       const lt = longTerm(f, t);
+      const peer = f ? peerFor(f, medians) : null;
+      const sectorValue = peer ? sectorValueNote(f, peer, lt, longTerm(f, t, peer)) : null;
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
         symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: s.symbol.endsWith(".L") ? "UK" : "US",
@@ -41,7 +46,7 @@ export async function runResearch({ regimeKey, state }) {
         earnings: earningsFields(f?.nextEarnings, null, today).earnings,
         lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
-        longTerm: lt, swing, signals,
+        longTerm: lt, swing, signals, sectorValue,
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };

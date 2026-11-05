@@ -4,6 +4,9 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Thu 5 Nov (night)
+- **Peer view: valuation against the sector, display only.** The scan now works out each sector's median P/E (S&P 500 GICS, FTSE 100 ICB and Yahoo sector names mapped onto GICS's eleven; at least 8 peers; investment trusts left out) and stores it in `scan.json` (`sectorMedians`). Each stock, in the scan and on your list, gets a "Peer view" note on the Research page: its P/E against the sector median, a cyclical flag (Energy, Materials, chips and hardware, autos, miners, chemicals, housebuilders and similar) with a "Cyclical" tag, and the value score and verdict it would get if P/E were scored against peers with cyclicals capped at 60. Verdicts, alerts and the pick tranche check are unchanged. Logic in `src/sectorValue.js` and an optional third argument to `longTerm()`, with tests. *Why:* roadmap item 2 (research log 2 Nov): within-sector value predicts returns better than fixed bands, and a low P/E in a cyclical often marks peak earnings (Sandisk and Micron at P/E 3 to 4 top the scan). Showing the would-be verdicts first lets Douglas judge the change before it touches the plan. Tested on real data in a dry run: 7 of 109 full-score verdicts would change (CF, Super Micro and Glencore lose Good entry).
+
 ### Thu 5 Nov (late evening)
 - **Decision: swing's 10% goes into the core.** Douglas asked Claude to decide "for now" after the retune found no edge. Pot targets are now core 70%, dip reserve 15%, picks 15%, swing 0% (paper only); the 10% joins the 16 Nov core purchase. Updated in `src/plan.js` (the plan step and pot notes), the Dashboard pots panel (an old swing value still shows, as over target) and STRATEGY-NOTES. *Why:* idle cash and a bigger dip reserve both cost return over time (research log 5 Nov); the core is the evidence-based home. Easy to reverse if Douglas prefers otherwise.
 

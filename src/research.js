@@ -4,6 +4,7 @@
 // Every score comes with plain-English reasons so the number means something.
 import { sma, rsi, macd, bollinger, atr, crossed, changeOver, rebase } from "./indicators.js";
 import { interp, mean, pct, r1, r2, clamp } from "./util.js";
+import { CYCLICAL_VALUE_CAP } from "./sectorValue.js";
 
 const FIN_SECTORS = ["Financial Services", "Financials"];
 
@@ -141,6 +142,9 @@ const P = {
   offHigh: [[-45, 65], [-30, 95], [-20, 90], [-12, 70], [-6, 45], [0, 20]],
   vs200: [[-30, 45], [-15, 70], [-5, 85], [0, 75], [8, 50], [20, 25], [40, 5]],
   rsi: [[25, 95], [35, 85], [45, 70], [55, 55], [65, 40], [75, 20], [85, 5]],
+  // Multiple / sector median (display-only peer view, src/sectorValue.js).
+  // At the median it scores 58, as a P/E of 20 does on the fixed bands.
+  rel: [[0.4, 100], [0.6, 88], [0.8, 72], [1, 58], [1.25, 45], [1.75, 25], [2.5, 8], [3.5, 0]],
   upside: [[-15, 0], [0, 30], [10, 55], [20, 75], [35, 95], [50, 100]],
   rec: [[1.2, 90], [1.8, 70], [2.3, 50], [2.8, 32], [3.3, 15], [4, 0]],
 };
@@ -151,8 +155,14 @@ const P = {
 export const isInvestmentTrust = (f) => !!(f?.closedEnd || /closed end/i.test(f?.sector || "") || /investment trust (plc|ltd|limited)\b/i.test(f?.name || ""));
 
 const metric = (key, label, value, display, why) => ({ key, label, value, display, score: value == null ? null : Math.round(interp(value, P[key])), why });
+// Peer-relative version: scored on the multiple divided by its sector median.
+const relMetric = (key, label, value, med, display, why) => (med > 0 && value != null
+  ? { key, label, value, display: `${display} (sector ${med.toFixed(1)})`, score: Math.round(interp(value / med, P.rel)), why: `${why} Scored against the sector median.` }
+  : metric(key, label, value, display, why));
 
-export function longTerm(f, t) {
+// peer (optional, display only): sector medians and a cyclical flag from
+// src/sectorValue.js. Without it the score is exactly the live one.
+export function longTerm(f, t, peer = null) {
   const fin = FIN_SECTORS.includes(f?.sector);
   const fx = (n, d = 1) => (n == null ? "n/a" : n.toFixed(d));
   const pc = (n) => (n == null ? "n/a" : `${(n * 100).toFixed(1)}%`);
@@ -166,11 +176,12 @@ export function longTerm(f, t) {
   ].filter(Boolean);
 
   const upside = f?.targetMean && t?.last ? pct(f.targetMean, t.last) : null;
+  const m = (key, label, value, display, why) => (peer ? relMetric(key, label, value, peer[key], display, why) : metric(key, label, value, display, why));
   const value = [
-    metric("forwardPE", "Forward P/E", f?.forwardPE > 0 ? f.forwardPE : null, fx(f?.forwardPE), "Price vs next year's expected earnings. Lower is cheaper."),
-    metric("trailingPE", "Trailing P/E", f?.trailingPE > 0 ? f.trailingPE : null, fx(f?.trailingPE), "Price vs the last 12 months' earnings."),
+    m("forwardPE", "Forward P/E", f?.forwardPE > 0 ? f.forwardPE : null, fx(f?.forwardPE), "Price vs next year's expected earnings. Lower is cheaper."),
+    m("trailingPE", "Trailing P/E", f?.trailingPE > 0 ? f.trailingPE : null, fx(f?.trailingPE), "Price vs the last 12 months' earnings."),
     metric("peg", "PEG", f?.peg > 0 ? f.peg : null, fx(f?.peg, 2), "P/E divided by growth. Around 1 or below is good value for the growth."),
-    fin ? null : metric("evToEbitda", "EV / EBITDA", f?.evToEbitda > 0 ? f.evToEbitda : null, fx(f?.evToEbitda), "Whole-company value vs operating earnings."),
+    fin ? null : m("evToEbitda", "EV / EBITDA", f?.evToEbitda > 0 ? f.evToEbitda : null, fx(f?.evToEbitda), "Whole-company value vs operating earnings."),
   ].filter(Boolean);
 
   const entry = [
@@ -185,9 +196,11 @@ export function longTerm(f, t) {
   ];
 
   const pillar = (key, label, weight, items) => ({ key, label, weight, items, score: mean(items.map((i) => i.score)) == null ? null : Math.round(mean(items.map((i) => i.score))) });
+  const valuePillar = pillar("value", "Value", 0.32, value);
+  if (peer?.cyclical && valuePillar.score > CYCLICAL_VALUE_CAP) { valuePillar.score = CYCLICAL_VALUE_CAP; valuePillar.capped = true; }
   const pillars = [
     pillar("quality", "Quality", 0.32, quality),
-    pillar("value", "Value", 0.32, value),
+    valuePillar,
     pillar("entry", "Entry", 0.26, entry),
     pillar("sentiment", "Analysts", 0.1, sentiment),
   ];
