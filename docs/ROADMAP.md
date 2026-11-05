@@ -8,8 +8,6 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - No paid services. No secrets in the repo (it's public).
 
 ## Waiting on Douglas
-- **Swing pot after the retune (research log 5 Nov evening):** no stricter setup beat random entry by a clear margin after costs. Suggest keeping it on paper indefinitely and deciding where the 10% lives (below).
-- **Where the swing 10% sits while swing is on paper:** cash in the ISA (default), the dip reserve, or the core?
 - OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
 - His own research list (Research page still uses a placeholder, now including the picks and bench).
 - Optional `FINNHUB_KEY` secret.
@@ -38,6 +36,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 5 Nov (late): swing's 10% moves to the core (Douglas: "you decide for now"); targets now 70/15/15, swing paper only.
 - 5 Nov (evening): swing retune backtest (no variant beats random entry after costs; swing stays on paper); scan results-date fix (45 stocks showed "-1 days"); "Reported" label on the Research page.
 - 5 Nov: trade log with plan adherence (browser only); 1-year return fix for US stocks.
 - 4 Nov: UK dividend yield fix, "-1 days" results label in the tranche check, stale-price guard.

@@ -70,3 +70,9 @@ test("results dated yesterday read as reported, not 'in -1 days'", () => {
   assert.match(p.reason, /Reported Wed 4 Nov/);
   assert.doesNotMatch(p.reason, /-1/);
 });
+
+test("pot targets add up to 100% and swing holds no real money (5 Nov)", () => {
+  assert.equal(PLAN.pots.reduce((a, p) => a + p.target, 0), 100);
+  assert.equal(PLAN.pots.find((p) => p.key === "swing").target, 0);
+  assert.equal(PLAN.pots.find((p) => p.key === "core").target, 70);
+});
