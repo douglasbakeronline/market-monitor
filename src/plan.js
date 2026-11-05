@@ -5,10 +5,10 @@ import { addDays } from "./util.js";
 
 export const PLAN = {
   pots: [
-    { key: "core", name: "Core index (VWRP)", target: 60, note: "Never sold on a signal." },
+    { key: "core", name: "Core index (VWRP)", target: 70, note: "Never sold on a signal. Includes the 10% first meant for swing (5 Nov)." },
     { key: "reserve", name: "Dip reserve (cash)", target: 15, note: "A third at each confirmed buy tier." },
     { key: "picks", name: "Long-term picks", target: 15, note: "Five companies, up to 3% each, 1% tranches." },
-    { key: "swing", name: "Swing", target: 10, note: "Max 4 trades, stop at entry, 2R or 20 sessions." },
+    { key: "swing", name: "Swing (paper only)", target: 0, note: "No real trades: the 5 Nov retune found no edge after costs." },
   ],
   picks: [
     { symbol: "HSBA.L", name: "HSBC", sector: "Banks" },
@@ -22,8 +22,8 @@ export const PLAN = {
   schedule: [
     { date: "2026-11-02", kind: "core", title: "First core purchase (VWRP)", detail: "Half of this tax year's core money." },
     { date: "2026-11-02", kind: "picks", title: "First tranche of each pick", detail: "About a third of each position, only where the pick is still a good entry with no results within 7 days." },
-    { date: "2026-11-16", kind: "core", title: "Second core purchase (VWRP)", detail: "The rest of this tax year's core money." },
-    { date: "2026-11-16", kind: "swing", title: "Swing stays on paper (no real trades)", detail: "Decided 5 Nov: no edge in the backtest, so swing setups stay paper-traded while stricter rules are tested." },
+    { date: "2026-11-16", kind: "core", title: "Second core purchase (VWRP)", detail: "The rest of this tax year's core money, plus the 10% first set aside for swing." },
+    { date: "2026-11-16", kind: "swing", title: "Swing stays on paper (no real trades)", detail: "Retune tested 5 Nov: no stricter setup beat random entry after costs. Swing stays paper-traded; its 10% goes into the core." },
     // Can't come forward: the money can't enter the ISA before the new allowance.
     { date: "2027-04-06", kind: "core", pullback: false, title: "New ISA allowance: pay in savings, resume monthly core", detail: "Move the money held in easy-access savings into the ISA." },
   ],

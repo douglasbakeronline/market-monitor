@@ -374,10 +374,14 @@ async function renderPaper(s) {
 
 // --- Private pots and goal (localStorage only) -------------------------------------
 const PF_KEY = "mm-portfolio";
-const POTS = [["core", "Core index", 60, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing", 10, "var(--caution)"]];
+const POTS = [["core", "Core index", 70, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing (paper only)", 0, "var(--caution)"]];
 const gbp = (v) => "£" + Math.round(v).toLocaleString("en-GB");
 function loadPf() { try { return JSON.parse(localStorage.getItem(PF_KEY) || "null"); } catch { return null; } }
 function savePf(v) { try { localStorage.setItem(PF_KEY, JSON.stringify(v)); } catch {} }
+// Pots with a target, plus any zero-target pot that still holds money (swing
+// went paper-only on 5 Nov; an old swing value should show as over target).
+const potsFor = (v) => POTS.filter(([k, , t]) => t > 0 || (v?.[k] || 0) > 0);
+
 function yearsTo(target, start, monthly, rate) {
   let v = start, m = 0; const g = Math.pow(1 + rate, 1 / 12);
   while (v < target && m < 600) { v = v * g + monthly; m++; }
@@ -388,14 +392,14 @@ function renderPf(edit = false) {
   const pf = loadPf();
   const card = $("pfCard");
   if (!pf && !edit) {
-    card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (60/15/15/10) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
+    card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (70/15/15; swing is paper only) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
     $("pfStart").onclick = () => renderPf(true);
     return;
   }
   if (!pf || edit) {
     const v = pf || {};
     card.innerHTML = `<div class="k">Set up your pots</div><p class="small muted" style="margin:4px 0 0">Enter today's value of each pot and your goal. Leave anything blank you'd rather not track.</p>
-      <form class="pf-form" id="pfForm">${POTS.map(([k, n]) => `<label>${n} (£)<input inputmode="decimal" name="${k}" value="${v[k] ?? ""}"></label>`).join("")}
+      <form class="pf-form" id="pfForm">${potsFor(v).map(([k, n]) => `<label>${n} (£)<input inputmode="decimal" name="${k}" value="${v[k] ?? ""}"></label>`).join("")}
       <label>Other savings (£)<input inputmode="decimal" name="savings" value="${v.savings ?? ""}"></label>
       <label>Monthly top-up (£)<input inputmode="decimal" name="monthly" value="${v.monthly ?? ""}"></label>
       <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
@@ -406,7 +410,7 @@ function renderPf(edit = false) {
     return;
   }
   const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0);
-  const rows = POTS.map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
+  const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
   const drift = rows.filter((r) => Math.abs(r.gap) >= 5);
   const hint = !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
   const monthly = pf.monthly || 0, goal = pf.goal;
