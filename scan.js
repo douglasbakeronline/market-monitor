@@ -10,7 +10,8 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, summarise, sessionsBehind, STALE_SESSIONS } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust } from "./src/research.js";
+import { sectorMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -82,7 +83,14 @@ async function main() {
   }
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
-  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep }) => {
+  // Sector-relative valuation, display only (verdicts unchanged; see src/sectorValue.js).
+  const medians = sectorMedians(items.map((it) => ({ sector: it.u.sector || it.f.sector, forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: isInvestmentTrust(it.f) })));
+  for (const it of items) {
+    const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians);
+    it.sv = peer ? sectorValueNote(it.f, peer, it.lt, longTerm(it.f, it.t, peer)) : null;
+  }
+
+  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: u.index === "FTSE100" ? "UK" : "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
@@ -92,7 +100,7 @@ async function main() {
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
-      swing, signals, deep: isDeep,
+      swing, signals, deep: isDeep, sectorValue: sv,
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
@@ -127,9 +135,21 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorValueChanges: sectorValueChanges(out), items: out,
   });
+  const svc = sectorValueChanges(out);
+  console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
+}
+
+// How many full-score verdicts would change under peer-based value (for the
+// decision waiting on Douglas), with the biggest names as examples.
+function sectorValueChanges(out) {
+  const deep = out.filter((i) => i.deep && i.sectorValue);
+  const changed = deep.filter((i) => i.sectorValue.changed);
+  const lostGood = changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol);
+  const gainedGood = changed.filter((i) => i.sectorValue.verdict === "Good entry").map((i) => i.symbol);
+  return { compared: deep.length, changed: changed.length, lostGood, gainedGood, cyclical: deep.filter((i) => i.sectorValue.cyclical).length };
 }
 
 // True when neither London nor New York is in its trading session.
