@@ -6,13 +6,13 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - Core 60%: Vanguard FTSE All-World (VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal.
 - Dip reserve 15%: cash in the ISA. A third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30); the first tier also brings forward the next core instalment. Half moves to core if unused after 12 months.
 - Long-term picks 15%: five companies in five sectors, tilted away from what the core already holds (US mega-cap tech). Up to 3% of the portfolio each, in tranches of 1% (about a third of a position); never within 7 days before results.
-- Swing 10%: real money from 16 Nov 2026, US setups only until the FTSE stop bug is fixed. Max 4 open trades, risk at most 0.2% of the portfolio per trade (2% of the swing pot), stop order placed at entry, exit at 2R or 20 sessions, pause and review if the pot falls 25%.
+- Swing 10%: paper only (Douglas, 5 Nov 2026: "paper, but retune"). The 1 Nov backtest found no edge, so no real swing trades; stricter setups are being tested and real money is reconsidered only if a retune beats random entry clearly after FX costs. Where the 10% sits meanwhile is undecided (cash in the ISA by default). Rules if ever funded: Max 4 open trades, risk at most 0.2% of the portfolio per trade (2% of the swing pot), stop order placed at entry, exit at 2R or 20 sessions, pause and review if the pot falls 25%.
 
 ## Schedule (revised 30 Oct for the ISA allowance)
 - Douglas had already used part of this tax year's ISA allowance, so about 70% of the new money goes into the ISA now and about 30% waits in easy-access savings until the new allowance on 6 April 2027.
 - Existing index funds in the ISA count as core; only VWRP is added to from now on. Existing ISA cash is reused (no allowance needed).
 - A speculative legacy holding: decided 30 Oct to sell it and move the proceeds to the core.
-- Mon 2 Nov: first core purchase. Mon 2 Nov: first tranche of each pick as well (brought forward 30 Oct; only if the 08:33 playback confirms each is still "Good entry" with no results within 7 days). Mon 16 Nov: second core purchase; swing alerts start (US only at first).
+- Mon 2 Nov: first core purchase. Mon 2 Nov: first tranche of each pick as well (brought forward 30 Oct; only if the 08:33 playback confirms each is still "Good entry" with no results within 7 days). Mon 16 Nov: second core purchase (swing stays on paper).
 - Dec 2026 to Mar 2027: no new money (allowance used); dividends and any sale proceeds reinvested per the plan.
 - 6 Apr 2027: pay in the savings and resume monthly core purchases.
 - If a confirmed buy tier fires: bring the next core purchase forward and use the dip reserve (held as cash inside the ISA).

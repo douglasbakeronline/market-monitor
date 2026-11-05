@@ -8,8 +8,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - No paid services. No secrets in the repo (it's public).
 
 ## Waiting on Douglas
-- **Swing pot on 16 Nov: fund it or keep it on paper?** The 1 Nov backtest found no edge (+0.04R per trade vs +0.10R for random entry with the same exits; see RESEARCH-LOG). Recommendation: paper only for now.
-- Strategy notes conflict: the 30 Oct changelog says "swing paper-traded only", STRATEGY-NOTES says real money from 16 Nov. Needs one answer (follows from the decision above).
+- **Where the swing 10% sits while swing is on paper:** cash in the ISA (default), the dip reserve, or the core?
 - OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
 - His own research list (Research page still uses a placeholder, now including the picks and bench).
 - Optional `FINNHUB_KEY` secret.
@@ -20,7 +19,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
-1. **Swing retune (only if Douglas wants swing kept alive):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
+1. **Swing retune (Douglas, 5 Nov: paper, but retune):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
 2. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
 3. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
 4. **Entry-pillar test (own data):** forward 6 and 12-month returns of index stocks by distance from the 52-week high and by 12-1 month momentum, in the buy-tier backtest harness (research log 4 Nov). Runs in CI (Yahoo is blocked from the session sandbox).
