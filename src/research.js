@@ -8,6 +8,18 @@ import { interp, mean, pct, r1, r2, clamp } from "./util.js";
 const FIN_SECTORS = ["Financial Services", "Financials"];
 
 // --- Technicals ------------------------------------------------------------
+// One-year price change. A Yahoo "1y" download holds about 250 US sessions
+// (holidays), fewer than the 253 a fixed 252-bar lookback needs, so every US
+// stock in the scan had no 1-year return (found 5 Nov 2026). Fall back to the
+// first bar when the data spans a year or so.
+export function yearChange(rows) {
+  const c = rows.map((r) => r.close);
+  const exact = changeOver(c, 252);
+  if (exact != null) return exact;
+  const span = (Date.parse(rows[rows.length - 1].date) - Date.parse(rows[0].date)) / 86400000;
+  return span >= 355 ? pct(c[c.length - 1], c[0]) : null;
+}
+
 export function technicals(rows) {
   if (!rows || rows.length < 60) return null;
   const c = rows.map((r) => r.close), v = rows.map((r) => r.volume || 0);
@@ -35,7 +47,7 @@ export function technicals(rows) {
     pctB: bb[n]?.pctB ?? null,
     atrPct: at[n] ? (at[n] / last) * 100 : null, atr: at[n],
     volRatio: vAvg[n - 1] ? v[n] / vAvg[n - 1] : null,
-    dayPct: changeOver(c, 1), weekPct: changeOver(c, 5), monthPct: changeOver(c, 21), m3Pct: changeOver(c, 63), y1Pct: changeOver(c, 252),
+    dayPct: changeOver(c, 1), weekPct: changeOver(c, 5), monthPct: changeOver(c, 21), m3Pct: changeOver(c, 63), y1Pct: yearChange(rows),
     high52, low52, offHigh: pct(last, high52), rangePos: high52 > low52 ? (last - low52) / (high52 - low52) : null,
     breakout: last >= priorHigh * 0.995 && rows.length > 200,
     vol21, vol252, pinned,

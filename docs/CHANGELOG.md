@@ -4,6 +4,12 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Wed 4 Nov
+- **Fixed: London dividend yields were 100× too small in the scan.** For the ~500 stocks that only get the quick pass, the yield came from Yahoo's quote, which divides a pound dividend by a pence price (GSK showed 0.04% instead of about 4%). Pence-quoted yields are now rescaled; the fully scored names already used the right figure. *Why:* the "dividend 3%+" screen silently missed most FTSE 100 income stocks.
+- **Fixed: a pick that reported yesterday read "Next results in -1 days".** Yahoo keeps the results date for a day after the release; the tranche check now treats a past date as the latest results ("Reported Wed 4 Nov; next results not due for weeks"). Matters for CF Industries (bench), which reports today.
+- **Stale-price guard in the scan.** A stock whose last daily bar is 3+ sessions behind its market (delisted, suspended or taken over, as Kenvue was on 30 Oct) is dropped from the scan and listed as failed, so it can't sit in the lists on an old price.
+- **Research log:** does buying well below the 52-week high help? No: over 6 to 12 months the evidence favours stocks near their highs (momentum), so our Entry pillar leans the wrong way. Change proposed, to be tested on our own data first.
+
 ### Tue 3 Nov
 - **Fixed: an investment trust topped the long-term scan.** Polar Capital Technology Trust scored 96 ("Good entry", new today) on a P/E of 1.8. A trust's "earnings" are its portfolio gains, so P/E, margins and ROE say nothing about value. Closed-end funds (FTSE sector "Closed End Investments", or a name ending "Investment Trust plc") now show the verdict "Investment trust" with no score or pillar strengths, and a note to judge them on the discount to net asset value, costs and holdings. Affects PCT, FCIT, SMT, ALW and PSH; US REITs named "Investment Trust" (Federal Realty) are still scored as companies. *Why:* the scan's top slot and "new good entries" line should never be a fund.
 - **Research log:** is extreme fear on its own a buy signal? No: low sentiment predicts little; F&G stays a confirmation for price-based tiers.

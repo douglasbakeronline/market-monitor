@@ -240,3 +240,21 @@ test("crash watch: VIX spike and no alert on stale prices", () => {
   const s = evaluateAlerts({ markets: { US: snap({ dayPct: -5, date: "d" }) }, fg: { score: 30 }, vix: null, pricesOk: false, fgOk: true }, {});
   assert.equal(s.alerts.filter((a) => a.kind === "crash").length, 0);
 });
+
+test("yearChange: exact 252-session lookback, else first bar when the data spans a year", async () => {
+  const { yearChange } = await import("../src/research.js");
+  // 300 daily rows: exact lookback
+  const long = rowsFrom(Array.from({ length: 300 }, (_, i) => 100 + i));
+  assert.equal(Math.round(yearChange(long) * 10) / 10, Math.round(((399 / 147) - 1) * 1000) / 10);
+  // 251 weekday sessions over a calendar year (like a US "1y" download)
+  const rows = [];
+  for (let d = Date.parse("2025-11-04"); d <= Date.parse("2026-11-04"); d += 86400000) { const dt = new Date(d); if (dt.getUTCDay() % 6) rows.push({ date: dt.toISOString().slice(0, 10) }); }
+  rows.splice(100, rows.length - 251); // drop sessions for holidays: 251 left, still a full calendar year
+  rows.forEach((r, i) => { r.close = 100 + i * 0.2; });
+  assert.ok(rows.length < 253);
+  const span = (Date.parse(rows.at(-1).date) - Date.parse(rows[0].date)) / 86400000;
+  assert.ok(span >= 355, `span ${span}`);
+  assert.equal(Math.round(yearChange(rows)), 50);
+  // Six months of data: no 1-year figure
+  assert.equal(yearChange(rowsFrom(Array.from({ length: 130 }, () => 100))), null);
+});
