@@ -42,6 +42,7 @@
   .row[aria-expanded="true"] .caret { transform: rotate(90deg); }
   .head .on { color: var(--ink); }
   .earn { font-size: 11px; font-weight: 700; color: var(--watch); }
+  .earn.reported { font-weight: 600; color: var(--ink-2); }
 
   .detail { display: none; padding: 4px 16px 20px; background: var(--card-2); border-top: 1px dashed var(--line); }
   .detail.show { display: block; }
@@ -205,12 +206,21 @@ function visible() {
   });
 }
 
+// Whole days from a YYYY-MM-DD date to the data's update time (London date).
+function daysSince(date, updated) {
+  if (!date) return null;
+  const today = new Date(updated || Date.now()).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  return Math.round((Date.parse(today) - Date.parse(date)) / 86400000);
+}
+
 function rowHtml(it, i) {
   const bull = it.signals.filter((s) => s.tone === "bull"), bear = it.signals.filter((s) => s.tone === "bear");
   const lens = st.lens === "lt"
     ? [it.longTerm.pillars.filter((p) => p.score >= 70).map((p) => `<span class="tag bull">${esc(p.label)} ${p.score}</span>`), it.longTerm.pillars.filter((p) => p.score != null && p.score < 40).map((p) => `<span class="tag bear">${esc(p.label)} ${p.score}</span>`)].flat().slice(0, 3)
     : [...bull.map((s) => `<span class="tag bull">${esc(s.label)}</span>`), ...bear.map((s) => `<span class="tag bear">${esc(s.label)}</span>`)].slice(0, 3);
-  const earn = it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 14 ? `<span class="earn">Earnings ${it.earnings.days === 0 ? "today" : fmtDay(it.earnings.date)}</span>` : "";
+  const sinceRes = daysSince(it.lastEarnings, st.data?.updated);
+  const earn = it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 14 ? `<span class="earn">Earnings ${it.earnings.days === 0 ? "today" : fmtDay(it.earnings.date)}</span>`
+    : sinceRes != null && sinceRes >= 0 && sinceRes <= 7 ? `<span class="earn reported">Reported ${fmtDay(it.lastEarnings)}</span>` : "";
   return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
     <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}${it.index ? ` · ${esc(it.index)}` : ""}</div></div>
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
@@ -264,6 +274,7 @@ function detailHtml(it) {
           <div><div class="k">Market cap</div><div class="v">${bigMoney(it.marketCap, c)}</div></div>
           <div><div class="k">Dividend</div><div class="v">${it.dividendYield != null ? (it.dividendYield * 100).toFixed(1) + "%" : "none"}</div></div>
           <div><div class="k">Next earnings</div><div class="v">${it.earnings ? fmtDay(it.earnings.date) : "n/a"}</div></div>
+          ${it.lastEarnings ? `<div><div class="k">Latest results</div><div class="v">${fmtDay(it.lastEarnings)}</div></div>` : ""}
         </div>
       </div>
     </div>

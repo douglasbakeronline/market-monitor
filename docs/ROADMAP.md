@@ -8,6 +8,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - No paid services. No secrets in the repo (it's public).
 
 ## Waiting on Douglas
+- **Swing pot after the retune (research log 5 Nov evening):** no stricter setup beat random entry by a clear margin after costs. Suggest keeping it on paper indefinitely and deciding where the 10% lives (below).
 - **Where the swing 10% sits while swing is on paper:** cash in the ISA (default), the dip reserve, or the core?
 - OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
 - His own research list (Research page still uses a placeholder, now including the picks and bench).
@@ -19,16 +20,14 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
-In progress (5 Nov 19:45): scan "-1 days" results fallback; swing retune (item 1).
-1. **Swing retune (Douglas, 5 Nov: paper, but retune):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
-2. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
-3. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
-4. **Entry-pillar test (own data):** forward 6 and 12-month returns of index stocks by distance from the 52-week high and by 12-1 month momentum, in the buy-tier backtest harness (research log 4 Nov). Runs in CI (Yahoo is blocked from the session sandbox).
-5. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds; same harness style as the swing backtest.
-6. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
-7. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
-8. **Paper-trade view on the Research page:** filter by market and setup score, with an equity curve in R.
-9. **Trade log follow-ups:** show the dip-reserve tiers in the adherence list once a tier fires; optional pots-panel fill from the log; remind in the Monday playback when a scheduled action shows Not logged.
+1. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
+2. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
+3. **Entry-pillar test (own data):** forward 6 and 12-month returns of index stocks by distance from the 52-week high and by 12-1 month momentum, in the buy-tier backtest harness (research log 4 Nov). Runs in CI (Yahoo is blocked from the session sandbox).
+4. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds; same harness style as the swing backtest.
+5. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
+6. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
+7. **Paper-trade view on the Research page:** filter by market and setup score, with an equity curve in R.
+8. **Trade log follow-ups:** show the dip-reserve tiers in the adherence list once a tier fires; optional pots-panel fill from the log; remind in the Monday playback when a scheduled action shows Not logged.
 
 ## Data notes (spot checks)
 - 3 Nov: stops (2×ATR), P/E and yields checked on WDC, TMUS, UAL: consistent. Yahoo's latest-results date is stale for some UK names (Unilever shows Feb 2026); the pick check then says "no results date" (safe, not a false pass), but worth a fallback from `history/earnings.json` or company calendars. Kenvue's price stopped on 30 Oct (likely delisted after the Kimberly-Clark deal); stale-price guard added 4 Nov.
@@ -36,9 +35,10 @@ In progress (5 Nov 19:45): scan "-1 days" results fallback; swing retune (item 1
 
 - 4 Nov: three random items (KLAC, FRT, MRO): stops, 52-week range and off-high consistent. KLAC's low price and -49% off high follow its 10-for-1 split (May 2026); worth a split check in the 52-week high once the y1 return is missing. Found and fixed: UK quote dividend yields 100× too small. Charter's P/E of 2.4 looks odd but matches its collapsed price.
 - 4 Nov: trade log (Next up 1) not started; today went on the three data bugs above.
-- 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). Still open: the scan shows a results date of "-1 days" with no latest-results fallback (ALL, CF); the plan check handles it, the scan lists hide it.
+- 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 5 Nov (evening): swing retune backtest (no variant beats random entry after costs; swing stays on paper); scan results-date fix (45 stocks showed "-1 days"); "Reported" label on the Research page.
 - 5 Nov: trade log with plan adherence (browser only); 1-year return fix for US stocks.
 - 4 Nov: UK dividend yield fix, "-1 days" results label in the tranche check, stale-price guard.
 - 3 Nov: investment trusts are no longer scored as companies (PCT had topped the scan at 96).
