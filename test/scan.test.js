@@ -48,3 +48,13 @@ test("quote dividend yield is rescaled for pence-quoted London stocks", () => {
   assert.equal(quoteToFundamentals({ currency: "USD", trailingAnnualDividendYield: 0.02 }).dividendYield, 0.02);
   assert.equal(quoteToFundamentals({ currency: "GBp" }).dividendYield, null);
 });
+
+test("a results date already past moves to lastEarnings (no '-1 days')", async () => {
+  const { earningsFields } = await import("../src/research.js");
+  assert.deepEqual(earningsFields("2026-11-04", null, "2026-11-05"), { earnings: null, lastEarnings: "2026-11-04" });
+  assert.deepEqual(earningsFields("2026-11-04", "2026-08-05", "2026-11-05"), { earnings: null, lastEarnings: "2026-11-04" });
+  assert.deepEqual(earningsFields("2026-11-05", "2026-08-05", "2026-11-05"), { earnings: { date: "2026-11-05", days: 0 }, lastEarnings: "2026-08-05" });
+  assert.deepEqual(earningsFields("2026-11-12", "2026-08-05", "2026-11-05"), { earnings: { date: "2026-11-12", days: 7 }, lastEarnings: "2026-08-05" });
+  assert.deepEqual(earningsFields(null, "2026-10-22", "2026-11-05"), { earnings: null, lastEarnings: "2026-10-22" });
+  assert.deepEqual(earningsFields(null, null, "2026-11-05"), { earnings: null, lastEarnings: null });
+});

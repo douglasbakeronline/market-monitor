@@ -228,6 +228,17 @@ export function regimeNote(regimeKey, verdict) {
 
 export const daysUntil = (date, today) => (date ? Math.round((Date.parse(date) - Date.parse(today)) / 86400000) : null);
 
+// Next and latest results dates for a stock. Yahoo keeps the results date for
+// a day or so after the release, which showed as "-1 days" in the scan with no
+// latest-results date (ALL and CF, 5 Nov 2026). A past "next" date is really
+// the latest results: move it there and leave no next date.
+export function earningsFields(next, last, today) {
+  const days = daysUntil(next, today);
+  if (next && days != null && days >= 0) return { earnings: { date: next, days }, lastEarnings: last ?? null };
+  const past = [last, next].filter((d) => d && d <= today).sort().at(-1) ?? null;
+  return { earnings: null, lastEarnings: past };
+}
+
 // Plain-English summary sentence for a stock.
 export function summarise(item) {
   const bits = [];

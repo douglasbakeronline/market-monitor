@@ -82,7 +82,8 @@ src/context.js          historical forward returns
 src/research.js         long-term and swing scoring (flags takeover-pinned prices)
 src/plan.js             the agreed plan as data (dates, weights, picks) and the weekly co-pilot
 src/paperTrades.js      swing paper-trading log, scored nightly by scan.js
-tools/swing-backtest.mjs  one-off replay of the swing rules over the past year
+tools/swing-backtest.mjs  replay of the swing rules over four years, with retune variants
+src/swingRetune.js      swing variant comparison vs random entry, after costs
 src/runResearch.js      builds research.json
 src/schedule.js         slot timing
 scripts/                next-slot finder, commit/push helper

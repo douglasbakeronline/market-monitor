@@ -4,6 +4,11 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Thu 5 Nov (evening)
+- **Swing retune tested: no stricter setup clearly beats random entry.** `tools/swing-backtest.mjs` now replays four years (Nov 2022 to Nov 2026, about 15,700 setups on 598 index stocks) and tags each trade with its score, market, trend and whether results were near, and `src/swingRetune.js` compares eight variants (score 75+, uptrend only, US only, no results within 10 days, and combinations) with random entry under the same conditions, after Trading 212 costs (0.15% FX each way on US shares, 0.5% stamp duty on UK buys). The strictest variant nets +0.06R per trade, the same as entering at random on any day; none clears the bar of +0.1R over its baseline in most years. Details in the research log. *Why:* roadmap item 1 (Douglas, 5 Nov: "paper, but retune"). Swing stays on paper; nothing in the rules changes.
+- **Fixed: 45 stocks in the scan showed a results date of "-1 days"** with no latest-results date (Allstate, FIS, CVS and others the day after reporting). A results date already past now becomes the latest results date (`earningsFields` in `src/research.js`), in the scan and the research list. The tranche check already handled it; the scan data and the "Earnings ≤ 7d" filter now agree.
+- **Research page: "Reported Thu 29" label** on stocks that reported in the past week, and "Latest results" in the detail view. *Why:* fresh results explain sharp moves and score changes.
+
 ### Thu 5 Nov (afternoon)
 - **Decision: swing stays on paper, and gets retuned** (Douglas, 5 Nov). The 16 Nov "swing alerts start" step in the plan now reads "Swing stays on paper"; STRATEGY-NOTES and the roadmap updated. *Why:* the 1 Nov backtest found no edge over random entry.
 - **More build sessions:** automatic build-only sessions now run on weekdays at 11:41, 14:41, 19:41 and 22:41 and at weekends at 10:41 and 15:41, alongside the 08:33 daily session and the Sunday review. *Why:* Douglas wants the roadmap to move much faster.
