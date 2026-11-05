@@ -54,6 +54,24 @@
   .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   @media (max-width: 640px) { .pf-form { grid-template-columns: 1fr 1fr; } .proj { grid-template-columns: 1fr; } .pf-row { grid-template-columns: 1fr 48px 48px 60px; } }
 
+  /* Trade log (browser only) */
+  .tl-head { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  .tl-head .label { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; }
+  .tl-sched { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; }
+  .tl-sched li { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line-2); }
+  .tl-sched .dt { color: var(--muted); white-space: nowrap; }
+  .tl-sched .sub { display: block; color: var(--muted); font-size: 11.5px; }
+  .tl-row { display: grid; grid-template-columns: 62px 1fr auto 28px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .tl-row .dt { color: var(--muted); white-space: nowrap; }
+  .tl-row .sub { display: block; color: var(--muted); font-size: 11.5px; }
+  .tl-row .amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tl-row .del { border: 0; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px; border-radius: 6px; }
+  .tl-row .del:hover { color: var(--ink); background: var(--card-2); }
+  .pf-form select { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); border-radius: 9px; padding: 7px 9px; min-width: 0; width: 100%; }
+  .pf-form .wide { grid-column: 1 / -1; }
+  .tl-err { color: var(--sell); font-size: 12.5px; margin-top: 8px; }
+  .tl-foot { display: flex; gap: 8px; margin-top: 14px; align-items: center; flex-wrap: wrap; }
+
   /* Regime hero */
   .hero { padding: 20px; }
   .hero .label { font-size: 26px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.15; margin: 12px 0 6px; }
@@ -169,6 +187,13 @@
     <p class="cap">Amounts you enter here are saved in this browser and never leave it: nothing is sent to the server or the public repo. Projections assume steady growth after costs; real returns vary a lot from year to year.</p>
   </section>
 
+  <!-- 0c. Trade log (browser only) -->
+  <section class="section" id="tlSection">
+    <div class="eyebrow">Trade log <span class="pill plain" style="margin-left:4px">This browser only</span></div>
+    <div class="card" id="tlCard"></div>
+    <p class="cap">Log each real trade with the rule behind it. Scheduled core purchases and pick tranches count as done on time when a matching buy is logged by the next day (a pullback buy up to two weeks early counts too). Trades are saved in this browser only; use <b>Export</b> to keep a backup file.</p>
+  </section>
+
   <!-- 1. Regime -->
   <section class="section" style="margin-top:20px">
     <div class="card hero" id="hero"></div>
@@ -271,6 +296,8 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
+import { PLAN } from "./src/plan.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -393,10 +420,73 @@ function renderPf(edit = false) {
     <div class="pf-row small muted"><span></span><span>Now</span><span>Target</span><span>Gap</span></div>
     ${rows.map((r) => `<div class="pf-row"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.t}%</span><span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${r.gap >= 0 ? "+" : "\u2212"}${Math.abs(r.gap).toFixed(0)} pts</span></div>`).join("")}
     <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
+    ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
     ${goal ? `<div class="k" style="margin-top:16px">Time to goal${monthly ? ` with ${gbp(monthly)} a month` : ""}</div><div class="proj">${proj}</div>` : ""}
     <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
   $("pfEdit").onclick = () => renderPf(true);
 }
+
+// --- Trade log (localStorage only) ------------------------------------------------
+const TL_KEY = "mm-trades";
+const POT_NAME = { core: "Core index", reserve: "Dip reserve", picks: "Long-term picks", swing: "Swing" };
+const RULE_LABEL = Object.fromEntries(RULES.map((r) => [r.key, r.label]));
+const ADH = { "on-time": ["On time", "bg-buy"], late: ["Late", "bg-watch"], missed: ["Not logged", "bg-sell"], pending: ["Open", "bg-neutral"] };
+const londonToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+function loadTl() { try { const a = JSON.parse(localStorage.getItem(TL_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } }
+function saveTl(a) { try { localStorage.setItem(TL_KEY, JSON.stringify(a)); return true; } catch { return false; } }
+function renderTl(form = false, err = "") {
+  const card = $("tlCard"), today = londonToday(), trades = sortTrades(loadTl());
+  const adh = adherence(PLAN.schedule, trades, today);
+  const shown = adh.items.slice(-4).reverse();
+  const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
+  const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";
+  let body = "";
+  if (form) {
+    const v = form === true ? {} : form;
+    body = `<form class="pf-form" id="tlForm" style="margin-top:16px">
+      <label>Date<input type="date" name="date" max="${today}" value="${esc(v.date || today)}"></label>
+      <label>Buy or sell<select name="action"><option value="buy">Buy</option><option value="sell"${v.action === "sell" ? " selected" : ""}>Sell</option></select></label>
+      <label>Ticker<input name="ticker" autocapitalize="characters" placeholder="VWRP" value="${esc(v.ticker || "")}"></label>
+      <label class="wide">Rule behind it<select name="rule" id="tlRule">${RULES.map((r) => `<option value="${r.key}"${v.rule === r.key ? " selected" : ""}>${esc(r.label)}</option>`).join("")}</select></label>
+      <label>Pot<select name="pot" id="tlPot">${POT_KEYS.map((k) => `<option value="${k}"${v.pot === k ? " selected" : ""}>${POT_NAME[k]}</option>`).join("")}</select></label>
+      <label>Amount (£, optional)<input inputmode="decimal" name="amount" value="${esc(v.amount ?? "")}"></label>
+      <label class="wide">Note (optional)<input name="note" maxlength="140" value="${esc(v.note || "")}"></label></form>
+      ${err ? `<div class="tl-err" role="alert">${esc(err)}</div>` : ""}
+      <div class="tl-foot"><button class="btn primary" id="tlSave" type="button">Save in this browser</button><button class="btn" id="tlCancel" type="button">Cancel</button></div>`;
+  } else if (trades.length) {
+    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
+  } else body = `<p class="small muted" style="margin:10px 0 0">Log your first trade (for example the 2 Nov core purchase) and this card tracks every scheduled action against what you did.</p>`;
+  const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
+  card.innerHTML = head + sched + body + foot;
+  if (form) {
+    const rule = $("tlRule"), pot = $("tlPot");
+    rule.onchange = () => { pot.value = RULES.find((r) => r.key === rule.value).pot; };
+    if (form === true) rule.onchange();
+    $("tlCancel").onclick = () => renderTl();
+    $("tlSave").onclick = () => {
+      const raw = Object.fromEntries(new FormData($("tlForm")));
+      const r = normaliseTrade(raw, today);
+      if (r.error) return renderTl(raw, r.error);
+      saveTl([...loadTl(), r.trade]) ? (renderTl(), renderPf()) : renderTl(raw, "This browser blocked saving (private mode?).");
+    };
+    return;
+  }
+  $("tlAdd").onclick = () => renderTl(true);
+  card.querySelectorAll("[data-del]").forEach((b) => { b.onclick = () => { if (confirm("Delete this trade from the log?")) { saveTl(loadTl().filter((t) => t.id !== b.dataset.del)); renderTl(); renderPf(); } }; });
+  if ($("tlExport")) $("tlExport").onclick = () => {
+    const blob = new Blob([JSON.stringify({ exported: today, trades }, null, 1)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `trade-log-${today}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  $("tlImport").onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = parseImport(await f.text(), today);
+    if (r.error) { $("tlMsg").textContent = r.error; return; }
+    const have = new Set(loadTl().map((t) => t.id)), add = r.trades.filter((t) => !have.has(t.id));
+    saveTl([...loadTl(), ...add]); renderTl(); renderPf();
+    $("tlMsg").textContent = `Imported ${add.length} trade${add.length === 1 ? "" : "s"}${r.skipped ? `, skipped ${r.skipped} invalid` : ""}.`;
+  };
+}
+renderTl();
 renderPf();
 
 function renderHero(r) {
