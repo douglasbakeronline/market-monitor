@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, summarise } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, summarise } from "./research.js";
 import { readJson, writeJson } from "./state.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
@@ -38,7 +38,7 @@ export async function runResearch({ regimeKey, state }) {
         perf: t ? { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct) } : null,
         tech: t ? { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), rangePos: r2(t.rangePos), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio), sma50: r2(t.sma50), sma200: r2(t.sma200) } : null,
         target: f?.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
-        earnings: f?.nextEarnings ? { date: f.nextEarnings, days: earningsDays } : null,
+        earnings: earningsFields(f?.nextEarnings, null, today).earnings,
         lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
         longTerm: lt, swing, signals,
