@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -3.1,
+      "now": -3.2,
       "nowDate": "2026-11-05",
       "sessions": 8,
-      "spNow": -3.1,
+      "spNow": -3.2,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -34,10 +34,10 @@
       "now": 4.5,
       "nowDate": "2026-11-05",
       "sessions": 5,
-      "spNow": -3.6,
+      "spNow": -3.8,
       "w1": 4.5,
-      "w1Sp": -3.6,
-      "vsSp": 8.1
+      "w1Sp": -3.8,
+      "vsSp": 8.3
     }
   },
   {
@@ -52,11 +52,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 2.9,
+      "now": 2.8,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -1.8,
-      "vsSp": 4.7
+      "spNow": -2,
+      "vsSp": 4.8
     }
   },
   {
@@ -71,11 +71,11 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -10.2,
+      "now": -10.7,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -1.8,
-      "vsSp": -8.4
+      "spNow": -2,
+      "vsSp": -8.7
     }
   },
   {
@@ -90,10 +90,10 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 4.7,
+      "now": 4.5,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -1.8,
+      "spNow": -2,
       "vsSp": 6.5
     }
   },
@@ -109,11 +109,11 @@
     "currency": "GBp",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -6,
+      "now": -6.1,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -1.8,
-      "vsSp": -4.2
+      "spNow": -2,
+      "vsSp": -4.1
     }
   },
   {
@@ -128,11 +128,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 2.9,
+      "now": 2.8,
       "nowDate": "2026-11-05",
       "sessions": 3,
-      "spNow": -1.3,
-      "vsSp": 4.2
+      "spNow": -1.5,
+      "vsSp": 4.3
     }
   },
   {
@@ -147,10 +147,10 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 3.1,
+      "now": 3,
       "nowDate": "2026-11-05",
       "sessions": 2,
-      "spNow": -1.7,
+      "spNow": -1.8,
       "vsSp": 4.8
     }
   },
@@ -185,11 +185,11 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -0.4,
+      "now": -0.5,
       "nowDate": "2026-11-05",
       "sessions": 1,
-      "spNow": -3.2,
-      "vsSp": 2.8
+      "spNow": -3.4,
+      "vsSp": 2.9
     }
   },
   {
@@ -207,8 +207,8 @@
       "now": -4.2,
       "nowDate": "2026-11-05",
       "sessions": 1,
-      "spNow": -3.2,
-      "vsSp": -1
+      "spNow": -3.4,
+      "vsSp": -0.8
     }
   }
 ]
