@@ -184,9 +184,9 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 28,
+      "score": 27,
       "rating": "fear",
-      "asOf": "2026-11-04T20:59:59+00:00",
+      "asOf": "2026-11-04T23:59:55+00:00",
       "comparisons": {
         "close": 19,
         "week": 34,
@@ -197,7 +197,7 @@
         {
           "key": "market_momentum_sp500",
           "label": "Market momentum",
-          "score": 27,
+          "score": 26,
           "rating": "fear"
         },
         {
@@ -238,11 +238,6 @@
         }
       ],
       "history": [
-        {
-          "date": "2025-11-04",
-          "t": 1762214400000,
-          "y": 21
-        },
         {
           "date": "2025-11-05",
           "t": 1762300800000,
@@ -1490,19 +1485,19 @@
         },
         {
           "date": "2026-11-04",
-          "t": 1793825999000,
-          "y": 28
+          "t": 1793836795000,
+          "y": 27
         }
       ]
     },
-    "fgAt": "2026-11-04T21:10:38.280Z",
+    "fgAt": "2026-11-05T02:35:11.267Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7688.62,
         "date": "2026-11-04",
-        "asOf": "2026-11-04T21:10:37.000Z",
+        "asOf": "2026-11-04T21:51:11.000Z",
         "currency": "USD",
         "drawdownPct": -1.7,
         "peak": 7818.93,
@@ -1646,11 +1641,11 @@
         ]
       },
       "vix": {
-        "level": 16.9,
-        "dayPct": -18.9,
+        "level": 16.61,
+        "dayPct": -20.3,
         "date": "2026-11-04"
       },
-      "at": "2026-11-04T21:10:38.280Z"
+      "at": "2026-11-05T02:35:11.267Z"
     },
     "watchlist": [
       {
@@ -2118,10 +2113,10 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 436.66,
+        "price": 436.57,
         "date": "2026-11-04",
         "dropFromHigh": 0,
-        "lastChange": 3.9,
+        "lastChange": 3.8,
         "previous": -1.2,
         "week": 9,
         "month": 17.8,
@@ -2155,7 +2150,7 @@
           12.39,
           15.63,
           14.25,
-          18.66
+          18.64
         ],
         "rebound": false
       },
@@ -2164,7 +2159,7 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 352.25,
+        "price": 352.11,
         "date": "2026-11-04",
         "dropFromHigh": 0,
         "lastChange": 4.2,
@@ -2201,7 +2196,7 @@
           -0.45,
           0.6,
           -0.17,
-          4.04
+          4
         ],
         "rebound": false
       },
@@ -2345,20 +2340,20 @@
       }
     ],
     "context": {
-      "score": 28,
+      "score": 27,
       "band": [
-        23,
-        33
+        22,
+        32
       ],
       "since": "2020-07-15",
-      "days": 237,
-      "episodes": 25,
+      "days": 234,
+      "episodes": 24,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 227,
+            "n": 225,
             "median": 1.9,
             "positive": 73
           },
@@ -2372,8 +2367,8 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 216,
-            "median": 3.8,
+            "n": 215,
+            "median": 4,
             "positive": 67
           },
           "baseline": {
@@ -2386,9 +2381,9 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 204,
-            "median": 6.6,
-            "positive": 75
+            "n": 205,
+            "median": 6.5,
+            "positive": 74
           },
           "baseline": {
             "n": 1459,
@@ -2400,9 +2395,9 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 188,
-            "median": 12.2,
-            "positive": 55
+            "n": 186,
+            "median": 12.7,
+            "positive": 56
           },
           "baseline": {
             "n": 1334,
