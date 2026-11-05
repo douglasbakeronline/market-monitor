@@ -19,6 +19,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
+In progress (5 Nov 19:45): scan "-1 days" results fallback; swing retune (item 1).
 1. **Swing retune (Douglas, 5 Nov: paper, but retune):** test stricter setups (score 75+, uptrend only, US only, no results within 10 days) with `tools/swing-backtest.mjs`, compare with the random-entry baseline, and adopt only what beats it by a clear margin after FX costs.
 2. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
 3. **Sector-relative valuation:** score P/E and EV/EBITDA against sector medians from the scan instead of fixed bands, plus a cyclical flag (see research log 2 Nov; SNDK at P/E 4 tops the scan). Ship as notes first; verdict change waits on Douglas.
