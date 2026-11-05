@@ -412,7 +412,8 @@ function renderPf(edit = false) {
   const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0);
   const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
   const drift = rows.filter((r) => Math.abs(r.gap) >= 5);
-  const hint = !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
+  const swingLeft = rows.find((r) => r.k === "swing" && r.t === 0 && r.w > 0);
+  const hint = swingLeft ? "Swing is paper only now (5 Nov): the plan moves its money into the core index." : !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
   const monthly = pf.monthly || 0, goal = pf.goal;
   const proj = goal ? [0.06, 0.08, 0.1].map((r) => { const y = yearsTo(goal, all, monthly, r); return `<div><div class="k">At ${r * 100}% a year</div><div class="v">${y == null ? "50+ years" : `${y.toFixed(1)} years`}</div><div class="small muted">${gbp(fv(all, monthly, r, 10))} after 10 years</div></div>`; }).join("") : "";
   const prog = goal ? Math.min(100, (all / goal) * 100) : null;
