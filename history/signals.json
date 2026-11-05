@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -3.9,
+      "now": -4.2,
       "nowDate": "2026-11-05",
       "sessions": 8,
-      "spNow": -3.9,
+      "spNow": -4.2,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -31,13 +31,13 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 6.3,
+      "now": 6.7,
       "nowDate": "2026-11-05",
       "sessions": 5,
-      "spNow": -4.5,
-      "w1": 6.3,
-      "w1Sp": -4.5,
-      "vsSp": 10.8
+      "spNow": -4.7,
+      "w1": 6.7,
+      "w1Sp": -4.7,
+      "vsSp": 11.4
     }
   },
   {
@@ -52,11 +52,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 2.9,
+      "now": 2.7,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -2.7,
-      "vsSp": 5.6
+      "spNow": -3,
+      "vsSp": 5.7
     }
   },
   {
@@ -71,11 +71,11 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -10.8,
+      "now": -11.3,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -2.7,
-      "vsSp": -8.1
+      "spNow": -3,
+      "vsSp": -8.3
     }
   },
   {
@@ -90,11 +90,11 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 2.6,
+      "now": 2.1,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -2.7,
-      "vsSp": 5.3
+      "spNow": -3,
+      "vsSp": 5.1
     }
   },
   {
@@ -112,8 +112,8 @@
       "now": -6.3,
       "nowDate": "2026-11-05",
       "sessions": 4,
-      "spNow": -2.7,
-      "vsSp": -3.6
+      "spNow": -3,
+      "vsSp": -3.3
     }
   },
   {
@@ -128,11 +128,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 1.6,
+      "now": 1.7,
       "nowDate": "2026-11-05",
       "sessions": 3,
-      "spNow": -2.2,
-      "vsSp": 3.8
+      "spNow": -2.5,
+      "vsSp": 4.2
     }
   },
   {
@@ -147,11 +147,11 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 3,
+      "now": 2.9,
       "nowDate": "2026-11-05",
       "sessions": 2,
-      "spNow": -2.5,
-      "vsSp": 5.5
+      "spNow": -2.8,
+      "vsSp": 5.7
     }
   },
   {
@@ -166,11 +166,11 @@
     "currency": "USD",
     "label": "Long-term good entry (85)",
     "perf": {
-      "now": -4.5,
-      "nowDate": "2026-11-04",
-      "sessions": 1,
-      "spNow": 1.6,
-      "vsSp": -6.1
+      "now": 1.5,
+      "nowDate": "2026-11-05",
+      "sessions": 2,
+      "spNow": -2.8,
+      "vsSp": 4.3
     }
   },
   {
@@ -185,11 +185,11 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -1.6,
+      "now": -1.5,
       "nowDate": "2026-11-05",
       "sessions": 1,
-      "spNow": -4.1,
-      "vsSp": 2.5
+      "spNow": -4.4,
+      "vsSp": 2.9
     }
   },
   {
@@ -204,11 +204,30 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -2.6,
+      "now": -2.2,
       "nowDate": "2026-11-05",
       "sessions": 1,
-      "spNow": -4.1,
-      "vsSp": 1.5
+      "spNow": -4.4,
+      "vsSp": 2.2
+    }
+  },
+  {
+    "id": "2026-11-05:research-swing:NEM",
+    "kind": "research-swing",
+    "at": "2026-11-05T21:10:24.301Z",
+    "date": "2026-11-05",
+    "symbol": "NEM",
+    "ticker": "NEM",
+    "name": "Newmont",
+    "price": 119.83,
+    "currency": "USD",
+    "label": "Swing setup (78)",
+    "perf": {
+      "now": 0,
+      "nowDate": "2026-11-05",
+      "sessions": 0,
+      "spNow": 0,
+      "vsSp": 0
     }
   }
 ]
