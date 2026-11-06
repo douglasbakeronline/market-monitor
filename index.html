@@ -297,7 +297,7 @@
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN } from "./src/plan.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -403,9 +403,11 @@ function renderPf(edit = false) {
       <label>Other savings (£)<input inputmode="decimal" name="savings" value="${v.savings ?? ""}"></label>
       <label>Monthly top-up (£)<input inputmode="decimal" name="monthly" value="${v.monthly ?? ""}"></label>
       <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
+      ${(() => { const lt = potTotals(loadTl()); return lt.counted && POTS.some(([k]) => lt[k] > 0) ? `<p class="small muted" style="margin:10px 0 0"><button class="linkbtn" id="pfFill" type="button">Fill blank pots from the trade log</button> (net invested, not today's value: adjust for gains and losses)</p>` : ""; })()}
       <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="pfSave" type="button">Save in this browser</button><button class="btn" id="pfCancel" type="button">Cancel</button>${pf ? `<button class="btn" id="pfClear" type="button" style="margin-left:auto">Clear</button>` : ""}</div>`;
     $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); savePf(o); renderPf(); };
     $("pfCancel").onclick = () => renderPf();
+    if ($("pfFill")) $("pfFill").onclick = () => { const lt = potTotals(loadTl()); for (const [k] of POTS) { const el = $("pfForm").elements[k]; if (el && !el.value.trim() && lt[k] > 0) el.value = Math.round(lt[k]); } };
     if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); }; }
     return;
   }
@@ -439,9 +441,12 @@ const ADH = { "on-time": ["On time", "bg-buy"], late: ["Late", "bg-watch"], miss
 const londonToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
 function loadTl() { try { const a = JSON.parse(localStorage.getItem(TL_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } }
 function saveTl(a) { try { localStorage.setItem(TL_KEY, JSON.stringify(a)); return true; } catch { return false; } }
+// Confirmed dip tiers (public signal log) join the adherence list once one fires.
+let DIPS = [];
+fetch("history/signals.json?t=" + Date.now()).then((r) => r.json()).then((log) => { DIPS = dipEvents(log); if (DIPS.length) renderTl(); }).catch(() => {});
 function renderTl(form = false, err = "") {
   const card = $("tlCard"), today = londonToday(), trades = sortTrades(loadTl());
-  const adh = adherence(PLAN.schedule, trades, today);
+  const adh = adherence(PLAN.schedule, trades, today, DIPS);
   const shown = adh.items.slice(-4).reverse();
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
   const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";

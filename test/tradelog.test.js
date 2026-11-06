@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normaliseTrade, potTotals, adherence, parseImport, sortTrades } from "../src/tradeLog.js";
+import { normaliseTrade, potTotals, adherence, parseImport, sortTrades, dipEvents } from "../src/tradeLog.js";
 import { PLAN } from "../src/plan.js";
 
 const T = (o) => normaliseTrade({ action: "buy", ...o }).trade;
@@ -28,7 +28,7 @@ test("adherence: 2 Nov core and picks done on time; 16 Nov pending until a week 
   const ts = [T({ date: "2026-11-02", rule: "core", ticker: "VWRP" }), T({ date: "2026-11-02", rule: "tranche", ticker: "HSBA.L" }), T({ date: "2026-11-03", rule: "tranche", ticker: "META" })];
   const a = adherence(PLAN.schedule, ts, "2026-11-05");
   assert.equal(a.counted, 2); assert.equal(a.onTime, 2);
-  assert.match(a.headline, /2 of 2 scheduled actions done on time/);
+  assert.match(a.headline, /2 of 2 plan actions done on time/);
   assert.deepEqual(a.items.find((i) => i.kind === "picks").tickers, ["HSBA.L", "META"]);
   const later = adherence(PLAN.schedule, ts, "2026-11-20");
   assert.equal(later.items.find((i) => i.date === "2026-11-16").status, "pending");
@@ -61,4 +61,29 @@ test("parseImport accepts an array or { trades } and skips bad rows; sortTrades 
   assert.match(parseImport("nope").error, /JSON/);
   const s = sortTrades([T({ ...good, date: "2026-11-01" }), T({ ...good, date: "2026-11-03" })]);
   assert.equal(s[0].date, "2026-11-03");
+});
+
+test("dipEvents: one item per tier, the second index or a quick re-fire is the same third", () => {
+  const sig = (date, name, pct) => ({ kind: "buy", date, name, label: `BUY · ${name} Tier (${pct}%)` });
+  const ev = dipEvents([sig("2026-11-20", "FTSE 100", -10), sig("2026-11-18", "S&P 500", -10), sig("2026-11-25", "S&P 500", -15),
+    { kind: "watch", date: "2026-11-10", label: "WATCH (-10%)" }, sig("2027-03-01", "S&P 500", -10)]);
+  assert.deepEqual(ev.map((e) => [e.date, e.tier]), [["2026-11-18", "-10"], ["2026-11-25", "-15"], ["2027-03-01", "-10"]]);
+  assert.match(ev[0].title, /S&P 500/);
+});
+
+test("adherence: dip tiers join the list and match only dip-rule buys within a week", () => {
+  const dips = dipEvents([{ kind: "buy", date: "2026-11-18", name: "S&P 500", label: "BUY · S&P 500 Correction (-10%)" }]);
+  const core = [T({ date: "2026-11-02", rule: "core", ticker: "VWRP" }), T({ date: "2026-11-02", rule: "tranche", ticker: "META" }), T({ date: "2026-11-16", rule: "core", ticker: "VWRP" })];
+  assert.equal(adherence(PLAN.schedule, core, "2026-11-17", dips).items.length, 3, "not due before it fires");
+  const open = adherence(PLAN.schedule, core, "2026-11-20", dips);
+  const d = open.items.find((i) => i.kind === "dip");
+  assert.equal(d.status, "pending");
+  assert.equal(open.items.at(-1).kind, "dip", "sorted by date");
+  const done = adherence(PLAN.schedule, [...core, T({ date: "2026-11-19", rule: "dip", ticker: "VWRP" }), T({ date: "2026-11-19", rule: "dip", ticker: "HSBA.L" })], "2026-11-30", dips);
+  const dd = done.items.find((i) => i.kind === "dip");
+  assert.equal(dd.status, "on-time"); assert.deepEqual(dd.tickers, ["VWRP", "HSBA.L"]);
+  const late = adherence(PLAN.schedule, [...core, T({ date: "2026-11-24", rule: "dip", ticker: "VWRP" })], "2026-11-30", dips);
+  assert.equal(late.items.find((i) => i.kind === "dip").status, "late");
+  const early = adherence(PLAN.schedule, [...core, T({ date: "2026-11-10", rule: "dip", ticker: "VWRP" })], "2026-11-30", dips);
+  assert.equal(early.items.find((i) => i.kind === "dip").status, "missed", "a buy before the tier fired is not this tier");
 });
