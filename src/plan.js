@@ -64,11 +64,7 @@ export function pickStatus(pick, item, today = null) {
   const est = ed == null && !recentlyReported && today ? item.resultsEstimate ?? resultsEstimate(last, today, { uk: /\.L$/.test(pick.symbol) }) : null;
   const estNote = est ? (est.days <= PLAN.pickNoResultsDays + 7
     ? `No results date published; ${est.days < 0 ? "results may just be out" : `results usually due around ${dayLabel(est.date)}`} (estimated${est.stale ? ", latest date looks stale" : ""}): check before buying.`
-<<<<<<< HEAD
-    : `No results date published; next estimated around ${dayLabel(est.date)}${est.stale ? " (latest date looks stale)" : ""}.`) : null;
-=======
     : `No results date published; next estimated ${est.basis === "uk-earliest" ? "no earlier than" : "around"} ${dayLabel(est.date)}${est.stale ? " (latest date looks stale)" : ""}.`) : null;
->>>>>>> origin/main
   const reason = resultsSoon ? `Results ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: wait until after.`
     : !good ? `Not a good entry today: hold off this tranche.`
     : ed != null ? `Next results in ${ed} days.`

@@ -13,7 +13,7 @@ export async function fetchDaily(symbol, { range = "2y" } = {}) {
   let lastErr;
   for (const host of YAHOO_HOSTS) {
     try {
-      const j = await fetchJson(`https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d&includePrePost=false`, { tries: 2 });
+      const j = await fetchJson(`https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d&includePrePost=false&events=split`, { tries: 2 });
       const res = j?.chart?.result?.[0];
       if (!res?.timestamp?.length) throw new Error(`No chart data for ${symbol}`);
       return { ...parseYahoo(res), symbol, source: "yahoo" };
@@ -35,6 +35,10 @@ export function parseYahoo(res) {
     byDate.set(date, { date, open: q.open?.[i] ?? close, high: q.high?.[i] ?? close, low: q.low?.[i] ?? close, close, volume: q.volume?.[i] ?? 0 });
   });
   const rows = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+  const splits = Object.values(res.events?.splits || {}).map((x) => ({ date: dateIn(tz, new Date(x.date * 1000)), ratio: x.numerator && x.denominator ? x.numerator / x.denominator : null }))
+    .filter((x) => x.ratio && x.ratio !== 1).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const adjusted = adjustSplits(rows, splits);
+  if (adjusted.length) console.warn(`Split guard: rescaled bars before ${adjusted.map((a) => `${a.date} (${a.ratio}:1)`).join(", ")}${m0(res)}`);
   let live = false;
   const m = res.meta || {};
   if (Number.isFinite(m.regularMarketPrice) && m.regularMarketTime) {
@@ -51,7 +55,31 @@ export function parseYahoo(res) {
   // "live" means the latest bar may still be moving (today, market open or
   // just closed). The caller treats the last bar as "latest", not "close".
   const asOf = m.regularMarketTime ? new Date(m.regularMarketTime * 1000).toISOString() : (rows.length ? rows[rows.length - 1].date + "T21:00:00Z" : null);
-  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null };
+  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null, splits };
+}
+
+const m0 = (res) => (res.meta?.symbol ? ` for ${res.meta.symbol}` : "");
+
+// Yahoo's chart closes are normally split-adjusted, but not always straight
+// after a split. For each split, if the bars before it are still on the old
+// basis (the close before over the close on the split day is near the ratio,
+// within 30%, rather than near 1), divide the earlier prices by the ratio (and
+// multiply volume). Mutates rows; returns the splits it applied.
+export function adjustSplits(rows, splits) {
+  const done = [];
+  for (const sp of splits) {
+    const k = rows.findIndex((r) => r.date >= sp.date);
+    if (k <= 0) continue;
+    const jump = rows[k - 1].close / rows[k].close;
+    const near = (x, y) => Math.abs(Math.log(x / y)) < Math.log(1.3);
+    if (!near(jump, sp.ratio) || near(jump, 1)) continue;
+    for (let i = 0; i < k; i++) {
+      const r = rows[i];
+      r.open /= sp.ratio; r.high /= sp.ratio; r.low /= sp.ratio; r.close /= sp.ratio; r.volume *= sp.ratio;
+    }
+    done.push(sp);
+  }
+  return done;
 }
 
 async function fetchAlphaVantage(symbol) {

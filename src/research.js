@@ -290,19 +290,12 @@ export function earningsFields(next, last, today) {
 
 // No next results date published (Yahoo is often blank or stale for UK names:
 // Unilever showed Feb 2026 as its latest results on 3 Nov): estimate the next
-<<<<<<< HEAD
-// one from the latest known date and the usual cadence. UK companies report
-// half-yearly (with trading updates between), US companies quarterly. If the
-// estimate has already passed, the latest date is probably stale: roll forward
-// and say so. Display only; never a reason to buy.
-=======
 // one from the latest known date and the usual cadence: the median gap between
 // past results in our history, else a quarter (91 days). Many UK companies
 // report only half-yearly, so for them a quarter is the earliest likely date,
 // the safe side for the 7-day rule ("uk-earliest"). If the estimate has already
 // passed, the latest date is probably stale: roll forward and say so. Display
 // only; never a reason to buy.
->>>>>>> origin/main
 export function resultsEstimate(last, today, { uk = false, history = [] } = {}) {
   const past = [...history, last].filter((d) => d && d <= today).sort();
   if (!past.length) return null;
@@ -313,14 +306,6 @@ export function resultsEstimate(last, today, { uk = false, history = [] } = {}) 
     if (g >= 60 && g <= 200) gaps.push(g);
   }
   gaps.sort((a, b) => a - b);
-<<<<<<< HEAD
-  const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : uk ? 182 : 91;
-  let next = Date.parse(latest) + gap * 86400000, rolled = false;
-  const t = Date.parse(today);
-  while (next < t - 14 * 86400000) { next += gap * 86400000; rolled = true; }
-  const date = new Date(next).toISOString().slice(0, 10);
-  return { date, days: daysUntil(date, today), basis: gaps.length ? "history" : uk ? "half-yearly" : "quarterly", stale: rolled };
-=======
   const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 91;
   const basis = gaps.length ? "history" : uk ? "uk-earliest" : "quarterly";
   let next = Date.parse(latest) + gap * 86400000;
@@ -330,7 +315,6 @@ export function resultsEstimate(last, today, { uk = false, history = [] } = {}) 
   const stale = -daysUntil(latest, today) > gap * (basis === "uk-earliest" ? 2 : 1) + 14;
   const date = new Date(next).toISOString().slice(0, 10);
   return { date, days: daysUntil(date, today), basis, stale };
->>>>>>> origin/main
 }
 
 // Plain-English summary sentence for a stock.

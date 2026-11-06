@@ -311,13 +311,8 @@ function detailHtml(it) {
         <div class="kv">
           <div><div class="k">Market cap</div><div class="v">${bigMoney(it.marketCap, c)}</div></div>
           <div><div class="k">Dividend</div><div class="v">${it.dividendYield != null ? (it.dividendYield * 100).toFixed(1) + "%" : "none"}</div></div>
-<<<<<<< HEAD
-          <div><div class="k">Next earnings</div><div class="v">${it.earnings ? fmtDay(it.earnings.date) : it.resultsEstimate ? `<span title="Not published yet: estimated from the latest results and the usual ${it.resultsEstimate.basis === "history" ? "gap between results" : it.resultsEstimate.basis} cadence${it.resultsEstimate.stale ? "; the latest date looks stale" : ""}">~${fmtDay(it.resultsEstimate.date)} (est.)</span>` : "n/a"}</div></div>
-          ${it.lastEarnings ? `<div><div class="k">Latest results</div><div class="v">${fmtDay(it.lastEarnings)}</div></div>` : ""}
-=======
           <div><div class="k">Next earnings</div><div class="v">${it.earnings ? `${fmtDay(it.earnings.date)} ${fmtDM(it.earnings.date).split(" ")[1]}` : it.resultsEstimate ? `<span title="${esc(estTitle(it.resultsEstimate))}">~${fmtDM(it.resultsEstimate.date)} (est.)</span>` : "n/a"}</div></div>
           ${it.lastEarnings ? `<div><div class="k">Latest results</div><div class="v">${fmtDM(it.lastEarnings)}</div></div>` : ""}
->>>>>>> origin/main
         </div>
       </div>
     </div>
