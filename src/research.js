@@ -21,6 +21,18 @@ export function yearChange(rows) {
   return span >= 355 ? pct(c[c.length - 1], c[0]) : null;
 }
 
+// 12-1 month momentum: the return from a year ago to a month ago (21
+// sessions), skipping the latest month. A "1y" download often holds 251 US
+// sessions, so like yearChange() it falls back to the first bar when the data
+// spans a year.
+export function momentum12_1(rows) {
+  const c = rows.map((r) => r.close), n = c.length - 1;
+  if (n < 230) return null;
+  if (n >= 252) return pct(c[n - 21], c[n - 252]);
+  const span = (Date.parse(rows[n].date) - Date.parse(rows[0].date)) / 86400000;
+  return span >= 355 ? pct(c[n - 21], c[0]) : null;
+}
+
 export function technicals(rows) {
   if (!rows || rows.length < 60) return null;
   const c = rows.map((r) => r.close), v = rows.map((r) => r.volume || 0);
@@ -48,6 +60,7 @@ export function technicals(rows) {
     pctB: bb[n]?.pctB ?? null,
     atrPct: at[n] ? (at[n] / last) * 100 : null, atr: at[n],
     volRatio: vAvg[n - 1] ? v[n] / vAvg[n - 1] : null,
+    mom12_1: momentum12_1(rows),
     dayPct: changeOver(c, 1), weekPct: changeOver(c, 5), monthPct: changeOver(c, 21), m3Pct: changeOver(c, 63), y1Pct: yearChange(rows),
     high52, low52, offHigh: pct(last, high52), rangePos: high52 > low52 ? (last - low52) / (high52 - low52) : null,
     breakout: last >= priorHigh * 0.995 && rows.length > 200,
@@ -141,6 +154,11 @@ const P = {
   debtToEquity: [[0, 100], [30, 90], [80, 65], [150, 35], [250, 10], [400, 0]],
   offHigh: [[-45, 65], [-30, 95], [-20, 90], [-12, 70], [-6, 45], [0, 20]],
   vs200: [[-30, 45], [-15, 70], [-5, 85], [0, 75], [8, 50], [20, 25], [40, 5]],
+  // Proposed Entry rule (research log 4 and 5 Nov; display only until Douglas
+  // agrees): no extra credit for a discount beyond 3%, flat to -20% and beyond.
+  offHighAlt: [[-20, 70], [-3, 70], [0, 62]],
+  // 12-1 month momentum, %: the strongest fifth did best in our test.
+  mom: [[-30, 15], [-10, 35], [0, 45], [10, 58], [25, 78], [50, 95]],
   rsi: [[25, 95], [35, 85], [45, 70], [55, 55], [65, 40], [75, 20], [85, 5]],
   // Multiple / sector median (display-only peer view, src/sectorValue.js).
   // At the median it scores 58, as a P/E of 20 does on the fixed bands.
@@ -162,7 +180,9 @@ const relMetric = (key, label, value, med, display, why) => (med > 0 && value !=
 
 // peer (optional, display only): sector medians and a cyclical flag from
 // src/sectorValue.js. Without it the score is exactly the live one.
-export function longTerm(f, t, peer = null) {
+// opts.entryAlt (display only): score Entry under the proposed rule, see
+// entryViewNote(). Without it the score is exactly the live one.
+export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
   const fin = FIN_SECTORS.includes(f?.sector);
   const fx = (n, d = 1) => (n == null ? "n/a" : n.toFixed(d));
   const pc = (n) => (n == null ? "n/a" : `${(n * 100).toFixed(1)}%`);
@@ -184,11 +204,14 @@ export function longTerm(f, t, peer = null) {
     fin ? null : m("evToEbitda", "EV / EBITDA", f?.evToEbitda > 0 ? f.evToEbitda : null, fx(f?.evToEbitda), "Whole-company value vs operating earnings."),
   ].filter(Boolean);
 
+  const offHighItem = metric("offHigh", "Off 52-week high", t?.offHigh, t?.offHigh == null ? "n/a" : `${t.offHigh.toFixed(1)}%`, "A discount to the recent high improves the entry, within reason.");
+  if (entryAlt && t?.offHigh != null) offHighItem.score = Math.round(interp(t.offHigh, P.offHighAlt));
   const entry = [
-    metric("offHigh", "Off 52-week high", t?.offHigh, t?.offHigh == null ? "n/a" : `${t.offHigh.toFixed(1)}%`, "A discount to the recent high improves the entry, within reason."),
+    offHighItem,
+    entryAlt && t?.mom12_1 != null ? metric("mom", "Momentum (12-1 months)", t.mom12_1, `${t.mom12_1 >= 0 ? "+" : ""}${t.mom12_1.toFixed(1)}%`, "Return from a year ago to a month ago. Strong past winners have tended to keep doing well.") : null,
     metric("vs200", "vs 200-day", t?.vs200, t?.vs200 == null ? "n/a" : `${t.vs200 >= 0 ? "+" : ""}${t.vs200.toFixed(1)}%`, "Close to or modestly below the long-term average is a calmer entry than far above it."),
     metric("rsi", "RSI (14)", t?.rsi, fx(t?.rsi, 0), "Below ~40 is a cooled-off entry; above ~70 is stretched."),
-  ];
+  ].filter(Boolean);
 
   const sentiment = [
     metric("upside", "Upside to target", upside, upside == null ? "n/a" : `${upside >= 0 ? "+" : ""}${upside.toFixed(1)}%`, `Analysts' average price target${f?.analysts ? ` (${f.analysts} analysts)` : ""}.`),
@@ -229,6 +252,19 @@ export function longTerm(f, t, peer = null) {
   }
 
   return { score, verdict, note, falling, pillars, coverage, financials: fin };
+}
+
+// Entry view (display only): what the proposed Entry rule would change.
+// now = live longTerm(); alt = longTerm(f, t, null, { entryAlt: true }).
+export function entryViewNote(now, alt, t) {
+  if (!now || !alt || now.score == null || alt.score == null || now.trust) return null;
+  const eNow = now.pillars.find((p) => p.key === "entry")?.score ?? null, eAlt = alt.pillars.find((p) => p.key === "entry")?.score ?? null;
+  if (eNow == null || eAlt == null) return null;
+  const mom = t?.mom12_1 == null ? null : r1(t.mom12_1);
+  const changed = alt.verdict !== now.verdict;
+  const parts = [`Under the proposed Entry rule (no extra credit for a discount beyond 3%${mom != null ? `, plus 12-1 month momentum of ${mom >= 0 ? "+" : ""}${mom}%` : ""}), Entry would score ${eAlt} (now ${eNow})`];
+  parts.push(changed ? `and the verdict would be ${alt.verdict} (now ${now.verdict}).` : `and the verdict stays ${now.verdict}.`);
+  return { entry: eAlt, entryNow: eNow, mom, score: alt.score, verdict: alt.verdict, changed, note: parts.join(" ") };
 }
 
 // Adjust the long-term verdict note for the market regime.

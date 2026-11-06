@@ -284,9 +284,11 @@ function detailHtml(it) {
   const results = lr ? (lr.pending ? `<div class="note">Reported ${fmtDay(lr.date)}: the reaction shows after the next close.</div>` : `<div class="note ${lr.pct >= 0 ? "good" : ""}">Results ${fmtDay(lr.date)}: ${signPct(lr.pct)} from the close before to the close after.</div>`) : "";
   const sv = it.sectorValue;
   const peer = sv?.note ? `<div class="note peer"><b>Peer view</b> (not used in the verdict yet): ${esc(sv.note)}</div>` : "";
+  const ev = it.entryView;
+  const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${results}${notes}${peer}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${results}${notes}${peer}${entryNote}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>

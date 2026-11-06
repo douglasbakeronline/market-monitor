@@ -10,7 +10,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote } from "./src/research.js";
 import { sectorMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -88,19 +88,21 @@ async function main() {
   for (const it of items) {
     const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians);
     it.sv = peer ? sectorValueNote(it.f, peer, it.lt, longTerm(it.f, it.t, peer)) : null;
+    // Proposed Entry rule, display only (roadmap: Entry pillar step 2 waits on Douglas).
+    it.ev = entryViewNote(it.lt, longTerm(it.f, it.t, null, { entryAlt: true }), it.t);
   }
 
-  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv }) => {
+  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: u.index === "FTSE100" ? "UK" : "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
       pe: r1(f.forwardPE > 0 ? f.forwardPE : f.trailingPE > 0 ? f.trailingPE : null), price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
-      perf: { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct) },
+      perf: { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), mom12_1: r1(t.mom12_1) },
       tech: { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio) },
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
-      swing, signals, deep: isDeep, sectorValue: sv,
+      swing, signals, deep: isDeep, sectorValue: sv, entryView: ev,
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
@@ -135,10 +137,12 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorValueChanges: sectorValueChanges(out), items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), items: out,
   });
   const svc = sectorValueChanges(out);
   console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);
+  const evc = viewChanges(out, "entryView");
+  console.log(`Entry view (display only): ${evc.changed} of ${evc.compared} full-score verdicts would change; Good entry lost: ${evc.lostGood.join(", ") || "none"}; gained: ${evc.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
 }
 
@@ -150,6 +154,15 @@ function sectorValueChanges(out) {
   const lostGood = changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol);
   const gainedGood = changed.filter((i) => i.sectorValue.verdict === "Good entry").map((i) => i.symbol);
   return { compared: deep.length, changed: changed.length, lostGood, gainedGood, cyclical: deep.filter((i) => i.sectorValue.cyclical).length };
+}
+
+// The same count for any display-only "would be" view with { verdict, changed }.
+function viewChanges(out, key) {
+  const deep = out.filter((i) => i.deep && i[key]);
+  const changed = deep.filter((i) => i[key].changed);
+  return { compared: deep.length, changed: changed.length,
+    lostGood: changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol),
+    gainedGood: changed.filter((i) => i[key].verdict === "Good entry").map((i) => i.symbol) };
 }
 
 // True when neither London nor New York is in its trading session.
