@@ -1,4 +1,4 @@
-// Index scanner: scores every S&P 500 and FTSE 100 company each weeknight.
+// Index scanner: scores every S&P 500, FTSE 100 and Euro Stoxx 50 company each weeknight.
 //   Stage 1 (all ~600): daily prices + batch quotes -> swing signals and a
 //                       provisional long-term score (value, entry, analysts).
 //   Stage 2 (top ~100): full fundamentals for the best candidates and every
@@ -18,7 +18,8 @@ import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
-const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100" };
+const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50" };
+const MARKET = { SP500: "US", FTSE100: "UK", EUROSTOXX50: "EU" };
 
 async function main() {
   const t0 = Date.now();
@@ -99,7 +100,7 @@ async function main() {
 
   const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev }) => {
     const item = {
-      symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: u.index === "FTSE100" ? "UK" : "US",
+      symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
       pe: r1(f.forwardPE > 0 ? f.forwardPE : f.trailingPE > 0 ? f.trailingPE : null), price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
       perf: { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), mom12_1: r1(t.mom12_1) },
@@ -112,7 +113,7 @@ async function main() {
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
     };
-    if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market === "UK", history: resultsHist[u.symbol] || [] });
+    if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market !== "US", history: resultsHist[u.symbol] || [] });
     item.summary = summarise(item);
     return item;
   }).sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));
@@ -131,7 +132,9 @@ async function main() {
   let paper = paperLog;
   if (marketsClosed()) {
     paper = paperLog.map((t) => updateTrade(t, rowsBySymbol[t.symbol]));
-    const setups = out.filter((i) => i.swing?.verdict === "Setup").map((i) => ({ symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market,
+    // Euro Stoxx names are scored but not paper-traded: the swing backtests and
+    // cost model cover US and UK only.
+    const setups = out.filter((i) => i.swing?.verdict === "Setup" && i.market !== "EU").map((i) => ({ symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market,
       currency: i.currency, price: i.price, stop: i.swing.stop, score: i.swing.score, date: i.date }));
     for (const [date, group] of Object.entries(Object.groupBy(setups, (x) => x.date))) paper = addSetups(paper, group, date);
   } else console.log("Paper trades: markets open, not updated.");
