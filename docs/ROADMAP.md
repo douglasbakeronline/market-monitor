@@ -13,14 +13,14 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Optional `FINNHUB_KEY` secret.
 - Whether to keep the trim signal (on, strict).
 - **Sector-relative valuation and a cyclical cap (research log 2 Nov, effect 5 Nov late):** OK to let it change verdicts? Now live as a display-only "Peer view" on the Research page. On 5 Nov it would change 7 of 109 full-score verdicts: CF, Super Micro and Glencore drop from Good entry to Fair (cyclical cap); Newmont stays Fair (value 71 to 60); the other four picks keep their verdicts.
-- **Entry pillar and momentum (research log 4 Nov):** OK to test, and if our own data agrees, change the Entry pillar so it stops rewarding stocks 20% to 30% off their high (and add 12-month momentum)? It would change verdicts and the pick tranche check.
+- **Entry pillar and momentum (research log 4 Nov, tested 5 Nov night):** our own ten-year test agrees: stocks 10% to 30% off their high did no better than those near it, and strong momentum helped. OK to change the Entry pillar so it stops rewarding a 20% to 30% discount, and add 12-1 month momentum? It would change verdicts and the pick tranche check.
 - **Dip reserve size (research log 5 Nov):** keep 15% in cash, or shrink the drag (unused reserve drips into the core over 6 months, or a 10% reserve with 5% more in the core)?
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
 1. **Smart-money signal (Autopilot as reference):** Congress disclosures plus 13F holdings of a few long-term managers as a tracked tie-breaker tag on Research and scan pages, scored in the track record like any other signal.
 2. **Sector-relative valuation, step 2 (after Douglas's OK only):** the peer view shipped 5 Nov as display-only notes. To switch verdicts, pass `peerFor(f, medians)` as the third argument of `longTerm()` in `scan.js` (stage 2) and `src/runResearch.js`. Open points: EV/EBITDA still uses fixed bands (only the ~100 deepened stocks have it, a biased-cheap sample; fetch it for all or skip); REITs should use P/FFO, not P/E (peer P/E lifts most REITs); US and UK share one median per sector (UK multiples run lower).
-3. **Entry-pillar test (own data):** forward 6 and 12-month returns of index stocks by distance from the 52-week high and by 12-1 month momentum, in the buy-tier backtest harness (research log 4 Nov). Runs in CI (Yahoo is blocked from the session sandbox).
+3. **Entry pillar, step 2 (after Douglas's OK only):** the test ran 5 Nov (research log). If agreed: change `P.offHigh` in `src/research.js` to flat from -3% to -20% with no extra credit beyond, add 12-1 month momentum as an Entry item (needs 13 months of prices: the scan fetches "1y", so switch it to "2y" or compute from 253 bars), and rerun the dry run to count changed verdicts. A peer-view-style "would be" note could show the effect first.
 4. **Backtest the buy tiers** over S&P history since 1985 (Yahoo monthly) and since 2020 with F&G, to calibrate thresholds; same harness style as the swing backtest.
 5. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
 6. **Performance:** split research.json/scan.json loading so the phone view stays fast; consider gzip-friendly field names.
@@ -36,6 +36,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 5 Nov (night): Entry-pillar test on ten years of our own data (research log).
 - 5 Nov (night): sector-relative valuation as a display-only "Peer view" (sector medians in the scan, cyclical flag and cap, would-be score and verdict).
 - 5 Nov (late): swing's 10% moves to the core (Douglas: "you decide for now"); targets now 70/15/15, swing paper only.
 - 5 Nov (evening): swing retune backtest (no variant beats random entry after costs; swing stays on paper); scan results-date fix (45 stocks showed "-1 days"); "Reported" label on the Research page.
