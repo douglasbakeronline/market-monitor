@@ -201,6 +201,410 @@
    }
   }
  },
+ "sp500_1949": {
+  "from": "1950-01-05",
+  "to": "2026-11-05",
+  "sessions": 19332,
+  "baseline": {
+   "m1": {
+    "n": 19311,
+    "median": 1.1,
+    "mean": 0.8,
+    "positive": 62
+   },
+   "m3": {
+    "n": 19269,
+    "median": 2.7,
+    "mean": 2.3,
+    "positive": 67
+   },
+   "m6": {
+    "n": 19206,
+    "median": 5.2,
+    "mean": 4.6,
+    "positive": 71
+   },
+   "y1": {
+    "n": 19080,
+    "median": 10.7,
+    "mean": 9.4,
+    "positive": 75
+   }
+  },
+  "fall4": {
+   "days": 57,
+   "firstInCluster": {
+    "m1": {
+     "n": 25,
+     "median": 0,
+     "mean": -0.8,
+     "positive": 52
+    },
+    "m3": {
+     "n": 25,
+     "median": 6.7,
+     "mean": 6,
+     "positive": 92
+    },
+    "m6": {
+     "n": 25,
+     "median": 12.1,
+     "mean": 9.5,
+     "positive": 80
+    },
+    "y1": {
+     "n": 25,
+     "median": 15.9,
+     "mean": 14.9,
+     "positive": 76
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 56,
+     "median": 2.3,
+     "mean": 1.9,
+     "positive": 64
+    },
+    "m3": {
+     "n": 56,
+     "median": 7.3,
+     "mean": 6.6,
+     "positive": 73
+    },
+    "m6": {
+     "n": 56,
+     "median": 13.5,
+     "mean": 12.1,
+     "positive": 77
+    },
+    "y1": {
+     "n": 56,
+     "median": 23.5,
+     "mean": 24.6,
+     "positive": 84
+    }
+   }
+  },
+  "fall3": {
+   "days": 133,
+   "firstInCluster": {
+    "m1": {
+     "n": 54,
+     "median": 0,
+     "mean": -0.1,
+     "positive": 54
+    },
+    "m3": {
+     "n": 54,
+     "median": 6.1,
+     "mean": 3.1,
+     "positive": 69
+    },
+    "m6": {
+     "n": 54,
+     "median": 6.3,
+     "mean": 6.5,
+     "positive": 74
+    },
+    "y1": {
+     "n": 54,
+     "median": 15.3,
+     "mean": 11.2,
+     "positive": 74
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 108,
+   "recent": [
+    "2024-08-02",
+    "2025-03-04",
+    "2025-11-20",
+    "2026-03-18",
+    "2026-11-05"
+   ],
+   "forward": {
+    "m1": {
+     "n": 107,
+     "median": 2.3,
+     "mean": 1.5,
+     "positive": 70
+    },
+    "m3": {
+     "n": 107,
+     "median": 4.6,
+     "mean": 4,
+     "positive": 73
+    },
+    "m6": {
+     "n": 107,
+     "median": 6.7,
+     "mean": 6.6,
+     "positive": 77
+    },
+    "y1": {
+     "n": 105,
+     "median": 9.6,
+     "mean": 9.5,
+     "positive": 75
+    }
+   },
+   "deeperWithin12m": {
+    "n": 105,
+    "to10": 70,
+    "to15": 41,
+    "to20": 13,
+    "to30": 7
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 107,
+      "median": 0.2,
+      "mean": 0.6,
+      "positive": 51
+     },
+     "baseline": {
+      "n": 19327,
+      "median": 0.3,
+      "mean": 0.2,
+      "positive": 57
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 107,
+      "median": 0.4,
+      "mean": 0.5,
+      "positive": 52
+     },
+     "baseline": {
+      "n": 19322,
+      "median": 0.6,
+      "mean": 0.4,
+      "positive": 59
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 107,
+      "median": 2.3,
+      "mean": 1.5,
+      "positive": 70
+     },
+     "baseline": {
+      "n": 19311,
+      "median": 1.1,
+      "mean": 0.8,
+      "positive": 62
+     }
+    }
+   }
+  }
+ },
+ "sp500_1989": {
+  "from": "1990-01-02",
+  "to": "2026-11-05",
+  "sessions": 9280,
+  "baseline": {
+   "m1": {
+    "n": 9259,
+    "median": 1.2,
+    "mean": 0.8,
+    "positive": 64
+   },
+   "m3": {
+    "n": 9217,
+    "median": 3.2,
+    "mean": 2.4,
+    "positive": 70
+   },
+   "m6": {
+    "n": 9154,
+    "median": 5.8,
+    "mean": 4.9,
+    "positive": 75
+   },
+   "y1": {
+    "n": 9028,
+    "median": 11.9,
+    "mean": 10.2,
+    "positive": 81
+   }
+  },
+  "fall4": {
+   "days": 46,
+   "firstInCluster": {
+    "m1": {
+     "n": 16,
+     "median": 1,
+     "mean": -0.5,
+     "positive": 50
+    },
+    "m3": {
+     "n": 16,
+     "median": 7.3,
+     "mean": 6.4,
+     "positive": 94
+    },
+    "m6": {
+     "n": 16,
+     "median": 12.4,
+     "mean": 9.5,
+     "positive": 75
+    },
+    "y1": {
+     "n": 16,
+     "median": 16.4,
+     "mean": 15.9,
+     "positive": 75
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 45,
+     "median": 3,
+     "mean": 2.2,
+     "positive": 64
+    },
+    "m3": {
+     "n": 45,
+     "median": 8.1,
+     "mean": 6.7,
+     "positive": 69
+    },
+    "m6": {
+     "n": 45,
+     "median": 16.8,
+     "mean": 12.5,
+     "positive": 73
+    },
+    "y1": {
+     "n": 45,
+     "median": 25.2,
+     "mean": 26.9,
+     "positive": 84
+    }
+   }
+  },
+  "fall3": {
+   "days": 108,
+   "firstInCluster": {
+    "m1": {
+     "n": 36,
+     "median": 1,
+     "mean": 0.3,
+     "positive": 58
+    },
+    "m3": {
+     "n": 36,
+     "median": 6.1,
+     "mean": 3.1,
+     "positive": 69
+    },
+    "m6": {
+     "n": 36,
+     "median": 6,
+     "mean": 5.7,
+     "positive": 72
+    },
+    "y1": {
+     "n": 36,
+     "median": 13.7,
+     "mean": 10.2,
+     "positive": 69
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 59,
+   "recent": [
+    "2024-08-02",
+    "2025-03-04",
+    "2025-11-20",
+    "2026-03-18",
+    "2026-11-05"
+   ],
+   "forward": {
+    "m1": {
+     "n": 58,
+     "median": 3,
+     "mean": 1.9,
+     "positive": 72
+    },
+    "m3": {
+     "n": 58,
+     "median": 5.5,
+     "mean": 4.5,
+     "positive": 76
+    },
+    "m6": {
+     "n": 58,
+     "median": 7.8,
+     "mean": 7.7,
+     "positive": 83
+    },
+    "y1": {
+     "n": 56,
+     "median": 11.4,
+     "mean": 11.2,
+     "positive": 84
+    }
+   },
+   "deeperWithin12m": {
+    "n": 56,
+    "to10": 66,
+    "to15": 50,
+    "to20": 16,
+    "to30": 9
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 58,
+      "median": 1,
+      "mean": 0.8,
+      "positive": 59
+     },
+     "baseline": {
+      "n": 9275,
+      "median": 0.3,
+      "mean": 0.2,
+      "positive": 58
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 58,
+      "median": 1,
+      "mean": 0.7,
+      "positive": 55
+     },
+     "baseline": {
+      "n": 9270,
+      "median": 0.6,
+      "mean": 0.4,
+      "positive": 60
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 58,
+      "median": 3,
+      "mean": 1.9,
+      "positive": 72
+     },
+     "baseline": {
+      "n": 9259,
+      "median": 1.2,
+      "mean": 0.8,
+      "positive": 64
+     }
+    }
+   }
+  }
+ },
  "ftse100": {
   "from": "1984-12-31",
   "to": "2026-11-06",
@@ -397,6 +801,410 @@
       "n": 10552,
       "median": 0.8,
       "mean": 0.5,
+      "positive": 58
+     }
+    }
+   }
+  }
+ },
+ "ftse100_1949": {
+  "from": "1984-12-31",
+  "to": "2026-11-06",
+  "sessions": 10573,
+  "baseline": {
+   "m1": {
+    "n": 10552,
+    "median": 0.8,
+    "mean": 0.5,
+    "positive": 58
+   },
+   "m3": {
+    "n": 10510,
+    "median": 2.1,
+    "mean": 1.6,
+    "positive": 64
+   },
+   "m6": {
+    "n": 10447,
+    "median": 3.6,
+    "mean": 3.1,
+    "positive": 67
+   },
+   "y1": {
+    "n": 10321,
+    "median": 7.7,
+    "mean": 6.2,
+    "positive": 72
+   }
+  },
+  "fall4": {
+   "days": 41,
+   "firstInCluster": {
+    "m1": {
+     "n": 17,
+     "median": 5.8,
+     "mean": 3.1,
+     "positive": 82
+    },
+    "m3": {
+     "n": 17,
+     "median": 7.5,
+     "mean": 5.9,
+     "positive": 76
+    },
+    "m6": {
+     "n": 17,
+     "median": 2.4,
+     "mean": 5.1,
+     "positive": 59
+    },
+    "y1": {
+     "n": 17,
+     "median": 12.8,
+     "mean": 11.2,
+     "positive": 65
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 41,
+     "median": 6.9,
+     "mean": 4.1,
+     "positive": 78
+    },
+    "m3": {
+     "n": 41,
+     "median": 6.5,
+     "mean": 5.7,
+     "positive": 78
+    },
+    "m6": {
+     "n": 41,
+     "median": 3.8,
+     "mean": 4.6,
+     "positive": 59
+    },
+    "y1": {
+     "n": 41,
+     "median": 15.8,
+     "mean": 16.1,
+     "positive": 83
+    }
+   }
+  },
+  "fall3": {
+   "days": 110,
+   "firstInCluster": {
+    "m1": {
+     "n": 42,
+     "median": 2,
+     "mean": 1.4,
+     "positive": 71
+    },
+    "m3": {
+     "n": 42,
+     "median": 4.5,
+     "mean": 3.5,
+     "positive": 74
+    },
+    "m6": {
+     "n": 42,
+     "median": 6.4,
+     "mean": 3.9,
+     "positive": 67
+    },
+    "y1": {
+     "n": 42,
+     "median": 7.2,
+     "mean": 6.4,
+     "positive": 60
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 60,
+   "recent": [
+    "2022-06-13",
+    "2023-03-13",
+    "2024-08-05",
+    "2025-04-04",
+    "2026-03-06"
+   ],
+   "forward": {
+    "m1": {
+     "n": 60,
+     "median": 1.7,
+     "mean": 1.7,
+     "positive": 68
+    },
+    "m3": {
+     "n": 60,
+     "median": 3.2,
+     "mean": 2.6,
+     "positive": 70
+    },
+    "m6": {
+     "n": 60,
+     "median": 4.7,
+     "mean": 4.9,
+     "positive": 73
+    },
+    "y1": {
+     "n": 59,
+     "median": 7.3,
+     "mean": 6.9,
+     "positive": 71
+    }
+   },
+   "deeperWithin12m": {
+    "n": 59,
+    "to10": 85,
+    "to15": 41,
+    "to20": 15,
+    "to30": 7
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 60,
+      "median": 0.5,
+      "mean": 0.7,
+      "positive": 58
+     },
+     "baseline": {
+      "n": 10568,
+      "median": 0.2,
+      "mean": 0.1,
+      "positive": 55
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 60,
+      "median": 0.5,
+      "mean": 0.6,
+      "positive": 60
+     },
+     "baseline": {
+      "n": 10563,
+      "median": 0.4,
+      "mean": 0.3,
+      "positive": 57
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 60,
+      "median": 1.7,
+      "mean": 1.7,
+      "positive": 68
+     },
+     "baseline": {
+      "n": 10552,
+      "median": 0.8,
+      "mean": 0.5,
+      "positive": 58
+     }
+    }
+   }
+  }
+ },
+ "ftse100_1989": {
+  "from": "1990-01-02",
+  "to": "2026-11-06",
+  "sessions": 9309,
+  "baseline": {
+   "m1": {
+    "n": 9288,
+    "median": 0.7,
+    "mean": 0.4,
+    "positive": 58
+   },
+   "m3": {
+    "n": 9246,
+    "median": 1.9,
+    "mean": 1.3,
+    "positive": 64
+   },
+   "m6": {
+    "n": 9183,
+    "median": 3.3,
+    "mean": 2.6,
+    "positive": 65
+   },
+   "y1": {
+    "n": 9057,
+    "median": 7.1,
+    "mean": 5.3,
+    "positive": 71
+   }
+  },
+  "fall4": {
+   "days": 35,
+   "firstInCluster": {
+    "m1": {
+     "n": 16,
+     "median": 5.8,
+     "mean": 4.5,
+     "positive": 88
+    },
+    "m3": {
+     "n": 16,
+     "median": 7.8,
+     "mean": 7.2,
+     "positive": 81
+    },
+    "m6": {
+     "n": 16,
+     "median": 3.2,
+     "mean": 6.2,
+     "positive": 63
+    },
+    "y1": {
+     "n": 16,
+     "median": 13.6,
+     "mean": 12.5,
+     "positive": 69
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 35,
+     "median": 7,
+     "mean": 5.7,
+     "positive": 86
+    },
+    "m3": {
+     "n": 35,
+     "median": 7.4,
+     "mean": 6.6,
+     "positive": 83
+    },
+    "m6": {
+     "n": 35,
+     "median": 3.8,
+     "mean": 4.9,
+     "positive": 60
+    },
+    "y1": {
+     "n": 35,
+     "median": 20,
+     "mean": 18.1,
+     "positive": 83
+    }
+   }
+  },
+  "fall3": {
+   "days": 100,
+   "firstInCluster": {
+    "m1": {
+     "n": 39,
+     "median": 1.8,
+     "mean": 1.8,
+     "positive": 72
+    },
+    "m3": {
+     "n": 39,
+     "median": 5.3,
+     "mean": 4.6,
+     "positive": 77
+    },
+    "m6": {
+     "n": 39,
+     "median": 7.5,
+     "mean": 5.1,
+     "positive": 69
+    },
+    "y1": {
+     "n": 39,
+     "median": 7.7,
+     "mean": 7.7,
+     "positive": 64
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 51,
+   "recent": [
+    "2022-06-13",
+    "2023-03-13",
+    "2024-08-05",
+    "2025-04-04",
+    "2026-03-06"
+   ],
+   "forward": {
+    "m1": {
+     "n": 51,
+     "median": 2.4,
+     "mean": 1.8,
+     "positive": 73
+    },
+    "m3": {
+     "n": 51,
+     "median": 3.1,
+     "mean": 1.9,
+     "positive": 69
+    },
+    "m6": {
+     "n": 51,
+     "median": 4.5,
+     "mean": 4.3,
+     "positive": 75
+    },
+    "y1": {
+     "n": 50,
+     "median": 6.7,
+     "mean": 6.3,
+     "positive": 72
+    }
+   },
+   "deeperWithin12m": {
+    "n": 50,
+    "to10": 84,
+    "to15": 42,
+    "to20": 14,
+    "to30": 4
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 51,
+      "median": 0.6,
+      "mean": 0.7,
+      "positive": 59
+     },
+     "baseline": {
+      "n": 9304,
+      "median": 0.2,
+      "mean": 0.1,
+      "positive": 55
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 51,
+      "median": 0.6,
+      "mean": 0.7,
+      "positive": 63
+     },
+     "baseline": {
+      "n": 9299,
+      "median": 0.4,
+      "mean": 0.2,
+      "positive": 56
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 51,
+      "median": 2.4,
+      "mean": 1.8,
+      "positive": 73
+     },
+     "baseline": {
+      "n": 9288,
+      "median": 0.7,
+      "mean": 0.4,
       "positive": 58
      }
     }
