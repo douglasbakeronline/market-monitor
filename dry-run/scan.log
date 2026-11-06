@@ -1,0 +1,10 @@
+Scanning 600 companies (SP500 503, FTSE100 100)
+Quotes: 600
+Stage 1: 599 scored, 1 failed (2.6 min)
+Stage 2: 108 deepened (3.3 min)
+Paper trades: markets open, not updated.
+Paper trades: 109 open, 22 closed, -0.22R average.
+Sector-relative value (display only): 8 of 108 full-score verdicts would change; Good entry lost: SMCI, CF, GLEN.L, GL; gained: none.
+Entry view (display only): 14 of 108 full-score verdicts would change; Good entry lost: SCHW, INVP.L, COF, STJ.L, KEY; gained: SNDK, APA.
+Done: 599 scored, 2 new good entries, 7 new setups, 3.3 min.
+exit=0
