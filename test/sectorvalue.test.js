@@ -86,3 +86,41 @@ test("no peer note without a sector median or a score", () => {
   assert.equal(peerFor({ sector: null }, { Utilities: {} }), null);
   assert.equal(sectorValueNote({}, null, null, null), null);
 });
+
+test("per-region medians: US vs Europe (UK and Euro Stoxx pooled), with a pooled fallback", async () => {
+  const { regionMedians, marketOf, regionOf } = await import("../src/sectorValue.js");
+  assert.equal(marketOf("HSBA.L"), "UK");
+  assert.equal(marketOf("SAN.MC"), "EU");
+  assert.equal(marketOf("SAP.DE"), "EU");
+  assert.equal(marketOf("BRK.B"), "US", "US class shares are not European");
+  assert.equal(regionOf("UK"), "Europe");
+  assert.equal(regionOf("EU"), "Europe");
+  assert.equal(regionOf("US"), "US");
+  const all = [
+    ...rows("Financials", [12, 13, 13, 14, 14, 15, 16, 18], { market: "US" }),
+    ...rows("Banks", [7, 8, 9, 9], { market: "UK" }),
+    ...rows("Financials", [8, 9, 10, 11], { market: "EU" }),
+    ...rows("Utilities", [15, 16, 17, 18, 19, 20, 21, 22], { market: "US" }),
+    ...rows("Electricity", [12, 13], { market: "UK" }),
+  ];
+  const pooled = sectorMedians(all), regional = regionMedians(all);
+  assert.equal(regional.US.Financials.pe, 14);
+  assert.equal(regional.Europe.Financials.pe, 9);
+  assert.equal(regional.Europe.Utilities, undefined, "too few European utilities");
+  const bank = { sector: "Banks", forwardPE: 9 };
+  const eu = peerFor(bank, pooled, regional, "UK");
+  assert.equal(eu.region, "Europe");
+  assert.equal(eu.pe, 9);
+  const us = peerFor({ sector: "Financials", forwardPE: 9 }, pooled, regional, "US");
+  assert.equal(us.region, "US");
+  assert.equal(us.pe, 14);
+  const ut = peerFor({ sector: "Electricity", forwardPE: 12 }, pooled, regional, "UK");
+  assert.equal(ut.region, null, "falls back to the pooled median");
+  assert.equal(ut.pe, pooled.Utilities.pe);
+  assert.deepEqual(peerFor(bank, pooled), { ...peerFor(bank, pooled, null, null) }, "old call unchanged");
+  assert.equal(peerFor(bank, pooled).region, null);
+  const now = longTerm({ ...strong, ...bank }, tech), alt = longTerm({ ...strong, ...bank }, tech, eu);
+  const note = sectorValueNote({ ...strong, ...bank }, eu, now, alt);
+  assert.match(note.note, /European Financials median of 9\.0/);
+  assert.equal(note.region, "Europe");
+});

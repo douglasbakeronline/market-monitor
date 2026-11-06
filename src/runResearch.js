@@ -4,7 +4,7 @@ import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote } from "./research.js";
 import { readJson, writeJson } from "./state.js";
-import { peerFor, sectorValueNote } from "./sectorValue.js";
+import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
 
@@ -20,7 +20,8 @@ export async function runResearch({ regimeKey, state }) {
   const items = [], failed = [], rowsBySymbol = {};
   let earnings = await readJson("history/earnings.json", {});
   // Sector medians from the latest index scan (display-only peer valuation).
-  const medians = (await readJson("scan.json", null))?.sectorMedians ?? null;
+  const scanMeta = await readJson("scan.json", null);
+  const medians = scanMeta?.sectorMedians ?? null, regional = scanMeta?.sectorMediansByRegion ?? null;
   for (const s of stocks) {
     try {
       const [prices, f] = [await fetchDaily(s.symbol, { range: "2y" }), await fetchFundamentals(s.symbol)];
@@ -31,12 +32,12 @@ export async function runResearch({ regimeKey, state }) {
       const signals = swingSignals(t);
       const earningsDays = daysUntil(f?.nextEarnings, today);
       const lt = longTerm(f, t);
-      const peer = f ? peerFor(f, medians) : null;
+      const peer = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
       const sectorValue = peer ? sectorValueNote(f, peer, lt, longTerm(f, t, peer)) : null;
       const entryView = entryViewNote(lt, longTerm(f, t, null, { entryAlt: true }), t);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
-        symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: s.symbol.endsWith(".L") ? "UK" : "US",
+        symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: marketOf(s.symbol),
         name: s.name || f?.name || prices.name || s.symbol, notes: s.notes || null,
         sector: f?.sector ?? null, industry: f?.industry ?? null,
         currency: prices.currency ?? f?.currency ?? null, price: r2(t?.last ?? prices.rows.at(-1)?.close), date: t?.date ?? null,
