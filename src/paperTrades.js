@@ -69,3 +69,30 @@ export function summarise(log) {
     us: stat(closed.filter((t) => t.market === "US")), uk: stat(closed.filter((t) => t.market === "UK")),
     reasons: { target: closed.filter((t) => t.reason === "target").length, stop: closed.filter((t) => t.reason === "stop").length, time: closed.filter((t) => t.reason === "time").length } };
 }
+
+// Research-page view: closed trades filtered by market and minimum setup
+// score, with gross and after-cost R and a cumulative R curve by exit date.
+// costR is passed in (src/swingRetune.js) to keep this module dependency-free.
+export function paperView(log, { market = "all", minScore = 0, costR = () => 0 } = {}) {
+  const keep = (t) => t.status !== "void" && (market === "all" || t.market === market) && (t.score ?? 0) >= minScore;
+  const xs = log.filter(keep);
+  const closed = xs.filter((t) => t.status === "closed" && t.r != null)
+    .sort((a, b) => (a.exitDate < b.exitDate ? -1 : a.exitDate > b.exitDate ? 1 : a.id < b.id ? -1 : 1));
+  let g = 0, n = 0;
+  const byDate = new Map();
+  for (const t of closed) {
+    g += t.r; n += t.r - costR(t);
+    byDate.set(t.exitDate, { date: t.exitDate, r: r2(g), net: r2(n) });
+  }
+  const wins = closed.filter((t) => t.r > 0).length;
+  const reasons = { target: 0, stop: 0, time: 0 };
+  for (const t of closed) if (t.reason in reasons) reasons[t.reason]++;
+  return {
+    trades: xs.length, open: xs.filter((t) => t.status === "open" || t.status === "pending").length,
+    closed: closed.length, wins, winRate: closed.length ? Math.round((wins / closed.length) * 100) : null,
+    avgR: closed.length ? r2(g / closed.length) : null, avgNetR: closed.length ? r2(n / closed.length) : null,
+    totalR: r2(g), totalNetR: r2(n), reasons,
+    curve: [...byDate.values()],
+    recent: closed.slice(-8).reverse(),
+  };
+}
