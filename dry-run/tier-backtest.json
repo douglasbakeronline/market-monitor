@@ -1,0 +1,1264 @@
+{
+ "notes": [],
+ "events": {
+  "sp500_1928": {
+   "-10": {
+    "episodes": 64,
+    "dates": [
+     "2020-02-27",
+     "2020-06-11",
+     "2022-02-22",
+     "2022-04-22",
+     "2023-10-27",
+     "2025-03-13"
+    ],
+    "confirmed": 35,
+    "daysToConfirm": {
+     "n": 35,
+     "median": 0,
+     "mean": 13.3,
+     "positive": 46
+    },
+    "confirmVsFirst": {
+     "n": 35,
+     "median": 0,
+     "mean": -3.1,
+     "positive": 6
+    },
+    "atFirst": {
+     "m6": {
+      "n": 64,
+      "median": 5.5,
+      "mean": 4.7,
+      "positive": 66
+     },
+     "y1": {
+      "n": 64,
+      "median": 9.6,
+      "mean": 5.1,
+      "positive": 66
+     },
+     "y2": {
+      "n": 63,
+      "median": 18,
+      "mean": 12.6,
+      "positive": 71
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 35,
+      "median": 4.3,
+      "mean": 6.3,
+      "positive": 69
+     },
+     "y1": {
+      "n": 35,
+      "median": 5,
+      "mean": 5.6,
+      "positive": 60
+     },
+     "y2": {
+      "n": 34,
+      "median": 20.5,
+      "mean": 13.6,
+      "positive": 68
+     }
+    }
+   },
+   "-15": {
+    "episodes": 27,
+    "dates": [
+     "2010-06-30",
+     "2011-08-08",
+     "2018-12-20",
+     "2020-03-09",
+     "2022-05-09",
+     "2025-04-04"
+    ],
+    "confirmed": 21,
+    "daysToConfirm": {
+     "n": 21,
+     "median": 0,
+     "mean": 15.8,
+     "positive": 33
+    },
+    "confirmVsFirst": {
+     "n": 21,
+     "median": 0,
+     "mean": -2.3,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 27,
+      "median": 4.3,
+      "mean": 6.1,
+      "positive": 59
+     },
+     "y1": {
+      "n": 27,
+      "median": 4.9,
+      "mean": 6.5,
+      "positive": 63
+     },
+     "y2": {
+      "n": 26,
+      "median": 22.3,
+      "mean": 16,
+      "positive": 73
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 21,
+      "median": 9.5,
+      "mean": 7.8,
+      "positive": 62
+     },
+     "y1": {
+      "n": 21,
+      "median": 3.7,
+      "mean": 6.3,
+      "positive": 57
+     },
+     "y2": {
+      "n": 20,
+      "median": 23.5,
+      "mean": 14.9,
+      "positive": 65
+     }
+    }
+   },
+   "-20": {
+    "episodes": 19,
+    "dates": [
+     "1982-03-05",
+     "1987-10-19",
+     "2001-03-12",
+     "2008-07-09",
+     "2020-03-12",
+     "2022-06-13"
+    ],
+    "confirmed": 15,
+    "daysToConfirm": {
+     "n": 15,
+     "median": 0,
+     "mean": 5.7,
+     "positive": 27
+    },
+    "confirmVsFirst": {
+     "n": 15,
+     "median": 0,
+     "mean": -1.4,
+     "positive": 7
+    },
+    "atFirst": {
+     "m6": {
+      "n": 19,
+      "median": 9.3,
+      "mean": 5.3,
+      "positive": 68
+     },
+     "y1": {
+      "n": 19,
+      "median": 14,
+      "mean": 9.8,
+      "positive": 63
+     },
+     "y2": {
+      "n": 19,
+      "median": 30,
+      "mean": 18.8,
+      "positive": 63
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 15,
+      "median": 6.4,
+      "mean": 3.8,
+      "positive": 67
+     },
+     "y1": {
+      "n": 15,
+      "median": 0.9,
+      "mean": 5.3,
+      "positive": 53
+     },
+     "y2": {
+      "n": 15,
+      "median": 7.1,
+      "mean": 13.1,
+      "positive": 53
+     }
+    }
+   },
+   "-30": {
+    "episodes": 9,
+    "dates": [
+     "1970-05-21",
+     "1974-08-14",
+     "1987-10-19",
+     "2001-09-17",
+     "2008-10-06",
+     "2020-03-20"
+    ],
+    "confirmed": 8,
+    "daysToConfirm": {
+     "n": 8,
+     "median": 0,
+     "mean": 1.9,
+     "positive": 13
+    },
+    "confirmVsFirst": {
+     "n": 8,
+     "median": 0,
+     "mean": -1,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 9,
+      "median": 12.7,
+      "mean": 7.9,
+      "positive": 78
+     },
+     "y1": {
+      "n": 9,
+      "median": 3.3,
+      "mean": 13,
+      "positive": 67
+     },
+     "y2": {
+      "n": 9,
+      "median": 9.8,
+      "mean": 19.9,
+      "positive": 56
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 8,
+      "median": 13.7,
+      "mean": 8.7,
+      "positive": 75
+     },
+     "y1": {
+      "n": 8,
+      "median": 1.7,
+      "mean": 10.8,
+      "positive": 63
+     },
+     "y2": {
+      "n": 8,
+      "median": 4.5,
+      "mean": 17.9,
+      "positive": 50
+     }
+    }
+   },
+   "baseline": {
+    "m6": {
+     "n": 24452,
+     "median": 4.7,
+     "mean": 3.9,
+     "positive": 67
+    },
+    "y1": {
+     "n": 24326,
+     "median": 9.5,
+     "mean": 8,
+     "positive": 70
+    },
+    "y2": {
+     "n": 24074,
+     "median": 16.8,
+     "mean": 16.5,
+     "positive": 77
+    }
+   }
+  },
+  "sp500_1990": {
+   "-10": {
+    "episodes": 24,
+    "dates": [
+     "2020-02-27",
+     "2020-06-11",
+     "2022-02-22",
+     "2022-04-22",
+     "2023-10-27",
+     "2025-03-13"
+    ],
+    "confirmed": 17,
+    "daysToConfirm": {
+     "n": 17,
+     "median": 0,
+     "mean": 1.5,
+     "positive": 35
+    },
+    "confirmVsFirst": {
+     "n": 17,
+     "median": 0,
+     "mean": -1.4,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 24,
+      "median": 10.4,
+      "mean": 8.3,
+      "positive": 75
+     },
+     "y1": {
+      "n": 24,
+      "median": 15.7,
+      "mean": 9.1,
+      "positive": 71
+     },
+     "y2": {
+      "n": 23,
+      "median": 28.5,
+      "mean": 18.9,
+      "positive": 70
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 17,
+      "median": 12.1,
+      "mean": 10,
+      "positive": 76
+     },
+     "y1": {
+      "n": 17,
+      "median": 21.3,
+      "mean": 13.1,
+      "positive": 71
+     },
+     "y2": {
+      "n": 16,
+      "median": 30,
+      "mean": 25.8,
+      "positive": 81
+     }
+    }
+   },
+   "-15": {
+    "episodes": 10,
+    "dates": [
+     "2010-06-30",
+     "2011-08-08",
+     "2018-12-20",
+     "2020-03-09",
+     "2022-05-09",
+     "2025-04-04"
+    ],
+    "confirmed": 10,
+    "daysToConfirm": {
+     "n": 10,
+     "median": 0,
+     "mean": 0.2,
+     "positive": 20
+    },
+    "confirmVsFirst": {
+     "n": 10,
+     "median": 0,
+     "mean": -0.3,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 10,
+      "median": 19.8,
+      "mean": 15.4,
+      "positive": 70
+     },
+     "y1": {
+      "n": 10,
+      "median": 27.1,
+      "mean": 17.9,
+      "positive": 80
+     },
+     "y2": {
+      "n": 9,
+      "median": 36.2,
+      "mean": 29.1,
+      "positive": 78
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 10,
+      "median": 20.5,
+      "mean": 15.8,
+      "positive": 70
+     },
+     "y1": {
+      "n": 10,
+      "median": 27.1,
+      "mean": 18.5,
+      "positive": 80
+     },
+     "y2": {
+      "n": 9,
+      "median": 36.2,
+      "mean": 29.3,
+      "positive": 78
+     }
+    }
+   },
+   "-20": {
+    "episodes": 4,
+    "dates": [
+     "2001-03-12",
+     "2008-07-09",
+     "2020-03-12",
+     "2022-06-13"
+    ],
+    "confirmed": 4,
+    "daysToConfirm": {
+     "n": 4,
+     "median": 0,
+     "mean": 11.8,
+     "positive": 25
+    },
+    "confirmVsFirst": {
+     "n": 4,
+     "median": 0,
+     "mean": -1,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 4,
+      "median": -0.5,
+      "mean": 1.6,
+      "positive": 50
+     },
+     "y1": {
+      "n": 4,
+      "median": 7.7,
+      "mean": 11.3,
+      "positive": 50
+     },
+     "y2": {
+      "n": 4,
+      "median": 15.7,
+      "mean": 18.6,
+      "positive": 50
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 4,
+      "median": -0.5,
+      "mean": -0.3,
+      "positive": 50
+     },
+     "y1": {
+      "n": 4,
+      "median": 7.7,
+      "mean": 15.6,
+      "positive": 50
+     },
+     "y2": {
+      "n": 4,
+      "median": 19.6,
+      "mean": 20.5,
+      "positive": 50
+     }
+    }
+   },
+   "-30": {
+    "episodes": 3,
+    "dates": [
+     "2001-09-17",
+     "2008-10-06",
+     "2020-03-20"
+    ],
+    "confirmed": 3,
+    "daysToConfirm": {
+     "n": 3,
+     "median": 0,
+     "mean": 0,
+     "positive": 0
+    },
+    "confirmVsFirst": {
+     "n": 3,
+     "median": 0,
+     "mean": 0,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 3,
+      "median": 12.7,
+      "mean": 11.3,
+      "positive": 67
+     },
+     "y1": {
+      "n": 3,
+      "median": -0.2,
+      "mean": 18.3,
+      "positive": 33
+     },
+     "y2": {
+      "n": 3,
+      "median": 9.8,
+      "mean": 34,
+      "positive": 67
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 3,
+      "median": 12.7,
+      "mean": 11.3,
+      "positive": 67
+     },
+     "y1": {
+      "n": 3,
+      "median": -0.2,
+      "mean": 18.3,
+      "positive": 33
+     },
+     "y2": {
+      "n": 3,
+      "median": 9.8,
+      "mean": 34,
+      "positive": 67
+     }
+    }
+   },
+   "baseline": {
+    "m6": {
+     "n": 9154,
+     "median": 5.8,
+     "mean": 4.9,
+     "positive": 75
+    },
+    "y1": {
+     "n": 9028,
+     "median": 11.9,
+     "mean": 10.2,
+     "positive": 81
+    },
+    "y2": {
+     "n": 8776,
+     "median": 21.2,
+     "mean": 21.3,
+     "positive": 84
+    }
+   }
+  },
+  "ftse100_1985": {
+   "-10": {
+    "episodes": 32,
+    "dates": [
+     "2015-08-20",
+     "2018-03-22",
+     "2018-10-11",
+     "2020-02-27",
+     "2022-09-29",
+     "2025-04-07"
+    ],
+    "confirmed": 15,
+    "daysToConfirm": {
+     "n": 15,
+     "median": 0,
+     "mean": 5.3,
+     "positive": 40
+    },
+    "confirmVsFirst": {
+     "n": 15,
+     "median": 0,
+     "mean": -1.6,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 32,
+      "median": 6.3,
+      "mean": 5,
+      "positive": 72
+     },
+     "y1": {
+      "n": 32,
+      "median": 8.5,
+      "mean": 8.5,
+      "positive": 69
+     },
+     "y2": {
+      "n": 31,
+      "median": 11.4,
+      "mean": 7.6,
+      "positive": 74
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 15,
+      "median": 6.2,
+      "mean": 4.6,
+      "positive": 73
+     },
+     "y1": {
+      "n": 15,
+      "median": 10.6,
+      "mean": 5.1,
+      "positive": 60
+     },
+     "y2": {
+      "n": 14,
+      "median": 10.3,
+      "mean": 5.2,
+      "positive": 64
+     }
+    }
+   },
+   "-15": {
+    "episodes": 12,
+    "dates": [
+     "2008-01-21",
+     "2010-05-25",
+     "2011-08-08",
+     "2015-08-24",
+     "2018-12-24",
+     "2020-03-06"
+    ],
+    "confirmed": 10,
+    "daysToConfirm": {
+     "n": 10,
+     "median": 0,
+     "mean": 4.4,
+     "positive": 20
+    },
+    "confirmVsFirst": {
+     "n": 10,
+     "median": 0,
+     "mean": 0,
+     "positive": 10
+    },
+    "atFirst": {
+     "m6": {
+      "n": 12,
+      "median": 6.5,
+      "mean": 4.8,
+      "positive": 67
+     },
+     "y1": {
+      "n": 12,
+      "median": 14.7,
+      "mean": 9.1,
+      "positive": 75
+     },
+     "y2": {
+      "n": 12,
+      "median": 10.8,
+      "mean": 10.5,
+      "positive": 75
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 10,
+      "median": 6.5,
+      "mean": 2.7,
+      "positive": 60
+     },
+     "y1": {
+      "n": 10,
+      "median": 14.7,
+      "mean": 6.5,
+      "positive": 70
+     },
+     "y2": {
+      "n": 10,
+      "median": 7.1,
+      "mean": 7.3,
+      "positive": 70
+     }
+    }
+   },
+   "-20": {
+    "episodes": 6,
+    "dates": [
+     "1987-10-20",
+     "1998-10-01",
+     "2001-03-22",
+     "2008-07-11",
+     "2016-01-20",
+     "2020-03-09"
+    ],
+    "confirmed": 5,
+    "daysToConfirm": {
+     "n": 5,
+     "median": 0,
+     "mean": 9,
+     "positive": 20
+    },
+    "confirmVsFirst": {
+     "n": 5,
+     "median": 0,
+     "mean": -0.2,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 6,
+      "median": -0.6,
+      "mean": 2.4,
+      "positive": 33
+     },
+     "y1": {
+      "n": 6,
+      "median": 8.1,
+      "mean": 7.1,
+      "positive": 67
+     },
+     "y2": {
+      "n": 6,
+      "median": 18.6,
+      "mean": 11.9,
+      "positive": 67
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 5,
+      "median": -0.6,
+      "mean": -3.3,
+      "positive": 20
+     },
+     "y1": {
+      "n": 5,
+      "median": 3.4,
+      "mean": 6.6,
+      "positive": 60
+     },
+     "y2": {
+      "n": 5,
+      "median": 16.7,
+      "mean": 9,
+      "positive": 80
+     }
+    }
+   },
+   "-30": {
+    "episodes": 4,
+    "dates": [
+     "1987-10-26",
+     "2001-09-21",
+     "2008-10-06",
+     "2020-03-12"
+    ],
+    "confirmed": 4,
+    "daysToConfirm": {
+     "n": 4,
+     "median": 0,
+     "mean": 0,
+     "positive": 0
+    },
+    "confirmVsFirst": {
+     "n": 4,
+     "median": 0,
+     "mean": 0,
+     "positive": 0
+    },
+    "atFirst": {
+     "m6": {
+      "n": 4,
+      "median": 11.2,
+      "mean": 7.2,
+      "positive": 75
+     },
+     "y1": {
+      "n": 4,
+      "median": 9.6,
+      "mean": 8.1,
+      "positive": 75
+     },
+     "y2": {
+      "n": 4,
+      "median": 24.3,
+      "mean": 20.2,
+      "positive": 75
+     }
+    },
+    "atConfirmed": {
+     "m6": {
+      "n": 4,
+      "median": 11.2,
+      "mean": 7.2,
+      "positive": 75
+     },
+     "y1": {
+      "n": 4,
+      "median": 9.6,
+      "mean": 8.1,
+      "positive": 75
+     },
+     "y2": {
+      "n": 4,
+      "median": 24.3,
+      "mean": 20.2,
+      "positive": 75
+     }
+    }
+   },
+   "baseline": {
+    "m6": {
+     "n": 10447,
+     "median": 3.6,
+     "mean": 3.1,
+     "positive": 67
+    },
+    "y1": {
+     "n": 10321,
+     "median": 7.7,
+     "mean": 6.2,
+     "positive": 72
+    },
+    "y2": {
+     "n": 10069,
+     "median": 12.5,
+     "mean": 12,
+     "positive": 75
+    }
+   }
+  }
+ },
+ "sim_1988_total_return": {
+  "from": "1988-01-04",
+  "to": "2026-11-05",
+  "y10": {
+   "agreed": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -1.2,
+     "mean": -1.1,
+     "positive": 8
+    },
+    "worst": -2.4,
+    "best": 0.7,
+    "avgCashPct": 4.4,
+    "deploymentsPerWindow": 6.9
+   },
+   "tiers10_15_30": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -0.9,
+     "mean": -0.9,
+     "positive": 9
+    },
+    "worst": -2,
+    "best": 0.7,
+    "avgCashPct": 4.2,
+    "deploymentsPerWindow": 8.4
+   },
+   "noConfirm": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -1.2,
+     "mean": -1.2,
+     "positive": 5
+    },
+    "worst": -2.3,
+    "best": 0.6,
+    "avgCashPct": 4.3,
+    "deploymentsPerWindow": 9
+   },
+   "noSweep": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -1.8,
+     "mean": -2.4,
+     "positive": 9
+    },
+    "worst": -7.2,
+    "best": 1.2,
+    "avgCashPct": 7.6,
+    "deploymentsPerWindow": 6.9
+   },
+   "reserve10": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -0.8,
+     "mean": -0.8,
+     "positive": 8
+    },
+    "worst": -1.6,
+    "best": 0.5,
+    "avgCashPct": 3,
+    "deploymentsPerWindow": 6.9
+   },
+   "reserve5": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -0.4,
+     "mean": -0.4,
+     "positive": 8
+    },
+    "worst": -0.8,
+    "best": 0.2,
+    "avgCashPct": 1.5,
+    "deploymentsPerWindow": 6.9
+   },
+   "drip6m": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -0.5,
+     "mean": -0.4,
+     "positive": 7
+    },
+    "worst": -0.8,
+    "best": 0.3,
+    "avgCashPct": 2.1,
+    "deploymentsPerWindow": 6.9
+   },
+   "shallow5_10_15": {
+    "windows": 335,
+    "vsAllIn": {
+     "n": 335,
+     "median": -0.5,
+     "mean": -0.4,
+     "positive": 16
+    },
+    "worst": -1.1,
+    "best": 1,
+    "avgCashPct": 2.8,
+    "deploymentsPerWindow": 55.7
+   }
+  },
+  "y5": {
+   "agreed": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -1,
+     "mean": -1,
+     "positive": 17
+    },
+    "worst": -3.1,
+    "best": 1.9,
+    "avgCashPct": 7,
+    "deploymentsPerWindow": 3.7
+   },
+   "tiers10_15_30": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -0.8,
+     "mean": -0.8,
+     "positive": 19
+    },
+    "worst": -2.6,
+    "best": 2,
+    "avgCashPct": 6.6,
+    "deploymentsPerWindow": 4.4
+   },
+   "noConfirm": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -1,
+     "mean": -1,
+     "positive": 14
+    },
+    "worst": -3,
+    "best": 1.7,
+    "avgCashPct": 6.7,
+    "deploymentsPerWindow": 4.6
+   },
+   "noSweep": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -1.6,
+     "mean": -1.7,
+     "positive": 23
+    },
+    "worst": -6.1,
+    "best": 2.3,
+    "avgCashPct": 10,
+    "deploymentsPerWindow": 3.7
+   },
+   "reserve10": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -0.7,
+     "mean": -0.7,
+     "positive": 17
+    },
+    "worst": -2,
+    "best": 1.3,
+    "avgCashPct": 4.6,
+    "deploymentsPerWindow": 3.7
+   },
+   "reserve5": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -0.3,
+     "mean": -0.3,
+     "positive": 17
+    },
+    "worst": -1,
+    "best": 0.6,
+    "avgCashPct": 2.3,
+    "deploymentsPerWindow": 3.7
+   },
+   "drip6m": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -0.4,
+     "mean": -0.4,
+     "positive": 14
+    },
+    "worst": -1.2,
+    "best": 0.6,
+    "avgCashPct": 3.5,
+    "deploymentsPerWindow": 3.7
+   },
+   "shallow5_10_15": {
+    "windows": 395,
+    "vsAllIn": {
+     "n": 395,
+     "median": -0.5,
+     "mean": -0.4,
+     "positive": 27
+    },
+    "worst": -1.7,
+    "best": 1.8,
+    "avgCashPct": 4.4,
+    "deploymentsPerWindow": 27.8
+   }
+  }
+ },
+ "sim_1960_price_only": {
+  "from": "1960-01-04",
+  "to": "2026-11-05",
+  "y10": {
+   "agreed": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.5,
+     "mean": -0.3,
+     "positive": 36
+    },
+    "worst": -2.1,
+    "best": 1.8,
+    "avgCashPct": 4.8,
+    "deploymentsPerWindow": 5.1
+   },
+   "tiers10_15_30": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.4,
+     "mean": -0.2,
+     "positive": 36
+    },
+    "worst": -1.6,
+    "best": 1.8,
+    "avgCashPct": 4.6,
+    "deploymentsPerWindow": 6
+   },
+   "noConfirm": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.6,
+     "mean": -0.3,
+     "positive": 35
+    },
+    "worst": -2,
+    "best": 1.8,
+    "avgCashPct": 4.5,
+    "deploymentsPerWindow": 9
+   },
+   "noSweep": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.9,
+     "mean": -0.4,
+     "positive": 36
+    },
+    "worst": -6.3,
+    "best": 6.2,
+    "avgCashPct": 9.3,
+    "deploymentsPerWindow": 5.1
+   },
+   "reserve10": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.3,
+     "mean": -0.2,
+     "positive": 36
+    },
+    "worst": -1.4,
+    "best": 1.2,
+    "avgCashPct": 3.2,
+    "deploymentsPerWindow": 5.1
+   },
+   "reserve5": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.2,
+     "mean": -0.1,
+     "positive": 36
+    },
+    "worst": -0.7,
+    "best": 0.6,
+    "avgCashPct": 1.6,
+    "deploymentsPerWindow": 5.1
+   },
+   "drip6m": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.2,
+     "mean": -0.1,
+     "positive": 35
+    },
+    "worst": -0.7,
+    "best": 0.5,
+    "avgCashPct": 2.2,
+    "deploymentsPerWindow": 5.1
+   },
+   "shallow5_10_15": {
+    "windows": 670,
+    "vsAllIn": {
+     "n": 670,
+     "median": -0.2,
+     "mean": -0.2,
+     "positive": 36
+    },
+    "worst": -0.9,
+    "best": 1.2,
+    "avgCashPct": 2.7,
+    "deploymentsPerWindow": 53.7
+   }
+  },
+  "y20": {
+   "agreed": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.6,
+     "mean": -0.3,
+     "positive": 31
+    },
+    "worst": -1.1,
+    "best": 1.1,
+    "avgCashPct": 2.8,
+    "deploymentsPerWindow": 9.4
+   },
+   "tiers10_15_30": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.5,
+     "mean": -0.2,
+     "positive": 31
+    },
+    "worst": -1.1,
+    "best": 1.1,
+    "avgCashPct": 2.8,
+    "deploymentsPerWindow": 11.2
+   },
+   "noConfirm": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.7,
+     "mean": -0.3,
+     "positive": 34
+    },
+    "worst": -1.2,
+    "best": 1.3,
+    "avgCashPct": 2.7,
+    "deploymentsPerWindow": 16.6
+   },
+   "noSweep": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -1.1,
+     "mean": -0.8,
+     "positive": 26
+    },
+    "worst": -4.4,
+    "best": 6.1,
+    "avgCashPct": 6.6,
+    "deploymentsPerWindow": 9.4
+   },
+   "reserve10": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.4,
+     "mean": -0.2,
+     "positive": 31
+    },
+    "worst": -0.7,
+    "best": 0.8,
+    "avgCashPct": 1.9,
+    "deploymentsPerWindow": 9.4
+   },
+   "reserve5": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.2,
+     "mean": -0.1,
+     "positive": 31
+    },
+    "worst": -0.4,
+    "best": 0.4,
+    "avgCashPct": 0.9,
+    "deploymentsPerWindow": 9.4
+   },
+   "drip6m": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.2,
+     "mean": -0.1,
+     "positive": 34
+    },
+    "worst": -0.4,
+    "best": 0.3,
+    "avgCashPct": 1.2,
+    "deploymentsPerWindow": 9.4
+   },
+   "shallow5_10_15": {
+    "windows": 184,
+    "vsAllIn": {
+     "n": 184,
+     "median": -0.2,
+     "mean": -0.2,
+     "positive": 24
+    },
+    "worst": -0.7,
+    "best": 0.2,
+    "avgCashPct": 1.6,
+    "deploymentsPerWindow": 108.1
+   }
+  }
+ }
+}
