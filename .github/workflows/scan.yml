@@ -35,4 +35,4 @@ jobs:
       - name: Save
         env:
           COMMIT_MSG: Update index scan
-        run: scripts/persist.sh scan.json data/constituents.json trends.json history/paper-trades.json
+        run: scripts/persist.sh scan.json data/constituents.json trends.json history/paper-trades.json history/results-dates.json

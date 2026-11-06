@@ -24,7 +24,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 3. **Entry pillar, step 2 (after Douglas's OK only):** the test ran 5 Nov (research log). If agreed: change `P.offHigh` in `src/research.js` to flat from -3% to -20% with no extra credit beyond, add 12-1 month momentum as an Entry item (needs 13 months of prices: the scan fetches "1y", so switch it to "2y" or compute from 253 bars), and rerun the dry run to count changed verdicts. The "Entry view" note (6 Nov midday, display only) already uses these bands (`P.offHighAlt`, `P.mom`, `entryAlt` option of `longTerm()`): switching means making them the live bands. On 6 Nov it would change 14 of 108 full-score verdicts (Good entry lost: SCHW, INVP.L, COF, STJ.L, KEY; gained: SNDK, APA). Note SNDK gains on +715% momentum while the peer view flags it cyclical: if both changes go in, check them together.
 4. **Track-record page:** per-signal-type hit rates and returns once there are enough signals (from about December).
 5. **Trade log follow-ups:** show the dip-reserve tiers in the adherence list once a tier fires; optional pots-panel fill from the log; remind in the Monday playback when a scheduled action shows Not logged.
-6. **Results estimate follow-up:** the scan has no results history (only the research list keeps `history/earnings.json`), so scan estimates use a flat quarter. Option: record scan results dates too (about 600 symbols, small file) so gaps are learned per stock.
+6. **Euro Stoxx 50 in the scanner (from Later):** picks are meant to tilt away from US mega-cap tech, and the scan only covers the S&P 500 and FTSE 100. Add the 50 names (Yahoo suffixes .PA, .DE, .AS, .MI, .MC), map sectors to GICS for the peer view, check Trading 212 availability and FX cost (EUR shares carry the 0.15% FX fee like US ones), and keep run time in check (scan is about 3.5 min now).
 
 ## Data notes (spot checks)
 - 3 Nov: stops (2×ATR), P/E and yields checked on WDC, TMUS, UAL: consistent. Yahoo's latest-results date is stale for some UK names (Unilever shows Feb 2026); addressed 6 Nov afternoon with an estimated next date flagged "looks stale" (8 scan stocks). Kenvue's price stopped on 30 Oct (likely delisted after the Kimberly-Clark deal); stale-price guard added 4 Nov.
@@ -36,6 +36,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 6 Nov (afternoon): scan keeps past results dates so estimates learn each company's gap.
 - 6 Nov (afternoon): split guard on price history (KLAC's fall checked: real, not a split).
 - 6 Nov (afternoon): estimated next results date (Research page and pick check, display only); buy-tier backtest follow-up with FTSE triggers, a 60/40 blend and ACWI (research log).
 - 6 Nov (midday): display-only "Entry view" (proposed Entry rule with 12-1 month momentum); fix: scan-only filters showed on Your list.
@@ -54,6 +55,6 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 
 ## Later
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.
-- More indices (Euro Stoxx 50, Nasdaq 100) in the scanner.
+- Nasdaq 100 in the scanner (mostly overlaps the S&P 500).
 - Insider buying and short interest signals (needs a free source).
 - Price alerts for individual stocks set from the Research page.

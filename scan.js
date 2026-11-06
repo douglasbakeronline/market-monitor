@@ -15,6 +15,7 @@ import { sectorMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
+import { recordResults } from "./src/stockHistory.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100" };
@@ -92,6 +93,10 @@ async function main() {
     it.ev = entryViewNote(it.lt, longTerm(it.f, it.t, null, { entryAlt: true }), it.t);
   }
 
+  // Results dates seen so far, so estimates learn each company's reporting gap.
+  const resultsHist = await readJson("history/results-dates.json", {});
+  for (const it of items) recordResults(resultsHist, it.u.symbol, [it.f.lastEarnings, it.f.nextEarnings], today);
+
   const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: u.index === "FTSE100" ? "UK" : "US",
@@ -107,7 +112,7 @@ async function main() {
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
     };
-    if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market === "UK" });
+    if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market === "UK", history: resultsHist[u.symbol] || [] });
     item.summary = summarise(item);
     return item;
   }).sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));
@@ -131,6 +136,7 @@ async function main() {
     for (const [date, group] of Object.entries(Object.groupBy(setups, (x) => x.date))) paper = addSetups(paper, group, date);
   } else console.log("Paper trades: markets open, not updated.");
   await writeJson("history/paper-trades.json", paper, true);
+  await writeJson("history/results-dates.json", resultsHist);
   const paperSummary = summarisePaper(paper);
   console.log(`Paper trades: ${paperSummary.open} open, ${paperSummary.closed} closed${paperSummary.avgR != null ? `, ${paperSummary.avgR}R average` : ""}.`);
 
