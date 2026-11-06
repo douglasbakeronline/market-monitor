@@ -16,7 +16,9 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          node tools/entry-test.mjs > dry-run/entry-test.json 2> dry-run/entry-test.log; echo "exit=$?" >> dry-run/entry-test.log
+          node tools/dip-study.mjs > dry-run/dip-study.json 2> dry-run/dip-study.log; echo "exit=$?" >> dry-run/dip-study.log
+          node tools/smart-money.mjs dry-run/smart-money.json > dry-run/smart-money-summary.json 2> dry-run/smart-money.log; echo "exit=$?" >> dry-run/smart-money.log
+          cp data/cusip-map.json dry-run/ 2>/dev/null
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
           git add -f dry-run && git commit -qm "dry-run output" && git push -q
