@@ -109,11 +109,12 @@
     "currency": "GBp",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -7.6,
+      "now": -8.3,
       "nowDate": "2026-11-06",
-      "sessions": 4,
+      "sessions": 5,
       "spNow": -3,
-      "vsSp": -4.6
+      "w1": -8.3,
+      "vsSp": -5.3
     }
   },
   {
