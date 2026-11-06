@@ -1445,9 +1445,9 @@
     "risk": 15.899999999999977,
     "target": 395.63,
     "sessions": 3,
-    "lastPrice": 369.64,
+    "lastPrice": 376.53,
     "lastDate": "2026-11-05",
-    "openR": 0.37
+    "openR": 0.8
   },
   {
     "id": "2026-11-02:KO",
@@ -2733,6 +2733,19 @@
     "signalPrice": 25.65,
     "stop": 23.47,
     "score": 68,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-05:ABNB",
+    "symbol": "ABNB",
+    "ticker": "ABNB",
+    "name": "Airbnb, Inc.",
+    "market": "US",
+    "currency": "USD",
+    "signalDate": "2026-11-05",
+    "signalPrice": 170.13,
+    "stop": 158.91,
+    "score": 72,
     "status": "pending"
   }
 ]
