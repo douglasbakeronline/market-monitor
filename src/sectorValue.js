@@ -73,15 +73,34 @@ export function sectorMedians(rows) {
   return out;
 }
 
+// Region for peer medians: US vs Europe (UK and Euro Stoxx together). UK and
+// European multiples run lower (Financials: US 13, Europe under 10 on 6 Nov),
+// and Europe alone has too few stocks per sector, so the two are pooled.
+const EU_SUFFIX = /\.(DE|PA|AS|MI|MC|BR|HE|LS|VI|IR|CO|ST|OL|SW)$/;
+export const marketOf = (symbol) => (/\.L$/.test(symbol || "") ? "UK" : EU_SUFFIX.test(symbol || "") ? "EU" : "US");
+export const regionOf = (market) => (market === "UK" || market === "EU" ? "Europe" : "US");
+
+// rows as for sectorMedians, plus market ("US", "UK", "EU") -> { US: medians, Europe: medians }.
+export function regionMedians(rows) {
+  const out = {};
+  for (const reg of ["US", "Europe"]) out[reg] = sectorMedians(rows.filter((r) => regionOf(r.market) === reg));
+  return out;
+}
+
 // The peer context longTerm() takes as its third argument, or null when the
-// stock's sector has too few peers to compare with. EV/EBITDA stays on the
+// stock's sector has too few peers to compare with. With regional medians and
+// a market, the stock is compared with its own region's sector when that has
+// enough peers (MIN_PEERS), else with the pooled median. EV/EBITDA stays on the
 // fixed bands: the scan only fetches it for the ~100 deepened stocks, which
 // are picked for high scores (cheap), so their median would be biased low.
-export function peerFor(f, medians) {
+export function peerFor(f, medians, regional = null, market = null) {
   const sector = gicsSector(f?.sector);
-  const m = sector && medians?.[sector];
+  if (!sector) return null;
+  const region = market ? regionOf(market) : null;
+  const rm = region && regional?.[region]?.[sector];
+  const m = rm || medians?.[sector];
   if (!m) return null;
-  return { sector, n: m.n, forwardPE: m.forwardPE, trailingPE: m.trailingPE, pe: m.pe, cyclical: isCyclical(f?.sector, f?.industry) };
+  return { sector, region: rm ? region : null, n: m.n, forwardPE: m.forwardPE, trailingPE: m.trailingPE, pe: m.pe, cyclical: isCyclical(f?.sector, f?.industry) };
 }
 
 // Value pillar cap for cyclicals: a P/E alone can't make a cyclical cheap.
@@ -97,13 +116,13 @@ export function sectorValueNote(f, peer, now, alt) {
   const parts = [];
   if (ratio != null) {
     const d = Math.round((ratio - 1) * 100);
-    parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
+    parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.region ? (peer.region === "US" ? "US " : "European ") : ""}${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
   }
   if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
   if (peer.sector === "Real Estate") parts.push("REITs are better judged on funds from operations than P/E.");
   if (vAlt != null && vNow != null) parts.push(`Value vs peers would score ${vAlt} (now ${vNow})${alt.verdict !== now.verdict ? `; the verdict would be ${alt.verdict} (now ${now.verdict})` : ""}.`);
   return {
-    sector: peer.sector, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
+    sector: peer.sector, region: peer.region ?? null, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
     cyclical: peer.cyclical, value: vAlt, valueNow: vNow, score: alt.score, verdict: alt.verdict, changed: alt.verdict !== now.verdict,
     note: parts.join(" "),
   };

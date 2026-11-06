@@ -11,7 +11,7 @@ import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote } from "./src/research.js";
-import { sectorMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
+import { sectorMedians, regionMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -86,9 +86,10 @@ async function main() {
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
   // Sector-relative valuation, display only (verdicts unchanged; see src/sectorValue.js).
-  const medians = sectorMedians(items.map((it) => ({ sector: it.u.sector || it.f.sector, forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: isInvestmentTrust(it.f) })));
+  const peerRows = items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: isInvestmentTrust(it.f) }));
+  const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
   for (const it of items) {
-    const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians);
+    const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians, regional, MARKET[it.u.index] ?? "US");
     it.sv = peer ? sectorValueNote(it.f, peer, it.lt, longTerm(it.f, it.t, peer)) : null;
     // Proposed Entry rule, display only (roadmap: Entry pillar step 2 waits on Douglas).
     it.ev = entryViewNote(it.lt, longTerm(it.f, it.t, null, { entryAlt: true }), it.t);
@@ -147,7 +148,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), items: out,
   });
   const svc = sectorValueChanges(out);
   console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);
