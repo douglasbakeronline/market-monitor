@@ -171,6 +171,8 @@ import { costR } from "./src/swingRetune.js";
 initTheme();
 const $ = (id) => document.getElementById(id);
 
+// Not published yet: how the estimated next results date was worked out.
+const estTitle = (e) => `Not published yet. Estimated from the latest results ${e.basis === "history" ? "and the usual gap between past results" : e.basis === "uk-earliest" ? "plus a quarter: many UK companies report only half-yearly, so this is the earliest likely date" : "plus a quarter"}${e.stale ? "; the latest results date looks stale" : ""}.`;
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
@@ -309,8 +311,8 @@ function detailHtml(it) {
         <div class="kv">
           <div><div class="k">Market cap</div><div class="v">${bigMoney(it.marketCap, c)}</div></div>
           <div><div class="k">Dividend</div><div class="v">${it.dividendYield != null ? (it.dividendYield * 100).toFixed(1) + "%" : "none"}</div></div>
-          <div><div class="k">Next earnings</div><div class="v">${it.earnings ? fmtDay(it.earnings.date) : "n/a"}</div></div>
-          ${it.lastEarnings ? `<div><div class="k">Latest results</div><div class="v">${fmtDay(it.lastEarnings)}</div></div>` : ""}
+          <div><div class="k">Next earnings</div><div class="v">${it.earnings ? `${fmtDay(it.earnings.date)} ${fmtDM(it.earnings.date).split(" ")[1]}` : it.resultsEstimate ? `<span title="${esc(estTitle(it.resultsEstimate))}">~${fmtDM(it.resultsEstimate.date)} (est.)</span>` : "n/a"}</div></div>
+          ${it.lastEarnings ? `<div><div class="k">Latest results</div><div class="v">${fmtDM(it.lastEarnings)}</div></div>` : ""}
         </div>
       </div>
     </div>

@@ -83,8 +83,10 @@ export function simulate(rows, dd, from, to, opt = {}) {
 
 // Rolling windows of `years` starting at each month; terminal wealth of the
 // variant against all-in (reserve 0) over the same window.
-export function rollingCompare(rows, variants, { years = 10, warm = 252, step = 1 } = {}) {
-  const dd = drawdowns(rows);
+// `dd` overrides the drawdown signal (e.g. combinedDrawdowns for "either
+// index triggers the tier", as the live rule watches the S&P 500 and FTSE 100).
+export function rollingCompare(rows, variants, { years = 10, warm = 252, step = 1, dd: ddIn = null } = {}) {
+  const dd = ddIn ?? drawdowns(rows);
   const starts = [];
   let last = null;
   for (let i = warm; i < rows.length; i++) {
@@ -117,10 +119,10 @@ export function rollingCompare(rows, variants, { years = 10, warm = 252, step = 
 
 // Join series by date onto the price rows. Missing tr/cash/confirm are
 // forward-filled from the last known value (confirm is not, it stays false).
-export function align(price, { tr = null, cash = null, vix = null, fg = null } = {}) {
+export function align(price, { tr = null, cash = null, vix = null, fg = null, alt = null } = {}) {
   const map = (xs) => (xs ? new Map(xs.map((r) => [r.date, r.close])) : null);
-  const T = map(tr), C = map(cash), V = map(vix);
-  let lastTr = null, lastCash = null;
+  const T = map(tr), C = map(cash), V = map(vix), A = map(alt);
+  let lastTr = null, lastCash = null, lastAlt = null;
   return price.map((r) => {
     let t = T ? T.get(r.date) ?? null : r.close;
     if (T) {
@@ -129,8 +131,12 @@ export function align(price, { tr = null, cash = null, vix = null, fg = null } =
     }
     const c = C ? (C.get(r.date) ?? lastCash) : null;
     if (c != null) lastCash = c;
+    const a = A ? (A.get(r.date) ?? lastAlt) : null;
+    if (a != null) lastAlt = a;
     const v = V?.get(r.date), f = fg?.[r.date];
-    return { date: r.date, close: r.close, tr: t, cash: c ?? 0, vix: v ?? null, confirm: (v != null && v >= 30) || (f != null && f <= 25) };
+    const row = { date: r.date, close: r.close, tr: t, cash: c ?? 0, vix: v ?? null, confirm: (v != null && v >= 30) || (f != null && f <= 25) };
+    if (A) row.alt = a;
+    return row;
   });
 }
 
@@ -145,6 +151,30 @@ export function volProxy(rows, level = 25, win = 21) {
     for (let j = i - win + 1; j <= i; j++) { const x = Math.log(rows[j].close / rows[j - 1].close); s += x; s2 += x * x; }
     const sd = Math.sqrt(Math.max(0, s2 / win - (s / win) ** 2)) * Math.sqrt(252) * 100;
     if (sd >= level) out[i].confirm = true;
+  }
+  return out;
+}
+
+// Drawdown signal when either of two indices can trigger a tier: the deeper of
+// the two (rows carry `close` and a forward-filled `alt`). Before `alt` starts,
+// only `close` counts.
+export function combinedDrawdowns(rows, win = 252) {
+  const a = drawdowns(rows, win);
+  const first = rows.findIndex((r) => r.alt != null);
+  if (first < 0) return a;
+  const sub = rows.slice(first).map((r) => ({ close: r.alt }));
+  const b = drawdowns(sub, win);
+  return a.map((x, i) => (i >= first + win ? Math.min(x, b[i - first]) : x));
+}
+
+// Daily-rebalanced blend of two total-return series (aligned rows, oldest
+// first): w of `a`, 1 - w of `b`. `yieldB` adds a constant annual yield in % to
+// `b` (for a price-only index such as the FTSE 100). Starts at 100.
+export function blendIndex(a, b, w = 0.6, { yieldB = 0 } = {}) {
+  const out = [100];
+  for (let i = 1; i < a.length; i++) {
+    const ra = a[i] / a[i - 1] - 1, rb = b[i] / b[i - 1] - 1 + yieldB / 100 / 252;
+    out.push(out[i - 1] * (1 + w * ra + (1 - w) * rb));
   }
   return out;
 }

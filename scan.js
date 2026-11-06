@@ -10,7 +10,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote } from "./src/research.js";
 import { sectorMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -107,6 +107,7 @@ async function main() {
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
     };
+    if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market === "UK" });
     item.summary = summarise(item);
     return item;
   }).sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));

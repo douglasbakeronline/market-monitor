@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, summarise, entryViewNote } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote } from "./research.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -51,6 +51,7 @@ export async function runResearch({ regimeKey, state }) {
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };
+      if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: /\.L$/.test(s.symbol), history: earnings[s.symbol] || [] });
       item.summary = summarise(item);
       items.push(item);
     } catch (e) {
