@@ -172,11 +172,11 @@ initTheme();
 const $ = (id) => document.getElementById(id);
 
 // Not published yet: how the estimated next results date was worked out.
-const estTitle = (e) => `Not published yet. Estimated from the latest results ${e.basis === "history" ? "and the usual gap between past results" : e.basis === "uk-earliest" ? "plus a quarter: many UK companies report only half-yearly, so this is the earliest likely date" : "plus a quarter"}${e.stale ? "; the latest results date looks stale" : ""}.`;
+const estTitle = (e) => `Not published yet. Estimated from the latest results ${e.basis === "history" ? "and the usual gap between past results" : e.basis === "uk-earliest" ? "plus a quarter: many UK and European companies report only half-yearly, so this is the earliest likely date" : "plus a quarter"}${e.stale ? "; the latest results date looks stale" : ""}.`;
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
-  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"],
+  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"],
 ];
 const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
@@ -230,7 +230,7 @@ function visible() {
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
-    if (st.filter === "US" || st.filter === "UK") return it.market === st.filter;
+    if (st.filter === "US" || st.filter === "UK" || st.filter === "EU") return it.market === st.filter;
     return true;
   }).sort((a, b) => {
     const ka = sortKey(a), kb = sortKey(b);
@@ -290,7 +290,8 @@ function detailHtml(it) {
   const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${results}${notes}${peer}${entryNote}
+  const eu = it.market === "EU" ? `<div class="note">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
