@@ -190,7 +190,7 @@
     "fg": {
       "score": 20,
       "rating": "extreme fear",
-      "asOf": "2026-11-05T20:59:58+00:00",
+      "asOf": "2026-11-05T23:59:56+00:00",
       "comparisons": {
         "close": 27,
         "week": 31,
@@ -201,7 +201,7 @@
         {
           "key": "market_momentum_sp500",
           "label": "Market momentum",
-          "score": 7,
+          "score": 6,
           "rating": "extreme fear"
         },
         {
@@ -219,7 +219,7 @@
         {
           "key": "put_call_options",
           "label": "Put/call options",
-          "score": 9,
+          "score": 8,
           "rating": "extreme fear"
         },
         {
@@ -237,16 +237,11 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 37,
+          "score": 34,
           "rating": "fear"
         }
       ],
       "history": [
-        {
-          "date": "2025-11-05",
-          "t": 1762300800000,
-          "y": 23
-        },
         {
           "date": "2025-11-06",
           "t": 1762387200000,
@@ -1494,19 +1489,19 @@
         },
         {
           "date": "2026-11-05",
-          "t": 1793912398000,
+          "t": 1793923196000,
           "y": 20
         }
       ]
     },
-    "fgAt": "2026-11-05T21:10:37.276Z",
+    "fgAt": "2026-11-06T02:35:09.432Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7353.73,
         "date": "2026-11-05",
-        "asOf": "2026-11-05T21:10:36.000Z",
+        "asOf": "2026-11-05T21:34:08.000Z",
         "currency": "USD",
         "drawdownPct": -5.9,
         "peak": 7818.93,
@@ -1650,11 +1645,11 @@
         ]
       },
       "vix": {
-        "level": 26.9,
-        "dayPct": 62,
+        "level": 28.18,
+        "dayPct": 69.7,
         "date": "2026-11-05"
       },
-      "at": "2026-11-05T21:10:37.276Z"
+      "at": "2026-11-06T02:35:09.432Z"
     },
     "watchlist": [
       {
@@ -2122,13 +2117,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 422.33,
+        "price": 422.59,
         "date": "2026-11-05",
-        "dropFromHigh": -3.3,
-        "lastChange": -3.3,
+        "dropFromHigh": -3.2,
+        "lastChange": -3.2,
         "previous": 3.8,
         "week": 2.9,
-        "month": 13.5,
+        "month": 13.6,
         "series": [
           0,
           0.1,
@@ -2159,7 +2154,7 @@
           15.82,
           14.44,
           18.83,
-          14.96
+          15.03
         ],
         "rebound": false
       },
@@ -2168,13 +2163,13 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 337.19,
+        "price": 337.34,
         "date": "2026-11-05",
         "dropFromHigh": -4.2,
         "lastChange": -4.2,
         "previous": 4.2,
-        "week": -1.9,
-        "month": 2.3,
+        "week": -1.8,
+        "month": 2.4,
         "series": [
           0,
           -1.89,
@@ -2205,7 +2200,7 @@
           -0.72,
           -1.48,
           2.64,
-          -1.71
+          -1.67
         ],
         "rebound": false
       },
