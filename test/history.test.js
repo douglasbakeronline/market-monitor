@@ -62,3 +62,16 @@ test("latestPast picks the most recent date on or before today", () => {
   assert.equal(latestPast(["2026-07-29", "2026-10-27", "2027-02-24", null], "2026-11-02"), "2026-10-27");
   assert.equal(latestPast([], "2026-11-02"), null);
 });
+
+test("recordResults keeps past dates only, sorted and capped", async () => {
+  const { recordResults } = await import("../src/stockHistory.js");
+  const h = {};
+  recordResults(h, "X", ["2026-10-28", "2027-01-27", null], "2026-11-06");
+  assert.deepEqual(h.X, ["2026-10-28"], "a future next date is not recorded");
+  recordResults(h, "X", ["2026-07-29", "2026-10-28"], "2026-11-06");
+  assert.deepEqual(h.X, ["2026-07-29", "2026-10-28"]);
+  recordResults(h, "Y", [], "2026-11-06");
+  assert.equal(h.Y, undefined);
+  const many = {}; for (let m = 1; m <= 12; m++) recordResults(many, "Z", [`2026-${String(m).padStart(2, "0")}-01`], "2026-12-31", 8);
+  assert.equal(many.Z.length, 8); assert.equal(many.Z[0], "2026-05-01");
+});

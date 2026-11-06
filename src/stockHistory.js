@@ -35,6 +35,17 @@ export function recordEarnings(earnings, symbol, date) {
 }
 
 // Latest results date on or before today (YYYY-MM-DD), or null.
+// Past results dates for the index scan (history/results-dates.json), used to
+// learn each company's reporting gap. Only dates already past are kept, so a
+// "next" date Yahoo later revises never leaves a phantom entry.
+export function recordResults(hist, symbol, dates, today, keep = 8) {
+  const add = (dates || []).filter((d) => d && d <= today);
+  if (!add.length) return hist;
+  const set = new Set([...(hist[symbol] || []), ...add]);
+  hist[symbol] = [...set].sort().slice(-keep);
+  return hist;
+}
+
 export function latestPast(dates, today) {
   return (dates || []).filter((d) => d && d <= today).sort().at(-1) ?? null;
 }
