@@ -288,6 +288,30 @@ export function earningsFields(next, last, today) {
   return { earnings: null, lastEarnings: past };
 }
 
+// No next results date published (Yahoo is often blank or stale for UK names:
+// Unilever showed Feb 2026 as its latest results on 3 Nov): estimate the next
+// one from the latest known date and the usual cadence. UK companies report
+// half-yearly (with trading updates between), US companies quarterly. If the
+// estimate has already passed, the latest date is probably stale: roll forward
+// and say so. Display only; never a reason to buy.
+export function resultsEstimate(last, today, { uk = false, history = [] } = {}) {
+  const past = [...history, last].filter((d) => d && d <= today).sort();
+  if (!past.length) return null;
+  const latest = past.at(-1);
+  const gaps = [];
+  for (let i = 1; i < past.length; i++) {
+    const g = daysUntil(past[i], past[i - 1]);
+    if (g >= 60 && g <= 200) gaps.push(g);
+  }
+  gaps.sort((a, b) => a - b);
+  const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : uk ? 182 : 91;
+  let next = Date.parse(latest) + gap * 86400000, rolled = false;
+  const t = Date.parse(today);
+  while (next < t - 14 * 86400000) { next += gap * 86400000; rolled = true; }
+  const date = new Date(next).toISOString().slice(0, 10);
+  return { date, days: daysUntil(date, today), basis: gaps.length ? "history" : uk ? "half-yearly" : "quarterly", stale: rolled };
+}
+
 // Plain-English summary sentence for a stock.
 export function summarise(item) {
   const bits = [];

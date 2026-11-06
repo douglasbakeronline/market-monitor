@@ -82,3 +82,26 @@ test("volProxy confirms on violent stretches only where VIX is missing", () => {
   assert.equal(rows[25].confirm, false);
   assert.equal(rows[59].confirm, true);
 });
+
+test("combined drawdowns: either index can trigger, the deeper one counts", async () => {
+  const { combinedDrawdowns } = await import("../src/tierBacktest.js");
+  const c = Array(400).fill(100);
+  const rows = c.map((close, i) => ({ date: day(i), close, alt: i < 50 ? null : i >= 320 && i < 330 ? 85 : 100 }));
+  const dd = combinedDrawdowns(rows);
+  assert.equal(Math.round(dd[325]), -15, "alt index 15% off its high");
+  assert.equal(dd[340], 0);
+  assert.equal(dd[60], 0, "before alt has a year of history only close counts");
+  const noAlt = combinedDrawdowns(rows.map((r) => ({ ...r, alt: null })));
+  assert.equal(noAlt[325], 0);
+});
+
+test("align carries a forward-filled alt series; blendIndex chains daily returns", async () => {
+  const { blendIndex } = await import("../src/tierBacktest.js");
+  const price = [{ date: "a", close: 1 }, { date: "b", close: 2 }, { date: "c", close: 3 }];
+  const rows = align(price, { alt: [{ date: "a", close: 10 }, { date: "c", close: 12 }] });
+  assert.deepEqual(rows.map((r) => r.alt), [10, 10, 12]);
+  const bl = blendIndex([100, 110], [100, 100], 0.6);
+  assert.ok(Math.abs(bl[1] - 106) < 1e-9);
+  const y = blendIndex([100, 100], [100, 100], 0, { yieldB: 252 });
+  assert.ok(Math.abs(y[1] - 101) < 1e-9, "252% a year is 1% a day");
+});

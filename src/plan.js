@@ -2,6 +2,7 @@
 // check against. Percentages and dates only: no amounts, no holdings.
 // Douglas places every trade; this only says what the plan says is due.
 import { addDays } from "./util.js";
+import { resultsEstimate } from "./research.js";
 
 export const PLAN = {
   pots: [
@@ -58,12 +59,18 @@ export function pickStatus(pick, item, today = null) {
   const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";
   const ok = good && !resultsSoon;
+  // Nothing published and not reported recently: estimate from the cadence
+  // (display only; `ok` is unchanged).
+  const est = ed == null && !recentlyReported && today ? item.resultsEstimate ?? resultsEstimate(last, today, { uk: /\.L$/.test(pick.symbol) }) : null;
+  const estNote = est ? (est.days <= PLAN.pickNoResultsDays + 7
+    ? `No results date published; ${est.days < 0 ? "results may just be out" : `results usually due around ${dayLabel(est.date)}`} (estimated${est.stale ? ", latest date looks stale" : ""}): check before buying.`
+    : `No results date published; next estimated around ${dayLabel(est.date)}${est.stale ? " (latest date looks stale)" : ""}.`) : null;
   const reason = resultsSoon ? `Results ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: wait until after.`
     : !good ? `Not a good entry today: hold off this tranche.`
     : ed != null ? `Next results in ${ed} days.`
     : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
-    : "No results date known; check before buying.";
-  return { ...pick, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+    : estNote ?? "No results date known; check before buying.";
+  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
 // What does the plan say for the coming week? `today` is a London date.
