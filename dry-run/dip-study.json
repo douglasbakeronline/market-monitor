@@ -1,389 +1,403 @@
 {
  "sp500": {
+  "from": "1929-01-03",
   "to": "2026-11-05",
-  "sessions": -83,
+  "sessions": 24578,
   "baseline": {
    "m1": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 24557,
+    "median": 1,
+    "mean": 0.6,
+    "positive": 60
    },
    "m3": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 24515,
+    "median": 2.5,
+    "mean": 1.9,
+    "positive": 64
    },
    "m6": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 24452,
+    "median": 4.7,
+    "mean": 3.9,
+    "positive": 67
    },
    "y1": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 24326,
+    "median": 9.5,
+    "mean": 8,
+    "positive": 70
    }
   },
   "fall4": {
-   "days": 0,
+   "days": 165,
    "firstInCluster": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 59,
+     "median": 0,
+     "mean": -0.7,
+     "positive": 51
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 59,
+     "median": 6.1,
+     "mean": 3.8,
+     "positive": 66
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 59,
+     "median": 4.3,
+     "mean": 5.6,
+     "positive": 66
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 59,
+     "median": 4.6,
+     "mean": 7.2,
+     "positive": 59
     }
    },
    "allDays": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 164,
+     "median": 0.6,
+     "mean": 1.4,
+     "positive": 57
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 164,
+     "median": 3.7,
+     "mean": 6.4,
+     "positive": 58
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 164,
+     "median": 8.7,
+     "mean": 8.2,
+     "positive": 65
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 164,
+     "median": 10.8,
+     "mean": 15.5,
+     "positive": 62
     }
    }
   },
   "fall3": {
-   "days": 0,
+   "days": 363,
    "firstInCluster": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 104,
+     "median": 0.1,
+     "mean": -0.2,
+     "positive": 53
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 104,
+     "median": 3.9,
+     "mean": 1.5,
+     "positive": 57
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 104,
+     "median": 3.8,
+     "mean": 3.1,
+     "positive": 60
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 104,
+     "median": 5.1,
+     "mean": 4.3,
+     "positive": 61
     }
    }
   },
   "pullback5": {
-   "triggers": 0,
-   "recent": [],
+   "triggers": 133,
+   "recent": [
+    "2024-08-02",
+    "2025-03-04",
+    "2025-11-20",
+    "2026-03-18",
+    "2026-11-05"
+   ],
    "forward": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 132,
+     "median": 2.4,
+     "mean": 1.8,
+     "positive": 70
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 132,
+     "median": 4.9,
+     "mean": 4.2,
+     "positive": 73
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 132,
+     "median": 6.6,
+     "mean": 6.6,
+     "positive": 74
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 130,
+     "median": 8.5,
+     "mean": 8.6,
+     "positive": 72
     }
    },
    "deeperWithin12m": {
-    "n": 0,
-    "to10": null,
-    "to15": null,
-    "to20": null,
-    "to30": null
+    "n": 130,
+    "to10": 75,
+    "to15": 45,
+    "to20": 22,
+    "to30": 10
    },
    "buyEarlyVsWait": {
     "k5": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 132,
+      "median": 0.8,
+      "mean": 0.8,
+      "positive": 55
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 24573,
+      "median": 0.3,
+      "mean": 0.2,
+      "positive": 56
      }
     },
     "k10": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 132,
+      "median": 0.8,
+      "mean": 0.8,
+      "positive": 57
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 24568,
+      "median": 0.5,
+      "mean": 0.3,
+      "positive": 58
      }
     },
     "k21": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 132,
+      "median": 2.4,
+      "mean": 1.8,
+      "positive": 70
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 24557,
+      "median": 1,
+      "mean": 0.6,
+      "positive": 60
      }
     }
    }
   }
  },
  "ftse100": {
+  "from": "1984-12-31",
   "to": "2026-11-06",
-  "sessions": -83,
+  "sessions": 10573,
   "baseline": {
    "m1": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 10552,
+    "median": 0.8,
+    "mean": 0.5,
+    "positive": 58
    },
    "m3": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 10510,
+    "median": 2.1,
+    "mean": 1.6,
+    "positive": 64
    },
    "m6": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 10447,
+    "median": 3.6,
+    "mean": 3.1,
+    "positive": 67
    },
    "y1": {
-    "n": 0,
-    "median": null,
-    "mean": null,
-    "positive": null
+    "n": 10321,
+    "median": 7.7,
+    "mean": 6.2,
+    "positive": 72
    }
   },
   "fall4": {
-   "days": 0,
+   "days": 41,
    "firstInCluster": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 17,
+     "median": 5.8,
+     "mean": 3.1,
+     "positive": 82
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 17,
+     "median": 7.5,
+     "mean": 5.9,
+     "positive": 76
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 17,
+     "median": 2.4,
+     "mean": 5.1,
+     "positive": 59
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 17,
+     "median": 12.8,
+     "mean": 11.2,
+     "positive": 65
     }
    },
    "allDays": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 41,
+     "median": 6.9,
+     "mean": 4.1,
+     "positive": 78
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 41,
+     "median": 6.5,
+     "mean": 5.7,
+     "positive": 78
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 41,
+     "median": 3.8,
+     "mean": 4.6,
+     "positive": 59
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 41,
+     "median": 15.8,
+     "mean": 16.1,
+     "positive": 83
     }
    }
   },
   "fall3": {
-   "days": 0,
+   "days": 110,
    "firstInCluster": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 42,
+     "median": 2,
+     "mean": 1.4,
+     "positive": 71
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 42,
+     "median": 4.5,
+     "mean": 3.5,
+     "positive": 74
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 42,
+     "median": 6.4,
+     "mean": 3.9,
+     "positive": 67
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 42,
+     "median": 7.2,
+     "mean": 6.4,
+     "positive": 60
     }
    }
   },
   "pullback5": {
-   "triggers": 0,
-   "recent": [],
+   "triggers": 60,
+   "recent": [
+    "2022-06-13",
+    "2023-03-13",
+    "2024-08-05",
+    "2025-04-04",
+    "2026-03-06"
+   ],
    "forward": {
     "m1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 60,
+     "median": 1.7,
+     "mean": 1.7,
+     "positive": 68
     },
     "m3": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 60,
+     "median": 3.2,
+     "mean": 2.6,
+     "positive": 70
     },
     "m6": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 60,
+     "median": 4.7,
+     "mean": 4.9,
+     "positive": 73
     },
     "y1": {
-     "n": 0,
-     "median": null,
-     "mean": null,
-     "positive": null
+     "n": 59,
+     "median": 7.3,
+     "mean": 6.9,
+     "positive": 71
     }
    },
    "deeperWithin12m": {
-    "n": 0,
-    "to10": null,
-    "to15": null,
-    "to20": null,
-    "to30": null
+    "n": 59,
+    "to10": 85,
+    "to15": 41,
+    "to20": 15,
+    "to30": 7
    },
    "buyEarlyVsWait": {
     "k5": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 60,
+      "median": 0.5,
+      "mean": 0.7,
+      "positive": 58
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 10568,
+      "median": 0.2,
+      "mean": 0.1,
+      "positive": 55
      }
     },
     "k10": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 60,
+      "median": 0.5,
+      "mean": 0.6,
+      "positive": 60
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 10563,
+      "median": 0.4,
+      "mean": 0.3,
+      "positive": 57
      }
     },
     "k21": {
      "trigger": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 60,
+      "median": 1.7,
+      "mean": 1.7,
+      "positive": 68
      },
      "baseline": {
-      "n": 0,
-      "median": null,
-      "mean": null,
-      "positive": null
+      "n": 10552,
+      "median": 0.8,
+      "mean": 0.5,
+      "positive": 58
      }
     }
    }
