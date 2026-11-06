@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, summarise } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, summarise, entryViewNote } from "./research.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -33,6 +33,7 @@ export async function runResearch({ regimeKey, state }) {
       const lt = longTerm(f, t);
       const peer = f ? peerFor(f, medians) : null;
       const sectorValue = peer ? sectorValueNote(f, peer, lt, longTerm(f, t, peer)) : null;
+      const entryView = entryViewNote(lt, longTerm(f, t, null, { entryAlt: true }), t);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
         symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: s.symbol.endsWith(".L") ? "UK" : "US",
@@ -40,13 +41,13 @@ export async function runResearch({ regimeKey, state }) {
         sector: f?.sector ?? null, industry: f?.industry ?? null,
         currency: prices.currency ?? f?.currency ?? null, price: r2(t?.last ?? prices.rows.at(-1)?.close), date: t?.date ?? null,
         pe: r1(f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null), marketCap: f?.marketCap ?? null, dividendYield: f?.dividendYield ?? null, beta: r2(f?.beta),
-        perf: t ? { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct) } : null,
+        perf: t ? { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), mom12_1: r1(t.mom12_1) } : null,
         tech: t ? { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), rangePos: r2(t.rangePos), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio), sma50: r2(t.sma50), sma200: r2(t.sma200) } : null,
         target: f?.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
         earnings: earningsFields(f?.nextEarnings, null, today).earnings,
         lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
-        longTerm: lt, swing, signals, sectorValue,
+        longTerm: lt, swing, signals, sectorValue, entryView,
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };
