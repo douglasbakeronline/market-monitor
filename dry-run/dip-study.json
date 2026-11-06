@@ -1,0 +1,392 @@
+{
+ "sp500": {
+  "to": "2026-11-05",
+  "sessions": -83,
+  "baseline": {
+   "m1": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "m3": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "m6": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "y1": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   }
+  },
+  "fall4": {
+   "days": 0,
+   "firstInCluster": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   }
+  },
+  "fall3": {
+   "days": 0,
+   "firstInCluster": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 0,
+   "recent": [],
+   "forward": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   },
+   "deeperWithin12m": {
+    "n": 0,
+    "to10": null,
+    "to15": null,
+    "to20": null,
+    "to30": null
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    }
+   }
+  }
+ },
+ "ftse100": {
+  "to": "2026-11-06",
+  "sessions": -83,
+  "baseline": {
+   "m1": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "m3": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "m6": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   },
+   "y1": {
+    "n": 0,
+    "median": null,
+    "mean": null,
+    "positive": null
+   }
+  },
+  "fall4": {
+   "days": 0,
+   "firstInCluster": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   },
+   "allDays": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   }
+  },
+  "fall3": {
+   "days": 0,
+   "firstInCluster": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   }
+  },
+  "pullback5": {
+   "triggers": 0,
+   "recent": [],
+   "forward": {
+    "m1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m3": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "m6": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    },
+    "y1": {
+     "n": 0,
+     "median": null,
+     "mean": null,
+     "positive": null
+    }
+   },
+   "deeperWithin12m": {
+    "n": 0,
+    "to10": null,
+    "to15": null,
+    "to20": null,
+    "to30": null
+   },
+   "buyEarlyVsWait": {
+    "k5": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    },
+    "k10": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    },
+    "k21": {
+     "trigger": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     },
+     "baseline": {
+      "n": 0,
+      "median": null,
+      "mean": null,
+      "positive": null
+     }
+    }
+   }
+  }
+ }
+}
