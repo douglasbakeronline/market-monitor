@@ -51,7 +51,11 @@ test("pick with no next date but recent results passes with a clear reason", () 
   assert.equal(p.ok, true);
   assert.match(p.reason, /Reported Tue 27 Oct; next results not due for weeks/);
   const old = { ...recent, lastEarnings: "2026-07-29" };
+<<<<<<< HEAD
   assert.match(pickStatus(PLAN.picks[0], old, "2026-11-02").reason, /next estimated around Wed 27 Jan/);
+=======
+  assert.match(pickStatus(PLAN.picks[0], old, "2026-11-02").reason, /next estimated no earlier than Wed 27 Jan/);
+>>>>>>> origin/main
   const none = { ...recent, lastEarnings: null };
   assert.match(pickStatus(PLAN.picks[0], none, "2026-11-02").reason, /No results date known/);
 });
@@ -83,10 +87,17 @@ test("resultsEstimate: cadence by market, history gaps, stale dates roll forward
   const us = resultsEstimate("2026-10-28", "2026-11-06");
   assert.equal(us.date, "2027-01-27"); assert.equal(us.basis, "quarterly"); assert.equal(us.stale, false);
   const uk = resultsEstimate("2026-08-05", "2026-11-06", { uk: true });
+<<<<<<< HEAD
   assert.equal(uk.date, "2027-02-03"); assert.equal(uk.basis, "half-yearly");
   const stale = resultsEstimate("2026-02-12", "2026-11-06", { uk: true });
   assert.equal(stale.stale, true, "Feb + 182 days is in August: rolled to February");
   assert.equal(stale.date, "2027-02-11");
+=======
+  assert.equal(uk.date, "2027-02-03", "a quarter on has passed (half-yearly reporter): next quarter"); assert.equal(uk.basis, "uk-earliest"); assert.equal(uk.stale, false);
+  const stale = resultsEstimate("2026-02-12", "2026-11-06", { uk: true });
+  assert.equal(stale.stale, true, "nine months since the latest results: stale");
+  assert.equal(stale.date, "2026-11-12");
+>>>>>>> origin/main
   const hist = resultsEstimate("2026-10-27", "2026-11-06", { uk: true, history: ["2026-02-24", "2026-04-28", "2026-07-29"] });
   assert.equal(hist.basis, "history");
   assert.equal(hist.date, "2027-01-25", "median gap 90 days (quarterly UK reporter)");
@@ -98,8 +109,13 @@ test("pickStatus: estimate shown when no date is published, ok unchanged", async
   const st = pickStatus({ symbol: "XYZ" }, item, "2026-11-06");
   assert.equal(st.ok, true);
   assert.match(st.reason, /results usually due around Thu 12 Nov \(estimated\)/);
+<<<<<<< HEAD
   const far = pickStatus({ symbol: "ABC.L" }, { ...item, lastEarnings: "2026-07-30" }, "2026-11-06");
   assert.match(far.reason, /next estimated around Thu 28 Jan/);
+=======
+  const far = pickStatus({ symbol: "ABC.L" }, { ...item, lastEarnings: "2026-09-15" }, "2026-11-20");
+  assert.match(far.reason, /next estimated no earlier than Tue 15 Dec/);
+>>>>>>> origin/main
   const fromItem = pickStatus({ symbol: "ABC.L" }, { ...item, resultsEstimate: { date: "2026-11-10", days: 4, basis: "history", stale: false } }, "2026-11-06");
   assert.match(fromItem.reason, /due around Tue 10 Nov/, "uses the research item's history-based estimate");
 });

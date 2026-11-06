@@ -16,6 +16,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
+          node dry-run-split.mjs > dry-run/split.log 2>&1
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           cp dry-run/scan.json scan.json
           DRY_RUN=1 FORCE_RESEARCH=1 FORCE_SUMMARY=UK FORCE_DIGEST=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
