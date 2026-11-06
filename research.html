@@ -86,6 +86,16 @@
     .controls input[type=search] { flex-basis: 100%; }
     .controls .grow { display: none; }
   }
+  .pp-head { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 14px; }
+  .pp-curve { width: 100%; height: 140px; display: block; }
+  .pp-legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin: 6px 0 2px; flex-wrap: wrap; }
+  .pp-legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; border-radius: 2px; }
+  .pp-row { display: grid; grid-template-columns: 60px 1fr auto auto; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .pp-row .when { color: var(--muted); font-size: 12px; }
+  .pp-row .num { text-align: right; min-width: 56px; }
+  .pp-row .num .sub { display: block; font-size: 11px; color: var(--muted); }
+  .pp-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  @media (max-width: 520px) { .pp-head { grid-template-columns: repeat(2, 1fr); } .pp-row { grid-template-columns: 52px 1fr auto; } .pp-row .hide-s { display: none; } }
 </style>
 </head>
 <body>
@@ -125,6 +135,17 @@
   <div class="list lens-lt" id="list"></div>
   <div style="text-align:center;margin-top:12px" id="moreWrap" hidden><button class="chip" type="button" id="more">Show more</button></div>
 
+  <section class="section" id="ppSection" hidden>
+    <div class="eyebrow">Swing paper trades</div>
+    <div class="card">
+      <div class="pp-filters" id="ppFilters"></div>
+      <div class="pp-head" id="ppHead"></div>
+      <div id="ppCurve"></div>
+      <div id="ppList"></div>
+    </div>
+    <p class="cap">Every clean swing setup from the nightly scan, traded on paper under the swing rules (buy at the next open, stop at 2× the average daily range, exit at 2R or after 20 sessions). R is the result in units of risk. <b>After costs</b> takes off Trading 212's FX fee on US shares (0.15% each way) and stamp duty on UK buys (0.5%). Swing stays on paper unless this beats random entry clearly after costs.</p>
+  </section>
+
   <section class="section">
     <div class="eyebrow">How the scores work</div>
     <div class="grid-2">
@@ -144,7 +165,9 @@
 </div>
 
 <script type="module">
-import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline } from "./assets/site.js";
+import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline, fmtDM } from "./assets/site.js";
+import { paperView } from "./src/paperTrades.js";
+import { costR } from "./src/swingRetune.js";
 initTheme();
 const $ = (id) => document.getElementById(id);
 
@@ -358,6 +381,44 @@ async function load() {
   }
 }
 load();
+
+// --- Swing paper trades ---------------------------------------------------------
+const pp = { log: null, market: "all", min: 0 };
+function curveSvg(pts) {
+  if (pts.length < 2) return `<p class="sub" style="margin:4px 0 10px">The curve appears once trades have closed on two or more days.</p>`;
+  const W = 600, H = 140, pad = 8, vals = pts.flatMap((p) => [p.r, p.net]);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals), rg = hi - lo || 1;
+  const x = (i) => pad + (i / (pts.length - 1)) * (W - 2 * pad), y = (v) => pad + (1 - (v - lo) / rg) * (H - 2 * pad);
+  const line = (k, c, dash = "") => `<polyline points="${pts.map((p, i) => `${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2" ${dash} stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  const last = pts[pts.length - 1];
+  return `<div class="pp-legend"><span><i style="background:var(--ink-2)"></i>Before costs ${minusR(last.r)}</span><span><i style="background:var(--accent)"></i>After costs ${minusR(last.net)}</span><span>${esc(fmtDM(pts[0].date))} to ${esc(fmtDM(last.date))}</span></div>
+    <svg class="pp-curve" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Cumulative R: ${minusR(last.r)} before costs, ${minusR(last.net)} after costs">
+      <line x1="${pad}" x2="${W - pad}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
+      ${line("r", "var(--ink-2)")}${line("net", "var(--accent)")}
+    </svg>`;
+}
+const minusR = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}R`);
+function renderPaper() {
+  if (!pp.log) return;
+  const v = paperView(pp.log, { market: pp.market, minScore: pp.min, costR });
+  $("ppSection").hidden = false;
+  const chip = (k, val, label, on) => `<button class="chip" type="button" data-${k}="${val}" aria-pressed="${on}">${label}</button>`;
+  $("ppFilters").innerHTML = [["all", "All"], ["US", "US"], ["UK", "UK"]].map(([m, l]) => chip("pm", m, l, pp.market === m)).join("") + `<span style="width:6px"></span>` + [[0, "Any setup"], [70, "Setup 70+"], [75, "Setup 75+"]].map(([m, l]) => chip("ps", m, l, pp.min === m)).join("");
+  const stat = (k, val, sub) => `<div><div class="k">${k}</div><div class="v">${val}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
+  const early = v.closed < 30;
+  $("ppHead").innerHTML = stat("Closed", v.closed, `${v.open} open`) +
+    stat("Win rate", v.winRate == null ? "n/a" : `${v.winRate}%`, v.closed ? `${v.reasons.target} target · ${v.reasons.stop} stop · ${v.reasons.time} time` : "") +
+    stat("Average R", v.avgR == null ? "n/a" : `<span class="${pnClass(v.avgR)}">${minusR(v.avgR)}</span>`, "before costs") +
+    stat("After costs", v.avgNetR == null ? "n/a" : `<span class="${pnClass(v.avgNetR)}">${minusR(v.avgNetR)}</span>`, early ? `too early: ${v.closed} of 30 trades` : "per trade");
+  $("ppCurve").innerHTML = curveSvg(v.curve);
+  $("ppList").innerHTML = v.recent.length ? v.recent.map((t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.exitDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · setup ${t.score ?? "n/a"}</span></span><span class="num hide-s muted">${t.sessions ?? "n/a"}d<span class="sub">${{ stop: "stopped", target: "target hit", time: "time exit" }[t.reason] ?? ""}</span></span><span class="num ${pnClass(t.r)}">${minusR(t.r)}<span class="sub">${minusR(Math.round((t.r - costR(t)) * 100) / 100)} net</span></span></div>`).join("") : `<p class="sub" style="margin:0">No closed trades match.</p>`;
+}
+$("ppFilters").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.pm) pp.market = b.dataset.pm; else if (b.dataset.ps != null) pp.min = +b.dataset.ps;
+  renderPaper();
+});
+fetch(`history/paper-trades.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j) && j.length) { pp.log = j; renderPaper(); } }).catch(() => {});
 </script>
 </body>
 </html>

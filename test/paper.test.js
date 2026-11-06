@@ -57,3 +57,27 @@ test("summary: win rate and expectancy in R", () => {
   assert.equal(s.closed, 2); assert.equal(s.winRate, 50); assert.equal(s.avgR, 0.5); assert.equal(s.open, 1);
   assert.equal(s.us.avgR, 2); assert.equal(s.since, "2026-11-02");
 });
+
+test("paperView filters by market and score and builds a cumulative R curve", async () => {
+  const { paperView } = await import("../src/paperTrades.js");
+  const log = [
+    { id: "a", market: "US", score: 70, status: "closed", r: 2, exitDate: "2026-11-03", entry: 100, risk: 5, reason: "target" },
+    { id: "b", market: "US", score: 66, status: "closed", r: -1, exitDate: "2026-11-02", entry: 100, risk: 5, reason: "stop" },
+    { id: "c", market: "UK", score: 74, status: "closed", r: -1, exitDate: "2026-11-03", entry: 100, risk: 5, reason: "stop" },
+    { id: "d", market: "US", score: 72, status: "open" },
+    { id: "e", market: "US", score: 80, status: "void", r: 5 },
+  ];
+  const costR = (t) => (t.market === "US" ? 0.06 : 0.1);
+  const all = paperView(log, { costR });
+  assert.equal(all.closed, 3);
+  assert.equal(all.trades, 4);
+  assert.equal(all.open, 1);
+  assert.deepEqual(all.curve.map((p) => [p.date, p.r]), [["2026-11-02", -1], ["2026-11-03", 0]]);
+  assert.equal(all.totalNetR, -0.22);
+  assert.equal(all.reasons.stop, 2);
+  const us70 = paperView(log, { market: "US", minScore: 70, costR });
+  assert.equal(us70.closed, 1);
+  assert.equal(us70.winRate, 100);
+  assert.equal(us70.avgNetR, 1.94);
+  assert.equal(paperView([], {}).avgR, null);
+});
