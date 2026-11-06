@@ -8,7 +8,7 @@ export const RULES = [
   { key: "core", label: "Scheduled core purchase", pot: "core", kinds: ["core"] },
   { key: "pullback", label: "Pullback rule (core brought forward)", pot: "core", kinds: ["core"] },
   { key: "tranche", label: "Pick tranche", pot: "picks", kinds: ["picks"] },
-  { key: "dip", label: "Dip tier (reserve deployed)", pot: "core", kinds: [] },
+  { key: "dip", label: "Dip tier (reserve deployed)", pot: "core", kinds: ["dip"] },
   { key: "swing", label: "Swing setup", pot: "swing", kinds: [] },
   { key: "reinvest", label: "Dividend or proceeds reinvested", pot: "core", kinds: [] },
   { key: "rebalance", label: "Rebalance to target weights", pot: "core", kinds: [] },
@@ -24,6 +24,27 @@ const YMD = /^\d{4}-\d{2}-\d{2}$/;
 // How far a trade may sit from its scheduled date and still count for it.
 // Before: the pullback rule can bring a core date forward by up to two weeks.
 export const MATCH = { before: 14, after: 7, onTime: 1 };
+// Dip tiers: the alert comes after the index close, so a trade the same or
+// next day is on time; none can come before it (a day's slack for time zones).
+const DIP_MATCH = { before: 1, after: 7 };
+// The same tier fired by the other index (or again after a short bounce) within
+// this many days is the same reserve third, not a new action.
+export const DIP_SAME_TIER_DAYS = 60;
+
+// Confirmed buy tiers from the public signal log (history/signals.json, kind
+// "buy") as adherence items: one per tier, whichever index fired it first.
+export function dipEvents(signals = []) {
+  const last = {};
+  const out = [];
+  for (const s of [...signals].filter((x) => x?.kind === "buy" && YMD.test(x.date ?? "")).sort((a, b) => (a.date < b.date ? -1 : 1))) {
+    const m = String(s.label ?? "").match(/\((-\d+)%\)/);
+    const tier = m ? m[1] : "?";
+    if (last[tier] && days(last[tier], s.date) <= DIP_SAME_TIER_DAYS) continue;
+    last[tier] = s.date;
+    out.push({ date: s.date, kind: "dip", tier, title: `Dip tier ${tier === "?" ? "" : `${tier.replace("-", "\u2212")}% `}(${s.name ?? s.ticker ?? "index"}): deploy a third of the reserve` });
+  }
+  return out;
+}
 
 // Clean one trade from the form or an imported file. Returns { trade } or { error }.
 export function normaliseTrade(raw = {}, today = null) {
@@ -58,17 +79,19 @@ export function potTotals(trades) {
   return { ...out, counted, total: POT_KEYS.reduce((a, k) => a + out[k], 0) };
 }
 
-// Plan adherence: each scheduled core or picks action up to `today`, matched to
-// a logged trade citing that rule. A trade can satisfy only one scheduled item.
-export function adherence(schedule, trades, today) {
-  const due = schedule.filter((s) => (s.kind === "core" || s.kind === "picks") && s.date <= today);
+// Plan adherence: each scheduled core or picks action up to `today`, plus any
+// confirmed dip tier (from dipEvents), matched to a logged trade citing that
+// rule. A trade can satisfy only one item.
+export function adherence(schedule, trades, today, dips = []) {
+  const due = [...schedule.filter((s) => (s.kind === "core" || s.kind === "picks") && s.date <= today), ...dips.filter((d) => d.date <= today)]
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const used = new Set();
   const items = due.map((s) => {
     const fits = trades.filter((t) => t.action === "buy" && RULE[t.rule]?.kinds.includes(s.kind) && !used.has(t.id))
       .map((t) => ({ t, gap: days(s.date, t.date) }))
-      .filter(({ gap }) => gap >= -MATCH.before && gap <= MATCH.after);
-    // Pick tranches: every tranche in the window belongs to this date.
-    const take = s.kind === "picks" ? fits : fits.sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap)).slice(0, 1);
+      .filter(({ gap }) => gap >= -(s.kind === "dip" ? DIP_MATCH.before : MATCH.before) && gap <= MATCH.after);
+    // Pick tranches and dip buys: every trade in the window belongs to this date.
+    const take = s.kind === "picks" || s.kind === "dip" ? fits : fits.sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap)).slice(0, 1);
     take.forEach(({ t }) => used.add(t.id));
     const first = take.length ? Math.min(...take.map((x) => x.gap)) : null;
     const pending = !take.length && days(s.date, today) <= MATCH.after;
@@ -78,8 +101,8 @@ export function adherence(schedule, trades, today) {
   const counted = items.filter((i) => i.status !== "pending");
   const onTime = counted.filter((i) => i.status === "on-time").length;
   const offPlan = trades.filter((t) => t.rule === "other").length;
-  const headline = !counted.length ? (items.length ? "First scheduled action still open" : "No scheduled actions yet")
-    : `${onTime} of ${counted.length} scheduled action${counted.length > 1 ? "s" : ""} done on time`;
+  const headline = !counted.length ? (items.length ? "First plan action still open" : "No plan actions due yet")
+    : `${onTime} of ${counted.length} plan action${counted.length > 1 ? "s" : ""} done on time`;
   return { items, onTime, counted: counted.length, offPlan, headline };
 }
 
