@@ -6,8 +6,9 @@ import { readFile, writeFile } from "node:fs/promises";
 import { MANAGERS, parseInfoTable, aggregate, diff, figiTicker, byTicker } from "../src/smartMoney.js";
 import { sleep } from "../src/util.js";
 
-// SEC asks automated clients to identify themselves; a project name and URL, no personal details.
-const UA = { "User-Agent": "MarketMonitor research (github.com/douglasbakeronline/market-monitor)", Accept: "application/json, text/xml, */*" };
+// SEC asks automated clients for a name and contact address in the User-Agent
+// and returns 403 without one; a generic project address, no personal details.
+const UA = { "User-Agent": "MarketMonitor market-monitor-bot@users.noreply.github.com", Accept: "application/json, text/xml, */*" };
 const out = process.argv[2] || "data/smart-money.json";
 const MAP = "data/cusip-map.json";
 
