@@ -7,8 +7,10 @@ import { MANAGERS, parseInfoTable, aggregate, diff, figiTicker, byTicker } from 
 import { sleep } from "../src/util.js";
 
 // SEC asks automated clients for a name and contact address in the User-Agent
-// and returns 403 without one; a generic project address, no personal details.
-const UA = { "User-Agent": "MarketMonitor market-monitor-bot@users.noreply.github.com", Accept: "application/json, text/xml, */*" };
+// and returns 403 without one. The address comes from the SEC_CONTACT repo
+// secret so it never appears in this public repo.
+const CONTACT = process.env.SEC_CONTACT || "market-monitor-bot@users.noreply.github.com";
+const UA = { "User-Agent": `MarketMonitor ${CONTACT}`, Accept: "application/json, text/xml, */*" };
 const out = process.argv[2] || "data/smart-money.json";
 const MAP = "data/cusip-map.json";
 
