@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05T22:51:02.295Z",
+  "updated": "2026-11-06T19:55:56.609Z",
   "indices": {
     "SP500": [
       {
@@ -3621,6 +3621,308 @@
         "name": "WPP",
         "sector": "Media",
         "symbol": "WPP.L"
+      }
+    ],
+    "EUROSTOXX50": [
+      {
+        "ticker": "ADS",
+        "name": "Adidas",
+        "sector": "Consumer Discretionary",
+        "symbol": "ADS.DE"
+      },
+      {
+        "ticker": "ADYEN",
+        "name": "Adyen",
+        "sector": "Financials",
+        "symbol": "ADYEN.AS"
+      },
+      {
+        "ticker": "AD",
+        "name": "Ahold Delhaize",
+        "sector": "Consumer Staples",
+        "symbol": "AD.AS"
+      },
+      {
+        "ticker": "AI",
+        "name": "Air Liquide",
+        "sector": "Materials",
+        "symbol": "AI.PA"
+      },
+      {
+        "ticker": "AIR",
+        "name": "Airbus",
+        "sector": "Industrials",
+        "symbol": "AIR.PA"
+      },
+      {
+        "ticker": "ALV",
+        "name": "Allianz",
+        "sector": "Financials",
+        "symbol": "ALV.DE"
+      },
+      {
+        "ticker": "ABI",
+        "name": "Anheuser-Busch InBev",
+        "sector": "Consumer Staples",
+        "symbol": "ABI.BR"
+      },
+      {
+        "ticker": "ARGX",
+        "name": "argenx",
+        "sector": "Health Care",
+        "symbol": "ARGX.BR"
+      },
+      {
+        "ticker": "ASML",
+        "name": "ASML Holding",
+        "sector": "Information Technology",
+        "symbol": "ASML.AS"
+      },
+      {
+        "ticker": "CS",
+        "name": "AXA",
+        "sector": "Financials",
+        "symbol": "CS.PA"
+      },
+      {
+        "ticker": "BAS",
+        "name": "BASF",
+        "sector": "Materials",
+        "symbol": "BAS.DE"
+      },
+      {
+        "ticker": "BAYN",
+        "name": "Bayer",
+        "sector": "Health Care",
+        "symbol": "BAYN.DE"
+      },
+      {
+        "ticker": "BBVA",
+        "name": "Banco Bilbao Vizcaya Argentaria",
+        "sector": "Financials",
+        "symbol": "BBVA.MC"
+      },
+      {
+        "ticker": "SAN",
+        "name": "Banco Santander",
+        "sector": "Financials",
+        "symbol": "SAN.MC"
+      },
+      {
+        "ticker": "BMW",
+        "name": "BMW",
+        "sector": "Consumer Discretionary",
+        "symbol": "BMW.DE"
+      },
+      {
+        "ticker": "BNP",
+        "name": "BNP Paribas",
+        "sector": "Financials",
+        "symbol": "BNP.PA"
+      },
+      {
+        "ticker": "BN",
+        "name": "Danone",
+        "sector": "Consumer Staples",
+        "symbol": "BN.PA"
+      },
+      {
+        "ticker": "DBK",
+        "name": "Deutsche Bank",
+        "sector": "Financials",
+        "symbol": "DBK.DE"
+      },
+      {
+        "ticker": "DB1",
+        "name": "Deutsche Börse",
+        "sector": "Financials",
+        "symbol": "DB1.DE"
+      },
+      {
+        "ticker": "DHL",
+        "name": "DHL Group",
+        "sector": "Industrials",
+        "symbol": "DHL.DE"
+      },
+      {
+        "ticker": "DTE",
+        "name": "Deutsche Telekom",
+        "sector": "Communication Services",
+        "symbol": "DTE.DE"
+      },
+      {
+        "ticker": "ENEL",
+        "name": "Enel",
+        "sector": "Utilities",
+        "symbol": "ENEL.MI"
+      },
+      {
+        "ticker": "ENGI",
+        "name": "Engie",
+        "sector": "Utilities",
+        "symbol": "ENGI.PA"
+      },
+      {
+        "ticker": "ENI",
+        "name": "Eni",
+        "sector": "Energy",
+        "symbol": "ENI.MI"
+      },
+      {
+        "ticker": "EL",
+        "name": "EssilorLuxottica",
+        "sector": "Health Care",
+        "symbol": "EL.PA"
+      },
+      {
+        "ticker": "RACE",
+        "name": "Ferrari",
+        "sector": "Consumer Discretionary",
+        "symbol": "RACE.MI"
+      },
+      {
+        "ticker": "RMS",
+        "name": "Hermès",
+        "sector": "Consumer Discretionary",
+        "symbol": "RMS.PA"
+      },
+      {
+        "ticker": "IBE",
+        "name": "Iberdrola",
+        "sector": "Utilities",
+        "symbol": "IBE.MC"
+      },
+      {
+        "ticker": "ITX",
+        "name": "Inditex",
+        "sector": "Consumer Discretionary",
+        "symbol": "ITX.MC"
+      },
+      {
+        "ticker": "IFX",
+        "name": "Infineon Technologies",
+        "sector": "Information Technology",
+        "symbol": "IFX.DE"
+      },
+      {
+        "ticker": "INGA",
+        "name": "ING Group",
+        "sector": "Financials",
+        "symbol": "INGA.AS"
+      },
+      {
+        "ticker": "ISP",
+        "name": "Intesa Sanpaolo",
+        "sector": "Financials",
+        "symbol": "ISP.MI"
+      },
+      {
+        "ticker": "OR",
+        "name": "L'Oréal",
+        "sector": "Consumer Staples",
+        "symbol": "OR.PA"
+      },
+      {
+        "ticker": "MC",
+        "name": "LVMH",
+        "sector": "Consumer Discretionary",
+        "symbol": "MC.PA"
+      },
+      {
+        "ticker": "MBG",
+        "name": "Mercedes-Benz Group",
+        "sector": "Consumer Discretionary",
+        "symbol": "MBG.DE"
+      },
+      {
+        "ticker": "MUV2",
+        "name": "Munich Re",
+        "sector": "Financials",
+        "symbol": "MUV2.DE"
+      },
+      {
+        "ticker": "NOKIA",
+        "name": "Nokia",
+        "sector": "Information Technology",
+        "symbol": "NOKIA.HE"
+      },
+      {
+        "ticker": "NDA-FI",
+        "name": "Nordea",
+        "sector": "Financials",
+        "symbol": "NDA-FI.HE"
+      },
+      {
+        "ticker": "PRX",
+        "name": "Prosus",
+        "sector": "Consumer Discretionary",
+        "symbol": "PRX.AS"
+      },
+      {
+        "ticker": "RHM",
+        "name": "Rheinmetall",
+        "sector": "Industrials",
+        "symbol": "RHM.DE"
+      },
+      {
+        "ticker": "SAF",
+        "name": "Safran",
+        "sector": "Industrials",
+        "symbol": "SAF.PA"
+      },
+      {
+        "ticker": "SGO",
+        "name": "Saint-Gobain",
+        "sector": "Industrials",
+        "symbol": "SGO.PA"
+      },
+      {
+        "ticker": "SAN",
+        "name": "Sanofi",
+        "sector": "Health Care",
+        "symbol": "SAN.PA"
+      },
+      {
+        "ticker": "SAP",
+        "name": "SAP",
+        "sector": "Information Technology",
+        "symbol": "SAP.DE"
+      },
+      {
+        "ticker": "SU",
+        "name": "Schneider Electric",
+        "sector": "Industrials",
+        "symbol": "SU.PA"
+      },
+      {
+        "ticker": "SIE",
+        "name": "Siemens",
+        "sector": "Industrials",
+        "symbol": "SIE.DE"
+      },
+      {
+        "ticker": "ENR",
+        "name": "Siemens Energy",
+        "sector": "Industrials",
+        "symbol": "ENR.DE"
+      },
+      {
+        "ticker": "TTE",
+        "name": "TotalEnergies",
+        "sector": "Energy",
+        "symbol": "TTE.PA"
+      },
+      {
+        "ticker": "DG",
+        "name": "Vinci",
+        "sector": "Industrials",
+        "symbol": "DG.PA"
+      },
+      {
+        "ticker": "UCG",
+        "name": "UniCredit",
+        "sector": "Financials",
+        "symbol": "UCG.MI"
       }
     ]
   }

@@ -1,7 +1,7 @@
 // Euro Stoxx 50: fallback list and helpers. The scan reads the live list from
 // Wikipedia (like the S&P 500 and FTSE 100); this list is used when that page
 // can't be parsed, and to give each name its Yahoo symbol and GICS sector.
-// The index is reviewed each September; check the scan log for "not in the
+// Matches the live list of 6 Nov 2026. The index is reviewed each September; check the scan log for "not in the
 // fallback list" lines and update here when names change.
 export const EUROSTOXX_FALLBACK = [
   ["ADS.DE", "Adidas", "Consumer Discretionary"], ["ADYEN.AS", "Adyen", "Financials"], ["AD.AS", "Ahold Delhaize", "Consumer Staples"],
@@ -20,7 +20,7 @@ export const EUROSTOXX_FALLBACK = [
   ["SGO.PA", "Saint-Gobain", "Industrials"], ["SAN.PA", "Sanofi", "Health Care"], ["SAP.DE", "SAP", "Information Technology"],
   ["SU.PA", "Schneider Electric", "Industrials"], ["SIE.DE", "Siemens", "Industrials"], ["ENR.DE", "Siemens Energy", "Industrials"],
   ["TTE.PA", "TotalEnergies", "Energy"], ["UCG.MI", "UniCredit", "Financials"], ["DG.PA", "Vinci", "Industrials"],
-  ["VOW3.DE", "Volkswagen", "Consumer Discretionary"], ["WKL.AS", "Wolters Kluwer", "Industrials"],
+  ["ENGI.PA", "Engie", "Utilities"], ["NOKIA.HE", "Nokia", "Information Technology"],
 ].map(([symbol, name, sector]) => ({ ticker: symbol.replace(/\.[A-Z]+$/, ""), name, sector, symbol }));
 
 // Main listing (or country) to Yahoo suffix.
