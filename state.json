@@ -1499,7 +1499,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-06T12:00:00.385Z",
+    "fgAt": "2026-11-06T12:00:23.732Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1578,17 +1578,17 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10537.02,
+        "level": 10536.7,
         "date": "2026-11-06",
-        "asOf": "2026-11-06T11:45:00.000Z",
+        "asOf": "2026-11-06T11:45:23.000Z",
         "currency": "GBP",
         "drawdownPct": -3.4,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10690.43,
+        "sma50": 10690.42,
         "sma200": 10536.74,
         "vs200Pct": 0,
-        "above200": true,
+        "above200": false,
         "rsi14": 41.7,
         "dayPct": -2.3,
         "weekPct": -1.8,
@@ -1646,15 +1646,15 @@
           -0.44,
           1.35,
           0.92,
-          -1.38
+          -1.39
         ]
       },
       "vix": {
-        "level": 26.5,
+        "level": 26.48,
         "dayPct": -6,
         "date": "2026-11-06"
       },
-      "at": "2026-11-06T12:00:00.385Z"
+      "at": "2026-11-06T12:00:23.732Z"
     },
     "watchlist": [
       {
@@ -2214,7 +2214,7 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13506,
+        "price": 13504,
         "date": "2026-11-06",
         "dropFromHigh": -3.8,
         "lastChange": -3.8,
@@ -2251,7 +2251,7 @@
           10.15,
           12.26,
           12.41,
-          8.12
+          8.1
         ],
         "rebound": false
       },
@@ -2306,7 +2306,7 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1293.4,
+        "price": 1293.2,
         "date": "2026-11-06",
         "dropFromHigh": -5.3,
         "lastChange": -1.1,
@@ -2343,7 +2343,7 @@
           -17.04,
           -13.07,
           -13.78,
-          -14.71
+          -14.72
         ],
         "rebound": false
       }
