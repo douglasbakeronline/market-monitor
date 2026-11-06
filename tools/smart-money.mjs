@@ -17,7 +17,7 @@ async function get(url, as = "json") {
     const r = await fetch(url, { headers: UA });
     if (r.ok) return as === "json" ? r.json() : r.text();
     await sleep(1500 * (t + 1));
-    if (t === 2) throw new Error(`${r.status} ${url}`);
+    if (t === 2) throw new Error(`${r.status} ${url} ${(await r.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 160)}`);
   }
 }
 

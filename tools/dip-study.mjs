@@ -15,6 +15,11 @@ for (const [key, sym] of [["sp500", "^GSPC"], ["ftse100", "^FTSE"]]) {
     const { rows } = parseYahoo(j.chart.result[0]);
     if (rows.length < 2000) throw new Error(`only ${rows.length} daily bars for ${sym}`);
     out[key] = analyseIndex(rows);
+    // Robustness: post-war and recent sub-periods (warm-up year included).
+    for (const from of ["1949-01-01", "1989-01-01"]) {
+      const sub = rows.filter((r) => r.date >= from);
+      if (sub.length > 2000) out[`${key}_${from.slice(0, 4)}`] = analyseIndex(sub);
+    }
   } catch (e) { out[key] = { error: String(e?.message || e) }; }
 }
 console.log(JSON.stringify(out, null, 1));
