@@ -108,7 +108,7 @@
 
   <div class="intro">
     <h1>Stock research</h1>
-    <p>Your stocks, or every company in the S&amp;P 500 and FTSE 100, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
+    <p>Your stocks, or every company in the S&amp;P 500, FTSE 100 and Euro Stoxx 50, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
     <div class="meta" id="meta"></div>
     <div id="banners"></div>
   </div>
@@ -290,7 +290,7 @@ function detailHtml(it) {
   const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
-  const eu = it.market === "EU" ? `<div class="note">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
+  const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
   return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
@@ -337,7 +337,7 @@ function render() {
   document.querySelectorAll("#sourceSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.src === st.source)));
   $("count").textContent = `${all.length} of ${st.data.items.length} stocks · sorted by ${st.sort === "name" ? "name" : st.sort === "day" ? "today's move" : (st.sort || st.lens) === "sw" ? "swing score" : "long-term score"}`;
   document.querySelectorAll(".seg:not(.source) button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === st.lens)));
-  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${st.source === "scan" ? ({ US: "S&P 500", UK: "FTSE 100" }[k] || l) : l}</button>`).join("");
+  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${st.source === "scan" ? ({ US: "S&P 500", UK: "FTSE 100", EU: "Euro Stoxx 50" }[k] || l) : l}</button>`).join("");
   list.querySelectorAll(".row[data-sym]").forEach((row, i) => {
     const toggle = () => {
       const sym = row.dataset.sym, it = items[i], d = row.nextElementSibling;
@@ -372,7 +372,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(" and ")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();
