@@ -117,6 +117,7 @@ input[type="search"] { font: inherit; font-size: 13px; border: 1px solid var(--l
 
 footer { color: var(--muted); font-size: 12px; margin-top: 44px; line-height: 1.6; border-top: 1px solid var(--line); padding-top: 14px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
 @media (max-width: 560px) { .brand-text { display: none; } }
 @media (max-width: 420px) { .nav a { padding: 5px 8px; font-size: 12px; } .top { gap: 6px; } }
 .nav { min-width: 0; overflow-x: auto; scrollbar-width: none; } .nav a { white-space: nowrap; }
