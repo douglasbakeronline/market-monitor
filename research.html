@@ -158,6 +158,12 @@ const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: 
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
 const peOf = (it) => it.pe ?? it.longTerm?.pillars?.find((p) => p.key === "value")?.items?.find((m) => m.key === "forwardPE" || m.key === "trailingPE")?.value ?? null;
+// A quick-scored scan item that also sits on the research list, which has its full score.
+const fullOf = (it) => {
+  if (st.source !== "scan" || it.deep) return null;
+  const f = st.cache["research.json"]?.items?.find((x) => x.symbol === it.symbol);
+  return f?.longTerm?.score != null ? f : null;
+};
 const isNew = (it) => st.source === "scan" && (st.data.newGood?.includes(it.symbol) || st.data.newSetups?.includes(it.symbol));
 
 const chg = (v) => v == null || v === 0 ? "" : ` <span class="${v > 0 ? "pos" : "neg"}" title="Change over the past week">${v > 0 ? "▲" : "▼"}${Math.abs(v)}</span>`;
@@ -228,7 +234,7 @@ function rowHtml(it, i) {
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
     <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
     <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>
-    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${!it.deep && st.source === "scan" ? `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>` : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
+    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${!it.deep && st.source === "scan" ? (fullOf(it) ? `<span class="tag" title="Quick score here; your list has the full score">Quick · list ${fullOf(it).longTerm.score}</span>` : `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>`) : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
     <span class="caret">▶</span>
   </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
 }
@@ -255,7 +261,8 @@ function detailHtml(it) {
   const results = lr ? (lr.pending ? `<div class="note">Reported ${fmtDay(lr.date)}: the reaction shows after the next close.</div>` : `<div class="note ${lr.pct >= 0 ? "good" : ""}">Results ${fmtDay(lr.date)}: ${signPct(lr.pct)} from the close before to the close after.</div>`) : "";
   const sv = it.sectorValue;
   const peer = sv?.note ? `<div class="note peer"><b>Peer view</b> (not used in the verdict yet): ${esc(sv.note)}</div>` : "";
-  const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.</div>` : "";
+  const full = fullOf(it);
+  const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   return `<p class="summary">${esc(it.summary)}</p>${quick}${results}${notes}${peer}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
@@ -331,6 +338,7 @@ async function load() {
   try {
     if (!st.cache[file]) { const r = await fetch(`${file}?t=${Date.now()}`); if (!r.ok) throw 0; st.cache[file] = await r.json(); }
     st.data = st.cache[file];
+    if (file === "scan.json" && !st.cache["research.json"]) fetch(`research.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j) { st.cache["research.json"] = j; if (st.source === "scan") render(); } }).catch(() => {});
     if (st.dash === null) { try { const d = await fetch("data.json?t=" + Date.now()); st.dash = d.ok ? await d.json() : false; } catch { st.dash = false; } }
     const reg = st.dash?.regime, D = st.data;
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;

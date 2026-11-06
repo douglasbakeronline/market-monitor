@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 2 November 2026
 
+### Fri 6 Nov (midday)
+- **Buy-tier and dip-reserve backtest** (roadmap 4): `tools/tier-backtest.mjs` (logic in `src/tierBacktest.js`, with tests) replays the buy tiers on S&P 500 daily data since 1928 (and the FTSE 100 since 1985) and simulates a monthly saver who keeps 15% in cash for confirmed tiers, against investing it all, over every 5, 10 and 20-year window, with total returns since 1988 and T-bill interest on cash. Result: the agreed reserve trails all-in by a median 1.2% of final wealth over 10 years and wins in only 8% of windows; a 10% reserve or the 6-month drip roughly halve that; fear confirmation makes little difference. Details in the research log. *Why:* calibrates the tiers and gives Douglas numbers for the open reserve-size decision. No rules changed.
+- **Research page: quick scores show the full score from your list.** In the index scan, a quick-scored stock that is also on the research list now reads "Quick · list 84" (META, Shell, Constellation and others), and its detail says the full score and verdict. *Why:* META showed "Fair 75" in the scan but "Good entry 84" on the list, which could look like a contradiction; the pick check uses the full score.
+
 ### Fri 6 Nov
 - **Health and alerts on the 4.4% fall.** The S&P 500 fell 4.4% on Thu 5 Nov (AI chip sell-off; Nasdaq into correction), its worst day since 2025. Every slot ran on time; the urgent crash alert and the pullback-rule alert (S&P 5.9% off its high: bring the 16 Nov core purchase forward) both fired in the 16:00 London slot (11:00 New York). Data checked against news reports: the move is real.
 - **Dip study on 97 years of index data** (`tools/dip-study.mjs`, logic in `src/dipStudy.js`, with tests): forward returns after 4%+ one-day falls and after 5% pullback triggers, how often a trigger led to a 10/15/20/30% fall within a year, and whether buying at the trigger beats buying 1 to 4 weeks later. Results in the research log. *Why:* the pullback rule fired for the first time; checks it on more history than the 2020 context panel.
