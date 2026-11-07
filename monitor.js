@@ -12,7 +12,7 @@ import { snapshot, regime, marketStatus, evaluateAlerts, watchItem, buildFearSes
 import { forwardReturns, contextLine, mergeHistory } from "./src/context.js";
 import { runResearch } from "./src/runResearch.js";
 import { notify } from "./src/notify.js";
-import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, KIND_LABEL } from "./src/trackRecord.js";
+import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
@@ -144,7 +144,7 @@ async function main() {
   let signalLog = logSignals(await readJson("history/signals.json", []), [...marketEvents, ...researchEvents]);
   signalLog = evaluateSignals(signalLog, rowsBySymbol, spData?.rows ?? null);
   await writeJson("history/signals.json", signalLog, true);
-  const trackRecord = { summary: summariseSignals(signalLog), recent: signalLog.slice(-25).reverse() };
+  const trackRecord = { summary: summariseSignals(signalLog), byKind: signalsByKind(signalLog), recent: signalLog.slice(-25).reverse() };
 
   const ctxLine = contextLine(ctx);
   for (const a of alerts) if (["buy", "watch", "fear-no-dip"].includes(a.kind) && ctxLine) a.body += `\n${ctxLine}`;
