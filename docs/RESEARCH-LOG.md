@@ -3,6 +3,13 @@
 Dated findings that shape the rules. Newest first. Each entry: question, finding, strength of evidence, sources, implications.
 
 
+## 2026-11-07 (morning): What if both scoring proposals go in together?
+- Question: the peer view (value against sector peers, cyclicals capped) and the Entry view (no credit for a discount beyond 3%, plus 12-1 month momentum) were each counted on their own. Both lower scores for different reasons, so together they could move verdicts neither moves alone.
+- Method: the nightly scan now also scores every stock with both changes at once (`bothViewNote()` in `src/research.js`, display only). Real-data dry run on Fri 6 Nov closing prices, 110 full-score stocks.
+- Finding: together they change 22 of 110 full-score verdicts (peer view alone 11, Entry view alone 14). Four change only when combined: NatWest (bench), Super Micro and Diamondback lose Good entry (79/84/75 to about 71, just under the 72 bar), International Paper drops from Fair to Wait. Good entry lost overall: 11 stocks (incl. bench Schwab and Glencore); gained: Sandisk and Valero (Eni gains under the Entry view alone, not together). Of the picks, all five keep today's verdicts: VICI's peer-view gain to Good entry is cancelled by the Entry rule (score 67). Scores fall on average, so the combined rule is stricter than either.
+- Strength: a one-day snapshot of a scoring change, not a test of returns. The return evidence is in the 2 Nov (peer value) and 5 Nov (Entry) entries.
+- Implication: if Douglas agrees to both, the 72 Good-entry bar becomes harder to clear; consider deciding them together, or rechecking the bar after switching. No rules changed.
+
 ## 2026-11-06 (afternoon): Does the reserve cost hold with FTSE triggers and a global core? (buy-tier backtest follow-up)
 - Question: the midday test fired tiers on the S&P 500 only and measured wealth on the S&P 500. The live rule fires on either the S&P 500 or the FTSE 100, and the core is a global fund (VWRP). Does the ~1.2% cost change?
 - Method: same simulation (`tools/tier-backtest.mjs`), with the tier signal taken as the deeper of the two indices' drawdowns from their 52-week highs. Wealth on (a) the S&P 500 total-return index, (b) a daily-rebalanced 60% S&P 500 total return / 40% FTSE 100 price plus 3.5% a year for dividends (local currencies, no FX), (c) the iShares MSCI ACWI ETF with dividends (2008 to 2026, 104 ten-year windows). Cash earns the US T-bill rate throughout.
