@@ -6,6 +6,7 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ### Sat 7 Nov (afternoon)
 - **Trim-signal backtest** (research log). `tools/trim-backtest.mjs` (logic in `src/trimBacktest.js`, with tests) replays the "Overheated" trim rule on S&P 500 data since 1990, with real Fear & Greed from 2020 and a rebuilt stand-in before that (correlation 0.73 with the real index), and simulates selling part of a holding at each signal. *Why:* "whether to keep the trim signal" has been waiting on Douglas without evidence. Result: the signal is followed by normal or better returns and fewer 10% falls, so it is no reason to sell; as a rebalancing reminder it is harmless. No rule change.
+- **Greed alert backtest** (research log). The same tool now tests the "stop adding" greed alert: alerts were followed by better than average years and fewer 10% falls, and holding new money in cash while the alert is on made no difference to final wealth (it rarely lasts more than a few weeks). *Why:* the alert says "build cash for the next dip", which the 6 Nov reserve test shows costs money if it means waiting for a real fall. A wording change is proposed to Douglas; nothing changed.
 - Checked: the `SEC_CONTACT` secret is still not set.
 
 ### Sat 7 Nov (morning)
