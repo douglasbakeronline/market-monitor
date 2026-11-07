@@ -18,8 +18,6 @@ jobs:
         run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp dry-run/scan.json scan.json
           DRY_RUN=1 FORCE_RESEARCH=1 FORCE_SUMMARY=UK FORCE_DIGEST=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           if [ -n "$SEC_CONTACT" ]; then echo "SEC_CONTACT set" > dry-run/smart.log; node tools/smart-money.mjs dry-run/smart-money.json >> dry-run/smart.log 2>&1; echo "exit=$?" >> dry-run/smart.log; else echo "SEC_CONTACT missing" > dry-run/smart.log; fi
       - run: |

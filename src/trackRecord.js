@@ -74,3 +74,19 @@ export function summarise(log) {
     since: log[0]?.date ?? null,
   };
 }
+
+// Per signal type: the same headline numbers for each kind, plus the average
+// return against the S&P. A kind needs MIN_PER_KIND scored signals before its
+// rates mean anything; below that the page says "too early".
+export const MIN_PER_KIND = 5;
+export function byKind(log) {
+  const groups = Object.groupBy(log || [], (s) => s.kind);
+  return Object.entries(groups).map(([kind, list]) => {
+    const s = summarise(list);
+    const pool = list.filter((x) => x.perf?.now != null && (x.perf.sessions ?? 0) >= 5 && x.perf.vsSp != null && (s.basis !== "m1" || x.perf.m1 != null));
+    const avg = pool.length ? Math.round((pool.reduce((a, x) => a + x.perf.vsSp, 0) / pool.length) * 10) / 10 : null;
+    const enough = s.scored >= MIN_PER_KIND;
+    return { kind, label: KIND_LABEL[kind] || kind, total: s.total, scored: s.scored, basis: s.basis, enough,
+      hitRate: enough ? s.hitRate : null, beatSp: enough ? s.beatSp : null, avgVsSp: enough ? avg : null };
+  }).sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+}
