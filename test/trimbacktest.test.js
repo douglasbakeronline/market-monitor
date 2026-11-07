@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sma, greedProxy, vs200, trimEpisodes, maxDrawdownAhead, trimForward, trimSim, trimRolling, corr } from "../src/trimBacktest.js";
+import { sma, greedProxy, vs200, trimEpisodes, maxDrawdownAhead, trimForward, trimSim, trimRolling, corr, greedEpisodes, pauseSim, pauseRolling } from "../src/trimBacktest.js";
 
 const day = (i) => { const m = Math.floor(i / 21); return `${2000 + Math.floor(m / 12)}-${String((m % 12) + 1).padStart(2, "0")}-${String((i % 21) + 1).padStart(2, "0")}`; };
 
@@ -80,4 +80,24 @@ test("greed proxy is high after a calm rally and low after a fall", () => {
   assert.ok(ok.every((x) => x >= 0 && x <= 100));
   assert.ok(Math.max(...ok) > 60 && Math.min(...ok) < 40);
   assert.equal(corr([1, 2, 3, null], [2, 4, 6, 1]), 1);
+});
+
+test("greed episodes and the pause-new-money saver", () => {
+  const rows = rally();
+  rows.forEach((r, i) => { r.fg = i >= 440 && i < 520 ? 80 : 50; });
+  const g = greedEpisodes(rows);
+  assert.deepEqual(g.starts, [440]);
+  assert.equal(g.on[439], false); assert.equal(g.on[500], true); assert.equal(g.on[520], false);
+  // Greed while the index is well off its high does not count.
+  rows.forEach((r, i) => { if (i >= 600 && i < 640) r.fg = 85; });
+  assert.equal(greedEpisodes(rows).starts.length, 1);
+  // Pausing at 130 and buying back at 130 (then lower) gives no gain; holding cash
+  // through a fall that ends the alert later would.
+  const flat = pauseSim(rows, g.on, 300, 950);
+  assert.ok(Math.abs(flat.vsAlways) < 0.01, `${flat.vsAlways}`);
+  const on = rows.map((_, i) => i >= 440 && i < 580); // stays on into the fall
+  const win = pauseSim(rows, on, 300, 950);
+  assert.ok(win.vsAlways > 0 && win.pausedShare > 0);
+  assert.equal(pauseSim(rows, rows.map(() => false), 300, 950).vsAlways, 0);
+  assert.ok(pauseRolling(rows, on, { years: 1 }).windows > 0);
 });

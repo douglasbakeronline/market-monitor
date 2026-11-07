@@ -6,7 +6,7 @@
 // `close` is the S&P 500 price index (what the live rule watches), `tr` the
 // total-return index used for wealth (defaults to close), `cash` the annual
 // cash yield in %, `fg` the CNN Fear & Greed score (real or proxy).
-import { stats, fwd } from "./dipStudy.js";
+import { stats, fwd, drawdowns } from "./dipStudy.js";
 
 const H = { m1: 21, m3: 63, m6: 126, y1: 252 };
 const pct = (a, b) => (a / b - 1) * 100;
@@ -154,4 +154,58 @@ export function corr(a, b) {
   let sxy = 0, sxx = 0, syy = 0;
   for (const [x, y] of p) { sxy += (x - mx) * (y - my); sxx += (x - mx) ** 2; syy += (y - my) ** 2; }
   return Math.round((sxy / Math.sqrt(sxx * syy)) * 100) / 100;
+}
+
+// The greed alert ("Euphoric: stop deploying new money, build cash"): F&G at or
+// above `minScore` with the S&P within `maxDd`% of its 52-week high; it stays
+// on until F&G falls below `reset`. Returns episode starts and an on/off flag
+// per bar (bars with no score keep the previous state).
+export function greedEpisodes(rows, { minScore = 76, maxDd = -3, reset = 65, warm = 252 } = {}) {
+  const dd = drawdowns(rows);
+  const starts = [], on = new Array(rows.length).fill(false);
+  let active = false;
+  for (let i = warm; i < rows.length; i++) {
+    const f = rows[i].fg;
+    if (f != null) {
+      if (!active && f >= minScore && dd[i] >= maxDd) { starts.push(i); active = true; }
+      else if (active && f < reset) active = false;
+    }
+    on[i] = active;
+  }
+  return { starts, on };
+}
+
+// A monthly saver (1 unit on the first bar of each month) who, while `on`,
+// keeps new money in cash and invests the pile once the alert ends (or at the
+// end of the window). Wealth against always investing (%).
+export function pauseSim(rows, on, s, e) {
+  const px = (i) => rows[i].tr ?? rows[i].close;
+  let u = 0, cash = 0, base = 0, month = null, months = 0, paused = 0;
+  for (let i = s; i <= e; i++) {
+    if (i > s) cash *= 1 + (rows[i - 1].cash ?? 0) / 100 / 252;
+    const m = rows[i].date.slice(0, 7);
+    if (m !== month) {
+      month = m; months++; base += 1 / px(i);
+      if (on[i]) { cash += 1; paused++; } else u += 1 / px(i);
+    }
+    if (!on[i] && cash > 0) { u += cash / px(i); cash = 0; }
+  }
+  return { vsAlways: pct(u * px(e) + cash, base * px(e)), pausedShare: months ? paused / months : 0 };
+}
+
+export function pauseRolling(rows, on, { years = 10, warm = 252 } = {}) {
+  const ws = [];
+  let last = null;
+  for (let i = warm; i < rows.length; i++) {
+    const m = rows[i].date.slice(0, 7);
+    if (m !== last) { ws.push(i); last = m; }
+  }
+  const len = Math.round(years * 252), d = [], p = [];
+  for (const s of ws) {
+    const e = s + len;
+    if (e >= rows.length) break;
+    const r = pauseSim(rows, on, s, e);
+    d.push(r.vsAlways); p.push(r.pausedShare * 100);
+  }
+  return { windows: d.length, vsAlways: stats(d), worst: d.length ? r1(Math.min(...d)) : null, best: d.length ? r1(Math.max(...d)) : null, monthsPausedPct: stats(p).mean };
 }

@@ -1,4 +1,5 @@
-// Research: backtest the trim signal (src/trimBacktest.js, rule in src/config.js).
+// Research: backtest the trim signal and the greed "stop adding" alert
+// (src/trimBacktest.js, rules in src/config.js).
 //   node tools/trim-backtest.mjs   -> prints JSON summary
 // Data: S&P 500 price (^GSPC) for the rule, S&P 500 total return (^SP500TR,
 // 1988 on) for returns and wealth, 13-week T-bill (^IRX) for cash, VIX (1990
@@ -8,7 +9,7 @@ import { parseYahoo } from "../src/data/prices.js";
 import { fetchJson } from "../src/data/http.js";
 import { CONFIG } from "../src/config.js";
 import { align } from "../src/tierBacktest.js";
-import { greedProxy, trimEpisodes, trimForward, trimRolling, corr } from "../src/trimBacktest.js";
+import { greedProxy, trimEpisodes, trimForward, trimRolling, corr, greedEpisodes, pauseRolling } from "../src/trimBacktest.js";
 
 const daily = async (sym) => {
   const now = Math.floor(Date.now() / 1000);
@@ -75,6 +76,22 @@ if (sp && tr && irx && vix) {
     proxyMatched_y10: trimRolling(px, sMatched, VARIANTS, { years: 10 }),
     proxyMatched_y5: trimRolling(px, sMatched, VARIANTS, { years: 5 }),
     priceVixOnly_y10: trimRolling(tr1990, sPV, VARIANTS, { years: 10 }),
+  };
+
+  // 7. The greed alert ("stop deploying new money"): F&G 76+ within 3% of the high, off below 65.
+  const gOpt = { maxDd: CONFIG.greedMaxDrawdown };
+  const gHi = at(pOv, freq(ov.map((r) => r.fg), CONFIG.greedScore)), gReset = at(pOv, freq(ov.map((r) => r.fg), CONFIG.greedResetScore));
+  const gReal = greedEpisodes(real, { ...gOpt, minScore: CONFIG.greedScore, reset: CONFIG.greedResetScore, warm: 0 });
+  const gPx = greedEpisodes(px, { ...gOpt, minScore: gHi, reset: gReset });
+  const fwdOf = (r, s) => { const f = trimForward(r, s); f.dates = f.dates.slice(-12); return f; };
+  out.greed = {
+    rule: { score: CONFIG.greedScore, maxDd: CONFIG.greedMaxDrawdown, reset: CONFIG.greedResetScore, proxyLevel: gHi, proxyReset: gReset },
+    real_2020: { ...fwdOf(real, gReal.starts), daysOnPct: Math.round((gReal.on.filter(Boolean).length / real.filter((r) => r.fg != null).length) * 100) },
+    proxy_1990: { ...fwdOf(px, gPx.starts), daysOnPct: Math.round((gPx.on.filter(Boolean).length / px.length) * 100) },
+    // Monthly saver who holds new money in cash while the alert is on.
+    pause_proxy_y10: pauseRolling(px, gPx.on, { years: 10 }),
+    pause_proxy_y5: pauseRolling(px, gPx.on, { years: 5 }),
+    pause_real_y3: pauseRolling(real, gReal.on, { years: 3, warm: real.findIndex((r) => r.fg != null) }),
   };
 }
 // 6. Trend only (no VIX before 1990), S&P price since 1950, as a long-sample check.
