@@ -3031,5 +3031,31 @@
     "stop": 1626.63,
     "score": 68,
     "status": "pending"
+  },
+  {
+    "id": "2026-11-06:HUM",
+    "symbol": "HUM",
+    "ticker": "HUM",
+    "name": "Humana Inc.",
+    "market": "US",
+    "currency": "USD",
+    "signalDate": "2026-11-06",
+    "signalPrice": 433.74,
+    "stop": 399.31,
+    "score": 68,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-06:MRNA",
+    "symbol": "MRNA",
+    "ticker": "MRNA",
+    "name": "Moderna, Inc.",
+    "market": "US",
+    "currency": "USD",
+    "signalDate": "2026-11-06",
+    "signalPrice": 254.19,
+    "stop": 212.44,
+    "score": 68,
+    "status": "pending"
   }
 ]
