@@ -183,6 +183,14 @@ const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: 
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
 const peOf = (it) => it.pe ?? it.longTerm?.pillars?.find((p) => p.key === "value")?.items?.find((m) => m.key === "forwardPE" || m.key === "trailingPE")?.value ?? null;
+// The two scoring proposals waiting on Douglas: how many full-score verdicts each would change.
+function proposalLine(D) {
+  const c = (x) => (x?.compared ? `${x.changed} of ${x.compared}` : null);
+  const p = c(D.sectorValueChanges), e = c(D.entryViewChanges), b = c(D.bothViewChanges);
+  if (!p && !e) return "";
+  return ` <b>Proposals</b> (display only, waiting on your OK): the peer view would change ${p ?? "n/a"} full-score verdicts, the Entry view ${e ?? "n/a"}${b ? `, both together ${b}` : ""}. Open a stock to see its notes.`;
+}
+
 // A quick-scored scan item that also sits on the research list, which has its full score.
 const fullOf = (it) => {
   if (st.source !== "scan" || it.deep) return null;
@@ -288,10 +296,12 @@ function detailHtml(it) {
   const peer = sv?.note ? `<div class="note peer"><b>Peer view</b> (not used in the verdict yet): ${esc(sv.note)}</div>` : "";
   const ev = it.entryView;
   const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
+  const bv = it.bothView;
+  const bothNote = bv?.note && (bv.changed || sv?.changed || ev?.changed) ? `<div class="note peer"><b>Both together</b> (not used yet): ${esc(bv.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}${bothNote}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -372,7 +382,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();

@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote, bothViewNote } from "./research.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -35,6 +35,7 @@ export async function runResearch({ regimeKey, state }) {
       const peer = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
       const sectorValue = peer ? sectorValueNote(f, peer, lt, longTerm(f, t, peer)) : null;
       const entryView = entryViewNote(lt, longTerm(f, t, null, { entryAlt: true }), t);
+      const bothView = peer ? bothViewNote(lt, longTerm(f, t, peer, { entryAlt: true }), sectorValue, entryView) : null;
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
         symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: marketOf(s.symbol),
@@ -48,7 +49,7 @@ export async function runResearch({ regimeKey, state }) {
         earnings: earningsFields(f?.nextEarnings, null, today).earnings,
         lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
-        longTerm: lt, swing, signals, sectorValue, entryView,
+        longTerm: lt, swing, signals, sectorValue, entryView, bothView,
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };
