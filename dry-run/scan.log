@@ -1,0 +1,10 @@
+Scanning 650 companies (SP500 503, FTSE100 100, EUROSTOXX50 50)
+Quotes: 650
+Stage 1: 649 scored, 1 failed (2.4 min)
+Stage 2: 110 deepened (3.1 min)
+Paper trades: 115 open, 30 closed, -0.44R average.
+Sector-relative value (display only): 11 of 110 full-score verdicts would change; Good entry lost: GLEN.L, STJ.L, GL, WFC; gained: VICI.
+Entry view (display only): 14 of 110 full-score verdicts would change; Good entry lost: SCHW, COF, STJ.L, EXPE, AIG, WFC; gained: SNDK, VLO, ENI.MI.
+Both proposals (display only): 22 of 110 full-score verdicts would change (only together: SMCI, NWG.L, FANG, IP); Good entry lost: SCHW, SMCI, COF, GLEN.L, NWG.L, STJ.L, EXPE, AIG, FANG, GL, WFC; gained: SNDK, VLO.
+Done: 649 scored, 0 new good entries, 0 new setups, 3.1 min.
+exit=0
