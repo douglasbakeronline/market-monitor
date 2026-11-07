@@ -61,6 +61,8 @@ test("trim sim: selling before a fall and buying back lower beats holding", () =
   // Buy back early when the price drops under the 200-day.
   const early = trimSim(rows, [500], 300, 950, { frac: 0.1, holdBars: 400, backBelow200: true });
   assert.ok(early.vsHold > 0);
+  // Measured against holding, not against the starting value: no episode, no difference.
+  assert.equal(trimSim(rows, [], 300, 500).vsHold, 0, "window that rises 100 to 130");
   const roll = trimRolling(rows, [500], { a: { frac: 0.1 } }, { years: 1, warm: 252 });
   assert.ok(roll.a.windows > 0);
 });

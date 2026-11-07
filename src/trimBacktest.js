@@ -120,7 +120,7 @@ export function trimSim(rows, starts, s, e, { frac = 0.1, holdBars = 126, backBe
       const sell = units * frac; units -= sell; cash += sell * px(i); since = i; trades++;
     }
   }
-  return { vsHold: pct(units * px(e) + cash, 1), trades };
+  return { vsHold: pct(units * px(e) + cash, px(e) / px(s)), trades };
 }
 
 // Rolling windows of `years`, one starting each month.
