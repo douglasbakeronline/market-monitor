@@ -35,3 +35,20 @@ test("entryViewNote reports the would-be entry score and any verdict change", ()
   assert.match(v.note, /Entry would score \d+ \(now \d+\)/);
   assert.equal(entryViewNote(null, alt, null), null);
 });
+
+test("bothViewNote combines peer value and the Entry rule, and flags verdicts only the pair gives", async () => {
+  const { bothViewNote } = await import("../src/research.js");
+  const peer = { sector: "Industrials", n: 20, forwardPE: 20, trailingPE: 22, pe: 20, cyclical: false };
+  const tt = t(-1, 40);
+  const now = longTerm(f, tt), both = longTerm(f, tt, peer, { entryAlt: true });
+  const sv = { verdict: longTerm(f, tt, peer).verdict }, ev = { verdict: longTerm(f, tt, null, { entryAlt: true }).verdict };
+  const v = bothViewNote(now, both, sv, ev);
+  assert.equal(v.score, both.score);
+  assert.equal(v.changed, both.verdict !== now.verdict);
+  assert.match(v.note, /score would be \d+ \(now \d+\)/);
+  assert.equal(v.onlyTogether, false);
+  const forced = bothViewNote(now, { ...both, verdict: "Good entry" }, { verdict: "Fair" }, { verdict: "Wait" });
+  assert.equal(forced.onlyTogether, true);
+  assert.match(forced.note, /neither change alone/);
+  assert.equal(bothViewNote(now, both, null, ev), null, "needs a peer group");
+});

@@ -267,6 +267,20 @@ export function entryViewNote(now, alt, t) {
   return { entry: eAlt, entryNow: eNow, mom, score: alt.score, verdict: alt.verdict, changed, note: parts.join(" ") };
 }
 
+// Both proposals together (display only): peer-relative value with the
+// cyclical cap AND the proposed Entry rule. They can interact (a cyclical that
+// gains on momentum but is capped on value), so Douglas sees the joint effect.
+// now = live longTerm(); both = longTerm(f, t, peer, { entryAlt: true });
+// sv, ev = the single-change notes (either may be null).
+export function bothViewNote(now, both, sv, ev) {
+  if (!now || !both || now.score == null || both.score == null || now.trust || !sv || !ev) return null;
+  const changed = both.verdict !== now.verdict;
+  // "Only together": the joint verdict differs from what each change gives alone.
+  const onlyTogether = both.verdict !== sv.verdict && both.verdict !== ev.verdict;
+  const note = `With both proposals (value against peers and the new Entry rule) the score would be ${both.score} (now ${now.score}) and the verdict ${changed ? `${both.verdict} (now ${now.verdict})` : `stays ${now.verdict}`}${onlyTogether ? `; neither change alone gives this (peer view ${sv.verdict}, Entry view ${ev.verdict})` : ""}.`;
+  return { score: both.score, verdict: both.verdict, changed, onlyTogether, note };
+}
+
 // Adjust the long-term verdict note for the market regime.
 export function regimeNote(regimeKey, verdict) {
   if (["capitulation", "correction"].includes(regimeKey) && ["Good entry", "Fair"].includes(verdict)) return "Market-wide fear is on your side: a good time to build long-term positions in stages.";

@@ -10,7 +10,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote, bothViewNote } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -93,13 +93,14 @@ async function main() {
     it.sv = peer ? sectorValueNote(it.f, peer, it.lt, longTerm(it.f, it.t, peer)) : null;
     // Proposed Entry rule, display only (roadmap: Entry pillar step 2 waits on Douglas).
     it.ev = entryViewNote(it.lt, longTerm(it.f, it.t, null, { entryAlt: true }), it.t);
+    it.bv = peer ? bothViewNote(it.lt, longTerm(it.f, it.t, peer, { entryAlt: true }), it.sv, it.ev) : null;
   }
 
   // Results dates seen so far, so estimates learn each company's reporting gap.
   const resultsHist = await readJson("history/results-dates.json", {});
   for (const it of items) recordResults(resultsHist, it.u.symbol, [it.f.lastEarnings, it.f.nextEarnings], today);
 
-  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev }) => {
+  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev, bv }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
@@ -109,7 +110,7 @@ async function main() {
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
-      swing, signals, deep: isDeep, sectorValue: sv, entryView: ev,
+      swing, signals, deep: isDeep, sectorValue: sv, entryView: ev, bothView: bv,
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
@@ -148,12 +149,14 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), bothViewChanges: viewChanges(out, "bothView"), items: out,
   });
   const svc = sectorValueChanges(out);
   console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);
   const evc = viewChanges(out, "entryView");
   console.log(`Entry view (display only): ${evc.changed} of ${evc.compared} full-score verdicts would change; Good entry lost: ${evc.lostGood.join(", ") || "none"}; gained: ${evc.gainedGood.join(", ") || "none"}.`);
+  const bvc = viewChanges(out, "bothView");
+  console.log(`Both proposals (display only): ${bvc.changed} of ${bvc.compared} full-score verdicts would change (only together: ${out.filter((i) => i.deep && i.bothView?.onlyTogether).map((i) => i.symbol).join(", ") || "none"}); Good entry lost: ${bvc.lostGood.join(", ") || "none"}; gained: ${bvc.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
 }
 
