@@ -204,7 +204,10 @@
       "nowDate": "2026-11-06",
       "sessions": 3,
       "spNow": -2.5,
-      "vsSp": 4.7
+      "idx": "^GSPC",
+      "idxNow": -2.5,
+      "vsSp": 4.7,
+      "vsIdx": 4.7
     }
   },
   {
@@ -267,7 +270,10 @@
       "nowDate": "2026-11-06",
       "sessions": 1,
       "spNow": 0.3,
-      "vsSp": 0.6
+      "idx": "^GSPC",
+      "idxNow": 0.3,
+      "vsSp": 0.6,
+      "vsIdx": 0.6
     }
   },
   {

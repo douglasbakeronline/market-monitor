@@ -14,7 +14,7 @@
     "UK": "2026-11-06",
     "US": "2026-11-06"
   },
-  "digestSent": "2026-W44",
+  "digestSent": "2026-W45",
   "fearLog": {
     "2026-01-03": {
       "close": 28
@@ -94,99 +94,123 @@
   "research": {
     "SPCX": {
       "lt": "Expensive",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "MSFT": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (new), Fundsmith, Dodge & Cox"
     },
     "GOOGL": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Berkshire Hathaway (added), Fundsmith, Dodge & Cox"
     },
     "AAPL": {
       "lt": "Expensive",
-      "sw": "Setup"
+      "sw": "Setup",
+      "sm": "Q2 2026|Held by Berkshire Hathaway"
     },
     "AMZN": {
       "lt": "Fair",
-      "sw": "Setup"
+      "sw": "Setup",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)"
     },
     "NVDA": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "META": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square, Fundsmith, Dodge & Cox (added)"
     },
     "TSLA": {
       "lt": "Expensive",
-      "sw": "Avoid"
+      "sw": "Avoid",
+      "sm": null
     },
     "AVGO": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "AMD": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "V": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Akre Capital, Fundsmith, Dodge & Cox (added)"
     },
     "JPM": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "AZN.L": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "SHEL.L": {
       "lt": "Fair",
-      "sw": "Setup"
+      "sw": "Setup",
+      "sm": null
     },
     "HSBA.L": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "BRBY.L": {
       "lt": "Wait",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "NEM": {
       "lt": "Fair",
-      "sw": "Setup"
+      "sw": "Setup",
+      "sm": null
     },
     "STZ": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q2 2026|"
     },
     "VICI": {
       "lt": "Fair",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "SCHW": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Dodge & Cox"
     },
     "CF": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "LLOY.L": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "NWG.L": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     },
     "GLEN.L": {
       "lt": "Good entry",
-      "sw": "Neutral"
+      "sw": "Neutral",
+      "sm": null
     }
   },
   "health": {},
@@ -1493,7 +1517,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-08T12:20:09.775Z",
+    "fgAt": "2026-11-08T18:00:00.742Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1648,7 +1672,7 @@
         "dayPct": -9,
         "date": "2026-11-06"
       },
-      "at": "2026-11-08T12:20:09.775Z"
+      "at": "2026-11-08T18:00:00.742Z"
     },
     "watchlist": [
       {
