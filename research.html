@@ -298,10 +298,11 @@ function detailHtml(it) {
   const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
   const bv = it.bothView;
   const bothNote = bv?.note && (bv.changed || sv?.changed || ev?.changed) ? `<div class="note peer"><b>Both together</b> (not used yet): ${esc(bv.note)}</div>` : "";
+  const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}${bothNote}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}${bothNote}${smn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>

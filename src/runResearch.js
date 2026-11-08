@@ -3,6 +3,7 @@ import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote, bothViewNote } from "./research.js";
+import { smartFor } from "./smartMoney.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -21,6 +22,7 @@ export async function runResearch({ regimeKey, state }) {
   let earnings = await readJson("history/earnings.json", {});
   // Sector medians from the latest index scan (display-only peer valuation).
   const scanMeta = await readJson("scan.json", null);
+  const smart = await readJson("data/smart-money.json", null); // smart-money tags (display only)
   const medians = scanMeta?.sectorMedians ?? null, regional = scanMeta?.sectorMediansByRegion ?? null;
   for (const s of stocks) {
     try {
@@ -53,6 +55,8 @@ export async function runResearch({ regimeKey, state }) {
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };
+      const sm = smartFor(s.symbol, smart);
+      if (sm) item.smartMoney = sm;
       if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: /\.L$/.test(s.symbol), history: earnings[s.symbol] || [] });
       item.summary = summarise(item);
       items.push(item);

@@ -16,6 +16,7 @@ import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
+import { smartFor } from "./src/smartMoney.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50" };
@@ -100,6 +101,10 @@ async function main() {
   const resultsHist = await readJson("history/results-dates.json", {});
   for (const it of items) recordResults(resultsHist, it.u.symbol, [it.f.lastEarnings, it.f.nextEarnings], today);
 
+  // Smart money (display only): 13F holdings of a few long-term managers,
+  // refreshed weekly by tools/smart-money.mjs in this workflow.
+  const smart = await readJson("data/smart-money.json", null);
+
   const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev, bv }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
@@ -115,6 +120,8 @@ async function main() {
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
     };
+    const sm = smartFor(u.symbol, smart);
+    if (sm) item.smartMoney = sm;
     if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market !== "US", history: resultsHist[u.symbol] || [] });
     item.summary = summarise(item);
     return item;

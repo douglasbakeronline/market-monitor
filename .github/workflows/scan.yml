@@ -8,7 +8,7 @@ on:
     - cron: "30 21 * * 1-5"
   push:
     branches: [main]
-    paths: [".github/workflows/scan.yml", "scan.js", "trends.js", "src/themes.js", "src/data/constituents.js", "src/data/quotes.js"]
+    paths: [".github/workflows/scan.yml", "scan.js", "trends.js", "src/themes.js", "src/data/constituents.js", "src/data/quotes.js", "src/smartMoney.js", "tools/smart-money.mjs"]
   workflow_dispatch: {}
 
 concurrency:
@@ -27,6 +27,14 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "24"
+      # Smart money (display-only tags): 13F holdings of five long-term managers.
+      # 13Fs change quarterly, so refresh on Monday nights or when missing.
+      - name: Smart money
+        continue-on-error: true
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: |
+          if [ "$(date -u +%u)" = "1" ] || [ ! -f data/smart-money.json ]; then node tools/smart-money.mjs; else echo "Not Monday; keeping data/smart-money.json."; fi
       - name: Scan
         run: node scan.js
       - name: Trends
@@ -36,3 +44,12 @@ jobs:
         env:
           COMMIT_MSG: Update index scan
         run: scripts/persist.sh scan.json data/constituents.json trends.json history/paper-trades.json history/results-dates.json
+      # Separate so a missing smart-money file can never block the scan commit.
+      - name: Save smart money
+        if: always()
+        continue-on-error: true
+        env:
+          COMMIT_MSG: Update smart money
+        run: |
+          files=""; for f in data/smart-money.json data/cusip-map.json; do [ -f "$f" ] && files="$files $f"; done
+          if [ -n "$files" ]; then scripts/persist.sh $files; else echo "No smart-money files."; fi

@@ -42,3 +42,63 @@ test("ticker tags", () => {
   assert.equal(smartTag(t.MA), "Held by Berkshire Hathaway (new), Akre Capital");
   assert.equal(smartTag(t["BRK-B"]), null, "sold only: no tag");
 });
+
+import { parse13fInfoFilings, parse13fInfoData } from "../src/smartMoney.js";
+
+const row = (acc, period, filed, form, q) => `<tr class="x"> <td class="px-3" data-order="${period}"> <a href="/13f/${acc}-berkshire-hathaway-inc-${q}">${q}</a> </td> <td>29</td> <td data-order="299253556.2"> 299,253,556 </td> <td title="AAPL, AXP">AAPL, AXP</td> <td class="px-3 truncate" title="${form}"> ${form} </td> <td class="px-3 text-right" data-order="${filed}">x</td> <td>${acc}</td> </tr>`;
+
+test("parse13fInfoFilings keeps original 13F-HR filings, newest period first", () => {
+  const html = `<h1>Berkshire</h1><table><tbody>${[
+    row("000119312526226661", "2026-03-31", "2026-05-15", "13F-HR", "q1-2026"),
+    row("000119312526352200", "2026-06-30", "2026-08-14", "13F-HR", "q2-2026"),
+    row("000119312526399999", "2026-06-30", "2026-09-01", "13F-HR/A", "q2-2026"),
+    row("000119312525282901", "2025-09-30", "2025-11-14", "13F-NT", "q3-2025"),
+  ].join("")}</tbody></table>`;
+  const f = parse13fInfoFilings(html);
+  assert.deepEqual(f.map((x) => x.acc), ["000119312526352200", "000119312526226661"]);
+  assert.equal(f[0].period, "2026-06-30");
+  assert.equal(f[0].filed, "2026-08-14");
+  assert.deepEqual(parse13fInfoFilings(""), []);
+});
+
+test("parse13fInfoData maps rows and tickers and drops options", () => {
+  const { rows, tickers } = parse13fInfoData({ data: [
+    ["AAPL", "APPLE INC", "COM", "037833100", 65950296, 22.0, 227917808, null, null],
+    ["BRK.B", "BERKSHIRE HATHAWAY INC DEL", "CL B NEW", "084670702", 100, 0.1, 5, null, null],
+    ["SPY", "SPDR S&P 500 ETF", "TR UNIT", "78462F103", 500, 0.2, 10, null, "Put"],
+    ["X", "BAD", "COM", "", 1, 0, 1, null, null],
+  ] });
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows[0], { name: "APPLE INC", cusip: "037833100", value: 65950296, shares: 227917808 });
+  assert.deepEqual(tickers, { "037833100": "AAPL", "084670702": "BRK.B" });
+  assert.deepEqual(parse13fInfoData(null), { rows: [], tickers: {} });
+});
+
+import { smartFor, quarterLabel } from "../src/smartMoney.js";
+
+test("smartFor builds a display-only tag from data/smart-money.json", () => {
+  const sm = {
+    managers: [{ name: "Akre Capital", period: "2026-06-30" }, { name: "Fundsmith", period: "2026-06-30" }, { name: "Pershing Square", period: "2026-03-31" }],
+    byTicker: {
+      MA: [{ manager: "Akre Capital", weight: 20, change: "trimmed" }, { manager: "Fundsmith", weight: 3, change: "added" }, { manager: "Pershing Square", weight: 0.4, change: "new" }],
+      JNJ: [{ manager: "Fundsmith", weight: 0.5, change: "held" }],
+      NKE: [{ manager: "Pershing Square", weight: 0, change: "sold" }],
+    },
+  };
+  const ma = smartFor("MA", sm);
+  assert.equal(ma.tag, "Held by Akre Capital, Fundsmith (added)");
+  assert.equal(ma.managers, 2);
+  assert.equal(ma.asOf, "Q2 2026");
+  assert.equal(ma.note, "Held by Akre Capital, Fundsmith (added). From Q2 2026 13F filings (positions of 1% or more), published up to 45 days after each quarter.");
+  assert.equal(smartFor("JNJ", sm), null, "a position under 1% is not a tag");
+  const both = smartFor("MA", { ...sm, byTicker: { MA: [...sm.byTicker.MA, { manager: "Pershing Square", weight: 5, change: "held" }] } });
+  assert.equal(both.asOf, "Q1 2026 to Q2 2026");
+  const nke = smartFor("NKE", sm);
+  assert.equal(nke.tag, null);
+  assert.deepEqual(nke.sold, ["Pershing Square"]);
+  assert.equal(nke.asOf, "Q1 2026");
+  assert.match(nke.note, /^Sold out by Pershing Square\. From Q1 2026/);
+  assert.equal(smartFor("AAPL", sm), null);
+  assert.equal(smartFor("MA", null), null);
+  assert.equal(quarterLabel("2025-12-31"), "Q4 2025");
+});
