@@ -12,7 +12,7 @@ import { snapshot, regime, marketStatus, evaluateAlerts, watchItem, buildFearSes
 import { forwardReturns, contextLine, mergeHistory } from "./src/context.js";
 import { runResearch } from "./src/runResearch.js";
 import { notify } from "./src/notify.js";
-import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, KIND_LABEL } from "./src/trackRecord.js";
+import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, byMarket as signalsByMarket, byScore as signalsByScore, byHorizon as signalsByHorizon, digestKindLine, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
@@ -141,10 +141,11 @@ async function main() {
   const rowsBySymbol = { ...Object.fromEntries(Object.entries(wlData).filter(([, v]) => v).map(([k, v]) => [k, v.rows])), ...researchRows };
   if (spData?.rows) rowsBySymbol["^GSPC"] = spData.rows;
   if (series["^FTSE"]?.rows) rowsBySymbol["^FTSE"] = series["^FTSE"].rows;
+  if (series["^STOXX50E"]?.rows) rowsBySymbol["^STOXX50E"] = series["^STOXX50E"].rows; // home index for European names
   let signalLog = logSignals(await readJson("history/signals.json", []), [...marketEvents, ...researchEvents]);
   signalLog = evaluateSignals(signalLog, rowsBySymbol, spData?.rows ?? null);
   await writeJson("history/signals.json", signalLog, true);
-  const trackRecord = { summary: summariseSignals(signalLog), byKind: signalsByKind(signalLog), recent: signalLog.slice(-25).reverse() };
+  const trackRecord = { summary: summariseSignals(signalLog), byKind: signalsByKind(signalLog), byMarket: signalsByMarket(signalLog), byScore: signalsByScore(signalLog), byHorizon: signalsByHorizon(signalLog), recent: signalLog.slice(-25).reverse() };
 
   const ctxLine = contextLine(ctx);
   for (const a of alerts) if (["buy", "watch", "fear-no-dip"].includes(a.kind) && ctxLine) a.body += `\n${ctxLine}`;
@@ -299,6 +300,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRec
   if (sl) L.push(sl);
   if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
   if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatSp}% beat the S&P.`);
+  const kindLine = tr?.total ? digestKindLine(trackRecord.byKind) : null;
+  if (kindLine) L.push(kindLine);
   return L.join("\n");
 }
 

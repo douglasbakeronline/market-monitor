@@ -155,6 +155,16 @@
   .tr-kind { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
   .tr-kind .num { text-align: right; min-width: 64px; }
   .tr-kind .num .sub { display: block; font-size: 11px; color: var(--muted); }
+  .tr-more { margin: -4px 0 14px; font-size: 13px; }
+  .tr-more summary { cursor: pointer; color: var(--muted); font-size: 12px; padding: 4px 0; }
+  .tr-more summary:hover { color: var(--ink, inherit); }
+  .tr-more .tr-kinds { margin: 10px 0 0; }
+  .tr-more .note { font-size: 11.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.45; }
+  .tr-h3 { display: grid; grid-template-columns: 1fr repeat(3, auto); gap: 12px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line-2); }
+  .tr-h3 .num { text-align: right; min-width: 64px; }
+  .tr-h3 .num .sub { display: block; font-size: 11px; color: var(--muted); }
+  .tr-h3.head { border-top: 0; padding: 0 0 2px; font-size: 11px; color: var(--muted); }
+  @media (max-width: 520px) { .tr-h3 { gap: 8px; } .tr-h3 .num { min-width: 54px; } }
   @media (max-width: 520px) { .tr-kind { grid-template-columns: 1fr auto auto; } .tr-kind .vs { display: none; } }
   @media (max-width: 520px) { .tr-row { grid-template-columns: 60px 1fr auto; } .tr-row .vs { display: none; } }
 </style>
@@ -276,6 +286,7 @@
     <div class="card">
       <div class="tr-head" id="trHead"></div>
       <div class="tr-kinds" id="trKinds" hidden></div>
+      <details class="tr-more" id="trMore" hidden><summary>More detail: by market, score and time held</summary><div id="trMoreBody"></div></details>
       <div id="trList"></div>
     </div>
     <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against the S&amp;P 500 over the same period. For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
@@ -647,6 +658,7 @@ function renderTrack(tr) {
       <span class="num">${g.beatSp == null ? `<span class="muted">n/a</span>` : `${g.beatSp}%`}<span class="sub">beat the S&amp;P</span></span>
       <span class="num vs ${tone(g.kind, g.avgVsSp)}">${g.avgVsSp == null ? `<span class="muted">n/a</span>` : signPct(g.avgVsSp)}<span class="sub">avg vs S&amp;P</span></span></div>`).join("");
   }
+  renderTrackMore(tr, tone);
   $("trList").innerHTML = tr.recent.map((x) => {
     const p = x.perf || {};
     const days = p.sessions != null ? `${p.sessions} session${p.sessions === 1 ? "" : "s"}` : "pending";
@@ -655,6 +667,33 @@ function renderTrack(tr) {
       <span class="num ${tone(x.kind, p.now)}">${signPct(p.now)}<span class="sub">${days}</span></span>
       <span class="num vs ${tone(x.kind, p.vsSp)}">${p.vsSp == null ? "n/a" : signPct(p.vsSp)}<span class="sub">vs S&amp;P</span></span></div>`;
   }).join("");
+}
+
+// Slice 2 of the track record: the same signals cut by market, score band and
+// time held, each judged against its home index (FTSE 100 for UK listings).
+function renderTrackMore(tr, tone) {
+  const mk = tr.byMarket || [], sc = tr.byScore || [], hz = tr.byHorizon || [];
+  if (!mk.length && !sc.length && !hz.length) return;
+  $("trMore").hidden = false;
+  const basisSub = (g) => g.enough ? (g.basis === "m1" ? "right after 1 month" : "right so far") : `${g.scored} of 5 scored`;
+  const row = (label, g, toneKind) => `<div class="tr-kind">
+      <span><b>${esc(label)}</b> <span class="muted">${g.total} logged</span></span>
+      <span class="num">${g.hitRate == null ? `<span class="muted">Too early</span>` : `${g.hitRate}%`}<span class="sub">${basisSub(g)}</span></span>
+      <span class="num">${g.beatIdx == null ? `<span class="muted">n/a</span>` : `${g.beatIdx}%`}<span class="sub">beat home index</span></span>
+      <span class="num vs ${tone(toneKind, g.avgVsIdx)}">${g.avgVsIdx == null ? `<span class="muted">n/a</span>` : signPct(g.avgVsIdx)}<span class="sub">avg vs home</span></span></div>`;
+  let h = "";
+  if (mk.length) h += `<div class="tr-kinds"><div class="k-title">By market</div>${mk.map((g) => row(g.label, g, "")).join("")}</div>`;
+  if (sc.length) h += `<div class="tr-kinds"><div class="k-title">By score (stock signals)</div>${sc.map((g) => row(`Score ${g.band}`, g, "")).join("")}</div>`;
+  if (hz.length) {
+    const cell = (k, x) => x.hitRate == null
+      ? `<span class="num"><span class="muted">${x.scored ? `${x.scored} of 5` : "None yet"}</span><span class="sub">${x.scored ? "scored" : "&nbsp;"}</span></span>`
+      : `<span class="num ${tone(k, x.avgReturn)}">${x.hitRate}%<span class="sub">${signPct(x.avgReturn)} avg</span></span>`;
+    h += `<div class="tr-kinds"><div class="k-title">By time held (share right, average move)</div>
+      <div class="tr-h3 head"><span></span>${hz[0].horizons.map((x) => `<span class="num">${x.label}</span>`).join("")}</div>
+      ${hz.map((g) => `<div class="tr-h3"><span><b>${esc(g.label)}</b></span>${g.horizons.map((x) => cell(g.kind, x)).join("")}</div>`).join("")}</div>`;
+  }
+  h += `<p class="note">Home index: the FTSE 100 for UK listings, the S&amp;P 500 for US ones, so a UK stock is not judged on the pound or the US market. Market-wide signals are the index itself, so they have no home comparison. Each figure waits for 5 scored signals.</p>`;
+  $("trMoreBody").innerHTML = h;
 }
 
 function renderWatchlist(list) {
