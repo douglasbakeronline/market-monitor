@@ -35,9 +35,13 @@
       "nowDate": "2026-11-06",
       "sessions": 6,
       "spNow": -4.4,
+      "idx": "^GSPC",
+      "idxNow": -4.4,
       "w1": 6.7,
       "w1Sp": -4.7,
-      "vsSp": 10.8
+      "w1Idx": -4.7,
+      "vsSp": 10.8,
+      "vsIdx": 10.8
     }
   },
   {
@@ -56,9 +60,13 @@
       "nowDate": "2026-11-06",
       "sessions": 5,
       "spNow": -2.7,
+      "idx": "^GSPC",
+      "idxNow": -2.7,
       "w1": 1.7,
       "w1Sp": -2.7,
-      "vsSp": 4.4
+      "w1Idx": -2.7,
+      "vsSp": 4.4,
+      "vsIdx": 4.4
     }
   },
   {
@@ -77,9 +85,13 @@
       "nowDate": "2026-11-06",
       "sessions": 5,
       "spNow": -2.7,
+      "idx": "^GSPC",
+      "idxNow": -2.7,
       "w1": -8.8,
       "w1Sp": -2.7,
-      "vsSp": -6.1
+      "w1Idx": -2.7,
+      "vsSp": -6.1,
+      "vsIdx": -6.1
     }
   },
   {
@@ -98,9 +110,13 @@
       "nowDate": "2026-11-06",
       "sessions": 5,
       "spNow": -2.7,
+      "idx": "^GSPC",
+      "idxNow": -2.7,
       "w1": 2.2,
       "w1Sp": -2.7,
-      "vsSp": 4.9
+      "w1Idx": -2.7,
+      "vsSp": 4.9,
+      "vsIdx": 4.9
     }
   },
   {
@@ -119,9 +135,13 @@
       "nowDate": "2026-11-06",
       "sessions": 5,
       "spNow": -2.7,
+      "idx": "^FTSE",
+      "idxNow": -0.5,
       "w1": -7.8,
       "w1Sp": -2.7,
-      "vsSp": -5.1
+      "w1Idx": -0.5,
+      "vsSp": -5.1,
+      "vsIdx": -7.3
     }
   },
   {
@@ -140,7 +160,10 @@
       "nowDate": "2026-11-06",
       "sessions": 4,
       "spNow": -2.2,
-      "vsSp": 3.4
+      "idx": "^GSPC",
+      "idxNow": -2.2,
+      "vsSp": 3.4,
+      "vsIdx": 3.4
     }
   },
   {
@@ -159,7 +182,10 @@
       "nowDate": "2026-11-06",
       "sessions": 3,
       "spNow": -2.5,
-      "vsSp": 4.3
+      "idx": "^GSPC",
+      "idxNow": -2.5,
+      "vsSp": 4.3,
+      "vsIdx": 4.3
     }
   },
   {
@@ -197,7 +223,10 @@
       "nowDate": "2026-11-06",
       "sessions": 2,
       "spNow": -4.1,
-      "vsSp": 2.1
+      "idx": "^GSPC",
+      "idxNow": -4.1,
+      "vsSp": 2.1,
+      "vsIdx": 2.1
     }
   },
   {
@@ -216,7 +245,10 @@
       "nowDate": "2026-11-06",
       "sessions": 2,
       "spNow": -4.1,
-      "vsSp": 1.6
+      "idx": "^GSPC",
+      "idxNow": -4.1,
+      "vsSp": 1.6,
+      "vsIdx": 1.6
     }
   },
   {
@@ -254,7 +286,10 @@
       "nowDate": "2026-11-06",
       "sessions": 0,
       "spNow": 0,
-      "vsSp": 0
+      "idx": "^GSPC",
+      "idxNow": 0,
+      "vsSp": 0,
+      "vsIdx": 0
     }
   },
   {
@@ -273,7 +308,10 @@
       "nowDate": "2026-11-06",
       "sessions": 0,
       "spNow": 0,
-      "vsSp": 0
+      "idx": "^FTSE",
+      "idxNow": 0,
+      "vsSp": 0,
+      "vsIdx": 0
     }
   }
 ]
