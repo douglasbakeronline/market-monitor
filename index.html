@@ -640,7 +640,7 @@ function renderHighlights(h) {
 }
 
 const DOWN_GOOD = new Set(["greed", "trim"]);
-const KIND = { buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed", trim: "Trim", "research-lt": "Long-term entry", "research-swing": "Swing setup" };
+const KIND = { buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed", trim: "Trim", "research-lt": "Long-term entry", "research-swing": "Swing setup", smart: "Smart money" };
 function renderTrack(tr) {
   if (!tr?.recent?.length) return;
   $("trSection").hidden = false;

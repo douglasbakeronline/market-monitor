@@ -169,3 +169,13 @@ export function smartFor(symbol, sm) {
   const note = `${parts.join(". ")}. From ${asOf ? `${asOf} ` : ""}13F filings (positions of ${MIN_WEIGHT}% or more), published up to 45 days after each quarter.`;
   return { tag, sold, asOf, managers: entries.filter((e) => e.change !== "sold").length, note };
 }
+
+// Track-record event when a stock gains a new or added position by a tracked
+// manager (a fresh quarter of filings). prevKey is what the last run saw;
+// undefined means this stock has no smart-money memory yet, so it is recorded
+// silently (no burst of events for old filings when this first runs).
+export function smartEvent(prevKey, sm) {
+  const key = sm ? `${sm.asOf ?? ""}|${sm.tag ?? ""}` : null;
+  const fire = prevKey !== undefined && key !== prevKey && /\((new|added)\)/.test(sm?.tag || "");
+  return { key, fire, label: fire ? `Smart money: ${sm.tag.replace(/^Held by /, "")}` : null };
+}

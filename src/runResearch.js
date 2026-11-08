@@ -3,7 +3,7 @@ import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote, bothViewNote } from "./research.js";
-import { smartFor } from "./smartMoney.js";
+import { smartFor, smartEvent } from "./smartMoney.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -82,7 +82,8 @@ export async function runResearch({ regimeKey, state }) {
   for (const it of items) {
     const p = prev[it.symbol] || {};
     // A stock just added to the list is recorded silently, not announced as new.
-    if (!prev[it.symbol]) { next[it.symbol] = { lt: it.longTerm.verdict, sw: it.swing?.verdict ?? null }; continue; }
+    const sme = smartEvent(p.sm, it.smartMoney);
+    if (!prev[it.symbol]) { next[it.symbol] = { lt: it.longTerm.verdict, sw: it.swing?.verdict ?? null, sm: sme.key }; continue; }
     const lt = it.longTerm.verdict, sw = it.swing?.verdict ?? null;
     const ed = it.earnings?.days;
     const earn = ed != null && ed >= 0 && ed <= 7 ? ` Earnings ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: consider waiting for the results.` : "";
@@ -92,7 +93,8 @@ export async function runResearch({ regimeKey, state }) {
     if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) ev("research-swing", `Swing setup (${it.swing.score})`);
     if (lt === "Good entry" && p.lt !== "Good entry") lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
     if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
-    next[it.symbol] = { lt, sw };
+    if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
+    next[it.symbol] = { lt, sw, sm: sme.key };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
   // First run: record a baseline silently rather than announce everything as new.

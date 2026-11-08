@@ -8,7 +8,7 @@ export const DOWN_IS_GOOD = new Set(["greed", "trim"]);
 
 export const KIND_LABEL = {
   buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed: stop adding", trim: "Trim",
-  "research-lt": "Long-term good entry", "research-swing": "Swing setup",
+  "research-lt": "Long-term good entry", "research-swing": "Swing setup", smart: "Smart money: new or added",
 };
 
 // Add new events (deduped on kind + symbol + date).

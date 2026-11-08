@@ -178,7 +178,7 @@ const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sel
 const FILTERS = [
   ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"],
 ];
-const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["new", "New today"]];
+const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
@@ -233,6 +233,7 @@ function visible() {
       if (x.has("above200") && !(it.tech?.vs200 > 0)) return false;
       if (x.has("pe20") && !(pe > 0 && pe <= 20)) return false;
       if (x.has("div3") && !(it.dividendYield >= 0.03)) return false;
+      if (x.has("smart") && !it.smartMoney?.tag) return false;
       if (x.has("new") && !isNew(it)) return false;
     }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";

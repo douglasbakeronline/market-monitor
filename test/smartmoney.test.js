@@ -102,3 +102,19 @@ test("smartFor builds a display-only tag from data/smart-money.json", () => {
   assert.equal(smartFor("MA", null), null);
   assert.equal(quarterLabel("2025-12-31"), "Q4 2025");
 });
+
+import { smartEvent } from "../src/smartMoney.js";
+
+test("smartEvent fires once on a new or added position, never on first sight", () => {
+  const q2 = { asOf: "Q2 2026", tag: "Held by Fundsmith (added), Akre Capital" };
+  const first = smartEvent(undefined, q2);
+  assert.equal(first.fire, false, "no memory yet: recorded silently");
+  assert.equal(first.key, "Q2 2026|Held by Fundsmith (added), Akre Capital");
+  assert.equal(smartEvent(first.key, q2).fire, false, "same filings: no repeat");
+  const q3 = { asOf: "Q3 2026", tag: "Held by Akre Capital (new)" };
+  const e = smartEvent(first.key, q3);
+  assert.equal(e.fire, true);
+  assert.equal(e.label, "Smart money: Akre Capital (new)");
+  assert.equal(smartEvent(first.key, { asOf: "Q3 2026", tag: "Held by Akre Capital" }).fire, false, "held only: no event");
+  assert.deepEqual(smartEvent(null, null), { key: null, fire: false, label: null });
+});
