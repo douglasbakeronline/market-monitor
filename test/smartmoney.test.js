@@ -89,7 +89,7 @@ test("smartFor builds a display-only tag from data/smart-money.json", () => {
   assert.equal(ma.tag, "Held by Akre Capital, Fundsmith (added)");
   assert.equal(ma.managers, 2);
   assert.equal(ma.asOf, "Q2 2026");
-  assert.equal(ma.note, "Held by Akre Capital, Fundsmith (added). From Q2 2026 13F filings (positions of 1% or more), published up to 45 days after each quarter.");
+  assert.equal(ma.note, "Held by Akre Capital, Fundsmith (added). From Q2 2026 13F filings (positions of 1% or more), published up to 45 days after each quarter. Tested since 2022: their new or added positions did not beat the market once filed.");
   assert.equal(smartFor("JNJ", sm), null, "a position under 1% is not a tag");
   const both = smartFor("MA", { ...sm, byTicker: { MA: [...sm.byTicker.MA, { manager: "Pershing Square", weight: 5, change: "held" }] } });
   assert.equal(both.asOf, "Q1 2026 to Q2 2026");

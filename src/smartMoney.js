@@ -156,6 +156,9 @@ export const quarterLabel = (period) => (period ? `Q${Math.ceil(Number(period.sl
 // broad book (Dodge & Cox holds 200+ names) does not tag half the market.
 // Returns null when no tracked manager holds it that size or sold out of it.
 export const MIN_WEIGHT = 1;
+// Backtest 8 Nov (research log, tools/smart-backtest.mjs): five years of these
+// managers' new or added positions did not beat the market after filing.
+export const TESTED = "Tested since 2022: their new or added positions did not beat the market once filed.";
 export function smartFor(symbol, sm) {
   const all = sm?.byTicker?.[symbol];
   if (!all?.length) return null;
@@ -166,7 +169,7 @@ export function smartFor(symbol, sm) {
   const periods = [...new Set((sm.managers || []).filter((m) => entries.some((e) => e.manager === m.name)).map((m) => m.period).filter(Boolean))].sort();
   const asOf = periods.length > 1 ? `${quarterLabel(periods[0])} to ${quarterLabel(periods.at(-1))}` : quarterLabel(periods[0]);
   const parts = [tag, sold.length ? `Sold out by ${sold.join(", ")}` : null].filter(Boolean);
-  const note = `${parts.join(". ")}. From ${asOf ? `${asOf} ` : ""}13F filings (positions of ${MIN_WEIGHT}% or more), published up to 45 days after each quarter.`;
+  const note = `${parts.join(". ")}. From ${asOf ? `${asOf} ` : ""}13F filings (positions of ${MIN_WEIGHT}% or more), published up to 45 days after each quarter. ${TESTED}`;
   return { tag, sold, asOf, managers: entries.filter((e) => e.change !== "sold").length, note };
 }
 

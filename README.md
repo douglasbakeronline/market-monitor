@@ -84,6 +84,7 @@ src/plan.js             the agreed plan as data (dates, weights, picks) and the 
 src/paperTrades.js      swing paper-trading log, scored nightly by scan.js
 tools/swing-backtest.mjs  replay of the swing rules over four years, with retune variants
 src/swingRetune.js      swing variant comparison vs random entry, after costs
+tools/smart-backtest.mjs  do the tracked 13F managers' new or added positions beat the market? (src/smartBacktest.js)
 src/runResearch.js      builds research.json
 src/schedule.js         slot timing
 scripts/                next-slot finder, commit/push helper
