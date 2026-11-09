@@ -38,6 +38,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 8 Nov (evening): core fund (VWRP) in pounds on the Dashboard and in the digest; world tiles show off-high with Correction and Bear market tags.
 - 8 Nov (afternoon): smart-money backtest (no edge; research log); the Smart money note says so.
 - 8 Nov (morning): smart-money tags from 13F filings via 13f.info (display only; SEC fallback); smart-money events in the track record; scan filter.
 - 8 Nov (morning): track record by market, score band and time held; digest line per signal type.
@@ -64,6 +65,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
+- Core fund follow-up: VWRP's own drawdown is display only. If Douglas prefers, the pullback rule could watch VWRP in pounds instead of the S&P 500 and FTSE 100 (would need a quick test of how often each fires).
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.
 - Nasdaq 100 in the scanner (mostly overlaps the S&P 500).
 - Insider buying and short interest signals (needs a free source).
