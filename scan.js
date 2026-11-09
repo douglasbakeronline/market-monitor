@@ -11,7 +11,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, isInvestmentTrust, entryViewNote, bothViewNote } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored, entryViewNote, bothViewNote } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -88,7 +88,7 @@ async function main() {
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
   // Sector-relative valuation, display only (verdicts unchanged; see src/sectorValue.js).
-  const peerRows = items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: isInvestmentTrust(it.f) }));
+  const peerRows = items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: notScored(it.f) }));
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
   for (const it of items) {
     const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians, regional, MARKET[it.u.index] ?? "US");

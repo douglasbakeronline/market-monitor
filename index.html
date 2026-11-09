@@ -37,6 +37,7 @@
   .kd { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; }
   .kd li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--line-2); }
   .kd li span:last-child { color: var(--muted); white-space: nowrap; }
+  .kd li.kd-note { display: block; font-size: 12px; }
   @media (max-width: 640px) { .plan-grid { grid-template-columns: 1fr; } .act { grid-template-columns: 46px 1fr; } .act .pill { grid-column: 2; justify-self: start; } }
 
   /* Private portfolio + goal (browser only) */
@@ -391,7 +392,9 @@ function renderPlan(cp) {
     $("planPb").innerHTML = `<div class="pb-meter" role="img" aria-label="${esc(pb.index)} ${pb.drawdown}% off its high; rule fires at ${pb.threshold}%"><i style="width:${fill}%;${pb.triggered ? "background:var(--buy)" : ""}"></i><span class="mark" style="left:calc(100% - 2px)"></span></div>
       <div class="small"><b class="${pb.triggered ? "t-buy" : ""}">${pb.triggered ? "Triggered" : `${minus(pb.distance.toFixed(1))} pts to go`}</b> <span class="muted">· ${esc(pb.index)} ${minus(pb.drawdown.toFixed(1))}% off its high; fires at ${minus(pb.threshold)}%. Next core date ${fmtDM(pb.nextCore.date)}.</span></div>`;
   }
-  $("planDates").innerHTML = cp.dates.length ? cp.dates.map((k) => `<li><span>${esc(k.title)}</span><span>${fmtDay(k.date)} ${MON[+k.date.slice(5, 7) - 1]}</span></li>`).join("") : `<li class="muted">Nothing in the next three weeks.</li>`;
+  $("planDates").innerHTML = cp.dates.length ? cp.dates.map((k) => `<li><span>${esc(k.title)}</span><span>${fmtDay(k.date)} ${MON[+k.date.slice(5, 7) - 1]}</span></li>`).join("") : `<li class="muted">Nothing in the next three weeks.</li>`
+  const wNote = cp.dates.find((k) => k.auto)?.note;
+  if (wNote) $("planDates").insertAdjacentHTML("beforeend", `<li class="muted kd-note">Results of the core fund's biggest holdings are added from the scan (${esc(wNote)}).</li>`);
 }
 
 // Core fund (VWRP) in pounds, display only.

@@ -103,3 +103,25 @@ test("pickStatus: estimate shown when no date is published, ok unchanged", async
   const fromItem = pickStatus({ symbol: "ABC.L" }, { ...item, resultsEstimate: { date: "2026-11-10", days: 4, basis: "history", stale: false } }, "2026-11-06");
   assert.match(fromItem.reason, /due around Tue 10 Nov/, "uses the research item's history-based estimate");
 });
+
+test("core holdings' published results dates join Key dates; the manual Nvidia date gives way", async () => {
+  const { coreHoldingDates } = await import("../src/plan.js");
+  const items = {
+    NVDA: { earnings: { date: "2026-11-18", days: 9 } },
+    WMT: { earnings: { date: "2026-11-19", days: 10 } },      // not a listed holding
+    AVGO: { earnings: { date: "2026-12-09", days: 30 } },     // outside 21 days
+    MSFT: { earnings: null, resultsEstimate: { date: "2026-11-20" } }, // estimate only: left out
+    JPM: { earnings: { date: "2026-11-01", days: -8 } },      // past
+    AMD: { earnings: { date: "2026-11-12", days: 3 } },
+  };
+  const auto = coreHoldingDates(items, "2026-11-09");
+  assert.deepEqual(auto.map((d) => d.symbol), ["NVDA", "AMD"]);
+  assert.equal(auto[0].title, "Nvidia results, about 5% of VWRP");
+  assert.equal(auto[1].title, "AMD results, about 0.7% of VWRP");
+  const cp = copilot({ today: "2026-11-09", sp: null, ftse: null, items });
+  assert.deepEqual(cp.dates.map((d) => d.date), ["2026-11-12", "2026-11-18"], "sorted; manual 17 Nov Nvidia entry replaced by Yahoo's date");
+  assert.ok(copilotLines(cp).some((l) => /AMD results, about 0\.7% of VWRP \(Thu 12 Nov\)/.test(l)));
+  const none = copilot({ today: "2026-11-09", sp: null, ftse: null, items: {} });
+  assert.ok(none.dates.some((d) => d.symbol === "NVDA" && d.date === "2026-11-17"), "manual date kept without scan data");
+  assert.deepEqual(coreHoldingDates({}, null), []);
+});

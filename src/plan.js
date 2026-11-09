@@ -32,7 +32,26 @@ export const PLAN = {
     { date: "2026-11-03", title: "US midterm elections" },
     { date: "2026-11-04", title: "CF Industries results, a bench pick" },
     { date: "2026-11-05", title: "Bank of England rate decision" },
-    { date: "2026-11-17", title: "Nvidia results, about 5% of VWRP" },
+    { date: "2026-11-17", title: "Nvidia results, about 5% of VWRP", symbol: "NVDA" },
+  ],
+  // The core fund's largest holdings the scan covers, with their weight in
+  // VWRP (FTSE All-World; Alphabet's two share classes combined). Their
+  // published results dates join Key dates automatically. Display only: the
+  // core is never bought or sold on a signal. Refresh the weights now and then.
+  coreHoldingsAsOf: "31 Jul 2026",
+  coreHoldings: [
+    { symbol: "NVDA", name: "Nvidia", weight: 4.5 },
+    { symbol: "AAPL", name: "Apple", weight: 4.3 },
+    { symbol: "MSFT", name: "Microsoft", weight: 3.3 },
+    { symbol: "GOOGL", name: "Alphabet", weight: 3.6 },
+    { symbol: "AMZN", name: "Amazon", weight: 2.5 },
+    { symbol: "AVGO", name: "Broadcom", weight: 1.7 },
+    { symbol: "META", name: "Meta", weight: 1.2 },
+    { symbol: "JPM", name: "JPMorgan Chase", weight: 0.9 },
+    { symbol: "MU", name: "Micron", weight: 0.9 },
+    { symbol: "LLY", name: "Eli Lilly", weight: 0.9 },
+    { symbol: "TSLA", name: "Tesla", weight: 0.9 },
+    { symbol: "AMD", name: "AMD", weight: 0.7 },
   ],
   pullbackPct: -5,   // core purchase comes forward if an index is this far off its high
   pickNoResultsDays: 7,
@@ -102,11 +121,31 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
     detail: `${pullback.index} is ${Math.abs(pullback.drawdown).toFixed(1)}% below its high (rule: ${Math.abs(plan.pullbackPct)}% or more). The plan says make the core purchase due ${dayLabel(pullback.nextCore.date)} now.` });
 
   const upcoming = plan.schedule.filter((s) => s.date > end).slice(0, 2).map((s) => ({ ...s, inDays: days(today, s.date) }));
-  const dates = plan.keyDates.filter((k) => k.date >= today && days(today, k.date) <= 21).map((k) => ({ ...k, inDays: days(today, k.date) }));
+  const auto = coreHoldingDates(items, today, plan);
+  const covered = new Set(auto.map((d) => d.symbol));
+  const dates = plan.keyDates.filter((k) => k.date >= today && days(today, k.date) <= 21 && !covered.has(k.symbol))
+    .map((k) => ({ ...k, inDays: days(today, k.date) }))
+    .concat(auto).sort((a, b) => a.date.localeCompare(b.date) || (b.weight ?? 0) - (a.weight ?? 0));
   const headline = actions.length
     ? `${actions.length} plan action${actions.length > 1 ? "s" : ""} this week`
     : `Nothing due this week${upcoming[0] ? `; next: ${upcoming[0].title.charAt(0).toLowerCase() + upcoming[0].title.slice(1)} in ${upcoming[0].inDays} days` : ""}`;
   return { today, headline, actions, upcoming, pullback, picks, dates, pots: plan.pots };
+}
+
+// Published results dates of the core fund's biggest holdings in the next
+// `horizon` days (Yahoo's date via the scan or research items; estimates are
+// left out so only confirmed dates show).
+export function coreHoldingDates(items = {}, today, plan = PLAN, horizon = 21) {
+  if (!today) return [];
+  return (plan.coreHoldings ?? []).flatMap((h) => {
+    const d = items[h.symbol]?.earnings?.date;
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d) || d < today) return [];
+    const inDays = days(today, d);
+    if (inDays > horizon) return [];
+    const pct = h.weight >= 1 ? `about ${Math.round(h.weight)}%` : `about ${h.weight}%`;
+    return [{ date: d, symbol: h.symbol, weight: h.weight, auto: true, inDays,
+      title: `${h.name} results, ${pct} of VWRP`, note: `VWRP weights as of ${plan.coreHoldingsAsOf}` }];
+  });
 }
 
 // Pullback alert: once per scheduled core date, the first time the rule fires.

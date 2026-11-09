@@ -25,3 +25,17 @@ test("an investment trust is not scored, so it cannot be a Good entry", () => {
   assert.ok(lt.pillars.length, "pillars kept for display");
   assert.ok(lt.pillars.every((p) => p.score == null), "no pillar scores, so no false strengths");
 });
+
+test("a bitcoin holding company (Strategy) is not scored, and stays out of peer medians", async () => {
+  const { assetHolding, notScored } = await import("../src/research.js");
+  assert.equal(assetHolding({ name: "Strategy Inc" }), "bitcoin");
+  assert.equal(assetHolding({ name: "MicroStrategy Incorporated" }), "bitcoin");
+  assert.equal(assetHolding({ name: "Strategic Education, Inc." }), null, "a similar name is a company");
+  assert.equal(assetHolding({ name: "Regency Centers" }), null);
+  assert.ok(notScored({ name: "Strategy Inc" }) && notScored({ closedEnd: true }) && !notScored({ name: "Apple Inc." }));
+  const lt = longTerm({ ...trustLike, name: "Strategy Inc" }, tech);
+  assert.equal(lt.score, null);
+  assert.equal(lt.verdict, "Holding company");
+  assert.match(lt.note, /bitcoin/);
+  assert.ok(lt.trust && lt.pillars.every((p) => p.score == null));
+});
