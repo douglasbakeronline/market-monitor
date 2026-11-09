@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-06T19:55:56.609Z",
+  "updated": "2026-11-09T15:05:22.366Z",
   "indices": {
     "SP500": [
       {
@@ -3923,6 +3923,86 @@
         "name": "UniCredit",
         "sector": "Financials",
         "symbol": "UCG.MI"
+      }
+    ],
+    "NASDAQ100": [
+      {
+        "ticker": "ALNY",
+        "name": "Alnylam Pharmaceuticals",
+        "sector": "Health Care",
+        "symbol": "ALNY"
+      },
+      {
+        "ticker": "ARM",
+        "name": "Arm Holdings",
+        "sector": "Information Technology",
+        "symbol": "ARM"
+      },
+      {
+        "ticker": "ALAB",
+        "name": "Astera Labs",
+        "sector": "Information Technology",
+        "symbol": "ALAB"
+      },
+      {
+        "ticker": "CRWV",
+        "name": "CoreWeave",
+        "sector": "Information Technology",
+        "symbol": "CRWV"
+      },
+      {
+        "ticker": "FER",
+        "name": "Ferrovial",
+        "sector": "Industrials",
+        "symbol": "FER"
+      },
+      {
+        "ticker": "MELI",
+        "name": "Mercado Libre",
+        "sector": "Consumer Discretionary",
+        "symbol": "MELI"
+      },
+      {
+        "ticker": "MSTR",
+        "name": "MicroStrategy",
+        "sector": "Information Technology",
+        "symbol": "MSTR"
+      },
+      {
+        "ticker": "NBIS",
+        "name": "Nebius Group",
+        "sector": "Information Technology",
+        "symbol": "NBIS"
+      },
+      {
+        "ticker": "PDD",
+        "name": "PDD Holdings",
+        "sector": "Information Technology",
+        "symbol": "PDD"
+      },
+      {
+        "ticker": "RKLB",
+        "name": "Rocket Lab",
+        "sector": "Industrials",
+        "symbol": "RKLB"
+      },
+      {
+        "ticker": "SHOP",
+        "name": "Shopify",
+        "sector": "Information Technology",
+        "symbol": "SHOP"
+      },
+      {
+        "ticker": "SPCX",
+        "name": "SpaceX",
+        "sector": "Communication Services",
+        "symbol": "SPCX"
+      },
+      {
+        "ticker": "TRI",
+        "name": "Thomson Reuters",
+        "sector": "Information Technology",
+        "symbol": "TRI"
       }
     ]
   }
