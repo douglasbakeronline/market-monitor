@@ -29,6 +29,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 6. **Euro Stoxx 50 follow-ups:** (a) done 6 Nov night (per-region peer medians). (b) Check each European name is on Trading 212 (cannot be checked from here; ask Douglas or note it on the page if a name is missing). (c) If European swing setups are ever paper-traded, extend `costR()` in `src/swingRetune.js` (FX fee as for US) first.
 
 ## Data notes (spot checks)
+- 9 Nov: ENEL.MI, TEL, MSFT checked: off-high, stops (2×ATR) consistent. Found and fixed: quick-scan dividend yields (Enel 2.7% for about 5.4%, Sanofi 0%); the scan now uses Yahoo's forward yield outside London.
 - 9 Nov: HPE, PPG, ARES checked: off-high, stops (2×ATR) and dividend yields consistent with their prices and known payouts. HPE's -37% month is large but consistent with its own 52-week range. Ares shows a P/E of 19.2, well below its usual GAAP trailing figure; probably Yahoo's forward or adjusted P/E (display only; watch if more asset managers look this cheap).
 - 8 Nov: LLOY.L, MU, SAP.DE checked: off-high, 52-week ranges and stops (2×ATR) consistent. MU's forward P/E of 3.3 (trailing 9.3) follows +379% revenue growth in a memory upcycle: real, but the classic cyclical-peak trap; MU tops the scan (93) partly on it; the proposed cyclical cap (waiting on Douglas) already flags it and would score it 81, still Good entry.
 - 3 Nov: stops (2×ATR), P/E and yields checked on WDC, TMUS, UAL: consistent. Yahoo's latest-results date is stale for some UK names (Unilever shows Feb 2026); addressed 6 Nov afternoon with an estimated next date flagged "looks stale" (8 scan stocks). Kenvue's price stopped on 30 Oct (likely delisted after the Kimberly-Clark deal); stale-price guard added 4 Nov.
@@ -40,6 +41,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 9 Nov (midday): fix: quick-scan dividend yields (forward yield outside London).
 - 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing); "Set a price alert" link on every Research and scan item.
 - 9 Nov (morning): pullback-trigger source test (VWRP vs S&P/FTSE: no difference, rule unchanged); rebalancing research (research log).
 - 8 Nov (evening): core fund (VWRP) in pounds on the Dashboard and in the digest; world tiles show off-high with Correction and Bear market tags.
