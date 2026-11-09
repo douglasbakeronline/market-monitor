@@ -159,14 +159,14 @@
       "now": 3.2,
       "nowDate": "2026-11-09",
       "sessions": 5,
-      "spNow": 0.1,
+      "spNow": 0,
       "idx": "^GSPC",
-      "idxNow": 0.1,
+      "idxNow": 0,
       "w1": 3.2,
-      "w1Sp": 0.1,
-      "w1Idx": 0.1,
-      "vsSp": 3.1,
-      "vsIdx": 3.1
+      "w1Sp": 0,
+      "w1Idx": 0,
+      "vsSp": 3.2,
+      "vsIdx": 3.2
     }
   },
   {
@@ -225,14 +225,14 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -0.2,
+      "now": -0.1,
       "nowDate": "2026-11-09",
       "sessions": 3,
       "spNow": -1.9,
       "idx": "^GSPC",
       "idxNow": -1.9,
-      "vsSp": 1.7,
-      "vsIdx": 1.7
+      "vsSp": 1.8,
+      "vsIdx": 1.8
     }
   },
   {
