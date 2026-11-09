@@ -1,6 +1,19 @@
 {
   "reviews": [
     {
+      "title": "Week 2: a sell-off, and the rules put to the test",
+      "period": "2 to 8 November 2026",
+      "headline": "The S&P 500 fell 4.4% on Thu 5 Nov and the pullback rule fired on time; a week of backtests found no edge in swing, smart-money, trim or greed signals, so they stay display-only or on paper.",
+      "points": [
+        "All 41 scheduled checks ran on time, within 35 seconds of each slot",
+        "New: trade log, Euro Stoxx 50 in the scan (650 companies), track record in detail, peer and Entry views, core fund (VWRP) on the Dashboard",
+        "Eight backtests: the dip reserve costs about 1% of wealth over 10 years; momentum helps, buying 20 to 30% off the high does not",
+        "Six data bugs fixed, including UK yields 100x too small and missing 1-year returns for US stocks",
+        "Waiting on Douglas: both scoring proposals, dip reserve size, trim and greed wording"
+      ],
+      "pdf": "review-2026-11-08.pdf"
+    },
+    {
       "title": "Week 1: launch and co-pilot",
       "period": "26 October to 1 November 2026",
       "headline": "Market Monitor rebuilt into a reliable monitoring and research system; the Dashboard now opens with what the plan says is due this week, and a backtest found no edge in the swing rules.",
