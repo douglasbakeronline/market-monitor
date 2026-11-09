@@ -17,6 +17,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - **Dip reserve size (research log 5 Nov; tested 6 Nov midday and afternoon):** keep 15% in cash, or shrink the drag (unused reserve drips into the core over 6 months, or a 10% reserve with 5% more in the core)? Our backtest since 1988: the 15% reserve trails investing it all by a median 1.0% to 1.2% of final wealth over 10 years (S&P, a 60/40 S&P/FTSE blend and ACWI since 2008, with either index firing the tiers as live); 10% costs about 0.7%, the 6-month drip 0.4%.
 - **Both scoring proposals together (7 Nov):** if both go in, 22 of 110 full-score verdicts change (11 and 14 alone), and the combined rule is stricter: NatWest (bench), Super Micro and Diamondback lose Good entry only when combined. The picks keep today's verdicts. Worth deciding the two together (Research page: "Both together" note).
 - **Add the `SEC_CONTACT` secret (6 Nov), now optional (8 Nov: 13f.info covers the same filings):** Douglas agreed to use his email for SEC. If he wants EDGAR as the first source, he adds it himself: repo Settings, Secrets and variables, Actions, New repository secret, name `SEC_CONTACT` (Claude cannot set secrets).
+- **Rebalancing rule (research log 9 Nov):** OK to add (1) check pot weights at the Sunday review, act at most twice a year unless a pot is 5+ points off target, preferring new money and dividends over selling; (2) a pick ceiling: trim any pick that grows past 5% of the portfolio back to 3%? Nothing changes until agreed.
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
@@ -28,6 +29,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 6. **Euro Stoxx 50 follow-ups:** (a) done 6 Nov night (per-region peer medians). (b) Check each European name is on Trading 212 (cannot be checked from here; ask Douglas or note it on the page if a name is missing). (c) If European swing setups are ever paper-traded, extend `costR()` in `src/swingRetune.js` (FX fee as for US) first.
 
 ## Data notes (spot checks)
+- 9 Nov: HPE, PPG, ARES checked: off-high, stops (2×ATR) and dividend yields consistent with their prices and known payouts. HPE's -37% month is large but consistent with its own 52-week range. Ares shows a P/E of 19.2, well below its usual GAAP trailing figure; probably Yahoo's forward or adjusted P/E (display only; watch if more asset managers look this cheap).
 - 8 Nov: LLOY.L, MU, SAP.DE checked: off-high, 52-week ranges and stops (2×ATR) consistent. MU's forward P/E of 3.3 (trailing 9.3) follows +379% revenue growth in a memory upcycle: real, but the classic cyclical-peak trap; MU tops the scan (93) partly on it; the proposed cyclical cap (waiting on Douglas) already flags it and would score it 81, still Good entry.
 - 3 Nov: stops (2×ATR), P/E and yields checked on WDC, TMUS, UAL: consistent. Yahoo's latest-results date is stale for some UK names (Unilever shows Feb 2026); addressed 6 Nov afternoon with an estimated next date flagged "looks stale" (8 scan stocks). Kenvue's price stopped on 30 Oct (likely delisted after the Kimberly-Clark deal); stale-price guard added 4 Nov.
 - 3 Nov: earnings dated the day before the scan showed "-1 days" (fixed 4 Nov in the tranche check; the scan lists already hide past dates).
@@ -38,6 +40,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 9 Nov (morning): pullback-trigger source test (VWRP vs S&P/FTSE: no difference, rule unchanged); rebalancing research (research log).
 - 8 Nov (evening): core fund (VWRP) in pounds on the Dashboard and in the digest; world tiles show off-high with Correction and Bear market tags.
 - 8 Nov (afternoon): smart-money backtest (no edge; research log); the Smart money note says so.
 - 8 Nov (morning): smart-money tags from 13F filings via 13f.info (display only; SEC fallback); smart-money events in the track record; scan filter.
@@ -65,7 +68,6 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
-- Core fund follow-up: VWRP's own drawdown is display only. If Douglas prefers, the pullback rule could watch VWRP in pounds instead of the S&P 500 and FTSE 100 (would need a quick test of how often each fires).
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.
 - Nasdaq 100 in the scanner (mostly overlaps the S&P 500).
 - Insider buying and short interest signals (needs a free source).

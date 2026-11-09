@@ -2,6 +2,12 @@
 
 Human-readable record of what changed and why. The weekly review deck is built from this file, the git log and the live data. Newest first. Bot data commits ("Update monitor data", "Update index scan") are not listed.
 
+## Week of 9 November 2026
+
+### Mon 9 Nov (morning)
+- **Pullback rule: watching VWRP itself would not help** (research log). `tools/core-trigger.mjs` (logic in `src/coreTrigger.js`, with tests) replays monthly core purchases of the global fund in pounds (VWRL since 2013, ACWI in pounds since 2009) with four trigger sources: S&P 500, FTSE 100, either (the live rule) and the fund's own drawdown. They agree in most months and save about the same (0.4% to 0.7% per purchase on average), so the rule stays on the S&P 500 or FTSE 100 and VWRP's drawdown stays display only. *Why:* roadmap "Later" item, made timely because VWRP (-6.6%) and the FTSE 100 (-2.3%) disagree today. Dry run on real data; the monitor dry run passed. No rule changed.
+- **Rebalancing research** (research log): evidence says frequency hardly matters; a 5-point band and redirecting new money already match it. A pick ceiling (trim past 5%) is proposed to Douglas, not applied.
+
 ## Week of 2 November 2026
 
 ### Sun 8 Nov (evening, weekly sprint)
