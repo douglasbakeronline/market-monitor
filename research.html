@@ -74,7 +74,7 @@
   .range .lo, .range .hi { position: absolute; top: 18px; font-size: 10.5px; color: var(--muted); }
   .range .hi { right: 0; }
   .perf { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 14px; }
-  .links { display: flex; gap: 14px; font-size: 12.5px; margin-top: 12px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12.5px; margin-top: 12px; }
   @media (max-width: 760px) {
     .head { display: none; }
     .row { grid-template-columns: 1fr auto 14px; grid-template-areas: "nm px c" "sc sc c" "tg tg c"; row-gap: 10px; }
@@ -333,7 +333,7 @@ function detailHtml(it) {
   <div class="perf">${perf.map(([k, v]) => `<div class="panel" style="padding:8px 10px"><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
   ${it.scoreHistory ? `<div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>` : ""}
   ${it.series?.length ? `<div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>` : ""}
-  <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}</div>`;
+  <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}<a href="index.html?alert=${encodeURIComponent(it.symbol)}&name=${encodeURIComponent(it.name || "")}&price=${encodeURIComponent(it.price ?? "")}#paSection">Set a price alert →</a></div>`;
 }
 
 function render() {

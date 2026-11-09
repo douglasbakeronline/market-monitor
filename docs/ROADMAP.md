@@ -40,7 +40,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
-- 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing).
+- 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing); "Set a price alert" link on every Research and scan item.
 - 9 Nov (morning): pullback-trigger source test (VWRP vs S&P/FTSE: no difference, rule unchanged); rebalancing research (research log).
 - 8 Nov (evening): core fund (VWRP) in pounds on the Dashboard and in the digest; world tiles show off-high with Correction and Bear market tags.
 - 8 Nov (afternoon): smart-money backtest (no edge; research log); the Smart money note says so.
@@ -72,4 +72,4 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.
 - Nasdaq 100 in the scanner (mostly overlaps the S&P 500).
 - Insider buying and short interest signals (needs a free source).
-- Price alerts follow-ups: an "Alert me" shortcut on each Research and scan item that pre-fills the Dashboard form; log reached levels in the track record if Douglas uses them.
+- Price alerts follow-up: log reached levels in the track record if Douglas uses them.

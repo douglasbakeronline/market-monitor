@@ -774,6 +774,17 @@ function renderPriceAlerts(pa) {
     $("paOut").hidden = false;
     $("paMsg").textContent = Number.isFinite(level) && level > 0 ? "" : `${sym} removed.`;
   };
+  // Shortcut from the Research page: index.html?alert=SYM&name=..&price=..
+  const q = new URLSearchParams(location.search);
+  if (q.get("alert")) {
+    const f = $("paForm").elements;
+    f.symbol.value = q.get("alert").toUpperCase().slice(0, 15);
+    f.name.value = (q.get("name") || "").slice(0, 60);
+    const px = parseFloat(q.get("price"));
+    if (Number.isFinite(px)) f.level.placeholder = `now ${lvl(px)}`;
+    $("paCard").querySelector("details").open = true;
+    requestAnimationFrame(() => { $("paSection").scrollIntoView({ block: "start" }); f.level.focus({ preventScroll: true }); });
+  }
   $("paCopy").onclick = async () => { try { await navigator.clipboard.writeText($("paText").value); $("paMsg").textContent = "Copied."; } catch { $("paText").select(); $("paMsg").textContent = "Select all and copy."; } };
 }
 
