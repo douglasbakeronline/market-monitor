@@ -126,6 +126,11 @@
   .tile .tn { font-size: 10.5px; color: var(--muted); line-height: 1.25; min-height: 26px; }
   .tile .td { font-weight: 700; font-size: 14px; margin-top: 4px; }
   .tile .tw { font-size: 11px; color: var(--muted); }
+  .tile .ttag { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 650; letter-spacing: .02em; color: var(--sell); }
+  .core-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; font-size: 14px; }
+  .core-row b { font-size: 18px; letter-spacing: -0.01em; }
+  .core-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+  .core-stats .v { font-weight: 650; font-size: 14px; margin-top: 2px; }
   .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--muted); }
   .legend i { width: 10px; height: 3px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
   @media (max-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
@@ -190,6 +195,7 @@
       <div class="card"><div class="k">Long-term picks · tranche check</div><table class="picks" id="planPicks"></table></div>
       <div class="card">
         <div class="k">Pullback rule</div><div id="planPb"></div>
+        <div id="planCoreWrap" hidden><div class="k" style="margin-top:16px">Your core fund</div><div id="planCore"></div></div>
         <div class="k" style="margin-top:16px">Key dates</div><ul class="kd" id="planDates"></ul>
       </div>
     </div>
@@ -346,6 +352,7 @@ function render(d) {
   renderWatchlist(d.watchlist);
   renderTrack(d.trackRecord);
   renderPlan(d.copilot);
+  renderCore(d.coreFund);
   renderPaper(d.paper);
 }
 
@@ -369,6 +376,16 @@ function renderPlan(cp) {
       <div class="small"><b class="${pb.triggered ? "t-buy" : ""}">${pb.triggered ? "Triggered" : `${minus(pb.distance.toFixed(1))} pts to go`}</b> <span class="muted">· ${esc(pb.index)} ${minus(pb.drawdown.toFixed(1))}% off its high; fires at ${minus(pb.threshold)}%. Next core date ${fmtDM(pb.nextCore.date)}.</span></div>`;
   }
   $("planDates").innerHTML = cp.dates.length ? cp.dates.map((k) => `<li><span>${esc(k.title)}</span><span>${fmtDay(k.date)} ${MON[+k.date.slice(5, 7) - 1]}</span></li>`).join("") : `<li class="muted">Nothing in the next three weeks.</li>`;
+}
+
+// Core fund (VWRP) in pounds, display only.
+function renderCore(c) {
+  if (!c) return;
+  $("planCoreWrap").hidden = false;
+  const st = (k, v) => `<div><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`;
+  $("planCore").innerHTML = `<div class="core-row"><b>${esc(c.price)}</b><span class="${c.drawdownPct <= -10 ? "neg" : ""}">${minus(c.drawdownPct.toFixed(1))}% off high</span>${c.tag ? `<span class="pill bg-watch">${esc(c.tag)}</span>` : ""}</div>
+    <div class="stats core-stats">${st("Week", c.weekPct)}${st("Month", c.monthPct)}${st("Year to date", c.ytdPct)}</div>
+    <p class="small muted" style="margin:6px 0 0">${esc(c.note)} Prices to ${fmtDM(c.date)}; the rules above still watch the indices.</p>`;
 }
 
 // --- Swing paper trading ----------------------------------------------------------
@@ -617,7 +634,7 @@ function renderWorld(w) {
   $("worldScore").className = "world-score " + (w.score >= 2 ? "pos" : w.score <= -2 ? "neg" : "muted");
   $("worldVerdict").textContent = w.label;
   $("worldSub").textContent = `${w.above200} of ${w.markets.length} markets above their 200-day average`;
-  $("worldTiles").innerHTML = w.markets.map((m) => `<div class="tile"><div class="tn">${esc(m.name)}</div><div class="td ${pnClass(m.dayPct)}">${signPct(m.dayPct)}</div><div class="tw">week <span class="${pnClass(m.weekPct)}">${signPct(m.weekPct)}</span></div></div>`).join("");
+  $("worldTiles").innerHTML = w.markets.map((m) => `<div class="tile"><div class="tn">${esc(m.name)}</div><div class="td ${pnClass(m.dayPct)}">${signPct(m.dayPct)}</div><div class="tw">week <span class="${pnClass(m.weekPct)}">${signPct(m.weekPct)}</span></div>${m.drawdownPct != null ? `<div class="tw">off high <span class="${m.drawdownPct <= -10 ? "neg" : ""}">${minus(m.drawdownPct.toFixed(1))}%</span></div>` : ""}${m.tag ? `<div class="ttag">${esc(m.tag)}</div>` : ""}</div>`).join("");
   const W = 800, H = 198, p = 10, all = w.markets.flatMap((m) => m.series), mn = Math.min(0, ...all), mx = Math.max(0, ...all), rg = mx - mn || 1;
   const len = Math.max(...w.markets.map((m) => m.series.length)), x = (i) => p + (i / (len - 1)) * (W - 2 * p), y = (v) => p + (1 - (v - mn) / rg) * (H - 2 * p);
   let s = "";

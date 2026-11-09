@@ -16,6 +16,7 @@ import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals,
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
+import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
@@ -48,7 +49,7 @@ async function main() {
 
   // --- 2. Index prices ---------------------------------------------------------
   const spData = await fetchDaily("^GSPC", { range: "10y" }).catch((e) => { console.error(`S&P 500 unavailable: ${e.message}`); return null; });
-  const others = await fetchMany(CONFIG.world.filter((w) => w.symbol !== "^GSPC").map((w) => w.symbol).concat(CONFIG.indices.vix.symbol), { range: "2y" });
+  const others = await fetchMany(CONFIG.world.filter((w) => w.symbol !== "^GSPC").map((w) => w.symbol).concat(CONFIG.indices.vix.symbol, CONFIG.coreFund.symbol), { range: "2y" });
   const series = { "^GSPC": spData, ...others };
 
   let sp = snapshot("S&P 500", "^GSPC", spData);
@@ -66,6 +67,10 @@ async function main() {
   const pricesOk = !!sp && priceAge <= CONFIG.staleHours && hoursSince(state.lastGood.markets?.at) <= CONFIG.staleHours;
 
   const world = buildWorld(series, sp);
+  // The core fund itself, in pounds (display only; rules use the indices).
+  let coreFund = coreFundView(snapshot(CONFIG.coreFund.name, CONFIG.coreFund.symbol, series[CONFIG.coreFund.symbol]), sp, CONFIG.coreFund);
+  if (coreFund) state.lastGood.coreFund = coreFund;
+  else if (state.lastGood.coreFund) { coreFund = state.lastGood.coreFund; console.warn("Core fund: using the last good value."); }
 
   // --- 3. Watchlist ---------------------------------------------------------------
   const wlData = await fetchMany(CONFIG.watchlist.map((w) => w.symbol), { range: "6mo" });
@@ -189,7 +194,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -201,7 +206,7 @@ async function main() {
     score: fg?.score ?? null, rating: fg ? ratingFor(fg.score) : null, fgAsOf: fg?.asOf ?? null,
     comparisons: fg?.comparisons ?? null, components: fg?.components ?? [],
     history: (fg?.history ?? []).slice(-CONFIG.historyPoints).map((h) => ({ t: h.t, d: h.date, y: h.y })),
-    regime: reg, status, markets: { sp, ftse, vix }, context: ctx, fearSessions, world, watchlist,
+    regime: reg, status, markets: { sp, ftse, vix }, context: ctx, fearSessions, world, coreFund, watchlist,
     researchTop: researchHighlights(research), trackRecord, copilot: cp,
     paper: scan?.paper ?? null,
   });
@@ -215,7 +220,7 @@ async function main() {
 function buildWorld(series, sp) {
   const markets = CONFIG.world.map((w) => {
     const s = w.symbol === "^GSPC" ? sp : snapshot(w.name, w.symbol, series[w.symbol]);
-    return s ? { name: w.name, symbol: w.symbol, dayPct: s.dayPct, weekPct: s.weekPct, monthPct: s.monthPct, drawdownPct: s.drawdownPct, above200: s.above200, series: s.series } : null;
+    return s ? { name: w.name, symbol: w.symbol, dayPct: s.dayPct, weekPct: s.weekPct, monthPct: s.monthPct, drawdownPct: s.drawdownPct, tag: drawdownTag(s.drawdownPct), above200: s.above200, series: s.series } : null;
   }).filter(Boolean);
   if (!markets.length) return null;
   let score = 0;
@@ -280,14 +285,22 @@ function summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist,
   return L.join("\n");
 }
 
-function digestBody({ reg, fg, sp, ftse, vix, world, ctxLine, research, trackRecord, scan }) {
+// " Japan · Nikkei 225 in a bear market (-20.6%)." for markets 10%+ off their high.
+function worldTags(world) {
+  const t = (world?.markets || []).filter((m) => m.tag).map((m) => `${m.name} in a ${m.tag.toLowerCase()} (${m.drawdownPct.toFixed(1)}%)`);
+  return t.length ? ` ${t.join("; ")}.` : "";
+}
+
+function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan }) {
   const L = [];
   const tr = trackRecord?.summary;
   L.push(`Regime: ${reg.label}. ${reg.action}`);
   if (sp) L.push(`S&P 500 week ${sign(sp.weekPct)}, month ${sign(sp.monthPct)}, ${sp.drawdownPct.toFixed(1)}% off high.`);
   if (ftse) L.push(`FTSE 100 week ${sign(ftse.weekPct)}, month ${sign(ftse.monthPct)}, ${ftse.drawdownPct.toFixed(1)}% off high.`);
   if (fg) L.push(`F&G ${fg.score} (${ratingFor(fg.score)}), a week ago ${fg.comparisons?.week ?? "n/a"}, a month ago ${fg.comparisons?.month ?? "n/a"}.${vix ? ` VIX ${vix.level.toFixed(1)}.` : ""}`);
-  if (world) L.push(`World: ${world.label} (${world.score >= 0 ? "+" : ""}${world.score}); ${world.above200}/${world.markets.length} markets above their 200-day.`);
+  const cf = coreFundLine(coreFund);
+  if (cf) L.push(cf);
+  if (world) L.push(`World: ${world.label} (${world.score >= 0 ? "+" : ""}${world.score}); ${world.above200}/${world.markets.length} markets above their 200-day.${worldTags(world)}`);
   if (ctxLine) L.push(ctxLine);
   const h = researchHighlights(research);
   if (h) {

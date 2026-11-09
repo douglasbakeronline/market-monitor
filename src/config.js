@@ -19,6 +19,9 @@ export const CONFIG = {
     { key: "hsi", name: "Hong Kong · Hang Seng", symbol: "^HSI" },
   ],
 
+  // The core fund (display only: price in pounds next to the indices).
+  coreFund: { symbol: "VWRP.L", name: "VWRP" },
+
   // Drawdown is measured from the highest close in this many trading days
   // (252 = one year). Used for both the S&P 500 and FTSE 100.
   peakLookbackDays: 252,
