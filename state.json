@@ -1517,7 +1517,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-08T23:41:01.055Z",
+    "fgAt": "2026-11-09T02:35:11.874Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1672,7 +1672,7 @@
         "dayPct": -9,
         "date": "2026-11-06"
       },
-      "at": "2026-11-08T23:41:01.055Z"
+      "at": "2026-11-09T02:35:11.874Z"
     },
     "watchlist": [
       {
@@ -2433,6 +2433,26 @@
           }
         }
       ]
+    },
+    "coreFund": {
+      "symbol": "VWRP.L",
+      "name": "VWRP",
+      "level": 138.4,
+      "price": "£138.40",
+      "currency": "GBP",
+      "date": "2026-11-06",
+      "drawdownPct": -6,
+      "peak": 147.18,
+      "peakDate": "2026-10-06",
+      "tag": null,
+      "dayPct": 0.3,
+      "weekPct": -1.6,
+      "monthPct": -5,
+      "ytdPct": 9.3,
+      "vs200Pct": 0.7,
+      "above200": true,
+      "spGap": -0.3,
+      "note": "VWRP is 6.0% below its 52-week high in pounds, about the same as the S&P 500's 5.7% in dollars."
     }
   },
   "pending": [],
