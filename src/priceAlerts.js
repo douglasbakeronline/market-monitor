@@ -103,3 +103,18 @@ export function fileWith(view = [], add = null, remove = null) {
   }
   return [...by.values()];
 }
+
+// One digest line: the armed alerts closest to their level (within `within`
+// percent), and any that are currently reached. Null when there are none.
+export function digestLine(view = [], within = 10, max = 3) {
+  const fmtL = (a) => `${a.name || a.symbol} ${a.dir} ${fmt(a.level)}`;
+  const reached = view.filter((a) => a.active);
+  const near = view.filter((a) => !a.active && a.distPct != null)
+    .map((a) => ({ a, togo: a.dir === "below" ? a.distPct : -a.distPct }))
+    .filter((x) => x.togo > 0 && x.togo <= within).sort((x, y) => x.togo - y.togo).slice(0, max);
+  if (!reached.length && !near.length) return view.length ? `Price alerts: ${view.length} set, none within ${within}% of its level.` : null;
+  const parts = [];
+  if (reached.length) parts.push(`reached: ${reached.map(fmtL).join(", ")}`);
+  if (near.length) parts.push(`closest: ${near.map(({ a, togo }) => `${fmtL(a)} (${togo.toFixed(1)}% to go)`).join(", ")}`);
+  return `Price alerts ${parts.join("; ")}.`;
+}

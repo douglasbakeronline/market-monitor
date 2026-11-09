@@ -42,7 +42,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 
 ## Done (recent)
 - 9 Nov (midday): fix: quick-scan dividend yields (forward yield outside London).
-- 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing); "Set a price alert" link on every Research and scan item.
+- 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing); "Set a price alert" link on every Research and scan item; digest line.
 - 9 Nov (morning): pullback-trigger source test (VWRP vs S&P/FTSE: no difference, rule unchanged); rebalancing research (research log).
 - 8 Nov (evening): core fund (VWRP) in pounds on the Dashboard and in the digest; world tiles show off-high with Correction and Bear market tags.
 - 8 Nov (afternoon): smart-money backtest (no edge; research log); the Smart money note says so.

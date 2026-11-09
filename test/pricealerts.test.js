@@ -64,3 +64,13 @@ test("fileWith: rebuilds entries, replaces a level, removes a symbol", () => {
   assert.deepEqual(round.alerts.map((a) => a.id), ["HSBA.L<1000", "HSBA.L>1300", "VICI<28", "NEM>120"]);
   assert.equal(round.invalid.length, 0);
 });
+
+test("digestLine: reached and closest armed alerts", async () => {
+  const { digestLine } = await import("../src/priceAlerts.js");
+  assert.equal(digestLine([]), null);
+  const parsed = parseAlerts([{ symbol: "VICI", name: "VICI", below: 24 }, { symbol: "NEM", above: 130 }, { symbol: "META", below: 300 }, { symbol: "HSBA.L", name: "HSBC", below: 1400 }]);
+  const r = checkAlerts(parsed, { VICI: P(24.8), NEM: P(121), META: P(600), "HSBA.L": P(1320) }, {}, NOW);
+  assert.equal(digestLine(r.view), "Price alerts reached: HSBC below 1400; closest: VICI below 24.0 (3.3% to go), NEM above 130 (6.9% to go).");
+  const quiet = checkAlerts(parseAlerts([{ symbol: "META", below: 300 }]), { META: P(600) }, {}, NOW);
+  assert.equal(digestLine(quiet.view), "Price alerts: 1 set, none within 10% of its level.");
+});
