@@ -216,9 +216,9 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 24,
+      "score": 25,
       "rating": "extreme fear",
-      "asOf": "2026-11-09T09:54:46+00:00",
+      "asOf": "2026-11-09T11:40:01+00:00",
       "comparisons": {
         "close": 22,
         "week": 19,
@@ -253,8 +253,8 @@
         {
           "key": "market_volatility_vix",
           "label": "Market volatility",
-          "score": 22,
-          "rating": "extreme fear"
+          "score": 28,
+          "rating": "fear"
         },
         {
           "key": "safe_haven_demand",
@@ -1513,16 +1513,16 @@
         {
           "date": "2026-11-06",
           "t": 1793923200000,
-          "y": 24
+          "y": 25
         },
         {
           "date": "2026-11-09",
-          "t": 1794218086000,
-          "y": 24
+          "t": 1794224401000,
+          "y": 25
         }
       ]
     },
-    "fgAt": "2026-11-09T10:15:25.428Z",
+    "fgAt": "2026-11-09T12:00:00.523Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1601,22 +1601,22 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10729.37,
+        "level": 10758.28,
         "date": "2026-11-09",
-        "asOf": "2026-11-09T10:00:23.000Z",
+        "asOf": "2026-11-09T11:45:00.000Z",
         "currency": "GBP",
-        "drawdownPct": -1.7,
+        "drawdownPct": -1.4,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10691.27,
-        "sma200": 10540.33,
-        "vs200Pct": 1.8,
+        "sma50": 10691.85,
+        "sma200": 10540.47,
+        "vs200Pct": 2.1,
         "above200": true,
-        "rsi14": 51.2,
-        "dayPct": 0.5,
-        "weekPct": -0.3,
-        "monthPct": 1.7,
-        "ytdPct": 8,
+        "rsi14": 52.7,
+        "dayPct": 0.8,
+        "weekPct": 0,
+        "monthPct": 2,
+        "ytdPct": 8.3,
         "fiveDay": [
           {
             "date": "2026-11-03",
@@ -1636,7 +1636,7 @@
           },
           {
             "date": "2026-11-09",
-            "pct": 0.52
+            "pct": 0.79
           }
         ],
         "series": [
@@ -1669,15 +1669,15 @@
           1.81,
           1.37,
           0.35,
-          0.87
+          1.14
         ]
       },
       "vix": {
-        "level": 23.95,
-        "dayPct": -6.6,
+        "level": 23.34,
+        "dayPct": -9,
         "date": "2026-11-09"
       },
-      "at": "2026-11-09T10:15:25.428Z"
+      "at": "2026-11-09T12:00:00.523Z"
     },
     "watchlist": [
       {
@@ -2237,13 +2237,13 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 14104,
+        "price": 14132,
         "date": "2026-11-09",
         "dropFromHigh": 0,
-        "lastChange": 1.2,
+        "lastChange": 1.5,
         "previous": -0.8,
-        "week": 1.8,
-        "month": 17.6,
+        "week": 2,
+        "month": 17.8,
         "series": [
           0,
           -1.19,
@@ -2274,7 +2274,7 @@
           12.84,
           12.99,
           12.09,
-          13.49
+          13.71
         ],
         "rebound": false
       },
@@ -2283,13 +2283,13 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3710.5,
+        "price": 3685.5,
         "date": "2026-11-09",
-        "dropFromHigh": -8.1,
-        "lastChange": -0.3,
+        "dropFromHigh": -8.7,
+        "lastChange": -1,
         "previous": -1.6,
-        "week": -5.4,
-        "month": -2.2,
+        "week": -6,
+        "month": -2.8,
         "series": [
           0,
           -0.68,
@@ -2320,7 +2320,7 @@
           5.61,
           5.29,
           3.58,
-          3.24
+          2.55
         ],
         "rebound": false
       },
@@ -2329,13 +2329,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1317.4,
+        "price": 1324,
         "date": "2026-11-09",
-        "dropFromHigh": -3.5,
-        "lastChange": 1,
+        "dropFromHigh": -3,
+        "lastChange": 1.5,
         "previous": -0.2,
-        "week": 2.6,
-        "month": -5.6,
+        "week": 3.2,
+        "month": -5.1,
         "series": [
           0,
           -0.82,
@@ -2366,28 +2366,28 @@
           -12.7,
           -13.42,
           -13.6,
-          -12.75
+          -12.32
         ],
         "rebound": false
       }
     ],
     "context": {
-      "score": 24,
+      "score": 25,
       "band": [
-        19,
-        29
+        20,
+        30
       ],
       "since": "2020-07-15",
-      "days": 197,
-      "episodes": 24,
+      "days": 219,
+      "episodes": 23,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 188,
-            "median": 2,
-            "positive": 73
+            "n": 209,
+            "median": 1.9,
+            "positive": 72
           },
           "baseline": {
             "n": 1566,
@@ -2399,9 +2399,9 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 183,
-            "median": 4.1,
-            "positive": 68
+            "n": 203,
+            "median": 4,
+            "positive": 67
           },
           "baseline": {
             "n": 1524,
@@ -2413,9 +2413,9 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 176,
-            "median": 7.1,
-            "positive": 75
+            "n": 194,
+            "median": 6.9,
+            "positive": 76
           },
           "baseline": {
             "n": 1461,
@@ -2427,8 +2427,8 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 160,
-            "median": 14.4,
+            "n": 176,
+            "median": 14.3,
             "positive": 60
           },
           "baseline": {
@@ -2442,27 +2442,28 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 137.86,
-      "price": "£137.86",
+      "level": 138.22,
+      "price": "£138.22",
       "currency": "GBP",
       "date": "2026-11-09",
-      "drawdownPct": -6.3,
+      "drawdownPct": -6.1,
       "peak": 147.18,
       "peakDate": "2026-10-06",
       "tag": null,
-      "dayPct": -0.4,
-      "weekPct": -2.5,
-      "monthPct": -5.7,
-      "ytdPct": 8.8,
-      "vs200Pct": 0.2,
+      "dayPct": -0.1,
+      "weekPct": -2.3,
+      "monthPct": -5.5,
+      "ytdPct": 9.1,
+      "vs200Pct": 0.5,
       "above200": true,
-      "spGap": -0.6,
-      "note": "VWRP is 6.3% below its 52-week high in pounds, about the same as the S&P 500's 5.7% in dollars."
+      "spGap": -0.4,
+      "note": "VWRP is 6.1% below its 52-week high in pounds, about the same as the S&P 500's 5.7% in dollars."
     }
   },
   "pending": [],
   "crashDate": {
     "US": "2026-11-05"
   },
-  "pullbackAlerted": "2026-11-16"
+  "pullbackAlerted": "2026-11-16",
+  "priceAlerts": {}
 }
