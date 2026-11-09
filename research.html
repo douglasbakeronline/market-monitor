@@ -108,7 +108,7 @@
 
   <div class="intro">
     <h1>Stock research</h1>
-    <p>Your stocks, or every company in the S&amp;P 500, FTSE 100 and Euro Stoxx 50, scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
+    <p>Your stocks, or every company in the S&amp;P 500, FTSE 100 and Euro Stoxx 50 (plus the Nasdaq 100 names they miss), scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
     <div class="meta" id="meta"></div>
     <div id="banners"></div>
   </div>
@@ -176,7 +176,7 @@ const estTitle = (e) => `Not published yet. Estimated from the latest results ${
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
-  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"],
+  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
 ];
 const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
@@ -239,6 +239,9 @@ function visible() {
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
+    // On the scan, "S&P 500" means that index; the Nasdaq 100 extras (also US) have their own chip.
+    if (st.filter === "US" && st.source === "scan") return it.index === "S&P 500";
+    if (st.filter === "NDX") return st.source !== "scan" || it.index === "Nasdaq 100";
     if (st.filter === "US" || st.filter === "UK" || st.filter === "EU") return it.market === st.filter;
     return true;
   }).sort((a, b) => {
@@ -349,7 +352,8 @@ function render() {
   document.querySelectorAll("#sourceSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.src === st.source)));
   $("count").textContent = `${all.length} of ${st.data.items.length} stocks · sorted by ${st.sort === "name" ? "name" : st.sort === "day" ? "today's move" : (st.sort || st.lens) === "sw" ? "swing score" : "long-term score"}`;
   document.querySelectorAll(".seg:not(.source) button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === st.lens)));
-  $("filters").innerHTML = FILTERS.map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${st.source === "scan" ? ({ US: "S&P 500", UK: "FTSE 100", EU: "Euro Stoxx 50" }[k] || l) : l}</button>`).join("");
+  if (st.source !== "scan" && st.filter === "NDX") st.filter = "all";
+  $("filters").innerHTML = FILTERS.filter(([k]) => k !== "NDX" || st.source === "scan").map(([k, l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${st.filter === k}">${st.source === "scan" ? ({ US: "S&P 500", UK: "FTSE 100", EU: "Euro Stoxx 50" }[k] || l) : l}</button>`).join("");
   list.querySelectorAll(".row[data-sym]").forEach((row, i) => {
     const toggle = () => {
       const sym = row.dataset.sym, it = items[i], d = row.nextElementSibling;
@@ -384,7 +388,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();

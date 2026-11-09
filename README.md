@@ -3,7 +3,7 @@
 A free, self-running market dashboard with phone alerts, plus a stock research page.
 
 - **Dashboard** (`index.html`): what the agreed plan says is due this week (with a tranche check for each pick, the pullback rule and the core fund, VWRP, in pounds), a private pots-and-goal panel stored only in your browser, one "market regime" headline built from four lenses (S&P 500 drawdown, trend vs the 200-day average, VIX, CNN Fear & Greed), what historically happened next at today's sentiment level, S&P 500 and FTSE 100 buy tiers, world markets and a rebound watchlist.
-- **Research** (`research.html`): every stock on your list scored for **long-term** investing (quality, value, entry, analysts) and **swing** trading (trend, RSI, MACD, Bollinger, volume, breakouts), with plain-English reasons, a suggested stop and earnings warnings. An "Index scan" tab scores every company in the S&P 500, FTSE 100 and Euro Stoxx 50 each weeknight.
+- **Research** (`research.html`): every stock on your list scored for **long-term** investing (quality, value, entry, analysts) and **swing** trading (trend, RSI, MACD, Bollinger, volume, breakouts), with plain-English reasons, a suggested stop and earnings warnings. An "Index scan" tab scores every company in the S&P 500, FTSE 100 and Euro Stoxx 50 (plus the Nasdaq 100 names those miss) each weeknight.
 - **Alerts** (ntfy): buy tiers, "fear without a dip", greed and trim signals, research signals, a summary after each open and a Sunday digest.
 
 Live at `https://douglasbakeronline.github.io/market-monitor/`. Not financial advice.

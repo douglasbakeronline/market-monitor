@@ -1,15 +1,19 @@
-// Index constituents (S&P 500, FTSE 100 and Euro Stoxx 50) from Wikipedia's tables, cached in
+// Index constituents (S&P 500, FTSE 100, Euro Stoxx 50 and the Nasdaq 100 names
+// the others miss) from Wikipedia's tables, cached in
 // data/constituents.json so a Wikipedia hiccup never stops the scan.
 import { fetchJson } from "./http.js";
 import { readJson, writeJson } from "../state.js";
 import { EUROSTOXX_FALLBACK, euroStoxxFromRows } from "./eurostoxx.js";
+import { nasdaqExtras } from "./nasdaq.js";
 
 const PAGES = {
   SP500: { page: "List_of_S&P_500_companies", symbolCol: /symbol|ticker/i, nameCol: /security|company/i, sectorCol: /gics sector|sector/i },
   FTSE100: { page: "FTSE_100_Index", symbolCol: /ticker|epic|symbol/i, nameCol: /company/i, sectorCol: /sector|industry/i },
   EUROSTOXX50: { page: "EURO_STOXX_50", symbolCol: /ticker|symbol/i, nameCol: /^name|company/i, sectorCol: /industry|sector/i, exchangeCol: /listing|exchange|registered|country/i },
+  // Last, so it can drop the names the other three already cover.
+  NASDAQ100: { page: "List_of_NASDAQ-100_companies", symbolCol: /ticker|symbol/i, nameCol: /company|security/i, sectorCol: /gics sector|icb industry|industry|sector/i },
 };
-const MIN_ROWS = { SP500: 480, FTSE100: 95, EUROSTOXX50: 45 };
+const MIN_ROWS = { SP500: 480, FTSE100: 95, EUROSTOXX50: 45, NASDAQ100: 95 };
 
 const decode = (s) => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ").replace(/&#\d+;/g, "").replace(/\[\d+\]/g, "").trim();
 
@@ -56,6 +60,11 @@ export async function fetchConstituents() {
         if (es.fresh.length) console.log(`Euro Stoxx 50: not in the fallback list (check symbol and sector): ${es.fresh.join(", ")}.`);
         if (es.list.length < MIN_ROWS[index]) throw new Error(`only ${es.list.length} placed`);
         out.indices[index] = es.list;
+      } else if (index === "NASDAQ100") {
+        const nd = nasdaqExtras(rows, ["SP500", "FTSE100", "EUROSTOXX50"].flatMap((k) => out.indices[k] ?? []));
+        console.log(`Nasdaq 100: ${nd.list.length} names not in the other indices (${nd.dropped} already covered): ${nd.list.map((c) => c.symbol).join(", ")}.`);
+        if (nd.dropped < 60) throw new Error(`only ${nd.dropped} overlap the others (other lists missing?)`);
+        out.indices[index] = nd.list;
       } else out.indices[index] = rows.map((r) => ({ ...r, symbol: toYahoo(index, r.ticker) }));
     } catch (e) {
       console.warn(`Constituents for ${index} failed (${e.message}); using cache.`);

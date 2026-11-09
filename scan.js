@@ -1,4 +1,5 @@
-// Index scanner: scores every S&P 500, FTSE 100 and Euro Stoxx 50 company each weeknight.
+// Index scanner: scores every S&P 500, FTSE 100 and Euro Stoxx 50 company, plus the
+// Nasdaq 100 names those miss, each weeknight.
 //   Stage 1 (all ~600): daily prices + batch quotes -> swing signals and a
 //                       provisional long-term score (value, entry, analysts).
 //   Stage 2 (top ~100): full fundamentals for the best candidates and every
@@ -19,8 +20,8 @@ import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
-const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50" };
-const MARKET = { SP500: "US", FTSE100: "UK", EUROSTOXX50: "EU" };
+const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
+const MARKET = { SP500: "US", FTSE100: "UK", EUROSTOXX50: "EU", NASDAQ100: "US" };
 
 async function main() {
   const t0 = Date.now();
