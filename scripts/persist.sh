@@ -7,7 +7,7 @@ if [ "$#" -gt 0 ]; then git add "$@" 2>/dev/null || true; else git add data.json
 if git diff --staged --quiet; then echo "Nothing to commit."; exit 0; fi
 git commit -q -m "${COMMIT_MSG:-Update monitor data}${SLOT:+ ($SLOT)}"
 for i in 1 2 3 4 5; do
-  if git pull -q --rebase -X theirs origin main && git push -q origin HEAD:main; then echo "Pushed."; exit 0; fi
+  if git pull -q --rebase --autostash -X theirs origin main && git push -q origin HEAD:main; then echo "Pushed."; exit 0; fi
   echo "Push attempt $i failed; retrying."; sleep $((i * 5))
 done
 echo "Could not push monitor data." >&2; exit 1

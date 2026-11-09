@@ -41,6 +41,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 9 Nov (afternoon): fix: Index scan save step failed on Mondays (smart-money file left unstaged; persist.sh now autostashes).
 - 9 Nov (afternoon): Nasdaq 100 names the other indices miss join the index scan (13 on 9 Nov), with their own filter.
 - 9 Nov (midday): fix: quick-scan dividend yields (forward yield outside London).
 - 9 Nov (midday): price alerts for individual stocks (price-alerts.json, Dashboard card and file builder, phone alert once per crossing); "Set a price alert" link on every Research and scan item; digest line.
