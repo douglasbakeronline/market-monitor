@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -1.7,
+      "now": -1.8,
       "nowDate": "2026-11-09",
       "sessions": 10,
-      "spNow": -1.7,
+      "spNow": -1.8,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -31,7 +31,7 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 10.2,
+      "now": 9.9,
       "nowDate": "2026-11-09",
       "sessions": 7,
       "spNow": -2.3,
@@ -40,8 +40,8 @@
       "w1": 6.7,
       "w1Sp": -4.7,
       "w1Idx": -4.7,
-      "vsSp": 12.5,
-      "vsIdx": 12.5
+      "vsSp": 12.2,
+      "vsIdx": 12.2
     }
   },
   {
@@ -56,7 +56,7 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 4.1,
+      "now": 4.4,
       "nowDate": "2026-11-09",
       "sessions": 6,
       "spNow": -0.5,
@@ -65,8 +65,8 @@
       "w1": 1.7,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 4.6,
-      "vsIdx": 4.6
+      "vsSp": 4.9,
+      "vsIdx": 4.9
     }
   },
   {
@@ -81,7 +81,7 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -13.1,
+      "now": -14,
       "nowDate": "2026-11-09",
       "sessions": 6,
       "spNow": -0.5,
@@ -90,8 +90,8 @@
       "w1": -8.8,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": -12.6,
-      "vsIdx": -12.6
+      "vsSp": -13.5,
+      "vsIdx": -13.5
     }
   },
   {
@@ -106,7 +106,7 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 2.5,
+      "now": 2.4,
       "nowDate": "2026-11-09",
       "sessions": 6,
       "spNow": -0.5,
@@ -115,8 +115,8 @@
       "w1": 2.2,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 3,
-      "vsIdx": 3
+      "vsSp": 2.9,
+      "vsIdx": 2.9
     }
   },
   {
@@ -156,17 +156,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 3.2,
+      "now": 3.8,
       "nowDate": "2026-11-09",
       "sessions": 5,
       "spNow": 0,
       "idx": "^GSPC",
       "idxNow": 0,
-      "w1": 3.2,
+      "w1": 3.8,
       "w1Sp": 0,
       "w1Idx": 0,
-      "vsSp": 3.2,
-      "vsIdx": 3.2
+      "vsSp": 3.8,
+      "vsIdx": 3.8
     }
   },
   {
@@ -181,14 +181,14 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 4.3,
+      "now": 4.6,
       "nowDate": "2026-11-09",
       "sessions": 4,
-      "spNow": -0.3,
+      "spNow": -0.4,
       "idx": "^GSPC",
-      "idxNow": -0.3,
-      "vsSp": 4.6,
-      "vsIdx": 4.6
+      "idxNow": -0.4,
+      "vsSp": 5,
+      "vsIdx": 5
     }
   },
   {
@@ -225,14 +225,14 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -0.1,
+      "now": 0.5,
       "nowDate": "2026-11-09",
       "sessions": 3,
       "spNow": -1.9,
       "idx": "^GSPC",
       "idxNow": -1.9,
-      "vsSp": 1.8,
-      "vsIdx": 1.8
+      "vsSp": 2.4,
+      "vsIdx": 2.4
     }
   },
   {
@@ -247,14 +247,14 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": 1,
+      "now": 0.7,
       "nowDate": "2026-11-09",
       "sessions": 3,
       "spNow": -1.9,
       "idx": "^GSPC",
       "idxNow": -1.9,
-      "vsSp": 2.9,
-      "vsIdx": 2.9
+      "vsSp": 2.6,
+      "vsIdx": 2.6
     }
   },
   {
@@ -291,14 +291,14 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 1.9,
+      "now": 2.6,
       "nowDate": "2026-11-09",
       "sessions": 1,
-      "spNow": 2.3,
+      "spNow": 2.2,
       "idx": "^GSPC",
-      "idxNow": 2.3,
-      "vsSp": -0.4,
-      "vsIdx": -0.4
+      "idxNow": 2.2,
+      "vsSp": 0.4,
+      "vsIdx": 0.4
     }
   },
   {
@@ -316,10 +316,10 @@
       "now": -0.6,
       "nowDate": "2026-11-09",
       "sessions": 1,
-      "spNow": 2.3,
+      "spNow": 2.2,
       "idx": "^FTSE",
       "idxNow": 1,
-      "vsSp": -2.9,
+      "vsSp": -2.8,
       "vsIdx": -1.6
     }
   }
