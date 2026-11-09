@@ -49,6 +49,7 @@ Workflow permissions must be "Read and write" (Settings → Actions → General)
 
 ## Editing
 
+- **Price alerts:** `price-alerts.json` (or build it with "Add or change an alert" on the Dashboard and paste it in on GitHub). Levels are in the quote currency (pence for `.L` shares).
 - **Research list:** `research-list.json`. Yahoo symbols: US plain (`MSFT`), UK with `.L` (`AZN.L`). Remove `"placeholder": true` once it's your real list.
 - **Dashboard watchlist, thresholds, schedule, quiet hours:** `src/config.js`.
 
@@ -69,6 +70,7 @@ FORCE_SUMMARY=US NTFY_TOPIC=your-topic node monitor.js   # send a real summary n
 - **Greed:** F&G ≥ 76 with the S&P within 3% of its high: stop adding.
 - **Trim:** F&G ≥ 80, S&P 10%+ above its 200-day and VIX ≤ 15: rebalance, don't dump.
 - **Research:** a stock newly becomes a long-term "Good entry" or a swing "Setup".
+- **Price alerts:** a stock you listed reaches your level; once per crossing, re-armed after a 3% move back.
 - **Pullback rule:** the S&P 500 or FTSE 100 is 5%+ below its high before a scheduled core purchase: bring it forward.
 
 ## Layout
@@ -80,6 +82,7 @@ src/data/               CNN, Yahoo prices, Yahoo/Finnhub fundamentals
 src/signals.js          snapshots, regime, alert rules
 src/context.js          historical forward returns
 src/research.js         long-term and swing scoring (flags takeover-pinned prices)
+src/priceAlerts.js      price alerts for individual stocks (price-alerts.json)
 src/plan.js             the agreed plan as data (dates, weights, picks) and the weekly co-pilot
 src/paperTrades.js      swing paper-trading log, scored nightly by scan.js
 tools/swing-backtest.mjs  replay of the swing rules over four years, with retune variants

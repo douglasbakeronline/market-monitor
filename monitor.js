@@ -16,6 +16,7 @@ import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals,
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
+import { parseAlerts, latestPrice, checkAlerts } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
@@ -78,6 +79,17 @@ async function main() {
   if (!watchlist.length && state.lastGood.watchlist) watchlist = state.lastGood.watchlist;
   else if (watchlist.length) state.lastGood.watchlist = watchlist;
 
+  // --- 3b. Price alerts (price-alerts.json; levels in the quote currency) --------
+  const paParsed = parseAlerts(await readJson("price-alerts.json", []));
+  for (const x of paParsed.invalid) console.warn(`Price alert skipped (${x.reason}): ${x.symbol ?? "no symbol"}`);
+  const paSymbols = [...new Set(paParsed.alerts.map((a) => a.symbol))];
+  const paMissing = paSymbols.filter((s) => !wlData[s]);
+  const paData = paMissing.length ? await fetchMany(paMissing, { range: "5d" }) : {};
+  const paPrices = Object.fromEntries(paSymbols.map((s) => [s, latestPrice((wlData[s] ?? paData[s])?.rows, now)]));
+  const pa = checkAlerts(paParsed, paPrices, state.priceAlerts ?? {}, now);
+  state.priceAlerts = pa.state;
+  if (paParsed.alerts.length) console.log(`Price alerts: ${paParsed.alerts.length} checked, ${pa.alerts.length} fired`);
+
   // --- 4. Regime, status, context ---------------------------------------------
   const reg = regime({ sp: pricesOk ? sp : null, vix, fg: fgOk ? fg : (hoursSince(state.lastGood.fgAt) < 24 ? fg : null) });
   const status = { US: marketStatus(sp, fg, vix), UK: marketStatus(ftse, fg, vix) };
@@ -131,7 +143,7 @@ async function main() {
   // --- 8. Signal alerts ----------------------------------------------------------
   const ev = evaluateAlerts({ markets: { US: sp, UK: ftse }, fg, vix, pricesOk, fgOk }, state);
   Object.assign(state, ev.state);
-  alerts.push(...ev.alerts, ...researchAlerts);
+  alerts.push(...ev.alerts, ...researchAlerts, ...pa.alerts);
 
   // Co-pilot: what the agreed plan says is due, plus the pullback rule.
   const planItems = Object.fromEntries([...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
@@ -209,6 +221,7 @@ async function main() {
     regime: reg, status, markets: { sp, ftse, vix }, context: ctx, fearSessions, world, coreFund, watchlist,
     researchTop: researchHighlights(research), trackRecord, copilot: cp,
     paper: scan?.paper ?? null,
+    priceAlerts: { items: pa.view, invalid: pa.invalid },
   });
   await writeJson("history/fear-greed.json", fgHistory);
   await saveState(state);

@@ -1,0 +1,4 @@
+{
+  "note": "Price alerts checked at every monitor slot. One entry per stock: symbol (Yahoo format: US plain, UK with .L), below and/or above (in the quote currency: pence for .L shares, as Trading 212 shows them), optional name and note. Example: { \"symbol\": \"HSBA.L\", \"name\": \"HSBC\", \"below\": 1000, \"note\": \"second tranche\" }. Each level alerts once, then re-arms after the price moves 3% back.",
+  "alerts": []
+}

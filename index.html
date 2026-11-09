@@ -149,6 +149,13 @@
   .wl-detail { display: none; padding: 4px 2px 14px; }
   .wl-detail.show { display: block; }
   @media (max-width: 520px) { .wl-row { grid-template-columns: 1fr auto; } .wl-row .hide-s { display: none; } }
+  .pa-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .pa-row:first-child { border-top: 0; }
+  .pa-row .num { text-align: right; min-width: 64px; }
+  .pa-row .num .sub { display: block; font-size: 11px; color: var(--muted); }
+  .pa-row .note { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .pa-out { width: 100%; min-height: 120px; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); border-radius: 9px; padding: 8px 10px; margin-top: 10px; box-sizing: border-box; }
+  @media (max-width: 520px) { .pa-row { gap: 8px; } .pa-row .num { min-width: 0; } .pa-row .pill { font-size: 10px; padding-left: 6px; padding-right: 6px; } .pa-row .pa-when { display: none; } }
   .tr-head { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
   .tr-row { display: grid; grid-template-columns: 74px 1fr auto auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
   .tr-row .when { color: var(--muted); font-size: 12px; }
@@ -286,6 +293,13 @@
     <div class="hl" id="hl"></div>
   </section>
 
+  <!-- Price alerts -->
+  <section class="section" id="paSection" hidden>
+    <div class="eyebrow">Price alerts <a class="more" href="https://github.com/douglasbakeronline/market-monitor/blob/main/price-alerts.json" target="_blank" rel="noopener">The file ↗</a></div>
+    <div class="card" id="paCard"></div>
+    <p class="cap">Checked at every monitor slot. Each level sends one phone alert when the price reaches it, then re-arms once the price moves 3% back, so a price hovering at the line does not keep alerting. Levels are in the quote currency: pence for London shares, as Trading 212 shows them. Missing or stale prices never alert.</p>
+  </section>
+
   <!-- Track record -->
   <section class="section" id="trSection" hidden>
     <div class="eyebrow">Track record</div>
@@ -321,6 +335,7 @@
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN } from "./src/plan.js";
+import { fileWith } from "./src/priceAlerts.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
 initTheme();
 
@@ -350,6 +365,7 @@ function render(d) {
   renderWorld(d.world);
   renderHighlights(d.researchTop);
   renderWatchlist(d.watchlist);
+  renderPriceAlerts(d.priceAlerts);
   renderTrack(d.trackRecord);
   renderPlan(d.copilot);
   renderCore(d.coreFund);
@@ -711,6 +727,54 @@ function renderTrackMore(tr, tone) {
   }
   h += `<p class="note">Home index: the FTSE 100 for UK listings, the S&amp;P 500 for US ones, so a UK stock is not judged on the pound or the US market. Market-wide signals are the index itself, so they have no home comparison. Each figure waits for 5 scored signals.</p>`;
   $("trMoreBody").innerHTML = h;
+}
+
+// --- Price alerts (levels live in price-alerts.json, edited on GitHub) ---------------
+const PA_EDIT = "https://github.com/douglasbakeronline/market-monitor/edit/main/price-alerts.json";
+const PA_NOTE = "Price alerts checked at every monitor slot. One entry per stock: symbol (Yahoo format: US plain, UK with .L), below and/or above (in the quote currency: pence for .L shares, as Trading 212 shows them), optional name and note. Example: { \"symbol\": \"HSBA.L\", \"name\": \"HSBC\", \"below\": 1000, \"note\": \"second tranche\" }. Each level alerts once, then re-arms after the price moves 3% back.";
+const lvl = (v) => (v >= 100 ? num(v, 0) : v >= 10 ? num(v, 1) : num(v, 2));
+function renderPriceAlerts(pa) {
+  if (!pa) return;
+  $("paSection").hidden = false;
+  const items = pa.items || [];
+  const rows = items.map((a) => {
+    const togo = a.distPct == null ? null : a.dir === "below" ? a.distPct : -a.distPct; // % still to move
+    const status = a.active ? `<span class="pill bg-watch">Reached<span class="pa-when">${a.firedAt ? ` ${fmtDM(a.firedAt.slice(0, 10))}` : ""}</span></span>` : `<span class="pill plain">Armed</span>`;
+    return `<div class="pa-row"><span><b>${esc(a.name || a.symbol)}</b>${a.name ? ` <span class="muted small">${esc(a.symbol)}</span>` : ""}${a.note ? `<span class="note">${esc(a.note)}</span>` : ""}</span>
+      <span class="num">${a.dir === "below" ? "Below" : "Above"} ${lvl(a.level)}<span class="sub">alert level</span></span>
+      <span class="num">${a.price == null ? `<span class="muted">n/a</span>` : lvl(a.price)}<span class="sub">${a.price == null ? "no price" : togo != null && togo > 0 ? `${minus(togo.toFixed(1))}% to go` : "now"}</span></span>
+      ${status}</div>`;
+  }).join("");
+  const bad = (pa.invalid || []).length ? `<p class="small t-watch" style="margin:8px 0 0">Skipped ${pa.invalid.length} entr${pa.invalid.length === 1 ? "y" : "ies"} in the file: ${pa.invalid.map((x) => `${esc(x.symbol || "no symbol")} (${esc(x.reason)})`).join(", ")}.</p>` : "";
+  $("paCard").innerHTML = `${rows || `<p class="small muted" style="margin:0">No price alerts set yet. Add one below: the monitor will push a phone alert when a stock reaches your level.</p>`}${bad}
+    <details style="margin-top:12px"><summary class="small" style="cursor:pointer">Add or change an alert</summary>
+      <form class="pf-form" id="paForm" style="margin-top:10px">
+        <label>Symbol<input name="symbol" placeholder="HSBA.L" autocapitalize="characters" required></label>
+        <label>When the price is<select name="dir"><option value="below">At or below</option><option value="above">At or above</option></select></label>
+        <label>Level<input name="level" inputmode="decimal" placeholder="1000"></label>
+        <label>Name (optional)<input name="name" placeholder="HSBC"></label>
+        <label class="wide">Note (optional, public)<input name="note" maxlength="140" placeholder="second tranche"></label>
+      </form>
+      ${items.length ? `<p class="small muted" style="margin:8px 0 0">To delete an alert, put its symbol in the box and leave the level blank.</p>` : ""}
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn primary" id="paMake" type="button">Make the file</button></div>
+      <div id="paOut" hidden><p class="small" style="margin:10px 0 0">Copy this, open <a href="${PA_EDIT}" target="_blank" rel="noopener">price-alerts.json on GitHub ↗</a>, replace everything with it and commit. The next monitor run picks it up.</p>
+        <textarea class="pa-out" id="paText" readonly></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="paCopy" type="button">Copy</button><span class="small muted" id="paMsg"></span></div></div>
+      <p class="small muted" style="margin:8px 0 0">The repo is public: levels and notes are visible to anyone, so keep amounts and holdings out of notes.</p>
+    </details>`;
+  $("paMake").onclick = () => {
+    const f = Object.fromEntries(new FormData($("paForm")));
+    const sym = String(f.symbol || "").trim().toUpperCase();
+    if (!sym) { $("paForm").elements.symbol.focus(); return; }
+    const level = parseFloat(String(f.level || "").replace(/[£$,p\s]/g, ""));
+    const list = Number.isFinite(level) && level > 0
+      ? fileWith(items, { symbol: sym, dir: f.dir, level, name: String(f.name || "").trim() || null, note: String(f.note || "").trim() || null })
+      : fileWith(items, null, sym);
+    $("paText").value = JSON.stringify({ note: PA_NOTE, alerts: list }, null, 2) + "\n";
+    $("paOut").hidden = false;
+    $("paMsg").textContent = Number.isFinite(level) && level > 0 ? "" : `${sym} removed.`;
+  };
+  $("paCopy").onclick = async () => { try { await navigator.clipboard.writeText($("paText").value); $("paMsg").textContent = "Copied."; } catch { $("paText").select(); $("paMsg").textContent = "Select all and copy."; } };
 }
 
 function renderWatchlist(list) {
