@@ -1,0 +1,54 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine } from "../src/rebalance.js";
+
+const T = { core: 70, reserve: 15, picks: 15, swing: 0 };
+
+test("topUpToTarget fills under-target pots without selling", () => {
+  // Core overweight: 8000 / 0.7 = 11429 new total.
+  const r = topUpToTarget({ core: 8000, reserve: 1000, picks: 1000 }, T);
+  assert.equal(r.total, 10000);
+  assert.equal(Math.round(r.newTotal), 11429);
+  assert.deepEqual(r.split, { reserve: 714, picks: 714 });
+  assert.equal(r.newMoney, 1428);
+  assert.equal(r.onTarget, false);
+});
+
+test("topUpToTarget: on target needs nothing; swing ignored; empty is null", () => {
+  const r = topUpToTarget({ core: 7000, reserve: 1500, picks: 1500, swing: 500 }, T);
+  assert.equal(r.newMoney, 0);
+  assert.equal(r.onTarget, true);
+  assert.equal(topUpToTarget({}, T), null);
+  assert.equal(topUpToTarget({ core: -5, picks: NaN }, T), null);
+});
+
+test("topUpToTarget after a dip spends the reserve", () => {
+  const r = topUpToTarget({ core: 7500, reserve: 0, picks: 1500 }, T);
+  assert.deepEqual(Object.keys(r.split).sort(), ["picks", "reserve"]);
+  assert.equal(r.split.reserve, Math.round(0.15 * 7500 / 0.7));
+});
+
+test("monthsOfTopUps", () => {
+  assert.equal(monthsOfTopUps(1428, 500), 3);
+  assert.equal(monthsOfTopUps(0, 500), 0);
+  assert.equal(monthsOfTopUps(100, 0), null);
+});
+
+test("pickSizes nets buys and sells per pick, at cost", () => {
+  const tr = [
+    { pot: "picks", ticker: "HSBA", action: "buy", amount: 200 },
+    { pot: "picks", ticker: "HSBA", action: "buy", amount: 100 },
+    { pot: "picks", ticker: "META", action: "buy", amount: 600 },
+    { pot: "picks", ticker: "NEM", action: "buy", amount: 100 },
+    { pot: "picks", ticker: "NEM", action: "sell", amount: 100 },
+    { pot: "core", ticker: "VWRP", action: "buy", amount: 5000 },
+    { pot: "picks", ticker: "VICI", action: "buy", amount: null },
+  ];
+  const s = pickSizes(tr, 10000);
+  assert.deepEqual(s.map((x) => [x.ticker, x.status]), [["META", "ceiling"], ["HSBA", "full"]]);
+  assert.match(pickSizeLine(s), /^Past the proposed 5% ceiling: META 6\.0%\. If the ceiling is agreed, trim back to 3%\.$/);
+  assert.match(pickSizeLine(s.slice(1)), /At the 3% maximum, so no further tranches: HSBA 3\.0%/);
+  assert.match(pickSizeLine(pickSizes([{ pot: "picks", ticker: "STZ", action: "buy", amount: 150 }], 10000)), /below the 3% maximum \(largest STZ 1\.5%\)/);
+  assert.deepEqual(pickSizes(tr, 0), []);
+  assert.equal(pickSizeLine([]), null);
+});

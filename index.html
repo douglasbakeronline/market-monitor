@@ -51,6 +51,7 @@
   .pf-row span:not(:first-child) { text-align: right; }
   .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
   .proj > div { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 10px; }
+  .rb { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-2); }
   .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
   .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   @media (max-width: 640px) { .pf-form { grid-template-columns: 1fr 1fr; } .proj { grid-template-columns: 1fr; } .pf-row { grid-template-columns: 1fr 48px 48px 60px; } }
@@ -337,6 +338,7 @@
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
 initTheme();
 
@@ -442,6 +444,22 @@ function yearsTo(target, start, monthly, rate) {
   return m >= 600 ? null : m / 12;
 }
 const fv = (start, monthly, rate, years) => { let v = start; const g = Math.pow(1 + rate, 1 / 12); for (let m = 0; m < years * 12; m++) v = v * g + monthly; return v; };
+// Rebalancing view: display only until Douglas agrees the 9 Nov proposal.
+const POT_TARGETS = Object.fromEntries(POTS.map(([k, , t]) => [k, t]));
+const POT_LABEL = Object.fromEntries(POTS.map(([k, n]) => [k, n.toLowerCase()]));
+function rebalanceHtml(pf, total) {
+  const tu = topUpToTarget(pf, POT_TARGETS);
+  if (!tu) return "";
+  const mo = monthsOfTopUps(tu.newMoney, pf.monthly || 0);
+  const parts = Object.entries(tu.split).map(([k, a]) => `${POT_LABEL[k]} ${gbp(a)}`).join(", ");
+  const topUp = tu.onTarget ? "Every pot is at its target: no new money needed to rebalance."
+    : `To reach the targets without selling: ${gbp(tu.newMoney)} of new money (${parts})${mo ? `, about ${mo} month${mo === 1 ? "" : "s"} of top-ups` : ""}.`;
+  const picks = pickSizeLine(pickSizes(loadTl(), total));
+  return `<div class="rb"><div class="k">Rebalancing <span class="pill plain" style="margin-left:4px">Proposed, waiting on your OK</span></div>
+    <p class="small" style="margin:6px 0 0">${esc(topUp)}</p>
+    ${picks ? `<p class="small" style="margin:6px 0 0">${esc(picks)} <span class="muted">(each pick at cost from your trade log, as a share of the pots)</span></p>` : ""}
+    <p class="small muted" style="margin:6px 0 0">Proposed rule: check weights at the Sunday review; act at most twice a year unless a pot is ${REBALANCE.bandPts}+ points off, using new money and dividends before selling; trim a pick past ${REBALANCE.pickCeilingPct}% of the portfolio back to ${REBALANCE.pickTrimToPct}%. Nothing changes until agreed.</p></div>`;
+}
 function renderPf(edit = false) {
   const pf = loadPf();
   const card = $("pfCard");
@@ -482,6 +500,7 @@ function renderPf(edit = false) {
     ${rows.map((r) => `<div class="pf-row"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.t}%</span><span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${r.gap >= 0 ? "+" : "\u2212"}${Math.abs(r.gap).toFixed(0)} pts</span></div>`).join("")}
     <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
     ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
+    ${rebalanceHtml(pf, total)}
     ${goal ? `<div class="k" style="margin-top:16px">Time to goal${monthly ? ` with ${gbp(monthly)} a month` : ""}</div><div class="proj">${proj}</div>` : ""}
     <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
   $("pfEdit").onclick = () => renderPf(true);

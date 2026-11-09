@@ -83,6 +83,7 @@ src/signals.js          snapshots, regime, alert rules
 src/context.js          historical forward returns
 src/research.js         long-term and swing scoring (flags takeover-pinned prices)
 src/priceAlerts.js      price alerts for individual stocks (price-alerts.json)
+src/rebalance.js        pots panel rebalancing view (new money to targets, pick sizes; display only)
 src/plan.js             the agreed plan as data (dates, weights, picks) and the weekly co-pilot
 src/paperTrades.js      swing paper-trading log, scored nightly by scan.js
 tools/swing-backtest.mjs  replay of the swing rules over four years, with retune variants
