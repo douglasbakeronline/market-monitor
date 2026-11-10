@@ -45,6 +45,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 10 Nov (afternoon): alerts cut to plan plus swing trades (paper), Douglas's choice; swing book orders and closes as their own push.
 - 10 Nov (afternoon): nightly data checks on every scanned stock (Research banner, detail note, digest line when flagged).
 - 10 Nov (afternoon): usual results-day moves for picks and bench (tranche check, Research, results push).
 - 10 Nov (afternoon): picks vs VWRP so far in the trade log card (display only); monitor keeps VWRP's daily closes.
@@ -111,6 +112,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
+- Swing alerts: if Douglas funds a swing pot, switch the alert wording from paper to real (swing rules in the strategy notes first) and consider sending US orders before the 14:30 London open rather than at 08:15. A strength filter beyond the book's ranking ("only the biggest setups") would be untested: build it as a paper book first.
 - Swing book: once 30+ book trades have closed, judge it against the random-choice books (live on the card) and every setup; if it is no better than luck, try another ranking (e.g. the swing lab's drift signals) as a second paper book rather than changing this one.
 - Swing lab follow-ups: (a) once each side of the live volume-shock test (history/swing-lab.json, up and down) has 30+ trades closed at 60 sessions (about early spring 2027), report drift = up minus down vs the index to Douglas; round 2 (10 Nov) found it +0.1 to +0.8 points in the backtest once matched; (b) drift on Euro Stoxx 50 names needs a backtest first (costs as US); (c) a fourth pre-registered test could use real results dates and the size of the earnings surprise (needs a free source of estimates); (d) the backtests rerun with `node tools/swing-lab.mjs`, `tools/drift-study.mjs` or `tools/sector-rotation.mjs` on a dry-run branch (`dryrun-lab` has the workflow); (f) rerun `tools/surprise-study.mjs` each quarter (after each results season) so the surprise evidence grows beyond one year; decide then whether the "weak results and a falling price" proposal holds; (e) stop adding variants to the same data: three rounds found nothing, and more tries on the same history mostly find noise.
 - Money check: refresh `data/wait-study.json` once a year (`node tools/wait-study.mjs` on the dryrun runner).

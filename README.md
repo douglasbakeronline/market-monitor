@@ -4,7 +4,7 @@ A free, self-running market dashboard with phone alerts, plus a stock research p
 
 - **Dashboard** (`index.html`): what the agreed plan says is due this week (with a tranche check for each pick, the pullback rule and the core fund, VWRP, in pounds), a private pots-and-goal panel stored only in your browser, one "market regime" headline built from four lenses (S&P 500 drawdown, trend vs the 200-day average, VIX, CNN Fear & Greed), what historically happened next at today's sentiment level, S&P 500 and FTSE 100 buy tiers, world markets and a rebound watchlist.
 - **Research** (`research.html`): every stock on your list scored for **long-term** investing (quality, value, entry, analysts) and **swing** trading (trend, RSI, MACD, Bollinger, volume, breakouts), with plain-English reasons, a suggested stop and earnings warnings. An "Index scan" tab scores every company in the S&P 500, FTSE 100 and Euro Stoxx 50 (plus the Nasdaq 100 names those miss) each weeknight.
-- **Alerts** (ntfy): buy tiers, "fear without a dip", greed and trim signals, research signals, a summary after each open and a Sunday digest.
+- **Alerts** (ntfy): since 10 Nov only plan alerts and swing trades reach the phone (`alertProfile: "plan-swing"` in `src/config.js`): monitor problems, buy tiers, crash watch, the pullback rule, your price alerts, news on your five picks, plan lines on Mondays or when an action is due, the Sunday digest, and the swing book's trades (paper: buy orders with stop and target, and closes). Greed, trim, "fear without a dip", other research signals and the daily summaries are muted (still logged and on the pages); set `alertProfile: "all"` to get everything back.
 
 Live at `https://douglasbakeronline.github.io/market-monitor/`. Not financial advice.
 
@@ -26,7 +26,7 @@ GitHub Actions runs `monitor.js` at these times (local market time, daylight sav
 
 GitHub's own cron is unreliable (it was running ~5 hours late), so the workflow uses it only to *wake up*. Each run sleeps until the next slot, runs it, then starts the next run itself. The cron lines restart the chain if it ever breaks. Only one run is active at a time. A separate "Chain watchdog" workflow checks every two hours that each due slot saved data and that the nightly scan saved; if not, it restarts the chain (when no run is active) and sends one alert.
 
-Alerts between 22:00 and 07:00 London are held until the morning (except "monitor problem" alerts).
+Alerts between 22:00 and 07:00 London are held until the morning (except "monitor problem" and urgent crash alerts).
 
 ## Data sources
 
