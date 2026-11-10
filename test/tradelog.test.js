@@ -100,3 +100,32 @@ test("normaliseTrade keeps an optional price per share", () => {
   assert.equal("price" in normaliseTrade({ date: "2026-11-02", action: "buy", rule: "tranche", ticker: "META", amount: "300", price: "" }).trade, false);
   assert.match(normaliseTrade({ date: "2026-11-02", action: "buy", rule: "tranche", ticker: "META", price: "-1" }).error, /Price/);
 });
+
+test("Trading 212 CSV: buys and sells become trades, dividends are summed", async () => {
+  const { parseT212, isT212Csv, parseCsv } = await import("../src/tradeLog.js");
+  const csv = [
+    "Action,Time,ISIN,Ticker,Name,No. of shares,Price / share,Currency (Price / share),Exchange rate,Result,Currency (Result),Total,Currency (Total),ID",
+    'Deposit,2026-11-01 09:00:00,,,,,,,,,,1000.00,GBP,D1',
+    'Market buy,2026-11-02 08:05:11,IE00BK5BQT80,VWRP,"Vanguard FTSE All-World UCITS ETF (Acc)",5.1234,137.20,GBP,1.00,,,702.94,GBP,EOF1',
+    'Market buy,2026-11-02 14:31:02,US30303M1027,META,"Meta Platforms, Inc.",0.4,612.40,USD,0.76,,,186.50,GBP,EOF2',
+    'Limit buy,2026-11-02 08:10:00,GB0005405286,HSBA,HSBC Holdings,10,1310.0,GBX,100,,,131.00,GBP,EOF3',
+    'Market sell,2026-11-05 10:00:00,US0000000001,XYZ,Old Holding,3,10,USD,0.76,1.2,GBP,22.80,GBP,EOF4',
+    'Dividend (Dividend),2026-11-06 12:00:00,US92936U1097,VICI,VICI,1,0.45,USD,,,,0.34,GBP,',
+    'Interest on cash,2026-11-07 00:00:00,,,,,,,,,,0.12,GBP,I1',
+  ].join("\n");
+  assert.equal(isT212Csv(csv), true);
+  assert.equal(isT212Csv('{"trades":[]}'), false);
+  const r = parseT212(csv, { picks: ["META", "HSBA", "NEM"], today: "2026-11-10" });
+  assert.deepEqual(r.trades.map((t) => [t.ticker, t.action, t.pot, t.rule, t.amount, t.price]), [
+    ["VWRP", "buy", "core", "core", 702.94, 137.2],
+    ["META", "buy", "picks", "tranche", 186.5, 612.4],
+    ["HSBA", "buy", "picks", "tranche", 131, 1310],
+    ["XYZ", "sell", "core", "other", 22.8, 10],
+  ]);
+  assert.equal(r.trades[0].id, "t212-EOF1");
+  assert.match(r.trades[1].note, /0\.4 shares/);
+  assert.equal(r.dividends, 0.34);
+  assert.equal(r.dividendCount, 1);
+  assert.equal(parseCsv('a,"b, ""c"""\n1,2').length, 2);
+  assert.match(parseT212("foo,bar\n1,2").error, /Trading 212/);
+});

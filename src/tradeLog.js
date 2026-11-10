@@ -121,3 +121,63 @@ export function parseImport(text, today = null) {
   for (const raw of arr) { const r = normaliseTrade(raw, today); r.trade ? trades.push(r.trade) : skipped.push(r.error); }
   return { trades, skipped: skipped.length };
 }
+
+// --- Trading 212 CSV export (History, Export CSV) ----------------------------
+// Columns used: Action, Time, Ticker, No. of shares, Price / share, Total,
+// Currency (Total), ID. Buys and sells become trades (pot and rule guessed from
+// the ticker: the core fund, a pick, else "other"); dividends are summed. The
+// file stays in the browser; review the guessed rules after importing.
+
+// RFC 4180-style CSV: quoted fields, doubled quotes, commas and newlines inside quotes.
+export function parseCsv(text) {
+  const rows = [];
+  let row = [], f = "", q = false;
+  const s = String(text).replace(/^﻿/, "");
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) {
+      if (c === '"') { if (s[i + 1] === '"') { f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && s[i + 1] === "\n") i++;
+      row.push(f); f = ""; if (row.some((x) => x !== "")) rows.push(row); row = [];
+    } else f += c;
+  }
+  row.push(f); if (row.some((x) => x !== "")) rows.push(row);
+  return rows;
+}
+
+export const isT212Csv = (text) => /^﻿?"?Action"?,/.test(String(text || ""));
+
+// core: the core fund's ticker(s); picks: pick tickers without ".L".
+export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = {}) {
+  const rows = parseCsv(text);
+  if (!rows.length) return { error: "The file is empty." };
+  const head = rows[0].map((h) => h.trim());
+  const col = (name) => head.findIndex((h) => h.toLowerCase() === name.toLowerCase());
+  const iA = col("Action"), iT = col("Time"), iK = col("Ticker"), iN = col("No. of shares"), iP = col("Price / share"), iTot = col("Total"), iCur = col("Currency (Total)"), iId = col("ID");
+  if (iA < 0 || iT < 0 || iK < 0 || iTot < 0) return { error: "This doesn't look like a Trading 212 export (Action, Time, Ticker and Total columns needed)." };
+  const trades = [], skipped = [];
+  let dividends = 0, divN = 0, otherCcy = 0;
+  const num = (x) => { const n = parseFloat(String(x ?? "").replace(/[,\s]/g, "")); return Number.isFinite(n) ? n : null; };
+  for (const r of rows.slice(1)) {
+    const action = String(r[iA] || "").toLowerCase(), ticker = String(r[iK] || "").trim().toUpperCase();
+    const date = String(r[iT] || "").slice(0, 10), total = num(r[iTot]);
+    const ccy = iCur >= 0 ? String(r[iCur] || "").trim().toUpperCase() : "GBP";
+    if (/dividend/.test(action)) { if (total != null && ccy === "GBP") { dividends += total; divN++; } continue; }
+    const side = /\bbuy\b/.test(action) ? "buy" : /\bsell\b/.test(action) ? "sell" : null;
+    if (!side) continue; // deposits, interest, fees, currency conversions
+    if (ccy && ccy !== "GBP") { otherCcy++; continue; }
+    const pick = picks.includes(ticker.replace(/\.L$/, ""));
+    const isCore = core.includes(ticker);
+    const rule = isCore ? "core" : pick ? "tranche" : "other";
+    const pot = isCore ? "core" : pick ? "picks" : "core";
+    const shares = iN >= 0 ? num(r[iN]) : null, price = iP >= 0 ? num(r[iP]) : null;
+    const id = iId >= 0 && r[iId] ? `t212-${String(r[iId]).trim()}` : `t212-${date}-${ticker}-${total}`;
+    const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", note: `Trading 212${shares != null ? `: ${shares} shares` : ""}` }, today);
+    res.trade ? trades.push(res.trade) : skipped.push(res.error);
+  }
+  return { trades, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN };
+}

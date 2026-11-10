@@ -68,11 +68,11 @@
   .tl-sched li { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line-2); }
   .tl-sched .dt { color: var(--muted); white-space: nowrap; }
   .tl-sched .sub { display: block; color: var(--muted); font-size: 11.5px; }
-  .tl-row { display: grid; grid-template-columns: 62px 1fr auto 28px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .tl-row { display: grid; grid-template-columns: 62px 1fr auto 24px 24px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
   .tl-row .dt { color: var(--muted); white-space: nowrap; }
   .tl-row .sub { display: block; color: var(--muted); font-size: 11.5px; }
   .tl-row .amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .tl-row .del { border: 0; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px; border-radius: 6px; }
+  .tl-row .del { border: 0; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px; font-size: 15px; border-radius: 6px; }
   .tl-row .del:hover { color: var(--ink); background: var(--card-2); }
   .pf-form select { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); border-radius: 9px; padding: 7px 9px; min-width: 0; width: 100%; }
   .pf-form .wide { grid-column: 1 / -1; }
@@ -227,7 +227,7 @@
   <section class="section" id="tlSection">
     <div class="eyebrow">Trade log <span class="pill plain" style="margin-left:4px">This browser only</span></div>
     <div class="card" id="tlCard"></div>
-    <p class="cap">Log each real trade with the rule behind it. Scheduled core purchases and pick tranches count as done on time when a matching buy is logged by the next day (a pullback buy up to two weeks early counts too). Trades are saved in this browser only; use <b>Export</b> to keep a backup file.</p>
+    <p class="cap">Log each real trade with the rule behind it. Scheduled core purchases and pick tranches count as done on time when a matching buy is logged by the next day (a pullback buy up to two weeks early counts too). Trades are saved in this browser only; use <b>Export</b> to keep a backup file. <b>Import</b> also takes a Trading 212 history export (History, the download icon, CSV): buys and sells come in with their prices, the rule guessed from the ticker.</p>
   </section>
 
   <!-- 1. Regime -->
@@ -344,7 +344,7 @@ import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, spa
 import { PLAN, dripSchedule } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, REBALANCE } from "./src/rebalance.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -388,8 +388,12 @@ const STATUS = { due: ["Due", "bg-watch"], go: ["Go", "bg-buy"], partial: ["Part
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const dayBox = (ymd) => { const d = new Date(ymd + "T12:00:00Z"); return `<div class="when"><span>${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]}</span><b>${d.getUTCDate()}</b><span>${MON[d.getUTCMonth()]}</span></div>`; };
 const inDays = (n) => n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`;
+let LAST_CP = null;
+// Pick sizes in the tranche check come from the trade log: redraw after it changes.
+const replan = () => { if (LAST_CP) renderPlan(LAST_CP); };
 function renderPlan(cp) {
   if (!cp) return;
+  LAST_CP = cp;
   $("planSection").hidden = false;
   $("planHead").textContent = cp.headline.replace(/;.*/, "");
   $("planNext").textContent = cp.actions.length && cp.upcoming[0] ? `Then: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)}` : cp.upcoming[0] ? `Next: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)} (${inDays(cp.upcoming[0].inDays)})` : "";
@@ -600,6 +604,7 @@ function renderTl(form = false, err = "") {
     body = `<form class="pf-form" id="tlForm" style="margin-top:16px">
       <label>Date<input type="date" name="date" max="${today}" value="${esc(v.date || today)}"></label>
       <label>Buy or sell<select name="action"><option value="buy">Buy</option><option value="sell"${v.action === "sell" ? " selected" : ""}>Sell</option></select></label>
+      <input type="hidden" name="id" value="${esc(v.id || "")}">
       <label>Ticker<input name="ticker" autocapitalize="characters" placeholder="VWRP" value="${esc(v.ticker || "")}"></label>
       <label class="wide">Rule behind it<select name="rule" id="tlRule">${RULES.map((r) => `<option value="${r.key}"${v.rule === r.key ? " selected" : ""}>${esc(r.label)}</option>`).join("")}</select></label>
       <label>Pot<select name="pot" id="tlPot">${POT_KEYS.map((k) => `<option value="${k}"${v.pot === k ? " selected" : ""}>${POT_NAME[k]}</option>`).join("")}</select></label>
@@ -609,9 +614,9 @@ function renderTl(form = false, err = "") {
       ${err ? `<div class="tl-err" role="alert">${esc(err)}</div>` : ""}
       <div class="tl-foot"><button class="btn primary" id="tlSave" type="button">Save in this browser</button><button class="btn" id="tlCancel" type="button">Cancel</button></div>`;
   } else if (trades.length) {
-    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.price ? ` · at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
+    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.price ? ` · at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-edit="${esc(t.id)}" aria-label="Edit ${esc(t.ticker)} trade on ${esc(t.date)}" title="Edit">\u270e</button><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
   } else body = `<p class="small muted" style="margin:10px 0 0">Log your first trade (for example the 2 Nov core purchase) and this card tracks every scheduled action against what you did.</p>`;
-  const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
+  const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json,text/csv,.csv" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
   card.innerHTML = head + sched + body + foot;
   if (form) {
     const rule = $("tlRule"), pot = $("tlPot");
@@ -622,23 +627,27 @@ function renderTl(form = false, err = "") {
       const raw = Object.fromEntries(new FormData($("tlForm")));
       const r = normaliseTrade(raw, today);
       if (r.error) return renderTl(raw, r.error);
-      saveTl([...loadTl(), r.trade]) ? (renderTl(), renderPf()) : renderTl(raw, "This browser blocked saving (private mode?).");
+      // Editing keeps the trade's id, so it replaces the old entry.
+      saveTl([...loadTl().filter((t) => t.id !== r.trade.id), r.trade]) ? (renderTl(), renderPf(), replan()) : renderTl(raw, "This browser blocked saving (private mode?).");
     };
     return;
   }
   $("tlAdd").onclick = () => renderTl(true);
-  card.querySelectorAll("[data-del]").forEach((b) => { b.onclick = () => { if (confirm("Delete this trade from the log?")) { saveTl(loadTl().filter((t) => t.id !== b.dataset.del)); renderTl(); renderPf(); } }; });
+  card.querySelectorAll("[data-edit]").forEach((b) => { b.onclick = () => { const t = loadTl().find((x) => x.id === b.dataset.edit); if (t) renderTl({ ...t, amount: t.amount ?? "", price: t.price ?? "" }); }; });
+  card.querySelectorAll("[data-del]").forEach((b) => { b.onclick = () => { if (confirm("Delete this trade from the log?")) { saveTl(loadTl().filter((t) => t.id !== b.dataset.del)); renderTl(); renderPf(); replan(); } }; });
   if ($("tlExport")) $("tlExport").onclick = () => {
     const blob = new Blob([JSON.stringify({ exported: today, trades }, null, 1)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `trade-log-${today}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   $("tlImport").onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    const r = parseImport(await f.text(), today);
+    const text = await f.text(), t212 = isT212Csv(text);
+    const r = t212 ? parseT212(text, { picks: PLAN.picks.map((p) => p.symbol.replace(/\.L$/, "")), today }) : parseImport(text, today);
     if (r.error) { $("tlMsg").textContent = r.error; return; }
     const have = new Set(loadTl().map((t) => t.id)), add = r.trades.filter((t) => !have.has(t.id));
-    saveTl([...loadTl(), ...add]); renderTl(); renderPf();
-    $("tlMsg").textContent = `Imported ${add.length} trade${add.length === 1 ? "" : "s"}${r.skipped ? `, skipped ${r.skipped} invalid` : ""}.`;
+    saveTl([...loadTl(), ...add]); renderTl(); renderPf(); replan();
+    const extra = t212 ? ` from Trading 212 (rules guessed from the ticker: mark any pullback, dip or drip purchases yourself)${r.dividendCount ? `; dividends £${r.dividends.toFixed(2)} from ${r.dividendCount} payment${r.dividendCount === 1 ? "" : "s"}, not logged as trades` : ""}${r.otherCcy ? `; ${r.otherCcy} rows in other currencies skipped` : ""}` : "";
+    $("tlMsg").textContent = `Imported ${add.length} trade${add.length === 1 ? "" : "s"}${r.trades.length > add.length ? ` (${r.trades.length - add.length} already in the log)` : ""}${extra}${r.skipped ? `, skipped ${r.skipped} invalid` : ""}.`;
   };
 }
 renderTl();
