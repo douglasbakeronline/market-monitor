@@ -15,10 +15,11 @@ import { notify } from "./src/notify.js";
 import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, byMarket as signalsByMarket, byScore as signalsByScore, byHorizon as signalsByHorizon, digestKindLine, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
-import { copilot, pullbackAlert, copilotLines, picksWeekLine } from "./src/plan.js";
+import { copilot, pullbackAlert, copilotLines, picksWeekLine, PLAN } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
+import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { bookLine, bookNews } from "./src/swingBook.js";
 import { SCORING_VERSION } from "./src/research.js";
@@ -344,6 +345,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   }
   const sl = scanLine(scan, null);
   if (sl) L.push(sl);
+  const dcl = scan && Date.now() - Date.parse(scan.updated) < 4 * 86400000 ? checksDigestLine(scan.dataChecks, PLAN.picks.map((p) => p.symbol)) : null;
+  if (dcl) L.push(dcl);
   const pal = alertDigestLine(priceAlerts ?? []);
   if (pal) L.push(pal);
   L.push(rebalanceDigestLine());

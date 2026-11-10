@@ -26,6 +26,7 @@ import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
 import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { costR } from "./src/swingRetune.js";
+import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
@@ -268,11 +269,20 @@ async function main() {
     console.log(`Core extras: ${coreDates.map((d) => `${d.symbol} ${d.earnings?.date ?? `last ${d.lastEarnings ?? "?"}`}`).join(", ") || "none"}`);
   } catch (e) { console.warn(`Core extras failed: ${e.message}`); coreDates = prev?.coreExtras ?? []; }
 
+  // Automatic data checks (display only) on the scan and the Research list.
+  let dataChecks = null;
+  try {
+    const seen = new Set(out.map((i) => i.symbol));
+    const list = ((await readJson("research.json", null))?.items ?? []).filter((i) => !seen.has(i.symbol)).map((i) => ({ ...i, list: true }));
+    dataChecks = runDataChecks([...out, ...list], { asOf: today });
+    console.log(dataChecksLine(dataChecks), dataChecks.flags.map((f) => `${f.ticker} ${f.key}: ${f.detail}`).join("; "));
+  } catch (e) { console.warn(`Data checks failed: ${e.message}`); }
+
   await writeJson("scan.json", {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);

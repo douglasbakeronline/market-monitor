@@ -52,6 +52,7 @@
   .note.bad { background: var(--sell-bg); color: var(--ink); }
   .note.peer { background: var(--card); color: var(--ink-2); border: 1px solid var(--line); }
   .note.peer b { color: var(--ink); font-weight: 650; }
+  .dchk { margin-top: 6px; } .dchk summary { cursor: pointer; } .dchk ul { margin: 6px 0 0; padding-left: 18px; } .dchk li { margin: 2px 0; overflow-wrap: anywhere; } .dchk p { margin: 6px 0 0; }
   .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 16px; }
   .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
   .panel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; color: var(--muted); display: flex; justify-content: space-between; }
@@ -208,6 +209,14 @@ const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ 
 const peOf = (it) => it.pe ?? it.longTerm?.pillars?.find((p) => p.key === "value")?.items?.find((m) => m.key === "forwardPE" || m.key === "trailingPE")?.value ?? null;
 // The 10 Nov scoring change (value against sector peers, new Entry rule):
 // how many full-score verdicts it moved against the old rule.
+// Nightly automatic data checks (src/dataChecks.js): one line, flags listed.
+function dataChecksHtml(D) {
+  const dc = D.dataChecks;
+  if (!dc?.checked) return "";
+  if (!dc.flagged) return ` <b>Data checks:</b> all ${dc.checked} passed.`;
+  const list = dc.flags.map((f) => `<li><b>${esc(f.ticker)}</b>${f.list ? " (your list)" : ""}: ${esc(f.label.toLowerCase())}, ${esc(f.detail)}</li>`).join("");
+  return ` <details class="dchk"><summary><b>Data checks:</b> ${dc.flagged} of ${dc.checked} flagged</summary><ul>${list}</ul>${dc.more ? `<p class="small">and ${dc.more} more</p>` : ""}<p class="small">Price, range, yield, P/E, analyst target and results-date checks run on every company each night. A flag means "check the figure before acting", not that the stock is bad.</p></details>`;
+}
 function proposalLine(D) {
   const r = D.ruleChanges;
   if (!r?.compared) return "";
@@ -341,7 +350,9 @@ function detailHtml(it) {
   const rc = it.resultsCheck ?? RC[it.symbol];
   const rec = rc?.record, recTxt = rec?.of ? ` Beat the forecast in ${rec.beats} of the last ${rec.of} quarters${rec.next?.epsEstimate != null ? `; next forecast EPS ${rec.next.epsEstimate.toFixed(2)}${rec.next.date ? ` (${fmtDM(rec.next.date)})` : ""}` : ""}.` : "";
   const rsn = rc?.label ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}${esc(recTxt)}</div>` : recTxt ? `<div class="note peer"><b>Results record</b>:${esc(recTxt)}</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${rsn}${notes}${exn}${peer}${rcn}${smn}${stopn}
+  const dcf = (st.cache["scan.json"]?.dataChecks?.flags ?? []).filter((f) => f.symbol === it.symbol);
+  const dcn = dcf.length ? `<div class="note bad"><b>Data check</b>: ${dcf.map((f) => `${esc(f.label)}: ${esc(f.detail)}`).join("; ")}. Check the figure on Trading 212 or Yahoo before acting on it.</div>` : "";
+  return `<p class="summary">${esc(it.summary)}</p>${dcn}${quick}${eu}${results}${rsn}${notes}${exn}${peer}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -423,7 +434,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${dataChecksHtml(D)}</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();
