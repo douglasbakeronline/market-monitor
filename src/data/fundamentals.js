@@ -122,3 +122,24 @@ function mergeMissing(a, b) {
   for (const [k, v] of Object.entries(b || {})) if (out[k] == null && v != null) out[k] = v;
   return out;
 }
+
+// The last four quarters' earnings per share against the analysts' consensus
+// (Yahoo's earningsHistory module). Returns [{ quarter (fiscal quarter end,
+// YYYY-MM-DD), actual, estimate, surprisePct }], oldest first. The report
+// date itself is not in this module.
+export async function fetchEarningsHistory(symbol) {
+  const { cookie, crumb } = await yahooSession();
+  const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=earningsHistory&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+  const h = j?.quoteSummary?.result?.[0]?.earningsHistory?.history;
+  if (!Array.isArray(h)) throw new Error("no result");
+  return parseEarningsHistory(h);
+}
+
+export function parseEarningsHistory(h = []) {
+  return h.map((x) => {
+    const q = raw(x.quarter), actual = raw(x.epsActual), estimate = raw(x.epsEstimate);
+    let sp = raw(x.surprisePercent);
+    if (sp == null && actual != null && estimate) sp = (actual - estimate) / Math.abs(estimate);
+    return { quarter: q ? new Date(q * 1000).toISOString().slice(0, 10) : null, actual, estimate, surprisePct: sp == null ? null : Math.round(sp * 1000) / 10 };
+  }).filter((x) => x.quarter && x.actual != null && x.estimate != null).sort((a, b) => (a.quarter < b.quarter ? -1 : 1));
+}

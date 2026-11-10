@@ -161,6 +161,11 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
   const col = (name) => head.findIndex((h) => h.toLowerCase() === name.toLowerCase());
   const iA = col("Action"), iT = col("Time"), iK = col("Ticker"), iN = col("No. of shares"), iP = col("Price / share"), iTot = col("Total"), iCur = col("Currency (Total)"), iId = col("ID");
   if (iA < 0 || iT < 0 || iK < 0 || iTot < 0) return { error: "This doesn't look like a Trading 212 export (Action, Time, Ticker and Total columns needed)." };
+  // Costs Trading 212 lists per trade: the FX fee on foreign shares and UK
+  // stamp duty (column names as in its export; absent columns count as 0).
+  const colLike = (re) => head.findIndex((h) => re.test(h) && !/^currency \(/i.test(h));
+  const iFx = colLike(/conversion fee/i), iStamp = colLike(/stamp duty/i), iFee = colLike(/^transaction fee/i);
+  const costs = { fx: 0, stamp: 0, other: 0, traded: 0, trades: 0 };
   const trades = [], skipped = [], cash = [];
   let dividends = 0, divN = 0, otherCcy = 0;
   const num = (x) => { const n = parseFloat(String(x ?? "").replace(/[,\s]/g, "")); return Number.isFinite(n) ? n : null; };
@@ -179,6 +184,11 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
     const side = /\bbuy\b/.test(action) ? "buy" : /\bsell\b/.test(action) ? "sell" : null;
     if (!side) continue; // deposits, interest, fees, currency conversions
     if (ccy && ccy !== "GBP") { otherCcy++; continue; }
+    if (total != null) {
+      costs.traded += Math.abs(total); costs.trades++;
+      const fee = (i) => (i >= 0 ? Math.abs(num(r[i]) ?? 0) : 0);
+      costs.fx += fee(iFx); costs.stamp += fee(iStamp); costs.other += fee(iFee);
+    }
     const pick = picks.includes(ticker.replace(/\.L$/, ""));
     const isCore = core.includes(ticker);
     const rule = isCore ? "core" : pick ? "tranche" : "other";
@@ -188,5 +198,8 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
     const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", shares: shares ?? "", note: "Trading 212" }, today);
     res.trade ? trades.push(res.trade) : skipped.push(res.error);
   }
-  return { trades, cash, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN };
+  const c2 = (v) => Math.round(v * 100) / 100, paid = costs.fx + costs.stamp + costs.other;
+  const costSummary = { fx: c2(costs.fx), stamp: c2(costs.stamp), other: c2(costs.other), total: c2(paid), traded: c2(costs.traded), trades: costs.trades,
+    pct: costs.traded > 0 ? Math.round((paid / costs.traded) * 10000) / 100 : null, columns: iFx >= 0 || iStamp >= 0 || iFee >= 0 };
+  return { trades, cash, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN, costs: costSummary };
 }

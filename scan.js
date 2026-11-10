@@ -17,6 +17,9 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
+import { reportDay, resultsCheck } from "./src/surpriseStudy.js";
+import { fetchEarningsHistory } from "./src/data/fundamentals.js";
+import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
@@ -219,6 +222,34 @@ async function main() {
       await writeJson("history/swing-lab.json", drift, true);
     } else console.log("Swing lab: markets open, not updated.");
   } catch (e) { console.warn(`Swing lab failed: ${e.message}`); }
+  // Results check (swing lab round 4): the latest EPS surprise and the day's
+  // reaction for the picks, the bench and tonight's results-day volume shocks.
+  // Display only. Never stops the scan.
+  try {
+    const study = await readJson("data/surprise-study.json", null);
+    const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol)]);
+    let n = 0, tagged = 0;
+    for (const it of out) {
+      if (!want.has(it.symbol)) continue;
+      try {
+        const h = (await fetchEarningsHistory(it.symbol)).at(-1), rows = rowsBySymbol[it.symbol];
+        if (!h || !rows?.length) continue;
+        // Yahoo's REIT forecasts mix FFO with earnings per share, so skip REITs.
+        if (/REIT|Real Estate/i.test(it.sector || "")) continue;
+        const d = reportDay(rows, h.quarter, it.lastEarnings);
+        if (d < 1 || (Date.now() - Date.parse(rows[d].date)) / 864e5 > 120) continue;
+        const reaction = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10;
+        it.resultsCheck = { quarter: h.quarter, date: rows[d].date, actual: h.actual, estimate: h.estimate, surprisePct: h.surprisePct, reaction, ...resultsCheck({ surprisePct: h.surprisePct, reaction }, study) };
+        const ev = driftToday_.find((x) => x.symbol === it.symbol);
+        const lt = ev && drift.find((x) => x.id === `${ev.date}:${it.symbol}`);
+        if (lt) { lt.surprisePct = h.surprisePct; tagged++; }
+        n++;
+      } catch { /* skip this one */ }
+    }
+    if (tagged && marketsClosed()) await writeJson("history/swing-lab.json", drift, true);
+    await writeJson("data/results-check.json", { updated: new Date().toISOString(), items: Object.fromEntries(out.filter((i) => i.resultsCheck).map((i) => [i.symbol, i.resultsCheck])) }, true);
+    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged.`);
+  } catch (e) { console.warn(`Results check failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
   console.log(`Swing lab volume shocks: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} ${x.movePct > 0 ? "+" : ""}${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open; up ${driftSummary.up.n60} and down ${driftSummary.down.n60} closed.`);
   const paperSummary = summarisePaper(paper);

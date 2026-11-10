@@ -902,7 +902,7 @@ function renderTl(form = false, err = "") {
     let cashIn = r.cash ?? [];
     if (!t212) { try { const j = JSON.parse(text); if (Array.isArray(j?.cash)) cashIn = j.cash.filter((e) => e?.id && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && e.amount >= 0); } catch {} }
     if (cashIn.length) { saveCash(mergeCash(loadCash(), cashIn)); renderIsa(); }
-    const extra = t212 ? ` from Trading 212 (rules guessed from the ticker: mark any pullback, dip or drip purchases yourself)${r.dividendCount ? `; dividends £${r.dividends.toFixed(2)} from ${r.dividendCount} payment${r.dividendCount === 1 ? "" : "s"}, not logged as trades` : ""}${r.otherCcy ? `; ${r.otherCcy} rows in other currencies skipped` : ""}` : "";
+    const extra = t212 ? ` from Trading 212 (rules guessed from the ticker: mark any pullback, dip or drip purchases yourself)${r.dividendCount ? `; dividends £${r.dividends.toFixed(2)} from ${r.dividendCount} payment${r.dividendCount === 1 ? "" : "s"}, not logged as trades` : ""}${r.otherCcy ? `; ${r.otherCcy} rows in other currencies skipped` : ""}${r.costs?.columns && r.costs.trades ? `. Trading costs in this file: £${r.costs.total.toFixed(2)} (FX fees £${r.costs.fx.toFixed(2)}, stamp duty £${r.costs.stamp.toFixed(2)}${r.costs.other ? `, other £${r.costs.other.toFixed(2)}` : ""}), ${r.costs.pct}% of the £${Math.round(r.costs.traded).toLocaleString("en-GB")} traded; the spread is extra and not shown` : ""}` : "";
     $("tlMsg").textContent = `Imported ${add.length} trade${add.length === 1 ? "" : "s"}${r.trades.length > add.length ? ` (${r.trades.length - add.length} already in the log)` : ""}${extra}${r.skipped ? `, skipped ${r.skipped} invalid` : ""}.`;
   };
 }
