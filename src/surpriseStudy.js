@@ -175,15 +175,19 @@ export function isIndexEventDay(rows, i) {
 // for after-close reporters); otherwise the busiest day in that window that is
 // not an index-event day. Display only: so a pick's results-day move can be
 // read against its own normal range rather than as news.
-export function resultsMoves(rows = [], history = [], known = null, dates = []) {
+// `exact`: reaction days checked by hand (data/results-dates-known.json via
+// reactionDays()), used as they are, before any other date.
+export function resultsMoves(rows = [], history = [], known = null, dates = [], exact = []) {
   if (!rows?.length) return null;
   const moves = [], all = [...new Set([...(dates || []), ...(known ? [known] : [])])].sort();
   for (const h of history) {
     if (!h?.quarter) continue;
     const q = Date.parse(h.quarter), lo = q + 7 * 864e5, hi = q + 75 * 864e5;
-    const k = all.find((x) => Date.parse(x) >= lo && Date.parse(x) <= hi);
+    const inWin = (x) => Date.parse(x) >= lo && Date.parse(x) <= hi;
+    const x = (exact || []).find(inWin), k = all.find(inWin);
     let d = -1;
-    if (k) d = reportDay(rows, h.quarter, k);
+    if (x) d = rows.findIndex((r) => r.date === x);
+    else if (k) d = reportDay(rows, h.quarter, k);
     else {
       let v = -1;
       for (let i = 1; i < rows.length; i++) {
@@ -203,6 +207,17 @@ export function resultsMoves(rows = [], history = [], known = null, dates = []) 
   const mid = abs.length / 2;
   const typical = abs.length % 2 ? abs[Math.floor(mid)] : (abs[mid - 1] + abs[mid]) / 2;
   return { n: uniq.length, typical: Math.round(typical * 10) / 10, moves: uniq };
+}
+
+// Hand-kept results dates to the session that reacted: the same day for
+// before-open reporters, the next session for after-close ones.
+export function reactionDays(rows = [], dates = [], afterClose = false) {
+  const out = [];
+  for (const d of dates || []) {
+    const i = rows.findIndex((r) => (afterClose ? r.date > d : r.date >= d));
+    if (i > 0) out.push(rows[i].date);
+  }
+  return out;
 }
 
 // "Results-day moves: typically ±4.1% (last 4: +2.4%, −5.0%, +1.1%, −6.3%)."

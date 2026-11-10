@@ -152,3 +152,35 @@ test("results-day moves skip index-event days and use known dates", async () => 
   // A known date wins, even on an index-event day.
   assert.deepEqual(resultsMoves(rows, hist, null, ["2026-05-29"]).moves.map((m) => m.date), ["2026-02-10", "2026-05-29"]);
 });
+
+test("hand-kept results dates: picks and bench only, valid past dates", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { PLAN } = await import("../src/plan.js");
+  const { dates } = JSON.parse(readFileSync(new URL("../data/results-dates-known.json", import.meta.url)));
+  const names = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
+  for (const [sym, ds] of Object.entries(dates)) {
+    assert.ok(names.has(sym), `${sym} is a pick or bench name`);
+    assert.deepEqual([...ds].sort(), ds, `${sym} dates sorted`);
+    for (const d of ds) assert.match(d, /^\d{4}-\d{2}-\d{2}$/), assert.ok(!Number.isNaN(Date.parse(d)));
+  }
+});
+
+test("hand-kept dates: exact reaction days beat the busier-day rule both ways", async () => {
+  const { resultsMoves, reactionDays } = await import("../src/surpriseStudy.js");
+  // STZ: after the close on 30 Jun (quarter-end, busiest day); the reaction is 1 Jul.
+  const rows = bars(200, (i) => 100 + (i >= 181 ? 6 : 0) + (i >= 120 ? 2 : 0), (i) => (i === 180 ? 9e6 : i === 121 ? 9e6 : 1e6));
+  assert.equal(rows[180].date, "2026-06-30");
+  const amc = reactionDays(rows, ["2026-06-30"], true);
+  assert.deepEqual(amc, ["2026-07-01"]);
+  const m = resultsMoves(rows, [{ quarter: "2026-02-28" }, { quarter: "2026-05-31" }], null, ["2026-04-30", "2026-06-30"], amc);
+  assert.equal(m.moves.at(-1).date, "2026-07-01");
+  assert.equal(m.moves.at(-1).pct, 5.9);
+  // Before-open reporter on 1 May (index 120): the busier next day (2 May) is not taken.
+  const bmo = reactionDays(rows, ["2026-05-01"], false);
+  assert.deepEqual(bmo, ["2026-05-01"]);
+  const m2 = resultsMoves(rows, [{ quarter: "2026-03-31" }, { quarter: "2026-06-30" }], null, ["2026-05-01"], bmo);
+  assert.equal(m2.moves[0].date, "2026-05-01");
+  assert.equal(m2.moves[0].pct, 2);
+  // Without the exact day the old rule takes 2 May.
+  assert.equal(resultsMoves(rows, [{ quarter: "2026-03-31" }, { quarter: "2026-06-30" }], null, ["2026-05-01"]).moves[0].date, "2026-05-02");
+});

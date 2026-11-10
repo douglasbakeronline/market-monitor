@@ -17,7 +17,7 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
-import { reportDay, resultsCheck, resultsRecord, resultsMoves } from "./src/surpriseStudy.js";
+import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays } from "./src/surpriseStudy.js";
 import { fetchResultsData } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -134,6 +134,10 @@ async function main() {
   // Results dates seen so far, so estimates learn each company's reporting gap.
   const resultsHist = await readJson("history/results-dates.json", {});
   for (const it of items) recordResults(resultsHist, it.u.symbol, [it.f.lastEarnings, it.f.nextEarnings], today);
+  // Hand-kept real dates for the picks and bench (data/results-dates-known.json):
+  // the busiest-day guess misdated some results days (data note 10 Nov).
+  const knownDates = await readJson("data/results-dates-known.json", null);
+  for (const [sym, ds] of Object.entries(knownDates?.dates ?? {})) recordResults(resultsHist, sym, ds, today);
 
   // Smart money (display only): 13F holdings of a few long-term managers,
   // refreshed weekly by tools/smart-money.mjs in this workflow.
@@ -239,7 +243,8 @@ async function main() {
         const rd = await fetchResultsData(it.symbol), h = rd.history.at(-1), rows = rowsBySymbol[it.symbol];
         if (!h || !rows?.length) continue;
         // How far results days usually move it (all names, REITs included).
-        const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? []);
+        const exact = reactionDays(rows, knownDates?.dates?.[it.symbol], (knownDates?.afterClose ?? []).includes(it.symbol));
+        const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
         const record = resultsRecord(rd.history, rd.next);
