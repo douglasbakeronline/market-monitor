@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { pastSlots, chainHealth, watchdogMessage } from "../src/watchdog.js";
+import { pastSlots, chainHealth, watchdogMessage, scanHealth, scanMessage } from "../src/watchdog.js";
 
 const at = (s) => new Date(s);
 
@@ -49,4 +49,19 @@ test("message names missed slots and the action taken", () => {
   assert.equal(m.priority, "high");
   assert.match(watchdogMessage(h, { active: true }).body, /active but has not saved/);
   assert.match(watchdogMessage(h, {}).body, /by hand/);
+});
+
+test("scan: due each weeknight 21:30Z, 6 h grace, weekends skipped", () => {
+  // Tue 10 Nov 10:42Z save. Wed 11 Nov 02:00Z: Tue 21:30 run still in grace -> ok.
+  assert.equal(scanHealth("2026-11-10T10:42:01Z", at("2026-11-11T02:00:00Z")).ok, true);
+  // Wed 04:00Z: Tue 21:30 run is past grace and nothing saved since -> stale.
+  const h = scanHealth("2026-11-10T10:42:01Z", at("2026-11-11T04:00:00Z"));
+  assert.equal(h.ok, false);
+  assert.equal(h.lastDue.toISOString(), "2026-11-10T21:30:00.000Z");
+  assert.match(scanMessage(h, { restarted: true }).body, /Last saved 17h 18m ago .*did not save\. No scan was active/);
+  // Sunday: Friday night's save is current.
+  assert.equal(scanHealth("2026-11-13T22:05:00Z", at("2026-11-15T20:00:00Z")).ok, true);
+  // Monday 03:00Z: last due is still Friday's.
+  assert.equal(scanHealth("2026-11-13T22:05:00Z", at("2026-11-16T03:00:00Z")).lastDue.toISOString(), "2026-11-13T21:30:00.000Z");
+  assert.equal(scanHealth(null, at("2026-11-16T03:00:00Z")).ok, false);
 });

@@ -1,8 +1,9 @@
 name: Chain watchdog
 
 # The monitor cannot report its own silence. Every two hours this checks that
-# data.json was saved for each slot due (45 min grace). If not, it starts a
-# Market monitor run when none is active, and sends one alert per stale save.
+# data.json was saved for each slot due (45 min grace) and that the nightly
+# Index scan saved scan.json (6 h grace). For a stale job it starts a run when
+# none is active, and sends one alert per stale save (remembered in the cache).
 on:
   schedule:
     - cron: "37 */2 * * *"
@@ -28,23 +29,37 @@ jobs:
       - name: Check
         id: check
         run: node scripts/watchdog.mjs
-      - name: Already alerted?
-        if: steps.check.outputs.stale == 'true'
-        id: seen
+      - name: Monitor already alerted?
+        if: steps.check.outputs.monitor_stale == 'true'
+        id: seen_monitor
         uses: actions/cache/restore@v4
         with:
-          path: .watchdog-alerted
-          key: watchdog-${{ steps.check.outputs.key }}
+          path: .watchdog-monitor
+          key: watchdog-monitor-${{ steps.check.outputs.monitor_key }}
+      - name: Scan already alerted?
+        if: steps.check.outputs.scan_stale == 'true'
+        id: seen_scan
+        uses: actions/cache/restore@v4
+        with:
+          path: .watchdog-scan
+          key: watchdog-scan-${{ steps.check.outputs.scan_key }}
       - name: Restart and alert
-        if: steps.check.outputs.stale == 'true'
+        if: steps.check.outputs.monitor_stale == 'true' || steps.check.outputs.scan_stale == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          ALERTED: ${{ steps.seen.outputs.cache-hit }}
-        run: node scripts/watchdog.mjs --act && touch .watchdog-alerted
-      - name: Remember alert
-        if: steps.check.outputs.stale == 'true' && steps.seen.outputs.cache-hit != 'true'
+          ALERTED_MONITOR: ${{ steps.seen_monitor.outputs.cache-hit }}
+          ALERTED_SCAN: ${{ steps.seen_scan.outputs.cache-hit }}
+        run: node scripts/watchdog.mjs --act && touch .watchdog-monitor .watchdog-scan
+      - name: Remember monitor alert
+        if: steps.check.outputs.monitor_stale == 'true' && steps.seen_monitor.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: .watchdog-alerted
-          key: watchdog-${{ steps.check.outputs.key }}
+          path: .watchdog-monitor
+          key: watchdog-monitor-${{ steps.check.outputs.monitor_key }}
+      - name: Remember scan alert
+        if: steps.check.outputs.scan_stale == 'true' && steps.seen_scan.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .watchdog-scan
+          key: watchdog-scan-${{ steps.check.outputs.scan_key }}

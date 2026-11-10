@@ -43,3 +43,26 @@ export function watchdogMessage(h, { active = false, restarted = false } = {}) {
     : "No run is active and the restart failed: start Market monitor by hand on GitHub Actions.";
   return { title: "Monitor chain: missed a slot", body: `${last}; missed ${list}. ${action} Alerts may not have been sent meanwhile.`, priority: "high", tags: "warning" };
 }
+
+// Index scan: due each weekday at 21:30 UTC (scan.yml cron, which GitHub can run
+// hours late, hence the 6-hour grace). Stale if not saved since the last due run.
+export function scanHealth(updated, now = new Date(), { graceH = 6, cronUtc = "21:30", days = [1, 2, 3, 4, 5] } = {}) {
+  const [hh, mm] = cronUtc.split(":").map(Number);
+  const cutoff = now.getTime() - graceH * 3600e3;
+  let lastDue = null;
+  for (let d = 0; d <= 7 && !lastDue; d++) {
+    const t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - d, hh, mm));
+    if (days.includes(t.getUTCDay()) && t.getTime() <= cutoff) lastDue = t;
+  }
+  const u = Date.parse(updated);
+  const ok = Number.isFinite(u) && (!lastDue || u >= lastDue.getTime());
+  return { ok, updated: Number.isFinite(u) ? updated : null, lastDue, hoursSince: Number.isFinite(u) ? (now.getTime() - u) / 3600e3 : null };
+}
+
+export function scanMessage(h, { active = false, restarted = false } = {}) {
+  const last = h.updated ? `Last saved ${span(h.hoursSince)} ago (${london(h.updated)} London)` : "No save time in scan.json";
+  const action = restarted ? "No scan was active, so the watchdog started one."
+    : active ? "A scan is active but has not saved: check the Index scan run on GitHub Actions."
+    : "No scan is active and the restart failed: start Index scan by hand on GitHub Actions.";
+  return { title: "Index scan: missed a night", body: `${last}; the run due ${london(h.lastDue)} London did not save. ${action} Research and scan pages show older data meanwhile.`, priority: "default", tags: "warning" };
+}
