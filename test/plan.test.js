@@ -125,3 +125,23 @@ test("core holdings' published results dates join Key dates; the manual Nvidia d
   assert.ok(none.dates.some((d) => d.symbol === "NVDA" && d.date === "2026-11-17"), "manual date kept without scan data");
   assert.deepEqual(coreHoldingDates({}, null), []);
 });
+
+test("core holdings: small ones show only in the last week; extras come from quotes", async () => {
+  const { coreHoldingDates, coreExtras, coreExtraDates } = await import("../src/plan.js");
+  const { earningsFields } = await import("../src/research.js");
+  const items = {
+    TSM: { earnings: { date: "2026-11-25" } },          // 1.7%: within 21 days
+    "005930.KS": { earnings: { date: "2026-11-25" } },  // 0.8%: 16 days out, left out
+    XOM: { earnings: { date: "2026-11-14" } },          // 0.6%: 5 days, shown
+  };
+  const auto = coreHoldingDates(items, "2026-11-09");
+  assert.deepEqual(auto.map((d) => d.symbol), ["TSM", "XOM"]);
+  assert.equal(auto[0].title, "TSMC results, about 2% of VWRP");
+  assert.deepEqual(coreExtras().map((h) => h.symbol), ["TSM", "005930.KS", "000660.KS"]);
+  const toFund = (q) => (q ? { nextEarnings: q.next ?? null, lastEarnings: q.last ?? null } : null);
+  const ex = coreExtraDates({ TSM: { next: "2027-01-15" }, "005930.KS": { last: "2026-10-30" } }, toFund, earningsFields, "2026-11-09");
+  assert.deepEqual(ex, [
+    { symbol: "TSM", name: "TSMC", earnings: { date: "2027-01-15", days: 67 }, lastEarnings: null },
+    { symbol: "005930.KS", name: "Samsung Electronics", earnings: null, lastEarnings: "2026-10-30" },
+  ]);
+});

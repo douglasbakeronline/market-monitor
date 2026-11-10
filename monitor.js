@@ -147,7 +147,7 @@ async function main() {
   alerts.push(...ev.alerts, ...researchAlerts, ...pa.alerts);
 
   // Co-pilot: what the agreed plan says is due, plus the pullback rule.
-  const planItems = Object.fromEntries([...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
+  const planItems = Object.fromEntries([...(scan?.coreExtras ?? []), ...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
   const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems });
   const pb = pullbackAlert(cp, state);
   if (pb) alerts.push(pb);

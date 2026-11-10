@@ -18,6 +18,7 @@ import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paper
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
+import { coreExtras, coreExtraDates } from "./src/plan.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
@@ -153,11 +154,20 @@ async function main() {
   const paperSummary = summarisePaper(paper);
   console.log(`Paper trades: ${paperSummary.open} open, ${paperSummary.closed} closed${paperSummary.avgR != null ? `, ${paperSummary.avgR}R average` : ""}.`);
 
+  // Results dates of big core-fund holdings the indices miss (TSMC, Samsung,
+  // SK hynix) for the Dashboard's Key dates. Never stops the scan.
+  let coreDates = [];
+  try {
+    const eq = await fetchQuotes(coreExtras().map((h) => h.symbol));
+    coreDates = coreExtraDates(eq, quoteToFundamentals, earningsFields, today);
+    console.log(`Core extras: ${coreDates.map((d) => `${d.symbol} ${d.earnings?.date ?? `last ${d.lastEarnings ?? "?"}`}`).join(", ") || "none"}`);
+  } catch (e) { console.warn(`Core extras failed: ${e.message}`); coreDates = prev?.coreExtras ?? []; }
+
   await writeJson("scan.json", {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), bothViewChanges: viewChanges(out, "bothView"), items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), bothViewChanges: viewChanges(out, "bothView"), coreExtras: coreDates, items: out,
   });
   const svc = sectorValueChanges(out);
   console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);

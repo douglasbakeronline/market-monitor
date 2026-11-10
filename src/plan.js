@@ -34,10 +34,12 @@ export const PLAN = {
     { date: "2026-11-05", title: "Bank of England rate decision" },
     { date: "2026-11-17", title: "Nvidia results, about 5% of VWRP", symbol: "NVDA" },
   ],
-  // The core fund's largest holdings the scan covers, with their weight in
-  // VWRP (FTSE All-World; Alphabet's two share classes combined). Their
-  // published results dates join Key dates automatically. Display only: the
-  // core is never bought or sold on a signal. Refresh the weights now and then.
+  // The core fund's 20 largest holdings, with their weight in VWRP (FTSE
+  // All-World; Alphabet's two share classes combined). Their published results
+  // dates join Key dates automatically. `extra`: not in the index scan, so the
+  // scan fetches a quote for the date only (TSMC via its US listing, which
+  // reports with Taiwan). Display only: the core is never bought or sold on a
+  // signal. Refresh the weights each quarter (stockanalysis.com VWRP holdings).
   coreHoldingsAsOf: "31 Jul 2026",
   coreHoldings: [
     { symbol: "NVDA", name: "Nvidia", weight: 4.5 },
@@ -52,7 +54,15 @@ export const PLAN = {
     { symbol: "LLY", name: "Eli Lilly", weight: 0.9 },
     { symbol: "TSLA", name: "Tesla", weight: 0.9 },
     { symbol: "AMD", name: "AMD", weight: 0.7 },
+    { symbol: "TSM", name: "TSMC", weight: 1.7, extra: true },
+    { symbol: "005930.KS", name: "Samsung Electronics", weight: 0.8, extra: true },
+    { symbol: "BRK-B", name: "Berkshire Hathaway", weight: 0.7 },
+    { symbol: "000660.KS", name: "SK hynix", weight: 0.6, extra: true },
+    { symbol: "XOM", name: "ExxonMobil", weight: 0.6 },
+    { symbol: "ASML.AS", name: "ASML", weight: 0.6 },
+    { symbol: "JNJ", name: "Johnson & Johnson", weight: 0.6 },
   ],
+  coreSmallDays: 7, // holdings under 1% of VWRP show only in the last week, to keep Key dates short
   pullbackPct: -5,   // core purchase comes forward if an index is this far off its high
   pickNoResultsDays: 7,
   recentResultsDays: 60, // latest results this recent means the next are weeks away (quarterly reporters)
@@ -134,14 +144,26 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
 
 // Published results dates of the core fund's biggest holdings in the next
 // `horizon` days (Yahoo's date via the scan or research items; estimates are
-// left out so only confirmed dates show).
+// left out so only confirmed dates show). Holdings under 1% of the fund show
+// only within `plan.coreSmallDays`.
+export const coreExtras = (plan = PLAN) => (plan.coreHoldings ?? []).filter((h) => h.extra);
+
+// Scan output for the extras: just the results dates from a batch quote.
+export function coreExtraDates(quotes = {}, toFund, earnings, today, plan = PLAN) {
+  return coreExtras(plan).flatMap((h) => {
+    const f = toFund(quotes[h.symbol]);
+    if (!f) return [];
+    return [{ symbol: h.symbol, name: h.name, ...earnings(f.nextEarnings, f.lastEarnings, today) }];
+  });
+}
+
 export function coreHoldingDates(items = {}, today, plan = PLAN, horizon = 21) {
   if (!today) return [];
   return (plan.coreHoldings ?? []).flatMap((h) => {
     const d = items[h.symbol]?.earnings?.date;
     if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d) || d < today) return [];
     const inDays = days(today, d);
-    if (inDays > horizon) return [];
+    if (inDays > (h.weight < 1 && plan.coreSmallDays ? Math.min(horizon, plan.coreSmallDays) : horizon)) return [];
     const pct = h.weight >= 1 ? `about ${Math.round(h.weight)}%` : `about ${h.weight}%`;
     return [{ date: d, symbol: h.symbol, weight: h.weight, auto: true, inDays,
       title: `${h.name} results, ${pct} of VWRP`, note: `VWRP weights as of ${plan.coreHoldingsAsOf}` }];
