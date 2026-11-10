@@ -18,6 +18,7 @@ import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines, picksWeekLine } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
+import { mergeCloses } from "./src/scorecard.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { bookLine, bookNews } from "./src/swingBook.js";
 import { SCORING_VERSION } from "./src/research.js";
@@ -75,6 +76,9 @@ async function main() {
   let coreFund = coreFundView(snapshot(CONFIG.coreFund.name, CONFIG.coreFund.symbol, series[CONFIG.coreFund.symbol]), sp, CONFIG.coreFund);
   if (coreFund) state.lastGood.coreFund = coreFund;
   else if (state.lastGood.coreFund) { coreFund = state.lastGood.coreFund; console.warn("Core fund: using the last good value."); }
+  // VWRP's daily closes, kept so the Dashboard can compare the picks with the
+  // same money in the core (display only). Grows by a row a day.
+  if (series[CONFIG.coreFund.symbol]?.rows?.length) await writeJson("history/core-fund.json", mergeCloses(await readJson("history/core-fund.json", {}), series[CONFIG.coreFund.symbol].rows));
 
   // --- 3. Watchlist ---------------------------------------------------------------
   const wlData = await fetchMany(CONFIG.watchlist.map((w) => w.symbol), { range: "6mo" });

@@ -388,6 +388,7 @@ import { PLAN, dripSchedule } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
+import { picksVsCore, scorecardLine } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
@@ -406,6 +407,7 @@ function render(d) {
   CORE_NOW = d.coreFund ?? null;
   LAST_DATA = d; renderMoneyCheck();
   PICK_PRICES = Object.fromEntries((d.copilot?.picks ?? []).filter((p) => p.price > 0).map((p) => [p.ticker, p.price]));
+  if (!$("tlForm")) renderTl();
   if (!$("pfForm")) renderPf();
   // Meta + banners
   const fresh = d.health?.ok !== false;
@@ -888,6 +890,25 @@ function saveTl(a) { try { localStorage.setItem(TL_KEY, JSON.stringify(a)); retu
 // Confirmed dip tiers (public signal log) join the adherence list once one fires.
 let DIPS = [];
 fetch("history/signals.json?t=" + Date.now()).then((r) => r.json()).then((log) => { DIPS = dipEvents(log); if (DIPS.length) renderTl(); }).catch(() => {});
+// VWRP's daily closes (kept by the monitor) for "Picks vs VWRP so far".
+let CORE_CLOSES = null;
+fetch("history/core-fund.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && Object.keys(j).length) { CORE_CLOSES = j; if (!$("tlForm")) renderTl(); } }).catch(() => {});
+// Display only: the same pounds in VWRP on the same days as each pick trade.
+function scorecardHtml(trades) {
+  if (!CORE_CLOSES || !trades.some((t) => t.pot === "picks")) return "";
+  const sc = picksVsCore(trades, CORE_CLOSES, PICK_PRICES, CORE_NOW?.level);
+  if (!sc) return "";
+  const pct = (x) => `${x >= 0 ? "+" : "\u2212"}${Math.abs(x).toFixed(1)}%`;
+  const gapT = (g) => `${g >= 0 ? "+" : "\u2212"}${gbp(Math.abs(g))}`;
+  const skip = sc.skipped ? ` ${sc.skipped} pick trade${sc.skipped > 1 ? "s" : ""} ${sc.skipped > 1 ? "are" : "is"} left out (no price paid logged, no price today, or older than the VWRP record); add the price paid to include ${sc.skipped > 1 ? "them" : "it"}.` : "";
+  const head = `<div class="rb"><div class="k">Picks vs VWRP so far <span class="pill plain" style="margin-left:4px">Display only</span></div>`;
+  if (!sc.counted) return `${head}<p class="small muted" style="margin:6px 0 0">Add the price paid to your pick trades to compare them with the same money in VWRP on the same days.</p></div>`;
+  const rows = sc.rows.map((r) => `<div class="pf-row"><span><b>${esc(r.ticker.replace(/\.L$/, ""))}</b><div class="muted" style="font-size:12px">${gbp(r.paid)} in</div></span><span>${pct(r.picksPct)}</span><span>${pct(r.corePct)}</span><span>${gapT(r.gap)}</span></div>`).join("");
+  return `${head}
+    <p class="small" style="margin:6px 0 0">${esc(scorecardLine(sc))}</p>
+    <div class="pf-row" style="border-top:0;color:var(--muted);font-size:12px"><span>Stock</span><span>Pick</span><span>VWRP</span><span>Gap</span></div>${rows}
+    <p class="small muted" style="margin:6px 0 0">Each pick trade is matched by the same pounds put into VWRP on the same day (sales too), and both are valued today: picks at today's price in their own currency (currency moves and their dividends are left out; VWRP reinvests its own), since ${esc(fmtDay(sc.since))} ${MON[+sc.since.slice(5, 7) - 1]} ${sc.since.slice(0, 4)}.${skip} A few months say little about skill: most single stocks trail the market over long periods, which is why a yearly scorecard and a three-year review are proposed (waiting on your OK).</p></div>`;
+}
 function renderTl(form = false, err = "") {
   const card = $("tlCard"), today = londonToday(), trades = sortTrades(loadTl());
   const adh = adherence([...PLAN.schedule, ...dripSchedule(PLAN.reserveDrip.start, today, DIPS.map((d) => d.date))], trades, today, DIPS);
@@ -914,7 +935,7 @@ function renderTl(form = false, err = "") {
     body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.shares ? ` · ${esc(String(t.shares))} shares` : t.price ? " ·" : ""}${t.price ? ` at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-edit="${esc(t.id)}" aria-label="Edit ${esc(t.ticker)} trade on ${esc(t.date)}" title="Edit">\u270e</button><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
   } else body = `<p class="small muted" style="margin:10px 0 0">Log your first trade (for example the 2 Nov core purchase) and this card tracks every scheduled action against what you did.</p>`;
   const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json,text/csv,.csv" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
-  card.innerHTML = head + sched + body + foot;
+  card.innerHTML = head + sched + (form ? "" : scorecardHtml(trades)) + body + foot;
   if (form) {
     const rule = $("tlRule"), pot = $("tlPot");
     rule.onchange = () => { pot.value = RULES.find((r) => r.key === rule.value).pot; };
