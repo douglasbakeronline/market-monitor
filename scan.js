@@ -10,7 +10,8 @@
 import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
-import { fetchFundamentals } from "./src/data/fundamentals.js";
+import { fetchFundamentals, fetchEvToEbitda } from "./src/data/fundamentals.js";
+import { pickRefresh, record, prune, evMedians, evPeer, freshEv } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
@@ -94,6 +95,19 @@ async function main() {
   }
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
+  // EV/EBITDA peer sample (display only, src/evSample.js): deepened stocks
+  // record theirs, and a rotating batch of the rest is refreshed each night.
+  const evCache = prune(await readJson("data/ev-sample.json", {}), items.map((it) => it.u.symbol));
+  for (const it of items) if (it.deep) record(evCache, it.u.symbol, it.f.evToEbitda, today);
+  let evFetched = 0, evFailed = 0;
+  for (const sym of pickRefresh(items.filter((it) => !it.deep && !notScored(it.f)).map((it) => it.u.symbol), evCache, today)) {
+    try { record(evCache, sym, await fetchEvToEbitda(sym), today); evFetched++; } catch { evFailed++; }
+    await sleep(300);
+  }
+  const evMed = evMedians(items.map((it) => ({ symbol: it.u.symbol, sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", trust: notScored(it.f) })), evCache, today);
+  await writeJson("data/ev-sample.json", evCache);
+  console.log(`EV/EBITDA sample: ${evFetched} fetched, ${evFailed} failed, ${evMed.coverage}% of the universe fresh${evMed.ready ? "" : " (medians wait for 60%)"} (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
+
   // Final scores with medians that include the deepened data. The old rule
   // (before 10 Nov) is kept only for the "what changed" note.
   const peerRows = peerRowsOf();
@@ -105,6 +119,8 @@ async function main() {
     const old = longTerm(it.f, it.t);
     it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
     it.rc = ruleChangeNote(old, it.lt);
+    const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
+    if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }
 
   // Results dates seen so far, so estimates learn each company's reporting gap.
@@ -176,7 +192,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);

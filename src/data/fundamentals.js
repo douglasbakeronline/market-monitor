@@ -38,6 +38,17 @@ export async function fetchFundamentals(symbol) {
   return f;
 }
 
+// EV/EBITDA alone (the scan's rotating peer sample, src/evSample.js): one
+// light module per stock. Returns a number, or null when Yahoo has none.
+// Throws on a failed request so the caller can leave the old value in place.
+export async function fetchEvToEbitda(symbol) {
+  const { cookie, crumb } = await yahooSession();
+  const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=defaultKeyStatistics&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+  const ks = j?.quoteSummary?.result?.[0]?.defaultKeyStatistics;
+  if (!ks) throw new Error("no result");
+  return raw(ks.enterpriseToEbitda);
+}
+
 export function parseYahooSummary(r) {
   const p = r.price || {}, sd = r.summaryDetail || {}, ks = r.defaultKeyStatistics || {}, fd = r.financialData || {}, ap = r.assetProfile || {};
   const earn = (r.calendarEvents?.earnings?.earningsDate || []).map(raw).filter(Boolean).sort((a, b) => a - b);
