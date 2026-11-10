@@ -54,6 +54,19 @@
   .pf-row.sub span:first-child { padding-left: 15px; }
   .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
   .pf-row span:not(:first-child) { text-align: right; }
+  .mc { margin-top: 12px; }
+  .mc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .mc-verdict { margin: 8px 0 0; font-size: 15px; line-height: 1.5; }
+  .mc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .mc-chip { font-size: 12px; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+  .mc-chip.pos { border-color: var(--buy); } .mc-chip.warm { border-color: var(--watch); } .mc-chip.neg { border-color: var(--sell, var(--neg)); }
+  .mc-wait { margin-top: 10px; padding: 10px 12px; background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; }
+  .mc-wq { font-size: 13px; }
+  .mc-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 8px; }
+  .mc-bar i { display: block; height: 100%; background: var(--buy); }
+  .mc-legend { display: grid; gap: 4px; margin-top: 8px; }
+  .mc-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+  .mc-legend i.hit { background: var(--buy); } .mc-legend i.miss { background: var(--line); }
   .odds { margin-top: 16px; padding: 12px 0 14px; border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
   .odds-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .odds-ctl { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -222,6 +235,7 @@
       <div class="plan-head"><div class="label" id="planHead"></div><span class="small muted" id="planNext"></span></div>
       <div id="planActions"></div>
     </div>
+    <div class="card mc" id="moneyCheck" hidden></div>
     <div class="plan-grid">
       <div class="card"><div class="k">Long-term picks · tranche check</div><table class="picks" id="planPicks"></table><div id="planBench"></div></div>
       <div class="card">
@@ -375,6 +389,7 @@ const $ = (id) => document.getElementById(id);
 
 function render(d) {
   CORE_NOW = d.coreFund ?? null;
+  LAST_DATA = d; renderMoneyCheck();
   PICK_PRICES = Object.fromEntries((d.copilot?.picks ?? []).filter((p) => p.price > 0).map((p) => [p.ticker, p.price]));
   if (!$("pfForm")) renderPf();
   // Meta + banners
@@ -548,6 +563,62 @@ function pickSizesNow() {
   const v = est ? { ...pf, core: est.value } : pf;
   return pickSizes(loadTl(), POTS.reduce((a, [k]) => a + (v[k] || 0), 0), REBALANCE, PICK_PRICES);
 }
+// --- This week's money check: the plan's triggers plus "buy now or wait?" -------
+// Display only. Every line restates an agreed rule or a historical count
+// (data/wait-study.json from tools/wait-study.mjs); nothing here is a new rule.
+let LAST_DATA = null, WAIT = null;
+fetch("data/wait-study.json").then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.sp?.bands) { WAIT = j; renderMoneyCheck(); } }).catch(() => {});
+const BAND_EDGES = [[0, -1], [-1, -2], [-2, -3], [-3, -4], [-4, -5]];
+const bandIdx = (dd) => (dd == null || dd <= -5 ? null : BAND_EDGES.findIndex(([hi, lo]) => dd <= hi && dd > lo));
+const dayMon = (ymd) => `${fmtDay(ymd)} ${MON[+ymd.slice(5, 7) - 1]}`;
+const sgn = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`);
+function waitLine(study, name, dd) {
+  const b = bandIdx(dd);
+  if (!study || b == null || b < 0) return "";
+  const x = study.bands[b], w = x.wait, all = study.all.fwd;
+  const from = study.from.slice(0, 4);
+  const cost = w.meanSaving;
+  return `<div class="mc-wait">
+    <div class="mc-wq"><b>${esc(name)} ${Math.abs(x.hi)} to ${Math.abs(x.lo)}% below its high</b> <span class="muted">· ${x.days.toLocaleString("en-GB")} such days since ${from}</span></div>
+    <div class="mc-bar" role="img" aria-label="Within 3 months the 5% dip came ${w.hitShare}% of the time"><i style="width:${w.hitShare}%"></i></div>
+    <div class="mc-legend small"><span><i class="hit"></i>Dip to −5% came within 3 months: <b>${w.hitShare}%</b>${w.savingIfHit != null ? ` (after a median ${w.hitDays} trading days; buying then saved a median ${w.savingIfHit.toFixed(1)}%)` : ""}</span>
+    <span><i class="miss"></i>Never came: <b>${100 - w.hitShare}%</b>${w.savingIfMissed != null ? ` (waiting the 3 months cost a median ${Math.abs(w.savingIfMissed).toFixed(1)}%)` : ""}</span></div>
+    <p class="small" style="margin:6px 0 0">Net effect of waiting for the dip: <b>${Math.abs(cost) < 0.25 ? "about even" : cost > 0 ? `saved ${cost.toFixed(1)}%` : `cost ${Math.abs(cost).toFixed(1)}%`}</b> on average${w.betterShare > 50 && cost < -0.25 ? `, even though waiting beat buying on the day ${w.betterShare}% of the time: the dips that came saved a little, the rallies that left it behind cost more` : `; waiting beat buying on the day ${w.betterShare}% of the time`}. A week on, ${esc(name)} was higher ${x.fwd.w1.positive}% of the time (median ${sgn(x.fwd.w1.median)}). A month on, ${esc(name)} was higher ${x.fwd.m1.positive}% of the time (median ${sgn(x.fwd.m1.median)}; any day: ${all.m1.positive}%, ${sgn(all.m1.median)}); a year on, ${x.fwd.m12.positive}% (median ${sgn(x.fwd.m12.median)}; any day ${all.m12.positive}%).</p>
+  </div>`;
+}
+function renderMoneyCheck() {
+  const d = LAST_DATA, el = $("moneyCheck");
+  if (!d?.copilot || !el) return;
+  const cp = d.copilot, pb = cp.pullback, sp = d.markets?.sp, ftse = d.markets?.ftse, vix = d.markets?.vix;
+  const next = pb.nextCore;
+  const tierHit = [sp, ftse].some((m) => m?.drawdownPct != null && m.drawdownPct <= -10);
+  const passing = cp.picks.filter((p) => p.ok).map((p) => p.ticker), waiting = cp.picks.filter((p) => p.ok === false).map((p) => p.ticker);
+  const week = cp.dates.filter((k) => k.inDays != null ? k.inDays <= 7 : true).slice(0, 3);
+  const verdict = pb.triggered ? `<b>The pullback rule has fired:</b> ${esc(pb.index)} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, so the plan says make the core purchase due ${dayMon(next.date)} now.`
+    : tierHit ? "<b>A market is 10% or more below its high:</b> check the buy tiers below; a tier needs fear (F&amp;G 25 or under, or VIX 30 or over) to confirm it."
+    : next ? `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${dayMon(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`
+    : "<b>No rule is triggered</b> and no core purchase is scheduled before the new ISA allowance.";
+  const chip = (label, val, tone) => `<span class="mc-chip ${tone}"><span class="muted">${label}</span> ${val}</span>`;
+  const fg = d.score, fgTone = fg <= 25 ? "pos" : fg <= 45 ? "warm" : fg >= 75 ? "neg" : "";
+  const chips = [
+    chip("Market", esc(d.regime?.label ?? "n/a"), ""),
+    sp ? chip("S&amp;P 500", `${sgn(sp.drawdownPct)} from high`, sp.drawdownPct <= -5 ? "pos" : "") : "",
+    ftse ? chip("FTSE 100", `${sgn(ftse.drawdownPct)} from high`, ftse.drawdownPct <= -5 ? "pos" : "") : "",
+    d.coreFund ? chip("VWRP", `${sgn(d.coreFund.drawdownPct)} in pounds`, "") : "",
+    fg != null ? chip("Fear &amp; Greed", `${fg} (${esc(d.rating ?? "")})`, fgTone) : "",
+    vix?.level != null ? chip("VIX", vix.level.toFixed(1), vix.level >= 30 ? "pos" : "") : "",
+  ].join("");
+  const picksLine = cp.picks.length ? `Picks: ${passing.length ? `${passing.join(", ")} ${passing.length === 1 ? "passes" : "pass"} the tranche check` : "none passes the tranche check"}${waiting.length ? `; ${waiting.join(", ")} wait` : ""}. Dip reserve: ${tierHit ? "see the buy tiers" : "no buy tier, so it stays in cash"}.` : "";
+  const events = week.length ? `This week: ${week.map((k) => `${esc(k.title)} (${dayMon(k.date)})`).join("; ")}.` : "";
+  el.hidden = false;
+  el.innerHTML = `<div class="mc-head"><div class="k">This week's money check</div><span class="small muted">Prices to ${fmtDM(sp?.date ?? d.updated)}</span></div>
+    <p class="mc-verdict">${verdict}</p>
+    <div class="mc-chips">${chips}</div>
+    <p class="small" style="margin:10px 0 0">${esc(picksLine)} ${events}</p>
+    ${WAIT ? `<div class="k" style="margin-top:16px">Buy now or wait for a dip? What history says</div>${waitLine(WAIT.sp, "S&P 500", sp?.drawdownPct)}${waitLine(WAIT.ftse, "FTSE 100", ftse?.drawdownPct)}
+    <p class="small muted" style="margin:8px 0 0">From every past day the index sat as far below its high as today: whether it then fell to the pullback rule's −5% within 3 months, and what buying then rather than on the day did. Price only (dividends add roughly 0.5% over 3 months). Most of the time, timing a week or two either way changes little; the plan's dates and the pullback rule already use this. A record of the past, not advice: you place every trade.</p>` : ""}`;
+}
+
 // --- Goal odds: block bootstrap of real monthly returns (src/goalSim.js) ----------
 let RETURNS = null, ODDS_CASE = "history", ODDS_REAL = false;
 const INFL = 0.025; // inflation assumed for "Today's money" (the Bank of England's target is 2%; 2.5% allows for misses)
