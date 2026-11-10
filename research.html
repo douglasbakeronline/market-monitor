@@ -49,6 +49,7 @@
   .summary { font-size: 14px; color: var(--ink-2); margin: 14px 0 4px; max-width: 75ch; }
   .note { font-size: 13px; margin: 8px 0 0; padding: 8px 12px; border-radius: 9px; background: var(--watch-bg); color: var(--watch); }
   .note.good { background: var(--buy-bg); color: var(--buy); }
+  .note.bad { background: var(--sell-bg); color: var(--ink); }
   .note.peer { background: var(--card); color: var(--ink-2); border: 1px solid var(--line); }
   .note.peer b { color: var(--ink); font-weight: 650; }
   .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 16px; }
@@ -169,6 +170,9 @@ import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay
 import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
 import { PLAN } from "./src/plan.js";
+import { SELL_KINDS } from "./src/sellSignals.js";
+let SELL = null;
+fetch("data/sell-study.json").then((r) => (r.ok ? r.json() : null)).then((j) => { SELL = j; }).catch(() => {});
 const PICKS = new Set(PLAN.picks.map((p) => p.symbol)), BENCH = new Set(PLAN.bench);
 initTheme();
 const $ = (id) => document.getElementById(id);
@@ -178,7 +182,7 @@ const estTitle = (e) => `Not published yet. Estimated from the latest results ${
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", "Holding company": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
-  ["all", "All"], ["plan", "Picks & bench"], ["good", "Good entry"], ["near", "Near good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
+  ["all", "All"], ["plan", "Picks & bench"], ["good", "Good entry"], ["near", "Near good entry"], ["sell", "Sell signals"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
 ];
 const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
@@ -240,6 +244,7 @@ function visible() {
     }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
     if (st.filter === "near") return !!it.longTerm.near;
+    if (st.filter === "sell") return !!it.exit?.kinds?.length;
     if (st.filter === "plan") return PICKS.has(it.symbol) || BENCH.has(it.symbol);
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
@@ -275,7 +280,7 @@ function rowHtml(it, i) {
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
     <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
     <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>
-    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${PICKS.has(it.symbol) ? `<span class="tag" style="border-color:var(--ink-2)">Your pick</span>` : BENCH.has(it.symbol) ? `<span class="tag">Bench</span>` : ""}${it.longTerm?.near ? `<span class="tag" title="${esc((it.longTerm.gaps || []).join("; "))}">Near good entry</span>` : ""}${!it.deep && st.source === "scan" ? (fullOf(it) ? `<span class="tag" title="Quick score here; your list has the full score">Quick · list ${fullOf(it).longTerm.score}</span>` : `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>`) : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
+    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${PICKS.has(it.symbol) ? `<span class="tag" style="border-color:var(--ink-2)">Your pick</span>` : BENCH.has(it.symbol) ? `<span class="tag">Bench</span>` : ""}${it.exit?.kinds?.length ? `<span class="tag bear">Sell signal</span>` : ""}${it.longTerm?.near ? `<span class="tag" title="${esc((it.longTerm.gaps || []).join("; "))}">Near good entry</span>` : ""}${!it.deep && st.source === "scan" ? (fullOf(it) ? `<span class="tag" title="Quick score here; your list has the full score">Quick · list ${fullOf(it).longTerm.score}</span>` : `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>`) : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
     <span class="caret">▶</span>
   </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
 }
@@ -304,11 +309,19 @@ function detailHtml(it) {
   const sv = it.sectorValue;
   const peer = sv?.note ? `<div class="note peer"><b>Peers</b>: ${esc(sv.note)}</div>` : "";
   const rcn = it.ruleChange?.note ? `<div class="note peer"><b>Rule change</b>: ${esc(it.ruleChange.note)}</div>` : "";
+  const sellVerdict = (k) => {
+    const r = SELL?.all?.byKind?.[k];
+    if (!r || r.d21?.vsAverage == null) return "";
+    const v = r.verdict === "useful" ? "has preceded weaker returns" : r.verdict === "opposite" ? "has preceded stronger returns, not weaker (partly flattered: companies that kept falling and left the index are missing)" : r.verdict === "too few" ? "too few cases to judge" : "no reliable edge";
+    return ` In our test (${SELL.stocks} S&amp;P 500 and FTSE 100 stocks, ${esc(SELL.from.slice(0, 4))} to ${esc(SELL.to.slice(0, 4))}, ${r.n.toLocaleString("en-GB")} cases): a month later these stocks did ${signPct(r.d21.vsAverage)} against an average day, worse ${r.d21.worse}% of the time: <b>${v}</b>.`;
+  };
+  const exn = it.exit?.kinds?.length ? `<div class="note bad"><b>Sell signal today</b> (display only): ${it.exit.kinds.map((k) => `${esc(SELL_KINDS[k]?.label ?? k)}. ${esc(SELL_KINDS[k]?.why ?? "")}${sellVerdict(k)}`).join(" ")}</div>` : "";
+  const stopn = it.exit?.stop ? `<div class="note">Trailing stop for a holder (highest close of 60 sessions minus 3 ATR): ${money(it.exit.stop, it.currency)}${it.exit.stop >= it.price ? (it.exit.kinds.includes("trailStop") ? "; the price closed below it today" : "; the price is already below it, so it fired on an earlier day") : `, ${signPct(((it.exit.stop / it.price) - 1) * 100)} from today`}. Our test found no edge in acting on it.</div>` : "";
   const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${rcn}${smn}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${exn}${peer}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>

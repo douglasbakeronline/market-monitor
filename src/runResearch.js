@@ -4,7 +4,8 @@ import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
-import { pickResultsLine } from "./plan.js";
+import { pickResultsLine, pickSellLine } from "./plan.js";
+import { latestSellSignals } from "./sellSignals.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf, reitView } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -59,6 +60,8 @@ export async function runResearch({ regimeKey, state }) {
       };
       const sm = smartFor(s.symbol, smart);
       if (sm) item.smartMoney = sm;
+      const ex = latestSellSignals(prices.rows);
+      item.exit = { kinds: ex.signals.map((x) => x.kind), stop: ex.stop };
       if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: /\.L$/.test(s.symbol), history: earnings[s.symbol] || [] });
       item.summary = summarise(item);
       items.push(item);
@@ -79,6 +82,7 @@ export async function runResearch({ regimeKey, state }) {
   await writeJson("history/earnings.json", earnings);
 
   // Alerts: newly a "Good entry" (long-term) or a swing "Setup".
+  const sellStudy = await readJson("data/sell-study.json", null);
   const prev = state.research || {}, next = {}, lines = [], events = [];
   const at = new Date().toISOString();
   for (const it of items) {
@@ -105,6 +109,8 @@ export async function runResearch({ regimeKey, state }) {
     // rr: the pick's results date already announced (null = none yet).
     const rl = pickResultsLine(it, "rr" in p ? p.rr : undefined);
     if (rl) lines.push(rl);
+    const sl = pickSellLine(it, sellStudy);
+    if (sl) lines.push(sl);
     const rr = it.lastResults && !it.lastResults.pending ? it.lastResults.date : p.rr ?? null;
     next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION, g: isGood ? today : p.g ?? null, s: isSetup ? today : p.s ?? null, rr };
   }

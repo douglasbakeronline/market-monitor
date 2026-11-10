@@ -373,6 +373,8 @@
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN, dripSchedule } from "./src/plan.js";
+import { SELL_KINDS } from "./src/sellSignals.js";
+const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
@@ -437,7 +439,7 @@ function renderPlan(cp) {
     const full = sz && sz.status !== "room";
     const mine = sz ? ` Your log: ${sz.pct.toFixed(1)}% of the pots ${sz.atCost ? "at cost" : "at today's price"}${sz.status === "ceiling" ? `, past the ${REBALANCE.pickCeilingPct}% ceiling: no further tranches, trim back to ${REBALANCE.pickTrimToPct}%` : full ? `, at the ${REBALANCE.pickMaxPct}% maximum: no further tranches` : ""}.` : "";
     const [lab, cls] = full ? ["Full", "t-watch"] : p.ok ? ["Pass", "pos"] : p.ok === false ? ["Wait", "t-watch"] : ["n/a", "muted"];
-    return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}${p.change ? ` <span class="${p.change > 0 ? "pos" : "neg"} small" title="Long-term score change over the past week">${p.change > 0 ? "\u25b2" : "\u25bc"}${Math.abs(p.change)}</span>` : ""}<span class="why">${esc(p.reason + mine)}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
+    return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}${p.change ? ` <span class="${p.change > 0 ? "pos" : "neg"} small" title="Long-term score change over the past week">${p.change > 0 ? "\u25b2" : "\u25bc"}${Math.abs(p.change)}</span>` : ""}<span class="why">${esc(p.reason + mine)}${p.exit?.kinds?.length ? ` <span class="neg">Sell signal today: ${esc(p.exit.kinds.map((k) => SELL_LABEL[k] ?? k).join(", "))} (display only).</span>` : ""}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
   }).join("");
   const bench = cp.bench ?? [];
   $("planBench").innerHTML = bench.length ? `<div class="k" style="margin-top:14px">Bench <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· replacements if a pick is dropped</span></div><div class="bench">${bench.map((b) => {
