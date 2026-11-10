@@ -1,0 +1,50 @@
+name: Chain watchdog
+
+# The monitor cannot report its own silence. Every two hours this checks that
+# data.json was saved for each slot due (45 min grace). If not, it starts a
+# Market monitor run when none is active, and sends one alert per stale save.
+on:
+  schedule:
+    - cron: "37 */2 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: chain-watchdog
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+      - name: Check
+        id: check
+        run: node scripts/watchdog.mjs
+      - name: Already alerted?
+        if: steps.check.outputs.stale == 'true'
+        id: seen
+        uses: actions/cache/restore@v4
+        with:
+          path: .watchdog-alerted
+          key: watchdog-${{ steps.check.outputs.key }}
+      - name: Restart and alert
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          ALERTED: ${{ steps.seen.outputs.cache-hit }}
+        run: node scripts/watchdog.mjs --act && touch .watchdog-alerted
+      - name: Remember alert
+        if: steps.check.outputs.stale == 'true' && steps.seen.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .watchdog-alerted
+          key: watchdog-${{ steps.check.outputs.key }}
