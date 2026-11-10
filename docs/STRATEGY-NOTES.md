@@ -5,8 +5,13 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 ## Pots (target weights; Douglas chose the original strategy-deck split on 30 Oct 13:18, revised 5 Nov: swing's 10% moved to the core)
 - Core 70%: Vanguard FTSE All-World (VWRP; OCF 0.14%, ~3,800 companies). Never sold on a signal. Includes the 10% first meant for swing (5 Nov).
 - Dip reserve 15%: cash in the ISA. A third at each confirmed buy tier (S&P 500 or FTSE 100 at -10%, -15/-20%, -30% with F&G <= 25 or VIX >= 30); the first tier also brings forward the next core instalment. Half moves to core if unused after 12 months.
-- Long-term picks 15%: five companies in five sectors, tilted away from what the core already holds (US mega-cap tech). Up to 3% of the portfolio each, in tranches of 1% (about a third of a position); never within 7 days before results.
+- Long-term picks 15%: five companies in five sectors, tilted away from what the core already holds (US mega-cap tech). Up to 3% of the portfolio each, in tranches of 1% (about a third of a position); never within 7 days before results. A pick that grows past 5% of the portfolio is trimmed back to 3% (agreed 10 Nov).
 - Swing 0%: paper only. Douglas, 5 Nov 2026: "paper, but retune"; the retune (research log 5 Nov evening) found no stricter setup that beats random entry after costs. Douglas asked Claude to decide where the 10% sits "for now" (5 Nov evening): it goes into the core, as part of the 16 Nov core purchase, because cash and a bigger dip reserve both drag on returns (research log 5 Nov). The paper log keeps running; real money is reconsidered only if live paper results beat random entry clearly after costs. Rules if ever funded: Max 4 open trades, risk at most 0.2% of the portfolio per trade (2% of the swing pot), stop order placed at entry, exit at 2R or 20 sessions, pause and review if the pot falls 25%.
+
+## Rebalancing (agreed 10 Nov 2026; research log 9 Nov)
+- Check pot weights at the Sunday review. Act at most twice a year, unless a pot is 5 or more points off its target weight.
+- Use new money and dividends before selling.
+- Trim any pick that grows past 5% of the portfolio back to 3%.
 
 ## Schedule (revised 30 Oct for the ISA allowance)
 - Douglas had already used part of this tax year's ISA allowance, so about 70% of the new money goes into the ISA now and about 30% waits in easy-access savings until the new allowance on 6 April 2027.

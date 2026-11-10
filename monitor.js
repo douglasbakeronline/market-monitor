@@ -18,6 +18,7 @@ import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
+import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
@@ -326,6 +327,7 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   if (sl) L.push(sl);
   const pal = alertDigestLine(priceAlerts ?? []);
   if (pal) L.push(pal);
+  L.push(rebalanceDigestLine());
   if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
   if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatSp}% beat the S&P.`);
   const kindLine = tr?.total ? digestKindLine(trackRecord.byKind) : null;

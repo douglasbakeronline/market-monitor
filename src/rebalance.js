@@ -1,14 +1,25 @@
-// Rebalancing view for the Dashboard's private pots panel (browser only; the
-// values never leave the viewer's browser). Display only: the rebalancing rule
-// proposed on 9 Nov (research log) is waiting on Douglas, so nothing here
-// changes a signal or an alert.
+// Rebalancing rule (proposed 9 Nov, research log; agreed by Douglas 10 Nov).
+// The pots panel uses these helpers in the browser (values never leave it);
+// the Sunday digest only carries a reminder, as pot values are private.
 
 export const REBALANCE = {
-  bandPts: 5,        // proposed: act only when a pot is this many points off target
-  pickMaxPct: 3,     // agreed: up to 3% of the portfolio per pick (no tranche beyond it)
-  pickCeilingPct: 5, // proposed: trim a pick that grows past this...
+  bandPts: 5,        // act outside the twice-yearly limit only when a pot is this many points off target
+  maxPerYear: 2,     // rebalances a year at most (unless a pot is bandPts+ off)
+  pickMaxPct: 3,     // up to 3% of the portfolio per pick (no tranche beyond it)
+  pickCeilingPct: 5, // trim a pick that grows past this...
   pickTrimToPct: 3,  // ...back to this
 };
+
+// Distinct days with a trade logged under the "rebalance" rule in the 365 days
+// up to `today` (YYYY-MM-DD).
+export function rebalancesInYear(trades = [], today) {
+  const from = new Date(Date.parse(today) - 365 * 86400000).toISOString().slice(0, 10);
+  return new Set(trades.filter((t) => t?.rule === "rebalance" && t.date > from && t.date <= today).map((t) => t.date)).size;
+}
+
+// Sunday digest reminder (the monitor cannot see pot values).
+export const digestLine = (rules = REBALANCE) =>
+  `Rebalancing check: open the pots panel on the Dashboard. Act only if a pot is ${rules.bandPts}+ points off target (otherwise at most ${rules.maxPerYear === 2 ? "twice" : `${rules.maxPerYear} times`} a year), new money and dividends before selling; trim any pick past ${rules.pickCeilingPct}% of the portfolio back to ${rules.pickTrimToPct}%.`;
 
 // New money that would bring every pot with a target back to it without
 // selling anything. The most overweight pot sets the new total; the others are
@@ -58,7 +69,7 @@ export function pickSizeLine(sizes, rules = REBALANCE) {
   const over = sizes.filter((s) => s.status === "ceiling");
   const full = sizes.filter((s) => s.status === "full");
   const f = (s) => `${s.ticker} ${s.pct.toFixed(1)}%`;
-  if (over.length) return `Past the proposed ${rules.pickCeilingPct}% ceiling: ${over.map(f).join(", ")}. If the ceiling is agreed, trim back to ${rules.pickTrimToPct}%.`;
+  if (over.length) return `Past the ${rules.pickCeilingPct}% ceiling: ${over.map(f).join(", ")}. The rule says trim back to ${rules.pickTrimToPct}%.`;
   if (full.length) return `At the ${rules.pickMaxPct}% maximum, so no further tranches: ${full.map(f).join(", ")}.`;
   return `Every pick is below the ${rules.pickMaxPct}% maximum (largest ${f(sizes[0])}).`;
 }

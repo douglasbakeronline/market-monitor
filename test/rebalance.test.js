@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine } from "../src/rebalance.js";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, digestLine } from "../src/rebalance.js";
 
 const T = { core: 70, reserve: 15, picks: 15, swing: 0 };
 
@@ -46,9 +46,25 @@ test("pickSizes nets buys and sells per pick, at cost", () => {
   ];
   const s = pickSizes(tr, 10000);
   assert.deepEqual(s.map((x) => [x.ticker, x.status]), [["META", "ceiling"], ["HSBA", "full"]]);
-  assert.match(pickSizeLine(s), /^Past the proposed 5% ceiling: META 6\.0%\. If the ceiling is agreed, trim back to 3%\.$/);
+  assert.match(pickSizeLine(s), /^Past the 5% ceiling: META 6\.0%\. The rule says trim back to 3%\.$/);
   assert.match(pickSizeLine(s.slice(1)), /At the 3% maximum, so no further tranches: HSBA 3\.0%/);
   assert.match(pickSizeLine(pickSizes([{ pot: "picks", ticker: "STZ", action: "buy", amount: 150 }], 10000)), /below the 3% maximum \(largest STZ 1\.5%\)/);
   assert.deepEqual(pickSizes(tr, 0), []);
   assert.equal(pickSizeLine([]), null);
+});
+
+test("rebalancesInYear counts distinct rebalance days in the last 365", () => {
+  const tr = [
+    { rule: "rebalance", date: "2026-03-01" },
+    { rule: "rebalance", date: "2026-03-01" },
+    { rule: "rebalance", date: "2025-11-01" },
+    { rule: "rebalance", date: "2026-09-10" },
+    { rule: "core", date: "2026-09-10" },
+  ];
+  assert.equal(rebalancesInYear(tr, "2026-11-10"), 2);
+  assert.equal(rebalancesInYear([], "2026-11-10"), 0);
+});
+
+test("digestLine states the agreed rule", () => {
+  assert.match(digestLine(), /5\+ points off target \(otherwise at most twice a year\).*past 5% of the portfolio back to 3%\.$/);
 });
