@@ -24,7 +24,7 @@ export const EVENT = { move: 0.04, volX: 3 };
 // previous 50 sessions' volume. Forward net returns from the next open to the
 // close h sessions later, after costs. Random baseline: about 1 in 10 days,
 // same horizons. idx: Map date -> home index close (for the regime tag).
-export function driftEvents(rows, market, { idx = null, seed = 1 } = {}) {
+export function driftEvents(rows, market, { idx = null, seed = 1, symbol = null } = {}) {
   const n = rows.length, cost = COSTS[market] ?? 0, H = HORIZONS.at(-1);
   let x = seed >>> 0;
   const rand = () => { x = (x * 1664525 + 1013904223) >>> 0; return x / 4294967296; };
@@ -48,7 +48,7 @@ export function driftEvents(rows, market, { idx = null, seed = 1 } = {}) {
   for (let d = 1; d < n - 1; d++) {
     if (d >= 51) vs += (rows[d - 1].volume || 0) - (rows[d - 51].volume || 0); else vs += rows[d - 1].volume || 0;
     if (d < 252) continue;
-    const base = { market, date: rows[d].date, year: rows[d].date.slice(0, 4), regimeUp: up ? up.get(rows[d].date) ?? null : null };
+    const base = { symbol, market, date: rows[d].date, year: rows[d].date.slice(0, 4), regimeUp: up ? up.get(rows[d].date) ?? null : null };
     const avg = vs / 50, ret = rows[d].close / rows[d - 1].close - 1;
     if (avg > 0 && (rows[d].volume || 0) >= EVENT.volX * avg && Math.abs(ret) >= EVENT.move) {
       const f = fwd(d);
@@ -110,6 +110,30 @@ export function analyseDrift(all, bar = LAB_BAR) {
     return { label, ...cmp(evs, base, 20) };
   });
 
-  return { counts: { up: all.filter((e) => e.kind === "up").length, down: all.filter((e) => e.kind === "down").length, random: rnd.length },
+  // Placebo and matched baselines (added after the first run showed down
+  // events ALSO beating random at 60 sessions, a sign the edge is partly
+  // volatility, timing or survivorship rather than drift): each event against
+  // random entries in the same calendar month (all stocks), and against the
+  // same stock's random entries. Drift proper is up minus down.
+  const groupMean = (key) => {
+    const m = new Map();
+    for (const e of rnd) for (const h of HORIZONS) { if (e.f[h] == null) continue; const k = `${key(e)}|${h}`; const g = m.get(k) || [0, 0]; g[0] += e.f[h]; g[1]++; m.set(k, g); }
+    return (e, h) => { const g = m.get(`${key(e)}|${h}`); return g && g[1] >= 5 ? g[0] / g[1] : null; };
+  };
+  const byMonth = groupMean((e) => e.date.slice(0, 7)), byStock = groupMean((e) => e.symbol);
+  const ex = (kind, h, base, f = () => true) => {
+    const xs = all.filter((e) => e.kind === kind && f(e) && e.f[h] != null).map((e) => { const b = base(e, h); return b == null ? null : e.f[h] - b; }).filter((v) => v != null);
+    return xs.length ? r2(mean(xs)) : null;
+  };
+  const matched = HORIZONS.map((h) => {
+    const r = { h, upMonth: ex("up", h, byMonth), downMonth: ex("down", h, byMonth), upStock: ex("up", h, byStock), downStock: ex("down", h, byStock) };
+    r.driftMonth = r.upMonth != null && r.downMonth != null ? r2(r.upMonth - r.downMonth) : null;
+    r.driftStock = r.upStock != null && r.downStock != null ? r2(r.upStock - r.downStock) : null;
+    return r;
+  });
+  const matchedYears = years.map((y) => ({ year: y, up: ex("up", 60, byMonth, (e) => e.year === y), down: ex("down", 60, byMonth, (e) => e.year === y), up20: ex("up", 20, byMonth, (e) => e.year === y) }));
+  const matchedNo2020 = { up60: ex("up", 60, byMonth, (e) => e.year !== "2020"), down60: ex("down", 60, byMonth, (e) => e.year !== "2020"), up20: ex("up", 20, byMonth, (e) => e.year !== "2020") };
+
+  return { matched, matchedYears, matchedNo2020, counts: { up: all.filter((e) => e.kind === "up").length, down: all.filter((e) => e.kind === "down").length, random: rnd.length },
     up: horizons("up"), down: horizons("down"), H1, H2, H3, explore };
 }

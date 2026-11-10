@@ -18,7 +18,7 @@ let done = 0, fetched = 0, seed = 1;
 for (const u of universe) {
   try {
     const { rows } = await fetchDaily(u.symbol, { range });
-    if (rows.length >= 400) { fetched++; all.push(...driftEvents(rows, u.market, { idx: index[u.market], seed: seed++ })); }
+    if (rows.length >= 400) { fetched++; all.push(...driftEvents(rows, u.market, { idx: index[u.market], seed: seed++, symbol: u.symbol })); }
   } catch { /* skip */ }
   if (++done % 100 === 0) console.error(`${done}/${universe.length}`);
   await sleep(100);
