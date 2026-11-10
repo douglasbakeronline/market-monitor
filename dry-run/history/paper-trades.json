@@ -88,7 +88,7 @@
     "risk": 30.010000000000048,
     "target": 496.62,
     "sessions": 7,
-    "lastPrice": 433.2,
+    "lastPrice": 433.36,
     "lastDate": "2026-11-10",
     "openR": -0.11
   },
@@ -130,9 +130,9 @@
     "risk": 29.819999999999993,
     "target": 467.64,
     "sessions": 7,
-    "lastPrice": 419.75,
+    "lastPrice": 418.8,
     "lastDate": "2026-11-10",
-    "openR": 0.39
+    "openR": 0.36
   },
   {
     "id": "2026-10-30:DG",
@@ -350,9 +350,9 @@
     "risk": 69.57999999999993,
     "target": 2022.16,
     "sessions": 7,
-    "lastPrice": 1914,
+    "lastPrice": 1915,
     "lastDate": "2026-11-10",
-    "openR": 0.45
+    "openR": 0.46
   },
   {
     "id": "2026-10-30:SPX.L",
@@ -527,9 +527,9 @@
     "risk": 43.809999999999945,
     "target": 1019.62,
     "sessions": 7,
-    "lastPrice": 949.5,
+    "lastPrice": 948.5,
     "lastDate": "2026-11-10",
-    "openR": 0.4
+    "openR": 0.38
   },
   {
     "id": "2026-10-30:CB",
@@ -653,9 +653,9 @@
     "risk": 17.99000000000001,
     "target": 766.18,
     "sessions": 7,
-    "lastPrice": 731.9,
+    "lastPrice": 732,
     "lastDate": "2026-11-10",
-    "openR": 0.09
+    "openR": 0.1
   },
   {
     "id": "2026-10-30:SVT.L",
@@ -674,9 +674,9 @@
     "risk": 132.61000000000013,
     "target": 3573.22,
     "sessions": 7,
-    "lastPrice": 3314,
+    "lastPrice": 3316,
     "lastDate": "2026-11-10",
-    "openR": 0.05
+    "openR": 0.06
   },
   {
     "id": "2026-10-30:PKG",
@@ -1217,9 +1217,9 @@
     "risk": 3.469999999999999,
     "target": 101.3,
     "sessions": 6,
-    "lastPrice": 97.62,
+    "lastPrice": 97.72,
     "lastDate": "2026-11-10",
-    "openR": 0.94
+    "openR": 0.97
   },
   {
     "id": "2026-11-02:WTW",
@@ -1760,9 +1760,9 @@
     "risk": 1142.9799999999996,
     "target": 17890.96,
     "sessions": 5,
-    "lastPrice": 15685,
+    "lastPrice": 15695,
     "lastDate": "2026-11-10",
-    "openR": 0.07
+    "openR": 0.08
   },
   {
     "id": "2026-11-03:ACN",
@@ -1823,9 +1823,9 @@
     "risk": 26.75,
     "target": 409.9,
     "sessions": 5,
-    "lastPrice": 350.3,
+    "lastPrice": 350.4,
     "lastDate": "2026-11-10",
-    "openR": -0.23
+    "openR": -0.22
   },
   {
     "id": "2026-11-03:BF-B",
@@ -2008,9 +2008,9 @@
     "risk": 16.24000000000001,
     "target": 363.78,
     "sessions": 4,
-    "lastPrice": 330.3,
+    "lastPrice": 330.24,
     "lastDate": "2026-11-10",
-    "openR": -0.06
+    "openR": -0.07
   },
   {
     "id": "2026-11-04:STLD",
@@ -2050,9 +2050,9 @@
     "risk": 28.55000000000001,
     "target": 389.3,
     "sessions": 4,
-    "lastPrice": 339.1,
+    "lastPrice": 338.8,
     "lastDate": "2026-11-10",
-    "openR": 0.24
+    "openR": 0.23
   },
   {
     "id": "2026-11-04:KHC",
@@ -2219,9 +2219,9 @@
     "risk": 31.370000000000005,
     "target": 509.94,
     "sessions": 4,
-    "lastPrice": 439.8,
+    "lastPrice": 440.18,
     "lastDate": "2026-11-10",
-    "openR": -0.24
+    "openR": -0.22
   },
   {
     "id": "2026-11-04:CDW",
@@ -2411,9 +2411,9 @@
     "risk": 1.8399999999999963,
     "target": 38.23,
     "sessions": 4,
-    "lastPrice": 33.08,
+    "lastPrice": 33.11,
     "lastDate": "2026-11-10",
-    "openR": -0.8
+    "openR": -0.78
   },
   {
     "id": "2026-11-04:PSON.L",
@@ -2432,7 +2432,7 @@
     "risk": 69.92000000000007,
     "target": 1462.34,
     "sessions": 4,
-    "lastPrice": 1268.5,
+    "lastPrice": 1269,
     "lastDate": "2026-11-10",
     "openR": -0.77
   },
@@ -2497,9 +2497,9 @@
     "risk": 510.77999999999975,
     "target": 9716.56,
     "sessions": 4,
-    "lastPrice": 8725,
+    "lastPrice": 8720,
     "lastDate": "2026-11-10",
-    "openR": 0.06
+    "openR": 0.05
   },
   {
     "id": "2026-11-04:IHG.L",
@@ -2518,7 +2518,7 @@
     "risk": 11.680000000000007,
     "target": 199.21,
     "sessions": 4,
-    "lastPrice": 180,
+    "lastPrice": 180.05,
     "lastDate": "2026-11-10",
     "openR": 0.36
   },
@@ -2539,9 +2539,9 @@
     "risk": 69.97000000000003,
     "target": 1333.94,
     "sessions": 4,
-    "lastPrice": 1131.5,
+    "lastPrice": 1131,
     "lastDate": "2026-11-10",
-    "openR": -0.89
+    "openR": -0.9
   },
   {
     "id": "2026-11-04:CTAS",
@@ -2605,9 +2605,9 @@
     "risk": 168.19999999999982,
     "target": 3186.4,
     "sessions": 4,
-    "lastPrice": 2770,
+    "lastPrice": 2768.11,
     "lastDate": "2026-11-10",
-    "openR": -0.48
+    "openR": -0.49
   },
   {
     "id": "2026-11-05:NEM",
@@ -2731,9 +2731,9 @@
     "risk": 152.44999999999982,
     "target": 5255.4,
     "sessions": 3,
-    "lastPrice": 4923,
+    "lastPrice": 4921.5,
     "lastDate": "2026-11-10",
-    "openR": -0.18
+    "openR": -0.19
   },
   {
     "id": "2026-11-05:TGT",
@@ -2794,9 +2794,9 @@
     "risk": 76.98000000000002,
     "target": 2006.46,
     "sessions": 3,
-    "lastPrice": 1886.5,
+    "lastPrice": 1886.98,
     "lastDate": "2026-11-10",
-    "openR": 0.44
+    "openR": 0.45
   },
   {
     "id": "2026-11-05:CRDA.L",
@@ -2815,9 +2815,9 @@
     "risk": 126.51999999999998,
     "target": 3872.04,
     "sessions": 3,
-    "lastPrice": 3604,
+    "lastPrice": 3607,
     "lastDate": "2026-11-10",
-    "openR": -0.12
+    "openR": -0.09
   },
   {
     "id": "2026-11-05:SJM",
@@ -2899,9 +2899,9 @@
     "risk": 154.5999999999999,
     "target": 4010.2,
     "sessions": 2,
-    "lastPrice": 3616,
+    "lastPrice": 3615,
     "lastDate": "2026-11-10",
-    "openR": -0.55
+    "openR": -0.56
   },
   {
     "id": "2026-11-06:AIG",
@@ -2983,9 +2983,9 @@
     "risk": 397.1999999999998,
     "target": 8129.4,
     "sessions": 2,
-    "lastPrice": 7503.5,
+    "lastPrice": 7490,
     "lastDate": "2026-11-10",
-    "openR": 0.42
+    "openR": 0.39
   },
   {
     "id": "2026-11-06:COR",
@@ -3025,9 +3025,9 @@
     "risk": 23.99000000000001,
     "target": 598.98,
     "sessions": 2,
-    "lastPrice": 546,
+    "lastPrice": 546.2,
     "lastDate": "2026-11-10",
-    "openR": -0.21
+    "openR": -0.2
   },
   {
     "id": "2026-11-06:MSCI",

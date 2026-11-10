@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-10T10:04:40.630Z",
+  "updated": "2026-11-10T10:10:10.690Z",
   "start": "2026-11-02",
   "equity0": 10000,
   "realised": 9691.66,
-  "value": 9763.52,
+  "value": 9764.44,
   "returnPct": -2.36,
   "paused": false,
   "open": [
@@ -21,10 +21,10 @@
       "target": 2022.16,
       "riskAmt": 92.38,
       "posValue": 2500,
-      "lastPrice": 1914,
+      "lastPrice": 1915,
       "lastDate": "2026-11-10",
-      "openR": 0.45,
-      "openPnl": 41.57
+      "openR": 0.46,
+      "openPnl": 42.49
     },
     {
       "id": "2026-10-30:DE",
