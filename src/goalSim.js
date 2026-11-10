@@ -33,7 +33,10 @@ const pctile = (sorted, p) => {
 // month's return (a cautious case: the world has trailed the US since 1988).
 // cashShare of the pot sits in cash at cashRate a year (the dip reserve); it
 // drifts towards cashLong by a sixth a month, as the reserve drip does.
-export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, years = 30, paths = 2000, block = 12, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, seed = 1 } = {}) {
+// inflation (a year, e.g. 0.025) states values and the goal in today's money:
+// each month's value is divided by prices so far, so the goal is a real one.
+// The monthly top-up stays the same number of pounds (it is not raised with prices).
+export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, years = 30, paths = 2000, block = 12, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0, seed = 1 } = {}) {
   const n = returns?.length ?? 0;
   if (n < block * 2 || !(start >= 0) || !(years > 0)) return null;
   const rand = rng(seed);
@@ -41,6 +44,7 @@ export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, yea
   const hf = Math.pow(1 - haircut / 100, 1 / 12), cm = Math.pow(1 + cashRate, 1 / 12) - 1;
   const long = cashLong ?? cashShare;
   const cashAt = Float64Array.from({ length: months + 1 }, (_, m) => long + (cashShare - long) * Math.pow(5 / 6, m));
+  const defl = Float64Array.from({ length: months + 1 }, (_, m) => Math.pow(1 + inflation, -m / 12));
   const atYear = Array.from({ length: years + 1 }, () => new Float64Array(paths));
   const hitMonth = new Float64Array(paths).fill(Infinity);
   for (let p = 0; p < paths; p++) {
@@ -53,8 +57,9 @@ export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, yea
       pos++;
       const c = cashAt[m];
       v = v * (1 + (1 - c) * r + c * cm) + monthly;
-      if (goal && hitMonth[p] === Infinity && v >= goal) hitMonth[p] = m;
-      if (m % 12 === 0) atYear[m / 12][p] = v;
+      const real = v * defl[m];
+      if (goal && hitMonth[p] === Infinity && real >= goal) hitMonth[p] = m;
+      if (m % 12 === 0) atYear[m / 12][p] = real;
     }
   }
   const bands = atYear.map((arr, y) => {
@@ -79,7 +84,7 @@ export const cagr = (r = []) => (r.length ? Math.pow(r.reduce((a, x) => a * (1 +
 // Real history check (no resampling): start the same plan in every month of the
 // record that has `years` of returns after it, and count how often it reached
 // the goal within that time. Same cash and haircut handling as simulateGoal.
-export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0 } = {}) {
+export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0 } = {}) {
   const months = Math.round(years * 12), n = returns?.length ?? 0;
   if (!goal || n < months + 1) return null;
   const hf = Math.pow(1 - haircut / 100, 1 / 12), cm = Math.pow(1 + cashRate, 1 / 12) - 1, long = cashLong ?? cashShare;
@@ -90,9 +95,19 @@ export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10
       const c = long + (cashShare - long) * Math.pow(5 / 6, m);
       const r = (1 + returns[s + m - 1]) * hf - 1;
       v = v * (1 + (1 - c) * r + c * cm) + monthly;
-      if (v >= goal) ok = true;
+      if (v * Math.pow(1 + inflation, -m / 12) >= goal) ok = true;
     }
     windows++; if (ok) hit++;
   }
   return { years, windows, hit, share: hit / windows };
+}
+
+// What moves the odds: the chance of reaching the goal within `years` for the
+// plan as it is, with `extra` more a month, and with `wait` more years.
+// Same seed for both simulations, so the difference is the lever, not the luck.
+export function levers(opts = {}, { years = 10, extra = 100, wait = 2 } = {}) {
+  const base = simulateGoal(opts);
+  if (!base?.hitBy || years + wait > base.years) return null;
+  const more = simulateGoal({ ...opts, monthly: (opts.monthly || 0) + extra });
+  return { years, extra, wait, base: base.hitBy[years], more: more.hitBy[years], later: base.hitBy[years + wait] };
 }

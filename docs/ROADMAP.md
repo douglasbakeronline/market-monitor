@@ -28,6 +28,7 @@ In progress (10 Nov 08:45): "This week's money check" on the Dashboard (the plan
 
 ## Data notes (spot checks)
 - 10 Nov (daily): WDC, SNDK, WAB checked: off-high, stops (2×ATR) consistent with price and ATR. WDC's 0.27% yield looks about double its quarterly payout over today's price (deep stocks use Yahoo's trailing yield, likely measured at a lower average price); display only, watch. WAB's next results estimate (20 Jan) is early, as Q4 usually lands mid-February: the safe side for the 7-day rule.
+- 10 Nov (daily run): CL, SGRO.L, GAW.L checked: off-high, stops (2×ATR), 52-week ranges and yields consistent; Games Workshop is 30% off its high, real per its range. Price series are only kept for deep-scored items (by design, 107 of 662).
 - 10 Nov: RMS.PA, GNRC, MAR checked: off-high, stops (2×ATR) and yields consistent (Generac pays none). Hermès is 41% off its high, real per its 52-week range. Noted: 13 UK and European names (Hermès, L'Oréal, Unilever, Safran...) have a stale latest-results date from February, so the estimate rolls forward a quarter at a time and lands in mid-November, flagged "looks stale"; most actually report full-year results in February. Kept: the early estimate is the safe side for the 7-day rule, and none is a pick.
 - 9 Nov: ENEL.MI, TEL, MSFT checked: off-high, stops (2×ATR) consistent. Found and fixed: quick-scan dividend yields (Enel 2.7% for about 5.4%, Sanofi 0%); the scan now uses Yahoo's forward yield outside London.
 - 9 Nov: HPE, PPG, ARES checked: off-high, stops (2×ATR) and dividend yields consistent with their prices and known payouts. HPE's -37% month is large but consistent with its own 52-week range. Ares shows a P/E of 19.2, well below its usual GAAP trailing figure; probably Yahoo's forward or adjusted P/E (display only; watch if more asset managers look this cheap).
@@ -42,6 +43,7 @@ In progress (10 Nov 08:45): "This week's money check" on the Dashboard (the plan
 
 ## Done (recent)
 - 10 Nov (daily): EV/EBITDA peer sample, display only (step 1 of Scoring follow-ups b).
+- 10 Nov (daily run): goal odds in today's money and a "what moves the odds" line (£100 more a month, 2 more years).
 - 10 Nov (morning): goal odds in the pots panel (block-bootstrap simulation, fan chart, History and Cautious, history check).
 - 10 Nov (morning): picks line in the Monday push and digest; weekly score change in the tranche check.
 - 10 Nov (morning): Trading 212 CSV import into the trade log; edit a logged trade; pots filled at today's value from the log.
@@ -91,7 +93,7 @@ In progress (10 Nov 08:45): "This week's money check" on the Dashboard (the plan
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
-- Goal odds: refresh `data/returns.json` once a year (`node tools/returns.mjs` on the dryrun runner; Yahoo is blocked from the sandbox). Possible next: an "in today's money" toggle, and a contribution slider to see what an extra £100 a month does to the odds.
+- Goal odds: refresh `data/returns.json` once a year (`node tools/returns.mjs` on the dryrun runner; Yahoo is blocked from the sandbox). "Today's money" switch and the "what moves the odds" line shipped 10 Nov (daily run). Possible next: let the monthly top-up rise with inflation in today's-money mode (a toggle), if Douglas plans to raise it with pay.
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.
 - Insider buying and short interest signals (needs a free source).
 - Nasdaq 100 follow-up: Strategy (MSTR) is now a "Holding company" (not scored, 9 Nov); add others to `ASSET_HOLDERS` in `src/research.js` if they join an index. SpaceX (SPCX) is newly listed and scored like any company (only 36% data coverage on 9 Nov). Wikipedia moved the component table to "List of NASDAQ-100 companies" (the main page has none); the scan falls back to its cache if it moves again.

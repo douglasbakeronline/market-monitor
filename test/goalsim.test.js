@@ -65,3 +65,22 @@ test("history check counts real start months that reached the goal", async () =>
   assert.equal(h.hit, exp);
   assert.equal(historyCheck({ returns: r, start: 1, goal: 2, years: 20 }), null);
 });
+
+test("today's money: inflation lowers values and odds; zero inflation changes nothing", async () => {
+  const { levers, historyCheck } = await import("../src/goalSim.js");
+  const r = Array.from({ length: 240 }, (_, i) => (i % 12 === 5 ? -0.03 : 0.012));
+  const o = { returns: r, start: 10000, monthly: 200, goal: 40000, years: 15, paths: 200, cashShare: 0, seed: 7 };
+  const nom = simulateGoal(o), zero = simulateGoal({ ...o, inflation: 0 }), real = simulateGoal({ ...o, inflation: 0.025 });
+  assert.deepEqual(zero.bands, nom.bands);
+  assert.ok(Math.abs(real.bands[10].p50 - nom.bands[10].p50 / Math.pow(1.025, 10)) < 1e-6 * nom.bands[10].p50);
+  assert.ok(real.hitBy[10] <= nom.hitBy[10]);
+  assert.ok(real.medianYears >= nom.medianYears);
+  const hn = historyCheck({ ...o, years: 10 }), hr = historyCheck({ ...o, years: 10, inflation: 0.025 });
+  assert.ok(hr.share <= hn.share);
+  // Levers: more money a month and more time both help, never hurt.
+  const lv = levers(o, { years: 10, extra: 100, wait: 2 });
+  assert.equal(lv.years, 10);
+  assert.ok(lv.more >= lv.base && lv.later >= lv.base);
+  assert.equal(lv.base, nom.hitBy[10]);
+  assert.equal(levers(o, { years: 14, wait: 2 }), null);
+});
