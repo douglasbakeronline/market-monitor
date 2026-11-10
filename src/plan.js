@@ -103,7 +103,7 @@ export function pickStatus(pick, item, today = null) {
     : ed != null ? `Next results in ${ed} days.`
     : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
     : estNote ?? "No results date known; check before buying.";
-  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
 // Reserve drip dates (first Monday of each month from plan.reserveDrip.start)
@@ -161,6 +161,18 @@ export function benchStatus(items = {}, plan = PLAN) {
     const it = items[symbol], lt = it?.longTerm;
     return { symbol, ticker: it?.ticker ?? symbol.replace(/\.L$/, ""), name: it?.name ?? null, verdict: lt?.verdict ?? null, score: lt?.score ?? null, near: !!lt?.near, gaps: lt?.gaps ?? [] };
   }).sort((a, b) => rank(a) - rank(b) || (b.score ?? -1) - (a.score ?? -1));
+}
+
+// The picks' tranche check in one line, e.g. "Picks: HSBA passes; wait: META
+// (Entry 69, needs 70), NEM (results in 3 days)."
+export function picksLine(picks = []) {
+  if (!picks.length) return null;
+  const pass = picks.filter((p) => p.ok).map((p) => p.ticker);
+  const wait = picks.filter((p) => p.ok === false).map((p) => {
+    const why = p.verdict === "Good entry" ? (p.earningsDays != null ? `results in ${p.earningsDays} day${p.earningsDays === 1 ? "" : "s"}` : null) : p.gaps?.[0] ?? null;
+    return `${p.ticker}${why ? ` (${why})` : ""}`;
+  });
+  return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : ""].filter(Boolean).join("; ")}.`;
 }
 
 // One line for the Monday push and the digest.
@@ -264,6 +276,8 @@ export function copilotLines(cp) {
   if (!cp.actions.length) L.push(`Plan: ${cp.headline}.`);
   const p = cp.pullback;
   if (p.nextCore && !p.triggered && p.drawdown != null) L.push(`Pullback rule: ${p.index} ${p.drawdown.toFixed(1)}% off its high (fires at ${p.threshold}%).`);
+  const pl = picksLine(cp.picks);
+  if (pl) L.push(pl);
   const bl = benchLine(cp.bench);
   if (bl) L.push(bl);
   if (cp.dates.length) L.push(`Key dates: ${cp.dates.slice(0, 3).map((d) => `${d.title} (${dayLabel(d.date)})`).join("; ")}.`);

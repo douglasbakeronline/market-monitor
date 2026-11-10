@@ -200,3 +200,15 @@ test("picks week line for the digest", async () => {
   assert.equal(picksWeekLine(items), "Your picks this week: HSBA +2.5% (Good entry 73), META -1.2% (Fair 77).");
   assert.equal(picksWeekLine({}), null);
 });
+
+test("picks line for the Monday push", async () => {
+  const { picksLine } = await import("../src/plan.js");
+  const picks = [
+    { ticker: "HSBA", ok: true, verdict: "Good entry" },
+    { ticker: "META", ok: false, verdict: "Fair", gaps: ["Entry 69, needs 70"] },
+    { ticker: "NEM", ok: false, verdict: "Good entry", earningsDays: 3 },
+    { ticker: "VICI", ok: null },
+  ];
+  assert.equal(picksLine(picks), "Picks: HSBA passes; wait: META (Entry 69, needs 70), NEM (results in 3 days).");
+  assert.equal(picksLine([]), null);
+});
