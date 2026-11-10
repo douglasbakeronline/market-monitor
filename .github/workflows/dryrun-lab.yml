@@ -1,0 +1,23 @@
+name: Dry run (lab)
+# Swing lab backtest, 10 Nov
+on:
+  push:
+    branches: [dryrun-lab]
+permissions:
+  contents: write
+jobs:
+  dry:
+    if: "!contains(github.event.head_commit.message, 'dry-run output')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "24" }
+      - run: |
+          set +e
+          mkdir -p dry-run
+          node tools/swing-lab.mjs > dry-run/swing-lab.json 2> dry-run/swing-lab.log; echo "exit=$?" >> dry-run/swing-lab.log
+      - run: |
+          git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
+          git add -f dry-run && git commit -qm "dry-run output" && git push -q
