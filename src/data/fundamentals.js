@@ -128,11 +128,27 @@ function mergeMissing(a, b) {
 // YYYY-MM-DD), actual, estimate, surprisePct }], oldest first. The report
 // date itself is not in this module.
 export async function fetchEarningsHistory(symbol) {
+  return (await fetchResultsData(symbol)).history;
+}
+
+// The same plus the next results date and the consensus EPS forecast for it
+// (calendarEvents), in one request.
+export async function fetchResultsData(symbol) {
   const { cookie, crumb } = await yahooSession();
-  const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=earningsHistory&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
-  const h = j?.quoteSummary?.result?.[0]?.earningsHistory?.history;
+  const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=earningsHistory,calendarEvents&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+  const r = j?.quoteSummary?.result?.[0];
+  const h = r?.earningsHistory?.history;
   if (!Array.isArray(h)) throw new Error("no result");
-  return parseEarningsHistory(h);
+  return { history: parseEarningsHistory(h), next: parseNextResults(r?.calendarEvents?.earnings) };
+}
+
+export function parseNextResults(e) {
+  if (!e) return null;
+  const now = Date.now() / 1000;
+  const t = (e.earningsDate || []).map(raw).filter(Boolean).sort((a, b) => a - b).find((x) => x > now - 86400);
+  const avg = raw(e.earningsAverage), lo = raw(e.earningsLow), hi = raw(e.earningsHigh);
+  if (!t && avg == null) return null;
+  return { date: t ? new Date(t * 1000).toISOString().slice(0, 10) : null, epsEstimate: avg, epsLow: lo, epsHigh: hi };
 }
 
 export function parseEarningsHistory(h = []) {

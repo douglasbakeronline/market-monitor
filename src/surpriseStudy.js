@@ -139,5 +139,20 @@ export function resultsCheck(ev, study) {
     tone = "good";
     note = `Strong results and a rising price: over the past year this group did ${sign(h.up.top.vsIdx)} points against the S&P 500 over the next 60 sessions, vs ${sign(h.up.rest.vsIdx)} for other rises (one year of data, so a pointer, not a rule).`;
   }
+  // A surprise of 25% or more either way is often a one-off (a tax charge, a
+  // write-down, a gain on a sale) rather than the trading itself: say so.
+  if (Math.abs(ev.surprisePct) >= 25) note = `${note ? `${note} ` : ""}A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.`;
   return { fifth, label, note, tone };
 }
+
+// The beat record and the next results for a company, from its last four
+// quarters (history) and calendarEvents (next). Display only.
+export function resultsRecord(history = [], next = null) {
+  const xs = history.filter((h) => h.surprisePct != null).slice(-4);
+  const beats = xs.filter((h) => h.surprisePct > 0).length;
+  return { beats, of: xs.length, avgSurprise: xs.length ? Math.round((xs.reduce((a, h) => a + h.surprisePct, 0) / xs.length) * 10) / 10 : null,
+    next: next && (next.date || next.epsEstimate != null) ? next : null };
+}
+
+// One short phrase for a push line or a badge; null unless flagged.
+export const flagText = (rc) => (rc?.tone === "watch" ? "weak results and a fall" : rc?.tone === "good" ? "strong results and a rise" : null);

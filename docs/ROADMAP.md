@@ -8,7 +8,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - No paid services. No secrets in the repo (it's public).
 
 ## Waiting on Douglas
-- **Hold a pick tranche after weak results and a falling price? (10 Nov)** Swing lab round 4: in the past year, results in the bottom fifth of EPS surprise that also fell 2%+ on the day trailed the S&P 500 by 3.6 points over 60 sessions (other falls +0.5). Weak evidence (one year). Proposal: when a pick shows that flag on the Research page, hold its next tranche until its next results. HSBC is flagged now. OK, or keep it display-only?
+- **Hold a pick tranche after weak results and a falling price? (10 Nov)** Swing lab round 4: in the past year, results in the bottom fifth of EPS surprise that also fell 2%+ on the day trailed the S&P 500 by 3.6 points over 60 sessions (other falls +0.5). Weak evidence (one year). Proposal: when a pick shows that flag on the Research page, hold its next tranche until its next results. HSBC is flagged now (Meta too, but its miss was a tax one-off). OK, or keep it display-only?
 - OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
 - His own research list (Research page still uses a placeholder, now including the picks and bench).
 - Optional `FINNHUB_KEY` secret.
@@ -44,6 +44,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 
 ## Done (recent)
 - 10 Nov (morning): swing book round 2: random-choice benchmark, value vs S&P chart, push on orders and closes, why each setup fired.
+- 10 Nov (daily run): results record (beats of last 4, next forecast) and weak-results flag in the tranche check and Monday push.
 - 10 Nov (daily run): Swing lab round 4 (earnings surprise; fails the bar, weak-and-falling pattern shown), nightly "Last results" check for picks, bench and movers; Trading 212 import shows fees as a share of money traded.
 - 10 Nov (daily run): Swing lab round 3: sector rotation by momentum, survivorship-free (fails; trend filter is insurance, not an edge).
 - 10 Nov (morning): Claude's swing book (paper), four slots under the funded swing rules, with S&P comparison and next-session orders; persist.sh skips missing files.

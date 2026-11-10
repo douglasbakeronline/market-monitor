@@ -81,3 +81,30 @@ test("report day skips quad-witching Fridays and prefers a known results date", 
   rows[k + 1].volume = 7e6;
   assert.equal(reportDay(rows, "2026-08-31", "2026-10-20"), k + 1);
 });
+
+test("results record: beats of the last four, average surprise, next results; flag text", async () => {
+  const { resultsRecord, flagText } = await import("../src/surpriseStudy.js");
+  const { parseNextResults } = await import("../src/data/fundamentals.js");
+  const h = [-2, 5, 8, 3, 10].map((v, i) => ({ quarter: `2025-0${i + 1}-30`, surprisePct: v }));
+  const r = resultsRecord(h, { date: "2027-01-28", epsEstimate: 1.2 });
+  assert.equal(r.beats, 4);
+  assert.equal(r.of, 4);
+  assert.equal(r.avgSurprise, 6.5);
+  assert.equal(r.next.date, "2027-01-28");
+  assert.equal(resultsRecord([], null).next, null);
+  assert.equal(flagText({ tone: "watch" }), "weak results and a fall");
+  assert.equal(flagText({ tone: "neutral" }), null);
+  const t = Math.floor(Date.now() / 1000) + 30 * 86400;
+  const n = parseNextResults({ earningsDate: [{ raw: t }], earningsAverage: { raw: 1.5 }, earningsLow: { raw: 1.2 }, earningsHigh: { raw: 1.8 } });
+  assert.equal(n.epsEstimate, 1.5);
+  assert.equal(n.date, new Date(t * 1000).toISOString().slice(0, 10));
+  assert.equal(parseNextResults(null), null);
+});
+
+test("a very large surprise carries a one-off caveat", async () => {
+  const { resultsCheck } = await import("../src/surpriseStudy.js");
+  const study = { cuts: { q20: 0.8, q80: 14.8 }, H5: { up: { top: { vsIdx: 1 }, rest: { vsIdx: 0 } }, down: { bottom: { vsIdx: -3 }, rest: { vsIdx: 0 } } } };
+  assert.match(resultsCheck({ surprisePct: -29.3, reaction: -4 }, study).note, /one-off item/);
+  assert.match(resultsCheck({ surprisePct: 30, reaction: 0.5 }, study).note, /^A surprise this large/);
+  assert.doesNotMatch(resultsCheck({ surprisePct: -5, reaction: -4 }, study).note, /one-off/);
+});
