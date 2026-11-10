@@ -141,6 +141,19 @@ export function pickResultsLine(it, seen, plan = PLAN) {
   return `${it.ticker} (a pick) reported ${dayLabel(lr.date)}: ${lr.pct >= 0 ? "+" : ""}${lr.pct.toFixed(1)}% from the close before to the close after. Long-term now ${lt.verdict ?? "n/a"}${lt.score != null ? ` ${lt.score}` : ""}${why}.`;
 }
 
+// Weekly digest: each pick's week and where it stands, e.g.
+// "Your picks this week: HSBA +2.5% (Good entry 73), META -1.2% (Fair 77)...".
+export function picksWeekLine(items = {}, plan = PLAN) {
+  const parts = plan.picks.map((p) => {
+    const it = items[p.symbol];
+    if (!it) return null;
+    const w = it.perf?.week;
+    const lt = it.longTerm;
+    return `${it.ticker ?? p.symbol} ${w == null ? "n/a" : `${w >= 0 ? "+" : ""}${w.toFixed(1)}%`}${lt?.verdict ? ` (${lt.verdict}${lt.score != null ? ` ${lt.score}` : ""})` : ""}`;
+  }).filter(Boolean);
+  return parts.length ? `Your picks this week: ${parts.join(", ")}.` : null;
+}
+
 // The bench (replacement candidates): verdict and how close each is, best first.
 export function benchStatus(items = {}, plan = PLAN) {
   const rank = (b) => (b.verdict === "Good entry" ? 0 : b.near ? 1 : b.verdict === "Fair" ? 2 : 3);

@@ -5,6 +5,9 @@ Human-readable record of what changed and why. The weekly review deck is built f
 ## Week of 9 November 2026
 
 ### Tue 10 Nov (morning)
+- **Your picks in the Sunday digest.** One line with each pick's week and verdict: "Your picks this week: HSBA +4.2% (Good entry 73), META +5.7% (Fair 77), NEM +14.7% (Fair 71), STZ +3.4% (Fair 67), VICI +0.6% (Fair 67)." `picksWeekLine()` in `src/plan.js`, with a test. Dry run with a forced digest: line as above.
+- Research cards carry a "Near good entry" badge (hover shows what is missing); the Dashboard's buy-tier note explains the reserve drip.
+
 - **A push when a pick reports.** Once the market has reacted to a pick's results (close before to close after), the research alert includes one line per pick, once per results date: "NEM (a pick) reported Thu 22 Oct: -7.1% from the close before to the close after. Long-term now Fair 71 (score 71, needs 72)." The first run after this change records the latest dates silently. The research alert title now says "updates" rather than "new signals". `pickResultsLine()` in `src/plan.js`, with a test. *Why:* results are the biggest regular event for a holding, and the reaction plus the new verdict is what decides the next tranche. Dry run with a crafted state: the line fired for HSBC, Newmont and VICI and was held for quiet hours as usual.
 - **"Picks & bench" filter and badges on the Research page.** A chip shows only the five picks and six bench names, and their rows carry "Your pick" or "Bench". Checked at desktop and 390px, light and dark.
 

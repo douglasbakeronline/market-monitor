@@ -193,3 +193,10 @@ test("pick results line: once per results date, silent on the first run", async 
   assert.equal(pickResultsLine({ ...it, symbol: "AAPL" }, null), null, "not a pick");
   assert.match(pickResultsLine(it, null), /reported Thu 28 Jan/);
 });
+
+test("picks week line for the digest", async () => {
+  const { picksWeekLine } = await import("../src/plan.js");
+  const items = { "HSBA.L": { ticker: "HSBA", perf: { week: 2.54 }, longTerm: { verdict: "Good entry", score: 73 } }, META: { ticker: "META", perf: { week: -1.2 }, longTerm: { verdict: "Fair", score: 77 } } };
+  assert.equal(picksWeekLine(items), "Your picks this week: HSBA +2.5% (Good entry 73), META -1.2% (Fair 77).");
+  assert.equal(picksWeekLine({}), null);
+});

@@ -15,7 +15,7 @@ import { notify } from "./src/notify.js";
 import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, byMarket as signalsByMarket, byScore as signalsByScore, byHorizon as signalsByHorizon, digestKindLine, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
-import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
+import { copilot, pullbackAlert, copilotLines, picksWeekLine } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
@@ -212,7 +212,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -310,7 +310,7 @@ function worldTags(world) {
   return t.length ? ` ${t.join("; ")}.` : "";
 }
 
-function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts }) {
+function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts, planItems }) {
   const L = [];
   const tr = trackRecord?.summary;
   L.push(`Regime: ${reg.label}. ${reg.action}`);
@@ -319,6 +319,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   if (fg) L.push(`F&G ${fg.score} (${ratingFor(fg.score)}), a week ago ${fg.comparisons?.week ?? "n/a"}, a month ago ${fg.comparisons?.month ?? "n/a"}.${vix ? ` VIX ${vix.level.toFixed(1)}.` : ""}`);
   const cf = coreFundLine(coreFund);
   if (cf) L.push(cf);
+  const pw = picksWeekLine(planItems ?? {});
+  if (pw) L.push(pw);
   if (world) L.push(`World: ${world.label} (${world.score >= 0 ? "+" : ""}${world.score}); ${world.above200}/${world.markets.length} markets above their 200-day.${worldTags(world)}`);
   if (ctxLine) L.push(ctxLine);
   const h = researchHighlights(research);
