@@ -17,7 +17,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          sed -i "s/  return !nyOpen \node tools/swing-lab.mjs > dry-run/swing-lab.json 2> dry-run/swing-lab.log; echo "exit=$?" >> dry-run/swing-lab.log\node tools/swing-lab.mjs > dry-run/swing-lab.json 2> dry-run/swing-lab.log; echo "exit=$?" >> dry-run/swing-lab.log !lonOpen;/  return true; \/\/ dry run only/" scan.js
+          sed -i 's|  return !nyOpen \&\& !lonOpen;|  return true; // dry run only|' scan.js && grep -n 'dry run only' scan.js
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
