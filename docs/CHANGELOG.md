@@ -4,6 +4,11 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 9 November 2026
 
+### Tue 10 Nov (daily session, morning)
+- **EV/EBITDA peer sample (display only).** The quick scan has no EV/EBITDA, and the nightly deepening fetches it only for the ~100 highest scorers, so a sector median from those alone is biased low (dry run today: median 12.4 for deepened stocks vs 14.2 for the rest). The Index scan now also refreshes EV/EBITDA for 120 other companies a night (missing first, then oldest; one light Yahoo request each, about 40 seconds in all), keeps each value for 45 days in `data/ev-sample.json`, and publishes sector medians (by region, with a pooled fallback, banks and insurers left out) only once 60% of the universe is fresh, likely from Thursday night. Each stock's Peers note then adds "EV/EBITDA 7.3 vs the US Information Technology median of 17.1 (35 stocks): 57% below (not in the score yet)". Nothing in the score changes; using it there is a proposal for Douglas. `src/evSample.js`, tests in `test/evsample.test.js`; dry run 10 Nov: 120 fetched, 0 failed, coverage 34% after one night.
+- **Research log: what to expect from a five-stock picks pot** (Bessembinder's US and global studies, Vanguard Oct 2026). Proposals for Douglas: a yearly picks-vs-VWRP scorecard, and a three-year review rule.
+- **Public-repo hygiene:** removed example money amounts from the 10 Nov goal-odds research entry.
+
 ### Tue 10 Nov (morning)
 - **Goal odds are visible without setting up the pots.** The odds only appeared once a goal was saved in the pots panel, so they were easy to miss. The panel now offers "Odds of reaching a goal" straight away (invested now, monthly top-up, goal, "Show my odds"), and asks for a goal if the pots are saved without one; the odds sit straight under the total, above the pot weights, and the weights table is hidden until there are pot values. Checked with an empty browser, pots without a goal, and a goal without pots, at desktop and 390px, light and dark.
 
