@@ -234,7 +234,9 @@ async function main() {
       try {
         const h = (await fetchEarningsHistory(it.symbol)).at(-1), rows = rowsBySymbol[it.symbol];
         if (!h || !rows?.length) continue;
-        const d = reportDay(rows, h.quarter);
+        // Yahoo's REIT forecasts mix FFO with earnings per share, so skip REITs.
+        if (/REIT|Real Estate/i.test(it.sector || "")) continue;
+        const d = reportDay(rows, h.quarter, it.lastEarnings);
         if (d < 1 || (Date.now() - Date.parse(rows[d].date)) / 864e5 > 120) continue;
         const reaction = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10;
         it.resultsCheck = { quarter: h.quarter, date: rows[d].date, actual: h.actual, estimate: h.estimate, surprisePct: h.surprisePct, reaction, ...resultsCheck({ surprisePct: h.surprisePct, reaction }, study) };

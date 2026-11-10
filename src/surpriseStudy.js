@@ -23,13 +23,28 @@ import { COSTS } from "./swingRetune.js";
 
 export const HORIZONS = [5, 20, 60];
 
-// Index of the busiest day 7 to 75 calendar days after the quarter end.
-export function reportDay(rows, quarter) {
+// Third Friday of March, June, September or December: index rebalancing and
+// options expiry make these the busiest days of the quarter for many stocks,
+// so they are never taken as a results day (fix after the first live check
+// dated Constellation Brands' results on 18 Sep).
+export const isQuadWitching = (date) => {
+  const d = new Date(date + "T12:00:00Z"), m = d.getUTCMonth();
+  return [2, 5, 8, 11].includes(m) && d.getUTCDay() === 5 && d.getUTCDate() >= 15 && d.getUTCDate() <= 21;
+};
+
+// Index of the results day for a fiscal quarter: the known results date when
+// given and in range, else the busiest day 7 to 75 days after the quarter end
+// (not a quad-witching day).
+export function reportDay(rows, quarter, known = null) {
   const q = Date.parse(quarter), lo = q + 7 * 864e5, hi = q + 75 * 864e5;
+  if (known) {
+    const k = Date.parse(known);
+    if (k >= lo && k <= hi) { const i = rows.findIndex((r) => r.date >= known); if (i > 0) return i; }
+  }
   let best = -1, v = -1;
   for (let i = 1; i < rows.length; i++) {
     const t = Date.parse(rows[i].date);
-    if (t < lo) continue;
+    if (t < lo || isQuadWitching(rows[i].date)) continue;
     if (t > hi) break;
     if ((rows[i].volume || 0) > v) { v = rows[i].volume || 0; best = i; }
   }

@@ -8,7 +8,8 @@ import { surpriseEvents, analyseSurprise } from "../src/surpriseStudy.js";
 import { sleep } from "../src/util.js";
 
 const cons = JSON.parse(await readFile("data/constituents.json", "utf8"));
-let universe = cons.indices.SP500;
+// REITs are left out: Yahoo's REIT forecasts mix FFO with earnings per share.
+let universe = cons.indices.SP500.filter((u) => !/Real Estate|REIT/i.test(u.sector || ""));
 if (process.argv[2] && +process.argv[2] > 0) universe = universe.slice(0, +process.argv[2]);
 const idx = new Map((await fetchDaily("^GSPC", { range: "2y" })).rows.map((r) => [r.date, r.close]));
 const all = [];

@@ -64,3 +64,16 @@ test("results check: fifths and the group note", async () => {
   assert.equal(mid.note, null);
   assert.equal(resultsCheck({ surprisePct: null }, study), null);
 });
+
+test("report day skips quad-witching Fridays and prefers a known results date", async () => {
+  const { reportDay, isQuadWitching } = await import("../src/surpriseStudy.js");
+  assert.equal(isQuadWitching("2026-09-18"), true);
+  assert.equal(isQuadWitching("2026-09-11"), false);
+  assert.equal(isQuadWitching("2026-10-16"), false);
+  const rows = Array.from({ length: 120 }, (_, i) => ({ date: new Date(Date.UTC(2026, 7, 31) + i * 864e5).toISOString().slice(0, 10), close: 1, volume: 1e6 }));
+  const qw = rows.findIndex((r) => r.date === "2026-09-18"), res = rows.findIndex((r) => r.date === "2026-10-06");
+  rows[qw].volume = 9e6; rows[res].volume = 5e6;
+  assert.equal(reportDay(rows, "2026-08-31"), res);
+  assert.equal(reportDay(rows, "2026-08-31", "2026-10-02"), rows.findIndex((r) => r.date === "2026-10-02"));
+  assert.equal(reportDay(rows, "2026-08-31", "2027-03-01"), res);
+});
