@@ -128,6 +128,23 @@ export function dripSchedule(from, to, tierDates = [], plan = PLAN) {
   return out;
 }
 
+// The bench (replacement candidates): verdict and how close each is, best first.
+export function benchStatus(items = {}, plan = PLAN) {
+  const rank = (b) => (b.verdict === "Good entry" ? 0 : b.near ? 1 : b.verdict === "Fair" ? 2 : 3);
+  return (plan.bench ?? []).map((symbol) => {
+    const it = items[symbol], lt = it?.longTerm;
+    return { symbol, ticker: it?.ticker ?? symbol.replace(/\.L$/, ""), name: it?.name ?? null, verdict: lt?.verdict ?? null, score: lt?.score ?? null, near: !!lt?.near, gaps: lt?.gaps ?? [] };
+  }).sort((a, b) => rank(a) - rank(b) || (b.score ?? -1) - (a.score ?? -1));
+}
+
+// One line for the Monday push and the digest.
+export function benchLine(bench = []) {
+  const good = bench.filter((b) => b.verdict === "Good entry").map((b) => `${b.ticker} ${b.score}`);
+  const near = bench.filter((b) => b.verdict !== "Good entry" && b.near).map((b) => `${b.ticker} (${b.gaps[0]})`);
+  if (!good.length && !near.length) return null;
+  return `Bench: ${[good.length ? `good entry ${good.join(", ")}` : "", near.length ? `close: ${near.join(", ")}` : ""].filter(Boolean).join("; ")}.`;
+}
+
 // What does the plan say for the coming week? `today` is a London date.
 // tiers: dates of confirmed buy tiers (for the reserve drip).
 export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }) {
@@ -152,7 +169,7 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }
       a.status = okN === picks.length ? "go" : okN ? "partial" : "hold";
       const wait = picks.filter((p) => !p.ok).map((p) => p.ticker);
       a.note = `${okN} of ${picks.length} picks pass the check today${wait.length ? ` (${wait.join(", ")} ${wait.length === 1 ? "waits" : "wait"})` : ""}.`;
-    } else a.status = s.paused ? "hold" : "due";
+    } else a.status = s.kind === "swing" ? "info" : s.paused ? "hold" : "due";
     return a;
   });
   if (pullback.triggered) actions.unshift({ date: today, kind: "pullback", inDays: 0, status: "go",
@@ -165,10 +182,12 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }
   const dates = plan.keyDates.filter((k) => k.date >= today && days(today, k.date) <= 21 && !covered.has(k.symbol))
     .map((k) => ({ ...k, inDays: days(today, k.date) }))
     .concat(auto).sort((a, b) => a.date.localeCompare(b.date) || (b.weight ?? 0) - (a.weight ?? 0));
-  const headline = actions.length
-    ? `${actions.length} plan action${actions.length > 1 ? "s" : ""} this week`
+  // Notes (swing stays on paper) and paused drips are shown but are not things to do.
+  const todo = actions.filter((a) => a.status !== "info" && a.status !== "hold" || a.kind === "picks").length;
+  const headline = todo
+    ? `${todo} plan action${todo > 1 ? "s" : ""} this week`
     : `Nothing due this week${upcoming[0] ? `; next: ${upcoming[0].title.charAt(0).toLowerCase() + upcoming[0].title.slice(1)} in ${upcoming[0].inDays} days` : ""}`;
-  return { today, headline, actions, upcoming, pullback, picks, dates, pots: plan.pots };
+  return { today, headline, actions, upcoming, pullback, picks, bench: benchStatus(items, plan), dates, pots: plan.pots };
 }
 
 // Published results dates of the core fund's biggest holdings in the next
@@ -219,6 +238,8 @@ export function copilotLines(cp) {
   if (!cp.actions.length) L.push(`Plan: ${cp.headline}.`);
   const p = cp.pullback;
   if (p.nextCore && !p.triggered && p.drawdown != null) L.push(`Pullback rule: ${p.index} ${p.drawdown.toFixed(1)}% off its high (fires at ${p.threshold}%).`);
+  const bl = benchLine(cp.bench);
+  if (bl) L.push(bl);
   if (cp.dates.length) L.push(`Key dates: ${cp.dates.slice(0, 3).map((d) => `${d.title} (${dayLabel(d.date)})`).join("; ")}.`);
   return L;
 }

@@ -44,21 +44,26 @@ export function topUpToTarget(values = {}, targets = {}) {
 // Months of top-ups the new money would take (null without a monthly figure).
 export const monthsOfTopUps = (newMoney, monthly) => (monthly > 0 && newMoney > 0 ? Math.ceil(newMoney / monthly) : newMoney > 0 ? null : 0);
 
-// Each pick's net amount invested (buys minus sells in the picks pot, from the
-// trade log) as a share of the pots' total. At cost, not today's value.
-export function pickSizes(trades = [], potsTotal = 0, rules = REBALANCE) {
+// Each pick's size as a share of the pots' total: at today's price where the
+// trade has the price paid and `prices` has today's (same units, e.g. pence;
+// currency moves are not included), else at cost. Buys minus sells.
+export function pickSizes(trades = [], potsTotal = 0, rules = REBALANCE, prices = {}) {
   if (!(potsTotal > 0)) return [];
-  const by = {};
+  const by = {}, cost = {};
   for (const t of trades) {
     if (t?.pot !== "picks" || t.amount == null || !t.ticker) continue;
-    by[t.ticker] = (by[t.ticker] || 0) + (t.action === "sell" ? -t.amount : t.amount);
+    const k = t.ticker, now = prices[k.replace(/\.L$/, "")];
+    const grown = t.price > 0 && now > 0;
+    const v = t.amount * (grown ? now / t.price : 1);
+    by[k] = (by[k] || 0) + (t.action === "sell" ? -v : v);
+    if (!grown) cost[k] = true;
   }
   return Object.entries(by)
     .filter(([, a]) => a > 0.5)
     .map(([ticker, amount]) => {
       const pct = (amount / potsTotal) * 100;
       const status = pct > rules.pickCeilingPct ? "ceiling" : pct >= rules.pickMaxPct - 0.05 ? "full" : "room";
-      return { ticker, amount: Math.round(amount), pct, status };
+      return { ticker, amount: Math.round(amount), pct, status, atCost: !!cost[ticker] };
     })
     .sort((a, b) => b.pct - a.pct);
 }

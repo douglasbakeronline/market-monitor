@@ -159,3 +159,26 @@ test("reserve drip: first Monday of each month from 7 Dec, paused within 30 days
   assert.equal(paused.upcoming[0].date, "2027-03-01", "paused drips are not 'next'");
   assert.equal(copilot({ today: "2026-12-03", sp: null, ftse: null }).pullback.nextCore, null, "a drip is not a core date for the pullback rule");
 });
+
+test("bench status: good entries first, then near ones; one line for the push", async () => {
+  const { benchStatus, benchLine } = await import("../src/plan.js");
+  const items = {
+    SCHW: { ticker: "SCHW", longTerm: { verdict: "Fair", score: 76, near: true, gaps: ["Entry 67, needs 70"] } },
+    "LLOY.L": { ticker: "LLOY", longTerm: { verdict: "Good entry", score: 77, gaps: [] } },
+    AMZN: { ticker: "AMZN", longTerm: { verdict: "Fair", score: 63, gaps: ["score 63, needs 72"] } },
+  };
+  const b = benchStatus(items);
+  assert.deepEqual(b.slice(0, 3).map((x) => x.ticker), ["LLOY", "SCHW", "AMZN"]);
+  assert.equal(b.length, 6);
+  assert.equal(benchLine(b), "Bench: good entry LLOY 77; close: SCHW (Entry 67, needs 70).");
+  assert.equal(benchLine([]), null);
+});
+
+test("notes and paused drips are shown but not counted as actions", async () => {
+  const { copilot } = await import("../src/plan.js");
+  const c = copilot({ today: "2026-11-10", sp: null, ftse: null });
+  assert.deepEqual(c.actions.map((a) => a.status), ["due", "info"]);
+  assert.equal(c.headline, "1 plan action this week");
+  const p = copilot({ today: "2027-01-29", sp: null, ftse: null, tiers: ["2027-01-20"] });
+  assert.match(p.headline, /^Nothing due this week/);
+});

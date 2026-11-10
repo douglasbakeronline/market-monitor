@@ -12,7 +12,7 @@ import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
-import { sectorMedians, regionMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
+import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -98,11 +98,12 @@ async function main() {
   // (before 10 Nov) is kept only for the "what changed" note.
   const peerRows = peerRowsOf();
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
+  const reitMed = reitMedian(items.filter((it) => it.deep).map((it) => it.f));
   for (const it of items) {
     const peer = peerOf(it, medians, regional);
     it.lt = longTermLive(it.f, it.t, peer);
     const old = longTerm(it.f, it.t);
-    it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt) : null;
+    it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
     it.rc = ruleChangeNote(old, it.lt);
   }
 
@@ -175,7 +176,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);

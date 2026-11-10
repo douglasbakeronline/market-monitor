@@ -124,3 +124,18 @@ test("per-region medians: US vs Europe (UK and Euro Stoxx pooled), with a pooled
   assert.match(note.note, /European Financials median of 9\.0/);
   assert.equal(note.region, "Europe");
 });
+
+test("REIT view: price / operating cash flow against fully scored REITs (display only)", async () => {
+  const { pocf, reitMedian, reitView } = await import("../src/sectorValue.js");
+  const reit = (cap, ocf) => ({ sector: "Real Estate", industry: "REIT - Specialty", marketCap: cap, operatingCashflow: ocf });
+  assert.equal(pocf(reit(30e9, 2.5e9)), 12);
+  assert.equal(pocf({ ...reit(30e9, 2.5e9), sector: "Utilities" }), null);
+  assert.equal(pocf({ ...reit(30e9, 2.5e9), industry: "Real Estate Services" }), null, "CBRE is not a REIT");
+  assert.equal(pocf(reit(30e9, 3e7)), null, "1000x: a data mix-up");
+  assert.equal(reitMedian([reit(30e9, 2e9), reit(30e9, 2e9)]), null, "too few");
+  const med = reitMedian([10, 12, 14, 16, 18].map((x) => reit(x * 1e9, 1e9)));
+  assert.deepEqual(med, { median: 14, n: 5 });
+  const v = reitView(reit(30e9, 2.5e9), med);
+  assert.match(v.note, /12×, a rough stand-in for P\/FFO, 14% below the median of 5 fully scored REITs \(14×\)\.$/);
+  assert.match(reitView(reit(30e9, 2.5e9), null).note, /12×, a rough stand-in for P\/FFO\.$/);
+});

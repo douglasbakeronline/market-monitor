@@ -1,8 +1,6 @@
-// Sector-relative valuation (research log 2 Nov 2026). DISPLAY ONLY: verdicts
-// still use the fixed P/E bands until Douglas agrees to switch (roadmap,
-// "Waiting on Douglas"). The scan works out each sector's median P/E and
-// EV/EBITDA; each stock then gets a peer-based value score, a cyclical flag,
-// and the score and verdict it WOULD get, so the effect can be judged first.
+// Sector-relative valuation (research log 2 Nov 2026; live in the score since
+// Douglas agreed on 10 Nov). The scan works out each sector's median P/E and
+// EV/EBITDA; each stock is scored against its peers, with a cyclical cap.
 import { median, r1 } from "./util.js";
 
 // The scan mixes S&P 500 GICS sectors, FTSE 100 ICB sectors and Yahoo's own
@@ -108,7 +106,7 @@ export const CYCLICAL_VALUE_CAP = 60;
 
 // Summary attached to each stock: what peers say, and what would change.
 // now = the old-rule longTerm(f, t); alt = the live longTermLive(f, t, peer).
-export function sectorValueNote(f, peer, now, alt) {
+export function sectorValueNote(f, peer, now, alt, reit = null) {
   if (!peer || !now || now.score == null || !alt) return null;
   const pe = f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null;
   const ratio = pe && peer.pe ? pe / peer.pe : null;
@@ -119,11 +117,35 @@ export function sectorValueNote(f, peer, now, alt) {
     parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.region ? (peer.region === "US" ? "US " : "European ") : ""}${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
   }
   if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
-  if (peer.sector === "Real Estate") parts.push("REITs are better judged on funds from operations than P/E.");
+  if (peer.sector === "Real Estate" && !reit) parts.push("REITs are better judged on funds from operations than P/E.");
+  if (reit?.note) parts.push(reit.note);
   if (vAlt != null && vNow != null) parts.push(`Value scored against peers: ${vAlt}${vAlt !== vNow ? ` (${vNow} on the old fixed bands)` : ""}.`);
   return {
     sector: peer.sector, region: peer.region ?? null, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
     cyclical: peer.cyclical, value: vAlt, valueNow: vNow, score: alt.score, verdict: alt.verdict, changed: alt.verdict !== now.verdict,
     note: parts.join(" "),
   };
+}
+
+// REITs (display only, not in the score): property depreciation cuts reported
+// earnings, so P/E overstates their price. Price / operating cash flow is a
+// rough stand-in for P/FFO, the measure REITs are usually judged on.
+// REITs only: property services firms (CBRE) are Real Estate but not REITs.
+const isReit = (f) => gicsSector(f?.sector) === "Real Estate" && (/\bREIT/i.test(f?.industry || "") || /Investment Trusts/i.test(f?.sector || ""));
+export function pocf(f) {
+  if (!isReit(f) || !(f?.marketCap > 0) || !(f?.operatingCashflow > 0)) return null;
+  const x = f.marketCap / f.operatingCashflow;
+  return x >= 2 && x <= 100 ? Math.round(x * 10) / 10 : null; // outside this, a currency or data mix-up
+}
+export const MIN_REITS = 5;
+export function reitMedian(fs = []) {
+  const xs = fs.map(pocf).filter((x) => x != null);
+  return xs.length >= MIN_REITS ? { median: r1(median(xs)), n: xs.length } : null;
+}
+export function reitView(f, med) {
+  const x = pocf(f);
+  if (x == null) return null;
+  const vs = med ? (Math.abs(x / med.median - 1) < 0.05 ? "in line with" : x < med.median ? `${Math.round((1 - x / med.median) * 100)}% below` : `${Math.round((x / med.median - 1) * 100)}% above`) : null;
+  return { pocf: x, median: med?.median ?? null, n: med?.n ?? null,
+    note: `REIT view (not in the score): price / operating cash flow ${x}×, a rough stand-in for P/FFO${vs ? `, ${vs} the median of ${med.n} fully scored REITs (${med.median}×)` : ""}.` };
 }

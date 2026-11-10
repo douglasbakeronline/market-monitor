@@ -5,7 +5,7 @@ import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
 import { readJson, writeJson } from "./state.js";
-import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
+import { peerFor, sectorValueNote, marketOf, reitView } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
 
@@ -37,7 +37,7 @@ export async function runResearch({ regimeKey, state }) {
       // latest scan) and the new Entry rule; the old rule only for the note.
       const peer = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
       const lt = longTermLive(f, t, peer), old = longTerm(f, t);
-      const sectorValue = peer ? sectorValueNote(f, peer, old, lt) : null;
+      const sectorValue = peer ? sectorValueNote(f, peer, old, lt, reitView(f, scanMeta?.reitPocf ?? null)) : null;
       const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {

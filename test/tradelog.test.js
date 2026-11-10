@@ -94,3 +94,9 @@ test("adherence counts unpaused reserve drips", () => {
   const a = adherence(sched, tr, "2027-01-20");
   assert.deepEqual(a.items.map((i) => [i.date, i.status]), [["2026-12-07", "on-time"]]);
 });
+
+test("normaliseTrade keeps an optional price per share", () => {
+  assert.equal(normaliseTrade({ date: "2026-11-02", action: "buy", rule: "tranche", ticker: "META", amount: "300", price: "$612.40" }).trade.price, 612.4);
+  assert.equal("price" in normaliseTrade({ date: "2026-11-02", action: "buy", rule: "tranche", ticker: "META", amount: "300", price: "" }).trade, false);
+  assert.match(normaliseTrade({ date: "2026-11-02", action: "buy", rule: "tranche", ticker: "META", price: "-1" }).error, /Price/);
+});

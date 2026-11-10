@@ -61,9 +61,13 @@ export function normaliseTrade(raw = {}, today = null) {
   if (!ticker) return { error: "Add the ticker (e.g. VWRP)." };
   const amt = raw.amount === "" || raw.amount == null ? null : parseFloat(String(raw.amount).replace(/[£,\s]/g, ""));
   if (amt != null && !(Number.isFinite(amt) && amt > 0)) return { error: "Amount must be a positive number, or blank." };
+  // Optional price per share, as Trading 212 shows it (pence for London shares):
+  // lets the Dashboard value a pick at today's price instead of at cost.
+  const px = raw.price === "" || raw.price == null ? null : parseFloat(String(raw.price).replace(/[£$€,\s]/g, ""));
+  if (px != null && !(Number.isFinite(px) && px > 0)) return { error: "Price must be a positive number, or blank." };
   const note = String(raw.note ?? "").trim().slice(0, 140);
   const id = raw.id && typeof raw.id === "string" ? raw.id : `${date}-${ticker}-${Math.random().toString(36).slice(2, 8)}`;
-  return { trade: { id, date, action, pot, rule, ticker, amount: amt == null ? null : Math.round(amt * 100) / 100, note } };
+  return { trade: { id, date, action, pot, rule, ticker, amount: amt == null ? null : Math.round(amt * 100) / 100, ...(px != null ? { price: px } : {}), note } };
 }
 
 export const sortTrades = (ts) => [...ts].sort((a, b) => (a.date === b.date ? (a.id < b.id ? 1 : -1) : a.date < b.date ? 1 : -1));

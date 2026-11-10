@@ -69,6 +69,7 @@ export function parseYahooSummary(r) {
     earningsGrowth: raw(fd.earningsGrowth),
     debtToEquity: raw(fd.debtToEquity),          // Yahoo reports as a percentage (45 = 0.45x)
     freeCashflow: raw(fd.freeCashflow),
+    operatingCashflow: raw(fd.operatingCashflow),
     targetMean: raw(fd.targetMeanPrice),
     targetHigh: raw(fd.targetHighPrice),
     targetLow: raw(fd.targetLowPrice),

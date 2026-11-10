@@ -47,6 +47,8 @@
   .pf-bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; margin: 6px 0 2px; background: var(--line-2); }
   .pf-bar i { display: block; height: 100%; }
   .pf-row { display: grid; grid-template-columns: 1fr 60px 60px 70px; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-2); align-items: center; }
+  .bench { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .bench .bn { font-size: 12px; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
   .lt-row .sub { display: block; font-size: 12px; color: var(--ink-2); }
   .pf-row.sub { color: var(--ink-2); font-size: 12px; border-top: 0; padding-top: 0; }
   .pf-row.sub span:first-child { padding-left: 15px; }
@@ -204,7 +206,7 @@
       <div id="planActions"></div>
     </div>
     <div class="plan-grid">
-      <div class="card"><div class="k">Long-term picks · tranche check</div><table class="picks" id="planPicks"></table></div>
+      <div class="card"><div class="k">Long-term picks · tranche check</div><table class="picks" id="planPicks"></table><div id="planBench"></div></div>
       <div class="card">
         <div class="k">Pullback rule</div><div id="planPb"></div>
         <div id="planCoreWrap" hidden><div class="k" style="margin-top:16px">Your core fund</div><div id="planCore"></div></div>
@@ -355,6 +357,7 @@ const $ = (id) => document.getElementById(id);
 
 function render(d) {
   CORE_NOW = d.coreFund ?? null;
+  PICK_PRICES = Object.fromEntries((d.copilot?.picks ?? []).filter((p) => p.price > 0).map((p) => [p.ticker, p.price]));
   if (!$("pfForm")) renderPf();
   // Meta + banners
   const fresh = d.health?.ok !== false;
@@ -381,7 +384,7 @@ function render(d) {
 }
 
 // --- Plan this week ------------------------------------------------------------
-const STATUS = { due: ["Due", "bg-watch"], go: ["Go", "bg-buy"], partial: ["Partly", "bg-watch"], hold: ["Hold", "bg-neutral"] };
+const STATUS = { due: ["Due", "bg-watch"], go: ["Go", "bg-buy"], partial: ["Partly", "bg-watch"], hold: ["Hold", "bg-neutral"], info: ["Note", "bg-neutral"] };
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const dayBox = (ymd) => { const d = new Date(ymd + "T12:00:00Z"); return `<div class="when"><span>${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]}</span><b>${d.getUTCDate()}</b><span>${MON[d.getUTCMonth()]}</span></div>`; };
 const inDays = (n) => n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`;
@@ -395,10 +398,16 @@ function renderPlan(cp) {
   $("planPicks").innerHTML = cp.picks.map((p) => {
     const sz = sizes?.find((x) => x.ticker.replace(/\.L$/, "") === p.ticker);
     const full = sz && sz.status !== "room";
-    const mine = sz ? ` Your log: ${sz.pct.toFixed(1)}% of the pots at cost${sz.status === "ceiling" ? `, past the ${REBALANCE.pickCeilingPct}% ceiling: no further tranches, trim back to ${REBALANCE.pickTrimToPct}%` : full ? `, at the ${REBALANCE.pickMaxPct}% maximum: no further tranches` : ""}.` : "";
+    const mine = sz ? ` Your log: ${sz.pct.toFixed(1)}% of the pots ${sz.atCost ? "at cost" : "at today's price"}${sz.status === "ceiling" ? `, past the ${REBALANCE.pickCeilingPct}% ceiling: no further tranches, trim back to ${REBALANCE.pickTrimToPct}%` : full ? `, at the ${REBALANCE.pickMaxPct}% maximum: no further tranches` : ""}.` : "";
     const [lab, cls] = full ? ["Full", "t-watch"] : p.ok ? ["Pass", "pos"] : p.ok === false ? ["Wait", "t-watch"] : ["n/a", "muted"];
     return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}<span class="why">${esc(p.reason + mine)}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
   }).join("");
+  const bench = cp.bench ?? [];
+  $("planBench").innerHTML = bench.length ? `<div class="k" style="margin-top:14px">Bench <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· replacements if a pick is dropped</span></div><div class="bench">${bench.map((b) => {
+    const tone = b.verdict === "Good entry" ? "pos" : b.near ? "t-watch" : "muted";
+    const label = b.verdict === "Good entry" ? `Good entry ${b.score}` : b.near ? `Close · ${b.gaps[0] ?? ""}` : b.verdict ? `${b.verdict}${b.score != null ? ` ${b.score}` : ""}` : "No data";
+    return `<span class="bn"><b>${esc(b.ticker)}</b> <span class="${tone}">${esc(label)}</span></span>`;
+  }).join("")}</div>` : "";
   const pb = cp.pullback;
   if (!pb.nextCore) $("planPb").innerHTML = `<p class="small muted" style="margin:6px 0 0">No core purchase left that can come forward before the new ISA allowance.</p>`;
   else {
@@ -443,6 +452,7 @@ async function renderPaper(s) {
 // --- Private pots and goal (localStorage only) -------------------------------------
 const PF_KEY = "mm-portfolio";
 let CORE_NOW = null; // data.json coreFund (VWRP), set once the data loads
+let PICK_PRICES = {}; // today's pick prices (quote units) from data.json's tranche check
 const POTS = [["core", "Core index", 70, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing (paper only)", 0, "var(--caution)"]];
 const gbp = (v) => "£" + Math.round(v).toLocaleString("en-GB");
 function loadPf() { try { return JSON.parse(localStorage.getItem(PF_KEY) || "null"); } catch { return null; } }
@@ -472,7 +482,9 @@ function rebalanceHtml(pf, total) {
   const topUp = tu.onTarget ? "Every pot is at its target: no new money needed to rebalance."
     : `To reach the targets without selling: ${gbp(tu.newMoney)} of new money (${parts})${mo ? `, about ${mo} month${mo === 1 ? "" : "s"} of top-ups` : ""}.`;
   const tl = loadTl();
-  const picks = pickSizeLine(pickSizes(tl, total));
+  const sizes = pickSizes(tl, total, REBALANCE, PICK_PRICES);
+  const picks = pickSizeLine(sizes);
+  const basis = sizes.every((x) => !x.atCost) ? "at today's price (before currency moves)" : sizes.some((x) => !x.atCost) ? "at today's price where the log has the price paid, else at cost" : "at cost (add the price paid to value them at today's price)";
   const done = rebalancesInYear(tl, new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }));
   const offBand = Object.entries(POT_TARGETS).some(([k, t]) => total && Math.abs(((m[k] || 0) / total) * 100 - t) >= REBALANCE.bandPts);
   const left = Math.max(0, REBALANCE.maxPerYear - done);
@@ -481,7 +493,7 @@ function rebalanceHtml(pf, total) {
   return `<div class="rb"><div class="k">Rebalancing <span class="pill plain" style="margin-left:4px">Agreed 10 Nov</span></div>
     <p class="small" style="margin:6px 0 0">${esc(topUp)}</p>
     <p class="small" style="margin:6px 0 0">${esc(when)}</p>
-    ${picks ? `<p class="small" style="margin:6px 0 0">${esc(picks)} <span class="muted">(each pick at cost from your trade log, as a share of the pots)</span></p>` : ""}
+    ${picks ? `<p class="small" style="margin:6px 0 0">${esc(picks)} <span class="muted">(each pick ${basis}, from your trade log, as a share of the pots)</span></p>` : ""}
     <p class="small muted" style="margin:6px 0 0">Rule: check weights at the Sunday review; act at most ${REBALANCE.maxPerYear === 2 ? "twice" : REBALANCE.maxPerYear + " times"} a year unless a pot is ${REBALANCE.bandPts}+ points off, using new money and dividends before selling; trim a pick past ${REBALANCE.pickCeilingPct}% of the portfolio back to ${REBALANCE.pickTrimToPct}%. Log a rebalance in the trade log under "Rebalance to target weights" so it counts.</p></div>`;
 }
 // Biggest single companies across the portfolio: VWRP's top holdings scaled by
@@ -489,12 +501,12 @@ function rebalanceHtml(pf, total) {
 const PICK_NAMES = Object.fromEntries(PLAN.picks.map((p) => [p.symbol.replace(/\.L$/, ""), p.name]));
 function lookThroughHtml(pf, total) {
   if (!total || !(pf.core > 0)) return "";
-  const rows = lookThrough(((pf.core || 0) / total) * 100, PLAN.coreHoldings, pickSizes(loadTl(), total), PICK_NAMES);
+  const rows = lookThrough(((pf.core || 0) / total) * 100, PLAN.coreHoldings, pickSizes(loadTl(), total, REBALANCE, PICK_PRICES), PICK_NAMES);
   if (!rows.length) return "";
   const f = (v) => `${v.toFixed(v >= 1 ? 1 : 2)}%`;
   return `<div class="rb"><div class="k">Biggest single companies <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· look-through</span></div>
     ${rows.map((r) => `<div class="pf-row lt-row"><span>${esc(r.name)}<span class="sub">${[r.core ? `${f(r.core)} via VWRP` : "", r.pick ? `${f(r.pick)} as a pick` : ""].filter(Boolean).join(" + ")}</span></span><span></span><span></span><span>${f(r.pct)}</span></div>`).join("")}
-    <p class="small muted" style="margin:6px 0 0">Share of the pots in each company: VWRP's weights (as of ${esc(PLAN.coreHoldingsAsOf)}) times the core's share, plus picks at cost. A pick the fund also holds is counted both ways.</p></div>`;
+    <p class="small muted" style="margin:6px 0 0">Share of the pots in each company: VWRP's weights (as of ${esc(PLAN.coreHoldingsAsOf)}) times the core's share, plus picks from your trade log (at today's price where it has the price paid). A pick the fund also holds is counted both ways.</p></div>`;
 }
 
 // Each pick's size from the trade log against the pots' value now (null
@@ -504,7 +516,7 @@ function pickSizesNow() {
   if (!pf) return null;
   const est = coreEstimate(pf, CORE_NOW);
   const v = est ? { ...pf, core: est.value } : pf;
-  return pickSizes(loadTl(), POTS.reduce((a, [k]) => a + (v[k] || 0), 0));
+  return pickSizes(loadTl(), POTS.reduce((a, [k]) => a + (v[k] || 0), 0), REBALANCE, PICK_PRICES);
 }
 function renderPf(edit = false) {
   let pf = loadPf();
@@ -592,11 +604,12 @@ function renderTl(form = false, err = "") {
       <label class="wide">Rule behind it<select name="rule" id="tlRule">${RULES.map((r) => `<option value="${r.key}"${v.rule === r.key ? " selected" : ""}>${esc(r.label)}</option>`).join("")}</select></label>
       <label>Pot<select name="pot" id="tlPot">${POT_KEYS.map((k) => `<option value="${k}"${v.pot === k ? " selected" : ""}>${POT_NAME[k]}</option>`).join("")}</select></label>
       <label>Amount (£, optional)<input inputmode="decimal" name="amount" value="${esc(v.amount ?? "")}"></label>
+      <label>Price paid per share (optional)<input inputmode="decimal" name="price" placeholder="as Trading 212 shows it" value="${esc(v.price ?? "")}"></label>
       <label class="wide">Note (optional)<input name="note" maxlength="140" value="${esc(v.note || "")}"></label></form>
       ${err ? `<div class="tl-err" role="alert">${esc(err)}</div>` : ""}
       <div class="tl-foot"><button class="btn primary" id="tlSave" type="button">Save in this browser</button><button class="btn" id="tlCancel" type="button">Cancel</button></div>`;
   } else if (trades.length) {
-    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
+    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.price ? ` · at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
   } else body = `<p class="small muted" style="margin:10px 0 0">Log your first trade (for example the 2 Nov core purchase) and this card tracks every scheduled action against what you did.</p>`;
   const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
   card.innerHTML = head + sched + body + foot;

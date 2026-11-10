@@ -90,3 +90,18 @@ test("lookThrough adds a pick to its weight inside the core fund", async () => {
   assert.equal(r[1].core.toFixed(2), "0.84");
   assert.equal(r[2].name, "HSBC");
 });
+
+test("pickSizes values a pick at today's price when the price paid is logged", () => {
+  const tr = [
+    { pot: "picks", ticker: "META", action: "buy", amount: 300, price: 600 },
+    { pot: "picks", ticker: "HSBA.L", action: "buy", amount: 300 },
+  ];
+  const s = pickSizes(tr, 10000, undefined, { META: 900, HSBA: 1400 });
+  const meta = s.find((x) => x.ticker === "META"), hsba = s.find((x) => x.ticker === "HSBA.L");
+  assert.equal(meta.amount, 450);
+  assert.equal(meta.atCost, false);
+  assert.equal(hsba.amount, 300);
+  assert.equal(hsba.atCost, true);
+  // Grown past 5%: the ceiling now fires on value, not cost.
+  assert.equal(pickSizes([{ pot: "picks", ticker: "NEM", action: "buy", amount: 400, price: 50 }], 10000, undefined, { NEM: 130 })[0].status, "ceiling");
+});
