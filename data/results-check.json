@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10T20:14:04.247Z",
+  "updated": "2026-11-10T23:03:12.001Z",
   "items": {
     "NEM": {
       "quarter": "2026-09-30",
@@ -250,51 +250,6 @@
         ]
       }
     },
-    "HSBA.L": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-27",
-      "actual": 0.42,
-      "estimate": 0.43695,
-      "surprisePct": -3.9,
-      "reaction": -5.4,
-      "record": {
-        "beats": 3,
-        "of": 4,
-        "avgSurprise": 3,
-        "next": {
-          "date": null,
-          "epsEstimate": 0.32546,
-          "epsLow": 0.18,
-          "epsHigh": 0.4018
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 5.7,
-        "moves": [
-          {
-            "date": "2026-02-25",
-            "pct": 7.9
-          },
-          {
-            "date": "2026-05-05",
-            "pct": -5.9
-          },
-          {
-            "date": "2026-08-04",
-            "pct": -0.8
-          },
-          {
-            "date": "2026-10-27",
-            "pct": -5.4
-          }
-        ]
-      },
-      "fifth": "bottom",
-      "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
-      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
-      "tone": "watch"
-    },
     "SCHW": {
       "quarter": "2026-09-30",
       "date": "2026-10-15",
@@ -339,6 +294,51 @@
       "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
       "note": null,
       "tone": "neutral"
+    },
+    "HSBA.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-27",
+      "actual": 0.42,
+      "estimate": 0.43695,
+      "surprisePct": -3.9,
+      "reaction": -5.4,
+      "record": {
+        "beats": 3,
+        "of": 4,
+        "avgSurprise": 3,
+        "next": {
+          "date": null,
+          "epsEstimate": 0.32546,
+          "epsLow": 0.18,
+          "epsHigh": 0.4018
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 5.7,
+        "moves": [
+          {
+            "date": "2026-02-25",
+            "pct": 7.9
+          },
+          {
+            "date": "2026-05-05",
+            "pct": -5.9
+          },
+          {
+            "date": "2026-08-04",
+            "pct": -0.8
+          },
+          {
+            "date": "2026-10-27",
+            "pct": -5.4
+          }
+        ]
+      },
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
     },
     "META": {
       "quarter": "2026-09-30",
@@ -429,6 +429,51 @@
       "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
       "note": null,
       "tone": "neutral"
+    },
+    "TTWO": {
+      "quarter": "2026-09-30",
+      "date": "2026-11-10",
+      "actual": -0.29,
+      "estimate": -0.86264,
+      "surprisePct": 66.4,
+      "reaction": 8.3,
+      "record": {
+        "beats": 3,
+        "of": 4,
+        "avgSurprise": 7.9,
+        "next": {
+          "date": "2027-02-09",
+          "epsEstimate": 3.96967,
+          "epsLow": 2.4,
+          "epsHigh": 5.3
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 6.2,
+        "moves": [
+          {
+            "date": "2026-01-30",
+            "pct": -7.9
+          },
+          {
+            "date": "2026-05-22",
+            "pct": -4.4
+          },
+          {
+            "date": "2026-08-27",
+            "pct": -0.2
+          },
+          {
+            "date": "2026-11-10",
+            "pct": 8.3
+          }
+        ]
+      },
+      "fifth": "top",
+      "label": "EPS beat the forecast by 66.4% (top fifth); the price rose 8.3% on the day",
+      "note": "Strong results and a rising price: over the past year this group did +1.6 points against the S&P 500 over the next 60 sessions, vs −1.5 for other rises (one year of data, so a pointer, not a rule). A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
+      "tone": "good"
     }
   }
 }

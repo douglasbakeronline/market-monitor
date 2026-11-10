@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-10T20:14:03.643Z",
+  "updated": "2026-11-10T23:03:11.128Z",
   "start": "2026-11-02",
   "equity0": 10000,
   "realised": 9691.66,
-  "value": 9757.98,
-  "returnPct": -2.42,
+  "value": 9759.12,
+  "returnPct": -2.41,
   "paused": false,
   "open": [
     {
@@ -21,10 +21,10 @@
       "target": 2022.16,
       "riskAmt": 92.38,
       "posValue": 2500,
-      "lastPrice": 1910,
-      "lastDate": "2026-11-09",
-      "openR": 0.39,
-      "openPnl": 36.03
+      "lastPrice": 1926,
+      "lastDate": "2026-11-10",
+      "openR": 0.62,
+      "openPnl": 57.28
     },
     {
       "id": "2026-10-30:DE",
@@ -40,10 +40,10 @@
       "target": 731.84,
       "riskAmt": 116.72,
       "posValue": 2500,
-      "lastPrice": 691.28,
-      "lastDate": "2026-11-09",
-      "openR": 0.7,
-      "openPnl": 81.7
+      "lastPrice": 687.64,
+      "lastDate": "2026-11-10",
+      "openR": 0.59,
+      "openPnl": 68.86
     },
     {
       "id": "2026-10-30:MRK",
@@ -59,10 +59,10 @@
       "target": 165.84,
       "riskAmt": 142.96,
       "posValue": 2500,
-      "lastPrice": 148.76,
-      "lastDate": "2026-11-09",
-      "openR": -0.01,
-      "openPnl": -1.43
+      "lastPrice": 148.05,
+      "lastDate": "2026-11-10",
+      "openR": -0.09,
+      "openPnl": -12.87
     },
     {
       "id": "2026-11-04:CL",
@@ -78,15 +78,15 @@
       "target": 111.46,
       "riskAmt": 138.83,
       "posValue": 2422.92,
-      "lastPrice": 97.94,
-      "lastDate": "2026-11-09",
-      "openR": -0.36,
-      "openPnl": -49.98
+      "lastPrice": 98.09,
+      "lastDate": "2026-11-10",
+      "openR": -0.33,
+      "openPnl": -45.81
     }
   ],
   "orders": [],
-  "waiting": 12,
-  "skipped": 139,
+  "waiting": 15,
+  "skipped": 151,
   "closed": 2,
   "winRate": 0,
   "avgNetR": -1.05,
@@ -152,7 +152,7 @@
   "sp": {
     "from": "2026-10-30",
     "to": "2026-11-10",
-    "pct": -0.92
+    "pct": -0.78
   },
   "spSeries": [
     {
@@ -181,19 +181,19 @@
     },
     {
       "date": "2026-11-10",
-      "pct": -0.92
+      "pct": -0.78
     }
   ],
   "random": {
     "runs": 200,
-    "mine": -2.42,
-    "median": -0.31,
-    "p10": -3.81,
-    "p90": 2.18,
-    "beatShare": 20
+    "mine": -2.41,
+    "median": 0.43,
+    "p10": -3,
+    "p90": 2.88,
+    "beatShare": 15
   },
   "everySetup": {
-    "closed": 32,
-    "avgNetR": -0.59
+    "closed": 33,
+    "avgNetR": -0.6
   }
 }

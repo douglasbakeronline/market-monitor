@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "id": "2026-11-10:NVDA",
+    "symbol": "NVDA",
+    "ticker": "NVDA",
+    "name": "NVIDIA Corporation",
+    "market": "US",
+    "kind": "down",
+    "signalDate": "2026-11-10",
+    "signalPrice": 168.89,
+    "movePct": -5.5,
+    "volX": 3.5,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-10:AKAM",
+    "symbol": "AKAM",
+    "ticker": "AKAM",
+    "name": "Akamai Technologies, Inc.",
+    "market": "US",
+    "kind": "up",
+    "signalDate": "2026-11-10",
+    "signalPrice": 83.71,
+    "movePct": 4.3,
+    "volX": 4.2,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-10:TTWO",
+    "symbol": "TTWO",
+    "ticker": "TTWO",
+    "name": "Take-Two Interactive Software, Inc.",
+    "market": "US",
+    "kind": "up",
+    "signalDate": "2026-11-10",
+    "signalPrice": 224.64,
+    "movePct": 8.3,
+    "volX": 3.1,
+    "results": true,
+    "status": "pending",
+    "surprisePct": 66.4
+  }
+]
