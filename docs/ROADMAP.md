@@ -28,6 +28,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 6. **Euro Stoxx 50 follow-ups:** (a) done 6 Nov night (per-region peer medians). (b) Check each European name is on Trading 212 (cannot be checked from here; ask Douglas or note it on the page if a name is missing). (c) If European swing setups are ever paper-traded, extend `costR()` in `src/swingRetune.js` (FX fee as for US) first.
 
 ## Data notes (spot checks)
+- 10 Nov (afternoon): automatic data checks now run nightly (`scan.json` `dataChecks`); daily spot checks can start from any flags there. First live run: all 662 passed. If a check proves noisy, loosen it in `src/dataChecks.js` rather than ignoring it.
 - 10 Nov (daily): WDC, SNDK, WAB checked: off-high, stops (2×ATR) consistent with price and ATR. WDC's 0.27% yield looks about double its quarterly payout over today's price (deep stocks use Yahoo's trailing yield, likely measured at a lower average price); display only, watch. WAB's next results estimate (20 Jan) is early, as Q4 usually lands mid-February: the safe side for the 7-day rule.
 - 10 Nov (daily run): CL, SGRO.L, GAW.L checked: off-high, stops (2×ATR), 52-week ranges and yields consistent; Games Workshop is 30% off its high, real per its range. Price series are only kept for deep-scored items (by design, 107 of 662).
 - 10 Nov: RMS.PA, GNRC, MAR checked: off-high, stops (2×ATR) and yields consistent (Generac pays none). Hermès is 41% off its high, real per its 52-week range. Noted: 13 UK and European names (Hermès, L'Oréal, Unilever, Safran...) have a stale latest-results date from February, so the estimate rolls forward a quarter at a time and lands in mid-November, flagged "looks stale"; most actually report full-year results in February. Kept: the early estimate is the safe side for the 7-day rule, and none is a pick.
@@ -43,6 +44,8 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 10 Nov (afternoon): nightly data checks on every scanned stock (Research banner, detail note, digest line when flagged).
+- 10 Nov (afternoon): usual results-day moves for picks and bench (tranche check, Research, results push).
 - 10 Nov (afternoon): picks vs VWRP so far in the trade log card (display only); monitor keeps VWRP's daily closes.
 - 10 Nov (afternoon): goal odds with a top-up that rises with prices (today's-money switch).
 - 10 Nov (midday): chain watchdog (every two hours: restarts the monitor chain or the nightly scan and alerts once if a slot or night was missed).
