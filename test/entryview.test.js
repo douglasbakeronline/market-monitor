@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { momentum12_1, longTerm, entryViewNote } from "../src/research.js";
+import { momentum12_1, longTerm } from "../src/research.js";
 
 const rowsFrom = (closes, start = "2025-01-01") => closes.map((close, i) => ({ date: new Date(Date.parse(start) + i * 86400000 * 1.45).toISOString().slice(0, 10), close }));
 
@@ -24,31 +24,4 @@ test("entry alt: a 25% discount loses its extra credit; near the high is no long
   assert.ok(e(nearAlt).score > e(near).score);
   assert.equal(e(near).items.length, 3, "live rule unchanged");
   assert.equal(e(longTerm(f, t(-1, 40), null, { entryAlt: true })).items.length, 4, "momentum added when known");
-});
-
-test("entryViewNote reports the would-be entry score and any verdict change", () => {
-  const now = longTerm(f, t(-25, null)), alt = longTerm(f, t(-25, -20), null, { entryAlt: true });
-  const v = entryViewNote(now, alt, t(-25, -20));
-  assert.equal(v.mom, -20);
-  assert.ok(v.entry < v.entryNow);
-  assert.equal(v.changed, alt.verdict !== now.verdict);
-  assert.match(v.note, /Entry would score \d+ \(now \d+\)/);
-  assert.equal(entryViewNote(null, alt, null), null);
-});
-
-test("bothViewNote combines peer value and the Entry rule, and flags verdicts only the pair gives", async () => {
-  const { bothViewNote } = await import("../src/research.js");
-  const peer = { sector: "Industrials", n: 20, forwardPE: 20, trailingPE: 22, pe: 20, cyclical: false };
-  const tt = t(-1, 40);
-  const now = longTerm(f, tt), both = longTerm(f, tt, peer, { entryAlt: true });
-  const sv = { verdict: longTerm(f, tt, peer).verdict }, ev = { verdict: longTerm(f, tt, null, { entryAlt: true }).verdict };
-  const v = bothViewNote(now, both, sv, ev);
-  assert.equal(v.score, both.score);
-  assert.equal(v.changed, both.verdict !== now.verdict);
-  assert.match(v.note, /score would be \d+ \(now \d+\)/);
-  assert.equal(v.onlyTogether, false);
-  const forced = bothViewNote(now, { ...both, verdict: "Good entry" }, { verdict: "Fair" }, { verdict: "Wait" });
-  assert.equal(forced.onlyTogether, true);
-  assert.match(forced.note, /neither change alone/);
-  assert.equal(bothViewNote(now, both, null, ev), null, "needs a peer group");
 });

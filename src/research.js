@@ -249,7 +249,7 @@ export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
   if (score == null) verdict = "No data";
   else if ((get("value") ?? 50) < 35) verdict = "Expensive";
   else if ((get("entry") ?? 50) < 35 && (t?.rsi ?? 50) > 68) { verdict = "Stretched"; note = "Fundamentals may be fine, but the price has run hot. Wait for a pullback."; }
-  else if (score >= 72 && (get("entry") ?? 0) >= 70 && (get("quality") ?? 50) >= 55 && (get("value") ?? 50) >= 45) {
+  else if (score >= GOOD.score && (get("entry") ?? 0) >= GOOD.entry && (get("quality") ?? 50) >= GOOD.quality && (get("value") ?? 50) >= GOOD.value) {
     verdict = falling ? "Fair" : "Good entry";
     if (falling) note = "Quality at a discount, but the trend is still down. Buy in stages rather than all at once.";
   }
@@ -266,7 +266,46 @@ export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
       pillars: pillars.map((p) => ({ ...p, score: null, items: p.items.map((i) => ({ ...i, score: null })) })), coverage, financials: fin, trust: true };
   }
 
-  return { score, verdict, note, falling, pillars, coverage, financials: fin };
+  const short = verdict !== "Good entry" && score != null;
+  const gaps = short ? goodEntryGaps(score, get, falling, !!t?.pinned) : [];
+  const near = short && ["Fair", "Wait"].includes(verdict) && nearGood(score, get, falling, !!t?.pinned);
+  return { score, verdict, note, falling, pillars, coverage, financials: fin, gaps, near };
+}
+
+// The bar for "Good entry" (all must hold, and the trend must not be down).
+export const GOOD = { score: 72, entry: 70, quality: 55, value: 45 };
+
+// What keeps a stock short of "Good entry", in plain words, e.g.
+// ["Entry 69, needs 70"]. Missing pillars are treated as the verdict does.
+function gapList(score, get, falling, pinned) {
+  const out = [];
+  if (pinned) out.push({ text: "price pinned by a likely takeover", short: Infinity });
+  if (score < GOOD.score) out.push({ text: `score ${score}, needs ${GOOD.score}`, short: GOOD.score - score });
+  const e = get("entry"), q = get("quality"), v = get("value");
+  if ((e ?? 0) < GOOD.entry) out.push(e == null ? { text: "no Entry data", short: Infinity } : { text: `Entry ${e}, needs ${GOOD.entry}`, short: GOOD.entry - e });
+  if (q != null && q < GOOD.quality) out.push({ text: `Quality ${q}, needs ${GOOD.quality}`, short: GOOD.quality - q });
+  if (v != null && v < GOOD.value) out.push({ text: `Value ${v}, needs ${GOOD.value}`, short: GOOD.value - v });
+  if (falling) out.push({ text: out.length ? "trend still down" : "trend still down (below the 50-day, which is below the 200-day)", short: Infinity });
+  return out;
+}
+export const goodEntryGaps = (score, get, falling = false, pinned = false) => gapList(score, get, falling, pinned).map((g) => g.text);
+
+// Near a good entry: one bar missed, by 3 points or less, trend not down.
+export const NEAR_POINTS = 3;
+export function nearGood(score, get, falling = false, pinned = false) {
+  const g = gapList(score, get, falling, pinned);
+  return g.length === 1 && g[0].short <= NEAR_POINTS;
+}
+
+// A verdict that flickers across a threshold (Meta at Entry 69/70) should not
+// alert or log a track-record event every time it comes back: a new signal
+// counts only if the stock was not in that state within the last `quiet` days.
+// lastSeen: the last date it was in the state (YYYY-MM-DD) or null.
+export const SIGNAL_QUIET_DAYS = 10;
+export function freshSignal(isOn, wasOn, lastSeen, today, quiet = SIGNAL_QUIET_DAYS) {
+  if (!isOn || wasOn) return false;
+  if (!lastSeen || !today) return true;
+  return (Date.parse(today) - Date.parse(lastSeen)) / 86400000 > quiet;
 }
 
 // The live long-term score (agreed by Douglas 10 Nov 2026).
@@ -278,33 +317,6 @@ export const longTermLive = (f, t, peer = null) => longTerm(f, t, peer, { entryA
 export function ruleChangeNote(old, live) {
   if (!old || !live || old.score == null || live.score == null || live.trust || old.verdict === live.verdict) return null;
   return { verdict: old.verdict, score: old.score, note: `Scoring changed on 10 Nov (value against sector peers, new Entry rule with momentum): ${live.verdict} now, ${old.verdict} (${old.score}) under the old rule.` };
-}
-
-// Entry view (no longer shown; the rule went live 10 Nov): what the Entry rule changes.
-// now = live longTerm(); alt = longTerm(f, t, null, { entryAlt: true }).
-export function entryViewNote(now, alt, t) {
-  if (!now || !alt || now.score == null || alt.score == null || now.trust) return null;
-  const eNow = now.pillars.find((p) => p.key === "entry")?.score ?? null, eAlt = alt.pillars.find((p) => p.key === "entry")?.score ?? null;
-  if (eNow == null || eAlt == null) return null;
-  const mom = t?.mom12_1 == null ? null : r1(t.mom12_1);
-  const changed = alt.verdict !== now.verdict;
-  const parts = [`Under the proposed Entry rule (no extra credit for a discount beyond 3%${mom != null ? `, plus 12-1 month momentum of ${mom >= 0 ? "+" : ""}${mom}%` : ""}), Entry would score ${eAlt} (now ${eNow})`];
-  parts.push(changed ? `and the verdict would be ${alt.verdict} (now ${now.verdict}).` : `and the verdict stays ${now.verdict}.`);
-  return { entry: eAlt, entryNow: eNow, mom, score: alt.score, verdict: alt.verdict, changed, note: parts.join(" ") };
-}
-
-// Both proposals together (display only): peer-relative value with the
-// cyclical cap AND the proposed Entry rule. They can interact (a cyclical that
-// gains on momentum but is capped on value), so Douglas sees the joint effect.
-// now = live longTerm(); both = longTerm(f, t, peer, { entryAlt: true });
-// sv, ev = the single-change notes (either may be null).
-export function bothViewNote(now, both, sv, ev) {
-  if (!now || !both || now.score == null || both.score == null || now.trust || !sv || !ev) return null;
-  const changed = both.verdict !== now.verdict;
-  // "Only together": the joint verdict differs from what each change gives alone.
-  const onlyTogether = both.verdict !== sv.verdict && both.verdict !== ev.verdict;
-  const note = `With both proposals (value against peers and the new Entry rule) the score would be ${both.score} (now ${now.score}) and the verdict ${changed ? `${both.verdict} (now ${now.verdict})` : `stays ${now.verdict}`}${onlyTogether ? `; neither change alone gives this (peer view ${sv.verdict}, Entry view ${ev.verdict})` : ""}.`;
-  return { score: both.score, verdict: both.verdict, changed, onlyTogether, note };
 }
 
 // Adjust the long-term verdict note for the market regime.

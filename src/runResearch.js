@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
@@ -93,12 +93,15 @@ export async function runResearch({ regimeKey, state }) {
     const earn = ed != null && ed >= 0 && ed <= 7 ? ` Earnings ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: consider waiting for the results.` : "";
     const move = it.perf?.day != null ? `, ${it.perf.day >= 0 ? "+" : ""}${it.perf.day}% today` : "";
     const ev = (kind, label) => events.push({ kind, at, date: it.date, symbol: it.symbol, ticker: it.ticker, name: it.name, price: it.price, currency: it.currency, label });
-    if (lt === "Good entry" && p.lt !== "Good entry") ev("research-lt", `Long-term good entry (${it.longTerm.score})`);
-    if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) ev("research-swing", `Swing setup (${it.swing.score})`);
-    if (lt === "Good entry" && p.lt !== "Good entry") lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
-    if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
+    // g / s: last day it was a good entry / a setup (flicker guard, freshSignal()).
+    const isGood = lt === "Good entry", isSetup = !!sw?.startsWith("Setup");
+    const newGood = freshSignal(isGood, p.lt === "Good entry", p.g, today), newSetup = freshSignal(isSetup, !!p.sw?.startsWith("Setup"), p.s, today);
+    if (newGood) ev("research-lt", `Long-term good entry (${it.longTerm.score})`);
+    if (newSetup) ev("research-swing", `Swing setup (${it.swing.score})`);
+    if (newGood) lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
+    if (newSetup) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
     if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
-    next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION };
+    next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION, g: isGood ? today : p.g ?? null, s: isSetup ? today : p.s ?? null };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
   // First run: record a baseline silently rather than announce everything as new.

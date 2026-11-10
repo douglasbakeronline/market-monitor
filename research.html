@@ -176,7 +176,7 @@ const estTitle = (e) => `Not published yet. Estimated from the latest results ${
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", "Holding company": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
-  ["all", "All"], ["good", "Good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
+  ["all", "All"], ["good", "Good entry"], ["near", "Near good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
 ];
 const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
@@ -237,6 +237,7 @@ function visible() {
       if (x.has("new") && !isNew(it)) return false;
     }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
+    if (st.filter === "near") return !!it.longTerm.near;
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
     // On the scan, "S&P 500" means that index; the Nasdaq 100 extras (also US) have their own chip.
@@ -285,7 +286,8 @@ function rangeBar(lo, hi, v, labelLo, labelHi, fillFrom, fillTo) {
 
 function detailHtml(it) {
   const lt = it.longTerm, sw = it.swing, t = it.tech || {}, c = it.currency;
-  const notes = [lt.note && `<div class="note">${esc(lt.note)}</div>`, it.regimeNote && `<div class="note ${/fear is on your side/.test(it.regimeNote) ? "good" : ""}">${esc(it.regimeNote)}</div>`, ...(sw?.notes || []).map((n) => `<div class="note">${esc(n)}</div>`)].filter(Boolean).join("");
+  const gapNote = lt.gaps?.length && ["Fair", "Wait"].includes(lt.verdict) ? `<div class="note">${lt.near ? "Close to" : "Short of"} <b>Good entry</b>: ${esc(lt.gaps.join("; "))}.</div>` : "";
+  const notes = [gapNote, lt.note && `<div class="note">${esc(lt.note)}</div>`, it.regimeNote && `<div class="note ${/fear is on your side/.test(it.regimeNote) ? "good" : ""}">${esc(it.regimeNote)}</div>`, ...(sw?.notes || []).map((n) => `<div class="note">${esc(n)}</div>`)].filter(Boolean).join("");
   const pillars = lt.pillars.map((p) => `<div class="pillar"><div class="ph"><span>${esc(p.label)}</span><span style="color:${toneVar(p.score)}">${p.score ?? "n/a"}</span></div>
     <div class="bar"><i style="width:${p.score ?? 0}%;background:${toneVar(p.score)}"></i></div>
     <table class="metrics">${p.items.map((m) => `<tr><td>${esc(m.label)}<span class="why">${esc(m.why)}</span></td><td>${esc(m.display)}</td><td><span class="dotv" style="background:${toneVar(m.score)}" title="${m.score ?? "n/a"}/100"></span></td></tr>`).join("")}</table></div>`).join("");

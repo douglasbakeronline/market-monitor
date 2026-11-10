@@ -123,7 +123,7 @@ async function main() {
       tech: { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio) },
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
-      longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
+      longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, gaps: lt.gaps, near: lt.near, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
       swing, signals, deep: isDeep, sectorValue: sv, ruleChange: rc,
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
