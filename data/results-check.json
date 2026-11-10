@@ -1,1 +1,113 @@
-{"updated":null,"items":{}}
+{
+  "updated": "2026-11-10T10:19:38.090Z",
+  "items": {
+    "NWG.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-30",
+      "actual": 0.19154,
+      "estimate": 0.19629,
+      "surprisePct": -2.4,
+      "reaction": -8.8,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 2.4% (bottom fifth); the price fell 8.8% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
+    },
+    "STZ": {
+      "quarter": "2026-08-31",
+      "date": "2026-10-07",
+      "actual": 3.74,
+      "estimate": 3.54593,
+      "surprisePct": 5.5,
+      "reaction": 2.4,
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 5.5%; the price rose 2.4% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "LLOY.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-29",
+      "actual": 0.02842,
+      "estimate": 0.0269,
+      "surprisePct": 5.7,
+      "reaction": -5,
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 5.7%; the price fell 5.0% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "SCHW": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-15",
+      "actual": 1.69,
+      "estimate": 1.65538,
+      "surprisePct": 2.1,
+      "reaction": -2.7,
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "META": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-22",
+      "actual": 3.83,
+      "estimate": 5.41956,
+      "surprisePct": -29.3,
+      "reaction": -7,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 29.3% (bottom fifth); the price fell 7.0% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
+    },
+    "NEM": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-22",
+      "actual": 2.2,
+      "estimate": 1.94635,
+      "surprisePct": 13,
+      "reaction": -2.6,
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 13.0%; the price fell 2.6% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "HSBA.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-27",
+      "actual": 0.42,
+      "estimate": 0.43695,
+      "surprisePct": -3.9,
+      "reaction": -5.4,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
+    },
+    "CF": {
+      "quarter": "2026-09-30",
+      "date": "2026-11-04",
+      "actual": 2.87,
+      "estimate": 3.05303,
+      "surprisePct": -6,
+      "reaction": -4.4,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 6.0% (bottom fifth); the price fell 4.4% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
+    },
+    "AMZN": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-30",
+      "actual": 1.89,
+      "estimate": 1.95787,
+      "surprisePct": -3.5,
+      "reaction": -1.4,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
+      "note": null,
+      "tone": "neutral"
+    }
+  }
+}
