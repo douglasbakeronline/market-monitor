@@ -111,3 +111,13 @@ export function lookThrough(corePct, holdings = [], picks = [], names = {}, top 
   return Object.entries(by).map(([ticker, x]) => ({ ticker, name: x.name, core: x.core, pick: x.pick, pct: x.core + x.pick }))
     .filter((x) => x.pct > 0).sort((a, b) => b.pct - a.pct).slice(0, top);
 }
+
+// Today's value of the core pot from the trade log: net VWRP shares (buys minus
+// sells, from trades that record shares) times today's price in pounds. Null
+// when any core trade lacks shares, as the total would then be incomplete.
+export function coreValueFromLog(trades = [], price = null, core = ["VWRP"]) {
+  const ts = trades.filter((t) => t?.pot === "core" && core.includes(String(t.ticker).toUpperCase()));
+  if (!ts.length || !(price > 0) || ts.some((t) => !(t.shares > 0))) return null;
+  const sh = ts.reduce((a, t) => a + (t.action === "sell" ? -t.shares : t.shares), 0);
+  return sh > 0 ? { shares: Math.round(sh * 10000) / 10000, value: Math.round(sh * price) } : null;
+}

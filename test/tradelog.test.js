@@ -123,7 +123,7 @@ test("Trading 212 CSV: buys and sells become trades, dividends are summed", asyn
     ["XYZ", "sell", "core", "other", 22.8, 10],
   ]);
   assert.equal(r.trades[0].id, "t212-EOF1");
-  assert.match(r.trades[1].note, /0\.4 shares/);
+  assert.equal(r.trades[1].shares, 0.4);
   assert.equal(r.dividends, 0.34);
   assert.equal(r.dividendCount, 1);
   assert.equal(parseCsv('a,"b, ""c"""\n1,2').length, 2);

@@ -105,3 +105,12 @@ test("pickSizes values a pick at today's price when the price paid is logged", (
   // Grown past 5%: the ceiling now fires on value, not cost.
   assert.equal(pickSizes([{ pot: "picks", ticker: "NEM", action: "buy", amount: 400, price: 50 }], 10000, undefined, { NEM: 130 })[0].status, "ceiling");
 });
+
+test("coreValueFromLog: VWRP shares times today's price, only when every core trade has shares", async () => {
+  const { coreValueFromLog } = await import("../src/rebalance.js");
+  const t = [{ pot: "core", ticker: "VWRP", action: "buy", shares: 50 }, { pot: "core", ticker: "VWRP", action: "buy", shares: 10 }, { pot: "core", ticker: "VWRP", action: "sell", shares: 5 }];
+  assert.deepEqual(coreValueFromLog(t, 140), { shares: 55, value: 7700 });
+  assert.equal(coreValueFromLog([...t, { pot: "core", ticker: "VWRP", action: "buy", amount: 100 }], 140), null);
+  assert.equal(coreValueFromLog(t, null), null);
+  assert.equal(coreValueFromLog([], 140), null);
+});

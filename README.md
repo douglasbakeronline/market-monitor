@@ -50,6 +50,7 @@ Workflow permissions must be "Read and write" (Settings → Actions → General)
 ## Editing
 
 - **Price alerts:** `price-alerts.json` (or build it with "Add or change an alert" on the Dashboard and paste it in on GitHub). Levels are in the quote currency (pence for `.L` shares).
+- **Trade log (Dashboard, browser only):** log trades by hand, or import a Trading 212 history CSV (History, download, CSV); trades with shares and prices value the pots and picks at today's prices.
 - **Research list:** `research-list.json`. Yahoo symbols: US plain (`MSFT`), UK with `.L` (`AZN.L`). Remove `"placeholder": true` once it's your real list.
 - **Dashboard watchlist, thresholds, schedule, quiet hours:** `src/config.js`.
 

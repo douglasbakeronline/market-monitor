@@ -65,9 +65,11 @@ export function normaliseTrade(raw = {}, today = null) {
   // lets the Dashboard value a pick at today's price instead of at cost.
   const px = raw.price === "" || raw.price == null ? null : parseFloat(String(raw.price).replace(/[£$€,\s]/g, ""));
   if (px != null && !(Number.isFinite(px) && px > 0)) return { error: "Price must be a positive number, or blank." };
+  const sh = raw.shares === "" || raw.shares == null ? null : parseFloat(String(raw.shares).replace(/[,\s]/g, ""));
+  if (sh != null && !(Number.isFinite(sh) && sh > 0)) return { error: "Shares must be a positive number, or blank." };
   const note = String(raw.note ?? "").trim().slice(0, 140);
   const id = raw.id && typeof raw.id === "string" ? raw.id : `${date}-${ticker}-${Math.random().toString(36).slice(2, 8)}`;
-  return { trade: { id, date, action, pot, rule, ticker, amount: amt == null ? null : Math.round(amt * 100) / 100, ...(px != null ? { price: px } : {}), note } };
+  return { trade: { id, date, action, pot, rule, ticker, amount: amt == null ? null : Math.round(amt * 100) / 100, ...(px != null ? { price: px } : {}), ...(sh != null ? { shares: sh } : {}), note } };
 }
 
 export const sortTrades = (ts) => [...ts].sort((a, b) => (a.date === b.date ? (a.id < b.id ? 1 : -1) : a.date < b.date ? 1 : -1));
@@ -176,7 +178,7 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
     const pot = isCore ? "core" : pick ? "picks" : "core";
     const shares = iN >= 0 ? num(r[iN]) : null, price = iP >= 0 ? num(r[iP]) : null;
     const id = iId >= 0 && r[iId] ? `t212-${String(r[iId]).trim()}` : `t212-${date}-${ticker}-${total}`;
-    const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", note: `Trading 212${shares != null ? `: ${shares} shares` : ""}` }, today);
+    const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", shares: shares ?? "", note: "Trading 212" }, today);
     res.trade ? trades.push(res.trade) : skipped.push(res.error);
   }
   return { trades, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN };

@@ -343,7 +343,7 @@
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN, dripSchedule } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, REBALANCE } from "./src/rebalance.js";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
@@ -513,6 +513,20 @@ function lookThroughHtml(pf, total) {
     <p class="small muted" style="margin:6px 0 0">Share of the pots in each company: VWRP's weights (as of ${esc(PLAN.coreHoldingsAsOf)}) times the core's share, plus picks from your trade log (at today's price where it has the price paid). A pick the fund also holds is counted both ways.</p></div>`;
 }
 
+// Values to fill the pots form from the trade log: the core at today's VWRP
+// price when every VWRP trade has its shares, picks at today's price where the
+// price paid is logged, else net invested (buys minus sells).
+function fillFromLog() {
+  const tl = loadTl(), lt = potTotals(tl);
+  const core = coreValueFromLog(tl, CORE_NOW?.level);
+  const ps = pickSizes(tl, 1, REBALANCE, PICK_PRICES);
+  const picksNow = ps.length ? ps.reduce((a, x) => a + x.amount, 0) : lt.picks;
+  const out = { ...lt, core: core?.value ?? lt.core, picks: picksNow };
+  out.any = lt.counted > 0 && POTS.some(([k]) => out[k] > 0);
+  out.basis = core ? `core at today's VWRP price (${core.shares} shares); picks at today's price where the price paid is logged; the rest is net invested, so adjust for gains, losses and cash` : "net invested, not today's value: adjust for gains and losses (log VWRP's shares to value the core at today's price)";
+  return out;
+}
+
 // Each pick's size from the trade log against the pots' value now (null
 // without saved pot values).
 function pickSizesNow() {
@@ -537,11 +551,11 @@ function renderPf(edit = false) {
       <label>Other savings (£)<input inputmode="decimal" name="savings" value="${v.savings ?? ""}"></label>
       <label>Monthly top-up (£)<input inputmode="decimal" name="monthly" value="${v.monthly ?? ""}"></label>
       <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
-      ${(() => { const lt = potTotals(loadTl()); return lt.counted && POTS.some(([k]) => lt[k] > 0) ? `<p class="small muted" style="margin:10px 0 0"><button class="linkbtn" id="pfFill" type="button">Fill blank pots from the trade log</button> (net invested, not today's value: adjust for gains and losses)</p>` : ""; })()}
+      ${(() => { const fl = fillFromLog(); return fl.any ? `<p class="small muted" style="margin:10px 0 0"><button class="linkbtn" id="pfFill" type="button">Fill blank pots from the trade log</button> (${esc(fl.basis)})</p>` : ""; })()}
       <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="pfSave" type="button">Save in this browser</button><button class="btn" id="pfCancel" type="button">Cancel</button>${pf ? `<button class="btn" id="pfClear" type="button" style="margin-left:auto">Clear</button>` : ""}</div>`;
     $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); if (CORE_NOW?.level && CORE_NOW.date) o.vwrpAt = { level: CORE_NOW.level, date: CORE_NOW.date }; savePf(o); renderPf(); };
     $("pfCancel").onclick = () => renderPf();
-    if ($("pfFill")) $("pfFill").onclick = () => { const lt = potTotals(loadTl()); for (const [k] of POTS) { const el = $("pfForm").elements[k]; if (el && !el.value.trim() && lt[k] > 0) el.value = Math.round(lt[k]); } };
+    if ($("pfFill")) $("pfFill").onclick = () => { const fl = fillFromLog(); for (const [k] of POTS) { const el = $("pfForm").elements[k]; if (el && !el.value.trim() && fl[k] > 0) el.value = Math.round(fl[k]); } };
     if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); }; }
     return;
   }
@@ -610,11 +624,12 @@ function renderTl(form = false, err = "") {
       <label>Pot<select name="pot" id="tlPot">${POT_KEYS.map((k) => `<option value="${k}"${v.pot === k ? " selected" : ""}>${POT_NAME[k]}</option>`).join("")}</select></label>
       <label>Amount (£, optional)<input inputmode="decimal" name="amount" value="${esc(v.amount ?? "")}"></label>
       <label>Price paid per share (optional)<input inputmode="decimal" name="price" placeholder="as Trading 212 shows it" value="${esc(v.price ?? "")}"></label>
+      <label>Shares (optional)<input inputmode="decimal" name="shares" value="${esc(v.shares ?? "")}"></label>
       <label class="wide">Note (optional)<input name="note" maxlength="140" value="${esc(v.note || "")}"></label></form>
       ${err ? `<div class="tl-err" role="alert">${esc(err)}</div>` : ""}
       <div class="tl-foot"><button class="btn primary" id="tlSave" type="button">Save in this browser</button><button class="btn" id="tlCancel" type="button">Cancel</button></div>`;
   } else if (trades.length) {
-    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.price ? ` · at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-edit="${esc(t.id)}" aria-label="Edit ${esc(t.ticker)} trade on ${esc(t.date)}" title="Edit">\u270e</button><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
+    body = `<div class="k" style="margin-top:16px">Recent trades</div>` + trades.slice(0, 8).map((t) => `<div class="tl-row"><span class="dt">${fmtDay(t.date)} ${MON[+t.date.slice(5, 7) - 1]}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${t.action === "sell" ? "sell" : "buy"} · ${esc(POT_NAME[t.pot] || t.pot)}</span><span class="sub">${esc(RULE_LABEL[t.rule] || t.rule)}${t.shares ? ` · ${esc(String(t.shares))} shares` : t.price ? " ·" : ""}${t.price ? ` at ${esc(String(t.price))}` : ""}${t.note ? ` · ${esc(t.note)}` : ""}</span></span><span class="amt">${t.amount != null ? (t.action === "sell" ? "−" : "") + gbp(t.amount) : `<span class="muted">n/a</span>`}</span><button class="del" type="button" data-edit="${esc(t.id)}" aria-label="Edit ${esc(t.ticker)} trade on ${esc(t.date)}" title="Edit">\u270e</button><button class="del" type="button" data-del="${esc(t.id)}" aria-label="Delete ${esc(t.ticker)} trade on ${esc(t.date)}">×</button></div>`).join("") + (trades.length > 8 ? `<div class="small muted" style="margin-top:6px">${trades.length - 8} older trade${trades.length - 8 > 1 ? "s" : ""} kept in the backup.</div>` : "");
   } else body = `<p class="small muted" style="margin:10px 0 0">Log your first trade (for example the 2 Nov core purchase) and this card tracks every scheduled action against what you did.</p>`;
   const foot = form ? "" : `<div class="tl-foot">${trades.length ? `<button class="btn" id="tlExport" type="button">Export</button>` : ""}<label class="btn" style="display:inline-flex">Import<input type="file" accept="application/json,.json,text/csv,.csv" id="tlImport" hidden></label><span class="small muted" id="tlMsg"></span></div>`;
   card.innerHTML = head + sched + body + foot;
@@ -633,7 +648,7 @@ function renderTl(form = false, err = "") {
     return;
   }
   $("tlAdd").onclick = () => renderTl(true);
-  card.querySelectorAll("[data-edit]").forEach((b) => { b.onclick = () => { const t = loadTl().find((x) => x.id === b.dataset.edit); if (t) renderTl({ ...t, amount: t.amount ?? "", price: t.price ?? "" }); }; });
+  card.querySelectorAll("[data-edit]").forEach((b) => { b.onclick = () => { const t = loadTl().find((x) => x.id === b.dataset.edit); if (t) renderTl({ ...t, amount: t.amount ?? "", price: t.price ?? "", shares: t.shares ?? "" }); }; });
   card.querySelectorAll("[data-del]").forEach((b) => { b.onclick = () => { if (confirm("Delete this trade from the log?")) { saveTl(loadTl().filter((t) => t.id !== b.dataset.del)); renderTl(); renderPf(); replan(); } }; });
   if ($("tlExport")) $("tlExport").onclick = () => {
     const blob = new Blob([JSON.stringify({ exported: today, trades }, null, 1)], { type: "application/json" });
