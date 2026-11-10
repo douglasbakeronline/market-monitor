@@ -338,7 +338,9 @@ function detailHtml(it) {
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${exn}${peer}${rcn}${smn}${stopn}
+  const rc = it.resultsCheck ?? RC[it.symbol];
+  const rsn = rc ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}</div>` : "";
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${rsn}${notes}${exn}${peer}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -435,8 +437,11 @@ async function load() {
 }
 load();
 
+// Results check (latest EPS surprise and reaction) for picks, bench and results-day movers.
+let RC = {};
+fetch(`data/results-check.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.items) { RC = j.items; if (typeof render === "function") try { render(); } catch {} } }).catch(() => {});
 // --- Swing lab: published short-term effects tested against random entry ------------
-const lab = { bt: null, live: null, d2: null, rot: null };
+const lab = { bt: null, live: null, d2: null, rot: null, sur: null };
 const pts = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}%`);
 const LAB_TONE = { clear: "bg-buy", promising: "bg-watch", weak: "", none: "", loses: "bg-sell" };
 const MISSED = { years: "ahead of random in only {a} of {c} years (needs 3 in 4)", edge: "edge under the 0.4-point bar", sample: "too few trades", markets: "not ahead in both the US and the UK", positive: "loses money after costs" };
@@ -477,18 +482,31 @@ function renderLab() {
       ${ro.results.map(rrow).join("")}
       <p class="small" style="margin:8px 0 0">${pr.pass ? "" : `<b>No lookback beats holding every sector</b>; turnover of ${Math.round(pr.strat.turnover / 100)}× a year eats what momentum there is. `}The trend filter on all nine cut the worst fall from ${pc(ro.bench.maxDd)} to ${pc(ro.results.find((r) => r.key === "eqTrend").strat.maxDd)}, at a cost of ${Math.abs(ro.results.find((r) => r.key === "eqTrend").excess).toFixed(1)} points a year (cash counted at 0%, so a little worse than reality): insurance, not an edge. The core fund already holds every sector.</p></div>`;
   }
+  // Round 4: earnings surprise (Yahoo's last four quarters, S&P 500).
+  const su = lab.sur;
+  if (su) {
+    const sp = (v) => `${v < 0 ? "\u2212" : v > 0 ? "+" : ""}${Math.abs(v).toFixed(1)}`;
+    const fmtS = (v) => (Math.abs(v) >= 100 ? (v < 0 ? "big miss" : "big beat") : `${sp(v)}%`);
+    const qrow = (q) => `<div class="lab-row r2"><span>${["Bottom", "Second", "Middle", "Fourth", "Top"][q.q - 1]} fifth<span class="why">EPS vs forecast ${fmtS(q.surprise[0])} to ${fmtS(q.surprise[1])}; reaction ${sp(q.reaction)}%</span></span><span class="num ${pnClass(q.h5)}">${sp(q.h5)}</span><span class="num ${pnClass(q.h20)}">${sp(q.h20)}</span><span class="num ${pnClass(q.h60)}"><b>${sp(q.h60)}</b></span></div>`;
+    r2html += `<div class="lab-live"><div class="k">Round 4: does the size of the surprise matter?</div>
+      <p class="small muted" style="margin:4px 0 8px">${su.events.toLocaleString("en-GB")} S&amp;P 500 results (${su.withHistory} companies, the last four quarters Yahoo holds), sorted by how far earnings per share beat or missed the analysts' forecast. Returns from the open after results, after costs, against the S&amp;P 500, in points.</p>
+      <div class="lab-row r2 h"><span>Surprise</span><span class="num">5 days</span><span class="num">20 days</span><span class="num">60 days</span></div>
+      ${su.quintiles.map(qrow).join("")}
+      <p class="small" style="margin:8px 0 0">Top fifth minus bottom fifth: ${sp(su.H4.spread60)} points over 60 sessions, ${sp(su.H4.spread20)} over 20, mostly from the bottom fifth lagging; ${su.H4.pass ? "it passes the pre-set bar." : "it fails the pre-set bar because it was not ahead in every quarter (the latest quarter is still young)."} The surprise matters more than the price move: after a fall of 2%+, weak results trailed by ${sp(su.H5.down.bottom.vsIdx)} vs ${sp(su.H5.down.rest.vsIdx)} for other falls; after a rise, strong results did ${sp(su.H5.up.top.vsIdx)} vs ${sp(su.H5.up.rest.vsIdx)}. One year of data, so a pointer: it now shows as <b>Last results</b> on picks, bench and results-day movers, and the live log records each surprise.</p></div>`;
+  }
   const L = lab.live || [];
   const open = L.filter((t) => t.status !== "closed").sort((a, b2) => (a.signalDate < b2.signalDate ? 1 : -1));
   const closed = L.filter((t) => t.status === "closed");
   const sm = summariseDrift(L);
   const sideTxt = (x, name) => (x.n20 ? `${name}: ${x.n20} at 20 sessions, ${pts(x.vs20)} vs index${x.n60 ? `; ${x.n60} at 60, ${pts(x.vs60)}` : ""}` : `${name}: none valued yet`);
   const liveHead = `<div class="k">Live on paper: volume shocks, both ways</div><p class="small muted" style="margin:4px 0 8px">Every S&amp;P 500 and FTSE 100 stock that moves ${DRIFT.minRet * 100}%+ either way on ${DRIFT.volX}× normal volume is "bought" at the next open, valued after ${DRIFT.mark} sessions and closed after ${DRIFT.hold}, after costs and against its home index. A forward test has no survivorship bias, so it settles whether drift is real: judge it once each side has 30 or more. ${esc(sideTxt(sm.up, "Up"))}. ${esc(sideTxt(sm.down, "Down"))}.${sm.drift60 != null ? ` Drift (up minus down) at 60 sessions: ${pts(sm.drift60)}.` : sm.drift20 != null ? ` Drift at 20 sessions: ${pts(sm.drift20)}.` : ""}</p>`;
-  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · ${t.movePct > 0 ? "+" : ""}${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
+  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · ${t.movePct > 0 ? "+" : ""}${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}${t.surprisePct != null ? ` · EPS ${t.surprisePct >= 0 ? "+" : "\u2212"}${Math.abs(t.surprisePct).toFixed(1)}% vs forecast` : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
   $("labLive").innerHTML = r2html + `<div class="lab-live">${liveHead}${open.length ? open.slice(0, 12).map(row).join("") : `<p class="sub" style="margin:0">Nothing open yet. Entries appear the night a stock jumps or drops on heavy volume, usually on results.</p>`}${closed.length ? `<details style="margin-top:8px"><summary class="small muted">Closed (${closed.length})</summary>${closed.slice(-20).reverse().map(row).join("")}</details>` : ""}</div>`;
   $("labCap").innerHTML = `The bar, fixed before the test: after costs at least 0.4 points a trade better than random entry, positive itself, 300+ trades, ahead in 3 of every 4 years and in both the US and the UK. <b>Per trade</b> is the average net return; <b>Random</b> buys on random days with the same exit (for the dip, random days in an uptrend). Today's index members only, so all rows are flattered alike. Paper only: nothing here changes the plan, and swing stays at 0% of the portfolio unless Douglas decides otherwise. Sources and numbers: research log, 10 Nov.`;
 }
 fetch(`data/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.bt = j; renderLab(); } }).catch(() => {});
 fetch(`data/sector-rotation.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.rot = j; renderLab(); } }).catch(() => {});
+fetch(`data/surprise-study.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.quintiles) { lab.sur = j; renderLab(); } }).catch(() => {});
 fetch(`data/drift-study.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.matched) { lab.d2 = j; renderLab(); } }).catch(() => {});
 fetch(`history/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j)) { lab.live = j; renderLab(); } }).catch(() => {});
 

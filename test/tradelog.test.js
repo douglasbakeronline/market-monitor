@@ -129,3 +129,24 @@ test("Trading 212 CSV: buys and sells become trades, dividends are summed", asyn
   assert.equal(parseCsv('a,"b, ""c"""\n1,2').length, 2);
   assert.match(parseT212("foo,bar\n1,2").error, /Trading 212/);
 });
+
+test("Trading 212 import totals the FX fee and stamp duty as a share of the money traded", async () => {
+  const { parseT212 } = await import("../src/tradeLog.js");
+  const csv = [
+    "Action,Time,Ticker,No. of shares,Price / share,Total,Currency (Total),Stamp duty reserve tax,Currency (Stamp duty reserve tax),Currency conversion fee,Currency (Currency conversion fee),ID",
+    "Market buy,2026-11-02 08:01:00,HSBA,10,1300,1000.00,GBP,5.00,GBP,,,A1",
+    "Market buy,2026-11-02 14:31:00,META,1,640,500.00,GBP,,,0.75,GBP,A2",
+    "Market sell,2026-11-05 14:31:00,META,1,650,500.00,GBP,,,0.75,GBP,A3",
+    "Deposit,2026-11-01 09:00:00,,,,2000.00,GBP,,,,,D1",
+  ].join("\n");
+  const r = parseT212(csv, { picks: ["META", "HSBA"], today: "2026-11-10" });
+  assert.equal(r.costs.trades, 3);
+  assert.equal(r.costs.traded, 2000);
+  assert.equal(r.costs.stamp, 5);
+  assert.equal(r.costs.fx, 1.5);
+  assert.equal(r.costs.pct, 0.33);
+  assert.equal(r.costs.columns, true);
+  const bare = parseT212("Action,Time,Ticker,Total,Currency (Total),ID\nMarket buy,2026-11-02 08:01:00,VWRP,100,GBP,X", { today: "2026-11-10" });
+  assert.equal(bare.costs.total, 0);
+  assert.equal(bare.costs.columns, false);
+});

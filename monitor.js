@@ -19,6 +19,7 @@ import { copilot, pullbackAlert, copilotLines, picksWeekLine } from "./src/plan.
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
+import { bookLine } from "./src/swingBook.js";
 import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
@@ -212,7 +213,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems, book: await readJson("history/swing-book.json", null) }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -310,7 +311,7 @@ function worldTags(world) {
   return t.length ? ` ${t.join("; ")}.` : "";
 }
 
-function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts, planItems }) {
+function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts, planItems, book }) {
   const L = [];
   const tr = trackRecord?.summary;
   L.push(`Regime: ${reg.label}. ${reg.action}`);
@@ -335,6 +336,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   const pal = alertDigestLine(priceAlerts ?? []);
   if (pal) L.push(pal);
   L.push(rebalanceDigestLine());
+  const bl = bookLine(book);
+  if (bl) L.push(bl);
   if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
   if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatIdx ?? tr.beatSp}% beat their home index.`);
   const kindLine = tr?.total ? digestKindLine(trackRecord.byKind) : null;

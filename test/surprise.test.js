@@ -48,3 +48,22 @@ test("analysis: a clean surprise effect passes H4 and H5; quintiles cover all ev
   assert.equal(flat.H4.pass, false);
   assert.equal(flat.H5.pass, false);
 });
+<<<<<<< Updated upstream
+=======
+
+test("results check: fifths and the group note", async () => {
+  const { resultsCheck } = await import("../src/surpriseStudy.js");
+  const study = { cuts: { q20: 0.8, q80: 14.8 }, H5: { up: { top: { vsIdx: 1.15 }, rest: { vsIdx: -1.78 } }, down: { bottom: { vsIdx: -3.38 }, rest: { vsIdx: 0.55 } } } };
+  const miss = resultsCheck({ surprisePct: -5, reaction: -6 }, study);
+  assert.equal(miss.fifth, "bottom");
+  assert.equal(miss.tone, "watch");
+  assert.match(miss.label, /missed the forecast by 5\.0% \(bottom fifth\); the price fell 6\.0%/);
+  assert.match(miss.note, /−3\.4 points/);
+  const beat = resultsCheck({ surprisePct: 20, reaction: 3 }, study);
+  assert.equal(beat.tone, "good");
+  const mid = resultsCheck({ surprisePct: 5, reaction: 4 }, study);
+  assert.equal(mid.fifth, "middle");
+  assert.equal(mid.note, null);
+  assert.equal(resultsCheck({ surprisePct: null }, study), null);
+});
+>>>>>>> Stashed changes

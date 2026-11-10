@@ -100,3 +100,27 @@ export function analyseSurprise(events, { minQuarter = 100 } = {}) {
   const reaction = HORIZONS.map((h) => ({ h, up: avgAt(up, h).vsIdx, down: avgAt(down, h).vsIdx }));
   return { events: evs.length, cuts: { q20: r2(q20), q80: r2(q80) }, quintiles, H4, H5, reaction };
 }
+<<<<<<< Updated upstream
+=======
+
+// Live: classify a company's latest results against the study's fifths and
+// say what the study found for that group (display only; study = the saved
+// data/surprise-study.json). ev: { surprisePct, reaction }.
+export function resultsCheck(ev, study) {
+  if (!ev || ev.surprisePct == null || !study?.cuts) return null;
+  const { q20, q80 } = study.cuts;
+  const fifth = ev.surprisePct < q20 ? "bottom" : ev.surprisePct >= q80 ? "top" : "middle";
+  const sign = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}`;
+  const label = `EPS ${ev.surprisePct >= 0 ? "beat" : "missed"} the forecast by ${Math.abs(ev.surprisePct).toFixed(1)}%${fifth === "top" ? " (top fifth)" : fifth === "bottom" ? " (bottom fifth)" : ""}; the price ${ev.reaction >= 0 ? "rose" : "fell"} ${Math.abs(ev.reaction).toFixed(1)}% on the day`;
+  let note = null, tone = "neutral";
+  const h = study.H5;
+  if (fifth === "bottom" && ev.reaction <= -2 && h?.down?.bottom?.vsIdx != null) {
+    tone = "watch";
+    note = `Weak results and a falling price: over the past year this group did ${sign(h.down.bottom.vsIdx)} points against the S&P 500 over the next 60 sessions, vs ${sign(h.down.rest.vsIdx)} for other falls (one year of data, so a pointer, not a rule).`;
+  } else if (fifth === "top" && ev.reaction >= 2 && h?.up?.top?.vsIdx != null) {
+    tone = "good";
+    note = `Strong results and a rising price: over the past year this group did ${sign(h.up.top.vsIdx)} points against the S&P 500 over the next 60 sessions, vs ${sign(h.up.rest.vsIdx)} for other rises (one year of data, so a pointer, not a rule).`;
+  }
+  return { fifth, label, note, tone };
+}
+>>>>>>> Stashed changes
