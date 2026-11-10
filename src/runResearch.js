@@ -84,7 +84,7 @@ export async function runResearch({ regimeKey, state }) {
 
   // Alerts: newly a "Good entry" (long-term) or a swing "Setup".
   const sellStudy = await readJson("data/sell-study.json", null);
-  const prev = state.research || {}, next = {}, lines = [], events = [];
+  const prev = state.research || {}, next = {}, lines = [], pickLines = [], events = [];
   const at = new Date().toISOString();
   for (const it of items) {
     const p = prev[it.symbol] || {};
@@ -109,9 +109,9 @@ export async function runResearch({ regimeKey, state }) {
     if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
     // rr: the pick's results date already announced (null = none yet).
     const rl = pickResultsLine(it, "rr" in p ? p.rr : undefined, undefined, rcMoves[it.symbol]?.moves);
-    if (rl) lines.push(rl);
+    if (rl) pickLines.push(rl);
     const sl = pickSellLine(it, sellStudy);
-    if (sl) lines.push(sl);
+    if (sl) pickLines.push(sl);
     const rr = it.lastResults && !it.lastResults.pending ? it.lastResults.date : p.rr ?? null;
     next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION, g: isGood ? today : p.g ?? null, s: isSetup ? today : p.s ?? null, rr };
   }
@@ -120,6 +120,9 @@ export async function runResearch({ regimeKey, state }) {
   const baseline = Object.keys(prev).length === 0;
   const alerts = lines.length && !baseline ? [{ kind: "research", priority: "default", tags: "mag", click: CONFIG.researchUrl,
     title: `Research · ${lines.length} update${lines.length > 1 ? "s" : ""}`, body: lines.join("\n") }] : [];
+  // News on the five picks goes as its own push (kept under the plan-swing alert profile).
+  if (pickLines.length && !baseline) alerts.push({ kind: "research-pick", priority: "default", tags: "mag", click: CONFIG.researchUrl,
+    title: `Your picks · ${pickLines.length} update${pickLines.length > 1 ? "s" : ""}`, body: pickLines.join("\n") });
 
   return {
     data: { updated: new Date().toISOString(), scoringVersion: SCORING_VERSION, placeholder, regime: regimeKey, count: items.length, failed, items },

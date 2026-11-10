@@ -91,6 +91,9 @@ export const CONFIG = {
   // Quiet hours (London): alerts are held and delivered at the next run after
   // the window ends. Health alerts are never held.
   quietHours: { start: "22:00", end: "07:00", tz: "Europe/London" },
+  // Which pushes reach the phone (src/alertProfile.js). "plan-swing" (Douglas,
+  // 10 Nov): plan alerts and swing trades (paper) only; "all" sends everything.
+  alertProfile: "plan-swing",
 
   historyPoints: 400,
 };

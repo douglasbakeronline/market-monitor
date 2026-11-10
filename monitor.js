@@ -21,7 +21,8 @@ import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
 import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
-import { bookLine, bookNews } from "./src/swingBook.js";
+import { bookLine, bookNews, swingTradeAlerts } from "./src/swingBook.js";
+import { allowAlert, summaryAllowed } from "./src/alertProfile.js";
 import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
@@ -168,7 +169,8 @@ async function main() {
   // Claude's swing book (paper): a push when it places orders or closes trades.
   const bn = bookNews(await readJson("history/swing-book.json", null), state.bookSeen ?? null);
   state.bookSeen = bn.seen;
-  if (bn.line) alerts.push({ kind: "book", priority: "low", tags: "chart_with_upwards_trend", title: `Swing book (paper) · ${today}`, body: `${bn.line} Paper only: no real money.` });
+  // Swing-trade alerts (paper): the book's new orders and closed trades.
+  alerts.push(...swingTradeAlerts(bn, await readJson("history/swing-book.json", null)));
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;
@@ -188,10 +190,13 @@ async function main() {
   const quiet = inQuietHours(now);
   state.pending = state.pending || [];
   if (!quiet && state.pending.length) {
-    for (const a of state.pending) { console.log(`ALERT (held overnight) ${a.title}`); await notify({ ...a, body: `${a.body}\n(Held from ${a.heldAt}.)` }); }
+    for (const a of state.pending) { if (!allowAlert(a, CONFIG.alertProfile ?? "all")) continue; console.log(`ALERT (held overnight) ${a.title}`); await notify({ ...a, body: `${a.body}\n(Held from ${a.heldAt}.)` }); }
     state.pending = [];
   }
+  // Alert profile (CONFIG.alertProfile): muted kinds are logged, not pushed.
+  const profile = CONFIG.alertProfile ?? "all";
   for (const a of alerts) {
+    if (!allowAlert(a, profile)) { console.log(`MUTED (${profile}): ${a.title}`); continue; }
     if (quiet && a.kind !== "health" && a.priority !== "urgent") {
       console.log(`HELD for quiet hours: ${a.title}`);
       state.pending = state.pending.filter((p) => p.title !== a.title).concat({ ...a, heldAt: new Date().toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" }) });
@@ -216,9 +221,11 @@ async function main() {
   for (const market of due) {
     const tz = market === "UK" ? "Europe/London" : "America/New_York";
     const planLines = market === "UK" && (lon0.weekday === 1 || cp.actions.some((a) => a.inDays <= 1)) ? copilotLines(cp) : [];
-    await notify({ title: `${market} open · ${reg.label}`, body: [...planLines, summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan })].join("\n"), priority: "default", tags: market === "UK" ? "gb" : "us" });
+    const mode = summaryAllowed(CONFIG.alertProfile ?? "all", planLines);
+    if (mode === "full") await notify({ title: `${market} open · ${reg.label}`, body: [...planLines, summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan })].join("\n"), priority: "default", tags: market === "UK" ? "gb" : "us" });
+    else if (mode === "plan") await notify({ title: `Plan this week · ${reg.label}`, body: planLines.join("\n"), priority: "default", tags: "calendar" });
     state.summarySent[market] = dateIn(tz);
-    console.log(`Sent ${market} summary.`);
+    console.log(mode === "none" ? `${market} summary muted (alert profile).` : `Sent ${market} ${mode === "plan" ? "plan lines" : "summary"}.`);
   }
 
   // --- 10. Weekly digest (Sunday evening) ------------------------------------------

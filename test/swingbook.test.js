@@ -83,3 +83,24 @@ test("paper trades keep why a setup fired, and the book passes it on", async () 
   assert.deepEqual(log[0].why, ["Breakout", "MACD cross up"]);
   assert.deepEqual(swingBook(log).orders[0].why, ["Breakout", "MACD cross up"]);
 });
+
+test("swing-trade alerts: orders with stop and target, closes, nothing when quiet", async () => {
+  const { bookNews, swingTradeAlerts } = await import("../src/swingBook.js");
+  const b = { start: "2026-11-02", returnPct: -2.42, sp: { pct: -0.89 }, open: [{}, {}], orders: [], recent: [{ id: "x", ticker: "DASH", netR: -1.05, reason: "stop" }] };
+  const first = bookNews(b, null);
+  assert.deepEqual(swingTradeAlerts(first, b), [], "first run is silent");
+  const b2 = { ...b, orders: [{ signalDate: "2026-11-10", symbol: "MSFT", ticker: "MSFT", name: "Microsoft", market: "US", currency: "USD", signalPrice: 400, stop: 388, stopPct: -3, why: ["breakout", "MACD cross up"] }], recent: [{ id: "y", ticker: "DE", netR: 1.9, reason: "target" }, ...b.recent] };
+  const al = swingTradeAlerts(bookNews(b2, first.seen), b2);
+  assert.equal(al.length, 2);
+  assert.equal(al[0].kind, "swing");
+  assert.equal(al[0].priority, "high");
+  assert.equal(al[0].title, "Swing trade (paper): buy MSFT");
+  assert.match(al[0].body, /MSFT \(Microsoft, US\): buy at the next open \(last close \$400\.0\)\. Stop \$388\.0 \(3% below\); target about \$424\.0 \(2x the risk\), or out after 20 sessions\. Why: breakout, MACD cross up\./);
+  assert.match(al[0].body, /Paper only.*Book -2\.42% since 2 Nov \(S&P -0\.89%\); 2 open\./s);
+  assert.equal(al[1].title, "Swing trade (paper): closed DE");
+  assert.match(al[1].body, /DE: \+1\.9R after costs \(target hit\)\./);
+  const uk = swingTradeAlerts(bookNews({ ...b, orders: [{ signalDate: "2026-11-10", symbol: "HSX.L", ticker: "HSX", market: "UK", currency: "GBp", signalPrice: 1883, stop: 1813.42, stopPct: -3.7 }] }, first.seen), b);
+  assert.match(uk[0].body, /last close 1883p\)\. Stop 1813p \(3\.7% below\); target about 2022p/);
+  assert.match(uk[0].body, /open before this alert lands/);
+  assert.doesNotMatch(al[0].body, /open before this alert lands/);
+});

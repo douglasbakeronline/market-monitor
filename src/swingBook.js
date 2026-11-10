@@ -129,5 +129,30 @@ export function bookNews(b, seen) {
   if (newOrders.length) parts.push(`buy at the next open: ${newOrders.map((o) => `${o.ticker} (stop ${o.stopPct}% below)`).join(", ")}`);
   if (newClosed.length) parts.push(`closed: ${newClosed.map((x) => `${x.ticker} ${x.netR > 0 ? "+" : ""}${x.netR}R (${{ stop: "stopped", target: "target", time: "20 sessions" }[x.reason] ?? x.reason})`).join(", ")}`);
   const d = new Date(b.start + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
-  return { line: `${parts.join("; ")}. Book ${b.returnPct > 0 ? "+" : ""}${b.returnPct}% since ${d}.`, seen: next };
+  return { line: `${parts.join("; ")}. Book ${b.returnPct > 0 ? "+" : ""}${b.returnPct}% since ${d}.`, seen: next, newOrders, newClosed };
+}
+
+// The swing-trade push (paper): the book's new orders with entry, stop and
+// target, and its closed trades. The book already picks the strongest clean
+// setups (best score first, at most 4 open), so these are the few trades a
+// funded swing pot would take, not every setup. Returns [] when nothing is new.
+export function swingTradeAlerts(news, b) {
+  if (!news?.line || !b) return [];
+  const fmt = (v, c) => (c === "GBp" ? `${Math.round(v)}p` : `${c === "EUR" ? "\u20ac" : c === "USD" ? "$" : ""}${v >= 100 ? v.toFixed(1) : v.toFixed(2)}`);
+  const sign = (x) => `${x > 0 ? "+" : ""}${x}`;
+  const book = `Book ${sign(b.returnPct)}% since ${new Date(b.start + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}${b.sp?.pct != null ? ` (S&P ${sign(b.sp.pct)}%)` : ""}; ${b.open?.length ?? 0} open.`;
+  const out = [];
+  if (news.newOrders?.length) {
+    const lines = news.newOrders.map((o) => {
+      const tgt = o.signalPrice > o.stop ? o.signalPrice + 2 * (o.signalPrice - o.stop) : null;
+      return `${o.ticker} (${o.name ?? o.ticker}, ${o.market}): buy at the next open (last close ${fmt(o.signalPrice, o.currency)}). Stop ${fmt(o.stop, o.currency)}${o.stopPct != null ? ` (${Math.abs(o.stopPct)}% below)` : ""}; target about ${tgt ? fmt(tgt, o.currency) : "2R"} (2x the risk), or out after 20 sessions.${o.why?.length ? ` Why: ${o.why.join(", ")}.` : ""}`;
+    });
+    out.push({ kind: "swing", priority: "high", tags: "chart_with_upwards_trend", title: `Swing trade (paper): buy ${news.newOrders.map((o) => o.ticker).join(", ")}`,
+      body: [...lines, ...(news.newOrders.some((o) => o.market !== "US") ? ["London and European names open before this alert lands (08:15); the paper book takes the opening price."] : []), `Paper only: the plan keeps swing at 0% until you fund a swing pot. Risk 2% of the book per trade. ${book}`].join("\n") });
+  }
+  if (news.newClosed?.length) {
+    out.push({ kind: "swing", priority: "default", tags: "checkered_flag", title: `Swing trade (paper): closed ${news.newClosed.map((x) => x.ticker).join(", ")}`,
+      body: [...news.newClosed.map((x) => `${x.ticker}: ${sign(x.netR)}R after costs (${{ stop: "stop hit", target: "target hit", time: "20 sessions up" }[x.reason] ?? x.reason}).`), `Paper only. ${book}`].join("\n") });
+  }
+  return out;
 }
