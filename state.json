@@ -222,7 +222,7 @@
     "fg": {
       "score": 32,
       "rating": "fear",
-      "asOf": "2026-11-09T20:59:59+00:00",
+      "asOf": "2026-11-09T23:59:52+00:00",
       "comparisons": {
         "close": 22,
         "week": 19,
@@ -269,7 +269,7 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 43,
+          "score": 42,
           "rating": "fear"
         }
       ],
@@ -1521,19 +1521,19 @@
         },
         {
           "date": "2026-11-09",
-          "t": 1794257999000,
+          "t": 1794268792000,
           "y": 32
         }
       ]
     },
-    "fgAt": "2026-11-09T21:10:38.304Z",
+    "fgAt": "2026-11-10T02:35:10.811Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7549.94,
         "date": "2026-11-09",
-        "asOf": "2026-11-09T21:10:37.000Z",
+        "asOf": "2026-11-09T22:12:50.000Z",
         "currency": "USD",
         "drawdownPct": -3.4,
         "peak": 7818.93,
@@ -1677,11 +1677,11 @@
         ]
       },
       "vix": {
-        "level": 20.05,
-        "dayPct": -21.8,
+        "level": 19.92,
+        "dayPct": -22.3,
         "date": "2026-11-09"
       },
-      "at": "2026-11-09T21:10:38.304Z"
+      "at": "2026-11-10T02:35:10.811Z"
     },
     "watchlist": [
       {
@@ -2149,13 +2149,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 422.41,
+        "price": 422.16,
         "date": "2026-11-09",
-        "dropFromHigh": -3.2,
+        "dropFromHigh": -3.3,
         "lastChange": -0.1,
         "previous": 0,
-        "week": -0.7,
-        "month": 9.6,
+        "week": -0.8,
+        "month": 9.5,
         "series": [
           0,
           -1.79,
@@ -2186,7 +2186,7 @@
           19.32,
           15.5,
           15.52,
-          15.45
+          15.38
         ],
         "rebound": false
       },
@@ -2195,7 +2195,7 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 342.11,
+        "price": 342.08,
         "date": "2026-11-09",
         "dropFromHigh": -2.8,
         "lastChange": 2.3,
@@ -2232,7 +2232,7 @@
           5.11,
           0.7,
           -0.15,
-          2.13
+          2.12
         ],
         "rebound": false
       },
