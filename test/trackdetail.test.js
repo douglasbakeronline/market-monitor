@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { evaluate, homeIndex, marketOfSymbol, byMarket, byScore, byHorizon, scoreOf, digestKindLine, byKind, MIN_PER_KIND } from "../src/trackRecord.js";
+import { evaluate, homeIndex, marketOfSymbol, byMarket, byScore, byHorizon, scoreOf, digestKindLine, byKind, summarise, MIN_PER_KIND } from "../src/trackRecord.js";
 
 const days = (n, start = 100, step = 1) => Array.from({ length: n }, (_, i) => ({ date: `2026-${String(1 + Math.floor(i / 28)).padStart(2, "0")}-${String(1 + (i % 28)).padStart(2, "0")}`, close: start + i * step }));
 
@@ -88,5 +88,16 @@ test("digestKindLine", () => {
   const early = byKind([sig("A", "research-swing", "", { now: 1, vsSp: 1 }), sig("B", "research-lt", "", { now: 1, vsSp: 1 }), sig("C", "research-lt", "", { now: 1, vsSp: 1 })]);
   assert.match(digestKindLine(early), /too early for all 2 .*closest: Long-term good entry, 2 of 5/);
   const ready = byKind([...Array.from({ length: 5 }, () => sig("A", "research-swing", "", { now: 2, vsSp: 1.5 })), sig("B", "research-lt", "", { now: 1, vsSp: 1 })]);
-  assert.equal(digestKindLine(ready), "By type: Swing setup 100% right so far, avg +1.5% vs S&P (5); 1 other type too early.");
+  assert.equal(digestKindLine(ready), "By type: Swing setup 100% right so far, avg +1.5% vs its index (5); 1 other type too early.");
+});
+
+test("headline and per-kind tables judge each signal against its home index", () => {
+  const ks = Array.from({ length: 5 }, (_, i) => sig("SHEL.L", "research-swing", "", { now: 1, vsSp: -2, vsIdx: 0.5 + i }));
+  const s = summarise(ks);
+  assert.equal(s.beatSp, 0);
+  assert.equal(s.beatIdx, 100);
+  const k = byKind(ks)[0];
+  assert.equal(k.avgVsIdx, 2.5);
+  assert.equal(k.avgVsSp, -2);
+  assert.equal(summarise([sig("X", "research-lt", "", { now: 1, vsSp: 1 })].map((x) => ({ ...x, perf: { ...x.perf, sessions: 6 } }))).beatIdx, 100, "falls back to the S&P");
 });

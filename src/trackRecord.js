@@ -79,6 +79,11 @@ export function evaluate(log, rowsBySymbol, spRows) {
 }
 
 // Headline numbers: hit rate at one month (or "so far" if nothing is a month old yet).
+// Each signal against its home index (FTSE 100 for London, Euro Stoxx 50 for
+// Europe, else the S&P 500); the S&P when the home index is missing.
+export const vsHome = (p) => p?.vsIdx ?? p?.vsSp ?? null;
+export const INDEX_SHORT = { "^GSPC": "S&P", "^FTSE": "FTSE", "^STOXX50E": "Stoxx" };
+
 export function summarise(log) {
   // A signal needs at least a week of trading before it says anything.
   const scored = log.filter((s) => s.perf?.now != null && (s.perf.sessions ?? 0) >= 5);
@@ -88,10 +93,12 @@ export function summarise(log) {
   const pool = basis === "m1" ? m1 : scored;
   const hits = pool.filter((s) => right(s, s.perf[basis])).length;
   const beat = pool.filter((s) => s.perf.vsSp != null && (DOWN_IS_GOOD.has(s.kind) ? s.perf.vsSp < 0 : s.perf.vsSp > 0)).length;
+  const beatH = pool.filter((s) => vsHome(s.perf) != null && (DOWN_IS_GOOD.has(s.kind) ? vsHome(s.perf) < 0 : vsHome(s.perf) > 0)).length;
   return {
     total: log.length, scored: pool.length, basis,
     hitRate: pool.length ? Math.round((hits / pool.length) * 100) : null,
     beatSp: pool.length ? Math.round((beat / pool.length) * 100) : null,
+    beatIdx: pool.length ? Math.round((beatH / pool.length) * 100) : null,
     since: log[0]?.date ?? null,
   };
 }
@@ -106,9 +113,11 @@ export function byKind(log) {
     const s = summarise(list);
     const pool = list.filter((x) => x.perf?.now != null && (x.perf.sessions ?? 0) >= 5 && x.perf.vsSp != null && (s.basis !== "m1" || x.perf.m1 != null));
     const avg = pool.length ? Math.round((pool.reduce((a, x) => a + x.perf.vsSp, 0) / pool.length) * 10) / 10 : null;
+    const avgIdx = pool.length ? Math.round((pool.reduce((a, x) => a + vsHome(x.perf), 0) / pool.length) * 10) / 10 : null;
     const enough = s.scored >= MIN_PER_KIND;
     return { kind, label: KIND_LABEL[kind] || kind, total: s.total, scored: s.scored, basis: s.basis, enough,
-      hitRate: enough ? s.hitRate : null, beatSp: enough ? s.beatSp : null, avgVsSp: enough ? avg : null };
+      hitRate: enough ? s.hitRate : null, beatSp: enough ? s.beatSp : null, avgVsSp: enough ? avg : null,
+      beatIdx: enough ? s.beatIdx : null, avgVsIdx: enough ? avgIdx : null };
   }).sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
 }
 
@@ -185,6 +194,6 @@ export function digestKindLine(kinds) {
     const top = kinds.reduce((a, b) => (b.scored > a.scored ? b : a));
     return `By type: too early for all ${kinds.length} (each needs ${MIN_PER_KIND} scored; closest: ${top.label}, ${top.scored} of ${MIN_PER_KIND}).`;
   }
-  return "By type: " + ready.map((g) => `${g.label} ${g.hitRate}% right${g.basis === "m1" ? " after a month" : " so far"}, avg ${g.avgVsSp > 0 ? "+" : ""}${g.avgVsSp}% vs S&P (${g.scored})`).join("; ")
+  return "By type: " + ready.map((g) => `${g.label} ${g.hitRate}% right${g.basis === "m1" ? " after a month" : " so far"}, avg ${g.avgVsIdx > 0 ? "+" : ""}${g.avgVsIdx}% vs its index (${g.scored})`).join("; ")
     + (ready.length < kinds.length ? `; ${kinds.length - ready.length} other type${kinds.length - ready.length === 1 ? "" : "s"} too early.` : ".");
 }

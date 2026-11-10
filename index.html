@@ -313,7 +313,7 @@
       <details class="tr-more" id="trMore" hidden><summary>More detail: by market, score and time held</summary><div id="trMoreBody"></div></details>
       <div id="trList"></div>
     </div>
-    <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against the S&amp;P 500 over the same period. For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
+    <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against its home index over the same period (FTSE 100 for London shares, Euro Stoxx 50 for European ones, else the S&amp;P 500). For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
   </section>
 
   <!-- Swing paper trading -->
@@ -747,15 +747,15 @@ function renderTrack(tr) {
   const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
   $("trHead").innerHTML = stat("Signals logged", s.total, s.since ? `since ${fmtDM(s.since)}` : "") +
     stat(s.basis === "m1" ? "Right after 1 month" : "Right so far", s.hitRate == null ? "Too early" : `${s.hitRate}%`, s.scored ? `${s.scored} scored` : "each needs a week") +
-    stat("Beat the S&amp;P", s.beatSp == null ? "Too early" : `${s.beatSp}%`, "same period");
+    stat("Beat their index", (s.beatIdx ?? s.beatSp) == null ? "Too early" : `${s.beatIdx ?? s.beatSp}%`, "home index, same period");
   const tone = (k, v) => v == null ? "muted" : (DOWN_GOOD.has(k) ? (v < 0 ? "pos" : "neg") : pnClass(v));
   if (tr.byKind?.length) {
     $("trKinds").hidden = false;
     $("trKinds").innerHTML = `<div class="k-title">By signal type</div>` + tr.byKind.map((g) => `<div class="tr-kind">
       <span><b>${esc(g.label)}</b> <span class="muted">${g.total} logged</span></span>
       <span class="num">${g.hitRate == null ? `<span class="muted">Too early</span>` : `${g.hitRate}%`}<span class="sub">${g.enough ? (g.basis === "m1" ? "right after 1 month" : "right so far") : `${g.scored} of 5 scored`}</span></span>
-      <span class="num">${g.beatSp == null ? `<span class="muted">n/a</span>` : `${g.beatSp}%`}<span class="sub">beat the S&amp;P</span></span>
-      <span class="num vs ${tone(g.kind, g.avgVsSp)}">${g.avgVsSp == null ? `<span class="muted">n/a</span>` : signPct(g.avgVsSp)}<span class="sub">avg vs S&amp;P</span></span></div>`).join("");
+      <span class="num">${(g.beatIdx ?? g.beatSp) == null ? `<span class="muted">n/a</span>` : `${g.beatIdx ?? g.beatSp}%`}<span class="sub">beat their index</span></span>
+      <span class="num vs ${tone(g.kind, g.avgVsIdx ?? g.avgVsSp)}">${(g.avgVsIdx ?? g.avgVsSp) == null ? `<span class="muted">n/a</span>` : signPct(g.avgVsIdx ?? g.avgVsSp)}<span class="sub">avg vs index</span></span></div>`).join("");
   }
   renderTrackMore(tr, tone);
   $("trList").innerHTML = tr.recent.map((x) => {
@@ -764,7 +764,7 @@ function renderTrack(tr) {
     return `<div class="tr-row"><span class="when">${fmtDM(x.date)}</span>
       <span class="what"><b>${esc(x.ticker || x.name)}</b> <span class="muted">${esc(KIND[x.kind] || x.kind)}</span></span>
       <span class="num ${tone(x.kind, p.now)}">${signPct(p.now)}<span class="sub">${days}</span></span>
-      <span class="num vs ${tone(x.kind, p.vsSp)}">${p.vsSp == null ? "n/a" : signPct(p.vsSp)}<span class="sub">vs S&amp;P</span></span></div>`;
+      <span class="num vs ${tone(x.kind, p.vsIdx ?? p.vsSp)}">${(p.vsIdx ?? p.vsSp) == null ? "n/a" : signPct(p.vsIdx ?? p.vsSp)}<span class="sub">vs ${p.vsIdx != null ? ({ "^GSPC": "S&amp;P", "^FTSE": "FTSE", "^STOXX50E": "Stoxx" }[p.idx] ?? "index") : "S&amp;P"}</span></span></div>`;
   }).join("");
 }
 
