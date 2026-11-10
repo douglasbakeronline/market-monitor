@@ -436,7 +436,7 @@ async function load() {
 load();
 
 // --- Swing lab: published short-term effects tested against random entry ------------
-const lab = { bt: null, live: null, d2: null };
+const lab = { bt: null, live: null, d2: null, rot: null };
 const pts = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}%`);
 const LAB_TONE = { clear: "bg-buy", promising: "bg-watch", weak: "", none: "", loses: "bg-sell" };
 const MISSED = { years: "ahead of random in only {a} of {c} years (needs 3 in 4)", edge: "edge under the 0.4-point bar", sample: "too few trades", markets: "not ahead in both the US and the UK", positive: "loses money after costs" };
@@ -465,6 +465,18 @@ function renderLab() {
       ${[5, 10, 20, 40, 60].map(hrow).join("")}
       <p class="small" style="margin:8px 0 0"><b>For picks:</b> buying after a heavy-volume fall did no worse than random over 20 or 60 sessions, so there is no case for waiting after bad results.</p></div>`;
   }
+  // Round 3: sector rotation (no survivorship: nine sector funds since 1998).
+  const ro = lab.rot;
+  if (ro) {
+    const pc = (v) => (v == null ? "n/a" : `${v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`);
+    const pr = ro.results.find((r) => r.key === "primary");
+    const rrow = (r) => `<div class="lab-row r2"><span>${esc(r.label.replace(" (primary)", ""))}${r.key === "primary" ? ` <span class="pill plain bg-sell" style="margin-left:4px">${r.pass ? "Passes" : "Fails the bar"}</span>` : ""}<span class="why">Ahead in ${Math.round(r.rollShare * 100)}% of 3-year spells; points a year, ${r.halves.map((h) => `${h.from.slice(0, 4)} to ${h.to.slice(0, 4)} ${h.excess > 0 ? "+" : h.excess < 0 ? "\u2212" : ""}${Math.abs(h.excess).toFixed(1)}`).join(", ")}</span></span><span class="num">${pc(r.strat.cagr)}</span><span class="num muted">${pc(r.strat.maxDd)}</span><span class="num ${pnClass(r.excess)}"><b>${pts(r.excess)}</b></span></div>`;
+    r2html += `<div class="lab-live"><div class="k">Round 3: rotating between sectors</div>
+      <p class="small muted" style="margin:4px 0 8px">Single-stock tests can only use today's index members. Sector funds avoid that: the nine original US sector funds have traded since 1998 and none has closed. Written down first: each month hold the 3 sectors with the best 3-month return. Against simply holding all nine (${pc(ro.bench.cagr)} a year, worst fall ${pc(ro.bench.maxDd)}), ${ro.from.slice(0, 4)} to ${ro.to.slice(0, 4)}, after costs of 0.1% a side.</p>
+      <div class="lab-row r2 h"><span>Each month hold</span><span class="num">A year</span><span class="num">Worst fall</span><span class="num">vs all nine</span></div>
+      ${ro.results.map(rrow).join("")}
+      <p class="small" style="margin:8px 0 0">${pr.pass ? "" : `<b>No lookback beats holding every sector</b>; turnover of ${Math.round(pr.strat.turnover / 100)}× a year eats what momentum there is. `}The trend filter on all nine cut the worst fall from ${pc(ro.bench.maxDd)} to ${pc(ro.results.find((r) => r.key === "eqTrend").strat.maxDd)}, at a cost of ${Math.abs(ro.results.find((r) => r.key === "eqTrend").excess).toFixed(1)} points a year (cash counted at 0%, so a little worse than reality): insurance, not an edge. The core fund already holds every sector.</p></div>`;
+  }
   const L = lab.live || [];
   const open = L.filter((t) => t.status !== "closed").sort((a, b2) => (a.signalDate < b2.signalDate ? 1 : -1));
   const closed = L.filter((t) => t.status === "closed");
@@ -476,6 +488,7 @@ function renderLab() {
   $("labCap").innerHTML = `The bar, fixed before the test: after costs at least 0.4 points a trade better than random entry, positive itself, 300+ trades, ahead in 3 of every 4 years and in both the US and the UK. <b>Per trade</b> is the average net return; <b>Random</b> buys on random days with the same exit (for the dip, random days in an uptrend). Today's index members only, so all rows are flattered alike. Paper only: nothing here changes the plan, and swing stays at 0% of the portfolio unless Douglas decides otherwise. Sources and numbers: research log, 10 Nov.`;
 }
 fetch(`data/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.bt = j; renderLab(); } }).catch(() => {});
+fetch(`data/sector-rotation.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.rot = j; renderLab(); } }).catch(() => {});
 fetch(`data/drift-study.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.matched) { lab.d2 = j; renderLab(); } }).catch(() => {});
 fetch(`history/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j)) { lab.live = j; renderLab(); } }).catch(() => {});
 
