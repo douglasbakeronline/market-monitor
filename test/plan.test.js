@@ -182,3 +182,14 @@ test("notes and paused drips are shown but not counted as actions", async () => 
   const p = copilot({ today: "2027-01-29", sp: null, ftse: null, tiers: ["2027-01-20"] });
   assert.match(p.headline, /^Nothing due this week/);
 });
+
+test("pick results line: once per results date, silent on the first run", async () => {
+  const { pickResultsLine } = await import("../src/plan.js");
+  const it = { symbol: "META", ticker: "META", lastResults: { date: "2027-01-28", pending: false, pct: -4.2 }, longTerm: { verdict: "Fair", score: 74, gaps: ["Entry 66, needs 70"] } };
+  assert.equal(pickResultsLine(it, "2026-10-29"), "META (a pick) reported Thu 28 Jan: -4.2% from the close before to the close after. Long-term now Fair 74 (Entry 66, needs 70).");
+  assert.equal(pickResultsLine(it, "2027-01-28"), null, "already announced");
+  assert.equal(pickResultsLine(it, undefined), null, "first run records silently");
+  assert.equal(pickResultsLine({ ...it, lastResults: { date: "2027-01-28", pending: true } }, null), null, "reaction not in yet");
+  assert.equal(pickResultsLine({ ...it, symbol: "AAPL" }, null), null, "not a pick");
+  assert.match(pickResultsLine(it, null), /reported Thu 28 Jan/);
+});

@@ -128,6 +128,19 @@ export function dripSchedule(from, to, tierDates = [], plan = PLAN) {
   return out;
 }
 
+// A pick has reported and the market has reacted (research item lastResults,
+// close before to close after): one line for the research alert, once per
+// results date. seen = the results date already announced (undefined on the
+// first run, which records silently).
+export function pickResultsLine(it, seen, plan = PLAN) {
+  const lr = it?.lastResults;
+  if (!lr || lr.pending || lr.pct == null || !plan.picks.some((p) => p.symbol === it.symbol)) return null;
+  if (seen === undefined || seen === lr.date) return null;
+  const lt = it.longTerm ?? {};
+  const why = lt.verdict !== "Good entry" && lt.gaps?.length ? ` (${lt.gaps[0]})` : "";
+  return `${it.ticker} (a pick) reported ${dayLabel(lr.date)}: ${lr.pct >= 0 ? "+" : ""}${lr.pct.toFixed(1)}% from the close before to the close after. Long-term now ${lt.verdict ?? "n/a"}${lt.score != null ? ` ${lt.score}` : ""}${why}.`;
+}
+
 // The bench (replacement candidates): verdict and how close each is, best first.
 export function benchStatus(items = {}, plan = PLAN) {
   const rank = (b) => (b.verdict === "Good entry" ? 0 : b.near ? 1 : b.verdict === "Fair" ? 2 : 3);

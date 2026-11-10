@@ -4,6 +4,7 @@ import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
+import { pickResultsLine } from "./plan.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf, reitView } from "./sectorValue.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
@@ -101,13 +102,17 @@ export async function runResearch({ regimeKey, state }) {
     if (newGood) lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
     if (newSetup) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
     if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
-    next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION, g: isGood ? today : p.g ?? null, s: isSetup ? today : p.s ?? null };
+    // rr: the pick's results date already announced (null = none yet).
+    const rl = pickResultsLine(it, "rr" in p ? p.rr : undefined);
+    if (rl) lines.push(rl);
+    const rr = it.lastResults && !it.lastResults.pending ? it.lastResults.date : p.rr ?? null;
+    next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION, g: isGood ? today : p.g ?? null, s: isSetup ? today : p.s ?? null, rr };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
   // First run: record a baseline silently rather than announce everything as new.
   const baseline = Object.keys(prev).length === 0;
   const alerts = lines.length && !baseline ? [{ kind: "research", priority: "default", tags: "mag", click: CONFIG.researchUrl,
-    title: `Research · ${lines.length} new signal${lines.length > 1 ? "s" : ""}`, body: lines.join("\n") }] : [];
+    title: `Research · ${lines.length} update${lines.length > 1 ? "s" : ""}`, body: lines.join("\n") }] : [];
 
   return {
     data: { updated: new Date().toISOString(), scoringVersion: SCORING_VERSION, placeholder, regime: regimeKey, count: items.length, failed, items },
