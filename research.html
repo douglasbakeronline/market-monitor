@@ -101,7 +101,7 @@
   .lab-row .num { text-align: right; font-variant-numeric: tabular-nums; }
   .lab-row .why { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
   .lab-live { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
-  @media (max-width: 520px) { .lab-row { grid-template-columns: 1fr 56px 56px; } .lab-row .hide-s { display: none; } }
+  @media (max-width: 520px) { .lab-row { grid-template-columns: 1fr 56px 56px; } .lab-row .hide-s { display: none; } .lab-row.r2 { grid-template-columns: 1fr 54px 54px 54px; gap: 6px; } }
   @media (max-width: 520px) { .pp-head { grid-template-columns: repeat(2, 1fr); } .pp-row { grid-template-columns: 52px 1fr auto; } .pp-row .hide-s { display: none; } }
 </style>
 </head>
@@ -185,7 +185,7 @@
 import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline, fmtDM } from "./assets/site.js";
 import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
-import { labVerdict, DRIFT } from "./src/swingLab.js";
+import { labVerdict, DRIFT, summariseDrift } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 let SELL = null;
@@ -436,7 +436,7 @@ async function load() {
 load();
 
 // --- Swing lab: published short-term effects tested against random entry ------------
-const lab = { bt: null, live: null };
+const lab = { bt: null, live: null, d2: null };
 const pts = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}%`);
 const LAB_TONE = { clear: "bg-buy", promising: "bg-watch", weak: "", none: "", loses: "bg-sell" };
 const MISSED = { years: "ahead of random in only {a} of {c} years (needs 3 in 4)", edge: "edge under the 0.4-point bar", sample: "too few trades", markets: "not ahead in both the US and the UK", positive: "loses money after costs" };
@@ -453,17 +453,30 @@ function renderLab() {
       <span class="why">${esc((r.label.match(/\((.*)\)/)?.[1] ?? "").replace(/^./, (c) => c.toUpperCase()))}. ${r.signal.n.toLocaleString("en-GB")} trades, ${Math.round(r.signal.days)} sessions each${why ? `; ${esc(why)}` : ""}.${stopped ? ` With the 2×ATR stop: ${pts(stopped.signal.avg)} vs ${pts(stopped.baseline.avg)}.` : ""}</span></span>
       <span class="num ${pnClass(r.signal.avg)}">${pts(r.signal.avg)}</span><span class="num muted">${pts(r.baseline.avg)}</span><span class="num hide-s ${pnClass(r.edge)}">${pts(r.edge)}</span></div>`;
   }).join("");
+  // Round 2: the drift study (holding periods, the down-day placebo).
+  const d2 = lab.d2;
+  let r2html = "";
+  if (d2) {
+    const m = (h) => d2.matched.find((x) => x.h === h), u = (h) => d2.up.find((x) => x.h === h), dn = (h) => d2.down.find((x) => x.h === h);
+    const hrow = (h) => `<div class="lab-row r2"><span>${h} sessions <span class="why">${u(h).n.toLocaleString("en-GB")} up and ${dn(h).n.toLocaleString("en-GB")} down days</span></span><span class="num ${pnClass(m(h).upMonth)}">${pts(m(h).upMonth)}</span><span class="num ${pnClass(m(h).downMonth)}">${pts(m(h).downMonth)}</span><span class="num ${pnClass(m(h).driftMonth)}"><b>${pts(m(h).driftMonth)}</b></span></div>`;
+    r2html = `<div class="lab-live"><div class="k">Round 2: is it really drift?</div>
+      <p class="small muted" style="margin:4px 0 8px">The same jump held longer pulls far ahead of random days (60 sessions: ${pts(d2.H1.avg)} vs ${pts(d2.H1.base)}, ahead in ${d2.H1.years.ahead} of ${d2.H1.years.counted} years, so it passes the pre-set bar). But a 4%+ <i>fall</i> on heavy volume also beats random later, so most of that is not drift: it is a volume or volatility effect, flattered by testing today's index members. Below, each is measured against random days in the same month (so market timing drops out); drift proper is the jump column minus the fall column.</p>
+      <div class="lab-row r2 h"><span>Held for</span><span class="num">After a jump</span><span class="num">After a fall</span><span class="num">Drift</span></div>
+      ${[5, 10, 20, 40, 60].map(hrow).join("")}
+      <p class="small" style="margin:8px 0 0"><b>For picks:</b> buying after a heavy-volume fall did no worse than random over 20 or 60 sessions, so there is no case for waiting after bad results.</p></div>`;
+  }
   const L = lab.live || [];
   const open = L.filter((t) => t.status !== "closed").sort((a, b2) => (a.signalDate < b2.signalDate ? 1 : -1));
   const closed = L.filter((t) => t.status === "closed");
-  const avg = (xs, f) => (xs.length ? xs.reduce((a, t) => a + f(t), 0) / xs.length : null);
-  const ix = closed.filter((t) => t.idxPct != null);
-  const liveHead = `<div class="k">Post-results drift, live on paper</div><p class="small muted" style="margin:4px 0 8px">The one candidate is tracked from the nightly scan exactly as tested: a ${DRIFT.minRet * 100}%+ day on ${DRIFT.volX}× normal volume, bought at the next open and sold at the close ${DRIFT.hold} sessions later, no stop.${closed.length ? ` Closed so far: ${closed.length}, ${pts(avg(closed, (t) => t.netPct))} a trade after costs${ix.length ? `, ${pts(avg(ix, (t) => t.netPct - t.idxPct))} vs the home index` : ""}.` : " No trade has closed yet; judge it after 50 or more."}</p>`;
-  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · +${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
-  $("labLive").innerHTML = `<div class="lab-live">${liveHead}${open.length ? open.slice(0, 12).map(row).join("") : `<p class="sub" style="margin:0">No open drift trades. Signals appear the night a stock jumps on heavy volume, usually on results.</p>`}${closed.length ? `<details style="margin-top:8px"><summary class="small muted">Closed (${closed.length})</summary>${closed.slice(-20).reverse().map(row).join("")}</details>` : ""}</div>`;
+  const sm = summariseDrift(L);
+  const sideTxt = (x, name) => (x.n20 ? `${name}: ${x.n20} at 20 sessions, ${pts(x.vs20)} vs index${x.n60 ? `; ${x.n60} at 60, ${pts(x.vs60)}` : ""}` : `${name}: none valued yet`);
+  const liveHead = `<div class="k">Live on paper: volume shocks, both ways</div><p class="small muted" style="margin:4px 0 8px">Every S&amp;P 500 and FTSE 100 stock that moves ${DRIFT.minRet * 100}%+ either way on ${DRIFT.volX}× normal volume is "bought" at the next open, valued after ${DRIFT.mark} sessions and closed after ${DRIFT.hold}, after costs and against its home index. A forward test has no survivorship bias, so it settles whether drift is real: judge it once each side has 30 or more. ${esc(sideTxt(sm.up, "Up"))}. ${esc(sideTxt(sm.down, "Down"))}.${sm.drift60 != null ? ` Drift (up minus down) at 60 sessions: ${pts(sm.drift60)}.` : sm.drift20 != null ? ` Drift at 20 sessions: ${pts(sm.drift20)}.` : ""}</p>`;
+  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · ${t.movePct > 0 ? "+" : ""}${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
+  $("labLive").innerHTML = r2html + `<div class="lab-live">${liveHead}${open.length ? open.slice(0, 12).map(row).join("") : `<p class="sub" style="margin:0">Nothing open yet. Entries appear the night a stock jumps or drops on heavy volume, usually on results.</p>`}${closed.length ? `<details style="margin-top:8px"><summary class="small muted">Closed (${closed.length})</summary>${closed.slice(-20).reverse().map(row).join("")}</details>` : ""}</div>`;
   $("labCap").innerHTML = `The bar, fixed before the test: after costs at least 0.4 points a trade better than random entry, positive itself, 300+ trades, ahead in 3 of every 4 years and in both the US and the UK. <b>Per trade</b> is the average net return; <b>Random</b> buys on random days with the same exit (for the dip, random days in an uptrend). Today's index members only, so all rows are flattered alike. Paper only: nothing here changes the plan, and swing stays at 0% of the portfolio unless Douglas decides otherwise. Sources and numbers: research log, 10 Nov.`;
 }
 fetch(`data/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.bt = j; renderLab(); } }).catch(() => {});
+fetch(`data/drift-study.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.matched) { lab.d2 = j; renderLab(); } }).catch(() => {});
 fetch(`history/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j)) { lab.live = j; renderLab(); } }).catch(() => {});
 
 // --- Swing paper trades ---------------------------------------------------------

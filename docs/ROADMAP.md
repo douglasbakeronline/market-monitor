@@ -15,6 +15,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - **Add the `SEC_CONTACT` secret (6 Nov), now optional (8 Nov: 13f.info covers the same filings):** Douglas agreed to use his email for SEC. If he wants EDGAR as the first source, he adds it himself: repo Settings, Secrets and variables, Actions, New repository secret, name `SEC_CONTACT` (Claude cannot set secrets).
 - **Picks pot scorecard (10 Nov research log):** (a) a yearly picks-vs-VWRP scorecard at the Sunday review from Nov 2027; (b) if the pot has trailed VWRP after three years (Nov 2029), fold it into the core. OK to add both to the strategy notes?
 - **REITs on cash flow, not P/E (10 Nov):** a display-only "REIT view" now shows price / operating cash flow against fully scored REITs (a stand-in for P/FFO). OK to use it in place of P/E in REITs' Value pillar? It would affect VICI (a pick). Nothing changes until agreed.
+- **Dip reserve and the proposed 2027 cash-interest charge (research log 10 Nov):** if the 22% charge on interest from cash in a stocks and shares ISA goes ahead from 6 Apr 2027, should the reserve sit in a money market fund inside the ISA instead of cash? Check the final rules and Trading 212's options first (Claude can research this in early 2027).
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
@@ -41,6 +42,8 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 10 Nov (daily run): Swing lab round 2: drift by holding period with a down-day placebo (mostly a volume effect; no wait-after-bad-results rule for picks); live test now tracks both directions to 60 sessions.
+- 10 Nov (morning): ISA allowance tracker (subscriptions, dividends, interest from the Trading 212 import).
 - 10 Nov (morning): sell signals tested (none helps a holder) and shown display-only with their verdict; trailing-stop level per stock.
 - 10 Nov (daily run): Swing lab: three published short-term effects backtested (none clears the bar; post-results drift closest); drift paper-traded live; Research page card.
 - 10 Nov (morning): This week's money check on the Dashboard (plan verdict, conditions, buy-now-or-wait study).
@@ -95,7 +98,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 1 Nov: plan-this-week panel, pullback-rule alert, private pots and goal panel, swing paper-trading log and backtest, pinned-price (takeover) detection and stop floor. See CHANGELOG.
 
 ## Later
-- Swing lab follow-ups: (a) after 50 closed live drift trades (about 3 to 4 months), compare with the backtest (+1.36% a trade, +0.52 vs index) and report to Douglas; (b) drift on Euro Stoxx 50 names needs a backtest first (costs as US); (c) a fourth pre-registered test could use real results dates and the size of the earnings surprise (needs a free source of estimates); (d) the backtest reruns with `node tools/swing-lab.mjs` on a dry-run branch (`dryrun-lab` has the workflow).
+- Swing lab follow-ups: (a) once each side of the live volume-shock test (history/swing-lab.json, up and down) has 30+ trades closed at 60 sessions (about early spring 2027), report drift = up minus down vs the index to Douglas; round 2 (10 Nov) found it +0.1 to +0.8 points in the backtest once matched; (b) drift on Euro Stoxx 50 names needs a backtest first (costs as US); (c) a fourth pre-registered test could use real results dates and the size of the earnings surprise (needs a free source of estimates); (d) the backtest reruns with `node tools/swing-lab.mjs` on a dry-run branch (`dryrun-lab` has the workflow).
 - Money check: refresh `data/wait-study.json` once a year (`node tools/wait-study.mjs` on the dryrun runner).
 - Goal odds: refresh `data/returns.json` once a year (`node tools/returns.mjs` on the dryrun runner; Yahoo is blocked from the sandbox). "Today's money" switch and the "what moves the odds" line shipped 10 Nov (daily run). Possible next: let the monthly top-up rise with inflation in today's-money mode (a toggle), if Douglas plans to raise it with pay.
 - Performance (measured 6 Nov): scan.json is 1.3 MB but about 190 KB gzipped (Pages gzips), and the Research page only fetches it when the Index scan tab is opened; research.json is 21 KB gzipped. Not worth a file split yet. If it grows: move `longTerm.pillars[].items[].why` (one fixed text per metric) and `sectorValue.note` into the page.

@@ -1,5 +1,5 @@
 name: Dry run (lab)
-# Swing lab round 2 (drift study), 10 Nov
+# Swing lab round 3 (sector rotation), 10 Nov
 on:
   push:
     branches: [dryrun-lab]
@@ -17,7 +17,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          node tools/drift-study.mjs > dry-run/drift-study.json 2> dry-run/drift-study.log; echo "exit=$?" >> dry-run/drift-study.log
+          node tools/sector-rotation.mjs > dry-run/sector-rotation.json 2> dry-run/sector-rotation.log; echo "exit=$?" >> dry-run/sector-rotation.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
           git add -f dry-run && git commit -qm "dry-run output" && git push -q
