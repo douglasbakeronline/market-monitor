@@ -20,6 +20,7 @@ import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLa
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
+import { latestSellSignals } from "./src/sellSignals.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
@@ -149,6 +150,9 @@ async function main() {
     };
     const sm = smartFor(u.symbol, smart);
     if (sm) item.smartMoney = sm;
+    // Sell and risk signals for holders (display only; tested in data/sell-study.json).
+    const ex = latestSellSignals(rowsBySymbol[u.symbol]);
+    item.exit = { kinds: ex.signals.map((x) => x.kind), stop: ex.stop };
     if (!item.earnings) item.resultsEstimate = resultsEstimate(item.lastEarnings, today, { uk: item.market !== "US", history: resultsHist[u.symbol] || [] });
     item.summary = summarise(item);
     return item;

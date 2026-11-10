@@ -49,6 +49,7 @@
   .summary { font-size: 14px; color: var(--ink-2); margin: 14px 0 4px; max-width: 75ch; }
   .note { font-size: 13px; margin: 8px 0 0; padding: 8px 12px; border-radius: 9px; background: var(--watch-bg); color: var(--watch); }
   .note.good { background: var(--buy-bg); color: var(--buy); }
+  .note.bad { background: var(--sell-bg); color: var(--ink); }
   .note.peer { background: var(--card); color: var(--ink-2); border: 1px solid var(--line); }
   .note.peer b { color: var(--ink); font-weight: 650; }
   .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 16px; }
@@ -95,6 +96,12 @@
   .pp-row .num { text-align: right; min-width: 56px; }
   .pp-row .num .sub { display: block; font-size: 11px; color: var(--muted); }
   .pp-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lab-row { display: grid; grid-template-columns: 1fr 64px 64px 64px; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .lab-row.h { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; border-top: 0; padding-bottom: 4px; }
+  .lab-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .lab-row .why { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .lab-live { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+  @media (max-width: 520px) { .lab-row { grid-template-columns: 1fr 56px 56px; } .lab-row .hide-s { display: none; } }
   @media (max-width: 520px) { .pp-head { grid-template-columns: repeat(2, 1fr); } .pp-row { grid-template-columns: 52px 1fr auto; } .pp-row .hide-s { display: none; } }
 </style>
 </head>
@@ -135,6 +142,16 @@
   <div class="list lens-lt" id="list"></div>
   <div style="text-align:center;margin-top:12px" id="moreWrap" hidden><button class="chip" type="button" id="more">Show more</button></div>
 
+  <section class="section" id="labSection" hidden>
+    <div class="eyebrow">Swing lab</div>
+    <div class="card">
+      <p class="small" style="margin:0" id="labIntro"></p>
+      <div id="labTable"></div>
+      <div id="labLive"></div>
+    </div>
+    <p class="cap" id="labCap"></p>
+  </section>
+
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Swing paper trades</div>
     <div class="card">
@@ -168,7 +185,11 @@
 import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline, fmtDM } from "./assets/site.js";
 import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
+import { labVerdict, DRIFT } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
+import { SELL_KINDS } from "./src/sellSignals.js";
+let SELL = null;
+fetch("data/sell-study.json").then((r) => (r.ok ? r.json() : null)).then((j) => { SELL = j; }).catch(() => {});
 const PICKS = new Set(PLAN.picks.map((p) => p.symbol)), BENCH = new Set(PLAN.bench);
 initTheme();
 const $ = (id) => document.getElementById(id);
@@ -178,7 +199,7 @@ const estTitle = (e) => `Not published yet. Estimated from the latest results ${
 const VERDICT_TONE = { "Good entry": "buy", Fair: "buy-lite", Wait: "neutral", Stretched: "watch", Expensive: "sell", "No data": "neutral", "Investment trust": "neutral", "Holding company": "neutral", Setup: "buy", "Setup (earnings risk)": "watch", Neutral: "neutral", Avoid: "sell" };
 const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sell", euphoric: "greed", "fear-no-dip": "watch", pullback: "buy-lite", downtrend: "caution", healthy: "neutral" };
 const FILTERS = [
-  ["all", "All"], ["plan", "Picks & bench"], ["good", "Good entry"], ["near", "Near good entry"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
+  ["all", "All"], ["plan", "Picks & bench"], ["good", "Good entry"], ["near", "Near good entry"], ["sell", "Sell signals"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
 ];
 const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
@@ -240,6 +261,7 @@ function visible() {
     }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
     if (st.filter === "near") return !!it.longTerm.near;
+    if (st.filter === "sell") return !!it.exit?.kinds?.length;
     if (st.filter === "plan") return PICKS.has(it.symbol) || BENCH.has(it.symbol);
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
     if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
@@ -275,7 +297,7 @@ function rowHtml(it, i) {
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
     <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
     <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>
-    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${PICKS.has(it.symbol) ? `<span class="tag" style="border-color:var(--ink-2)">Your pick</span>` : BENCH.has(it.symbol) ? `<span class="tag">Bench</span>` : ""}${it.longTerm?.near ? `<span class="tag" title="${esc((it.longTerm.gaps || []).join("; "))}">Near good entry</span>` : ""}${!it.deep && st.source === "scan" ? (fullOf(it) ? `<span class="tag" title="Quick score here; your list has the full score">Quick · list ${fullOf(it).longTerm.score}</span>` : `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>`) : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
+    <div><div class="tags">${isNew(it) ? `<span class="tag bull" style="background:var(--ink);color:var(--bg)">New</span>` : ""}${PICKS.has(it.symbol) ? `<span class="tag" style="border-color:var(--ink-2)">Your pick</span>` : BENCH.has(it.symbol) ? `<span class="tag">Bench</span>` : ""}${it.exit?.kinds?.length ? `<span class="tag bear">Sell signal</span>` : ""}${it.longTerm?.near ? `<span class="tag" title="${esc((it.longTerm.gaps || []).join("; "))}">Near good entry</span>` : ""}${!it.deep && st.source === "scan" ? (fullOf(it) ? `<span class="tag" title="Quick score here; your list has the full score">Quick · list ${fullOf(it).longTerm.score}</span>` : `<span class="tag" title="Quick score: value, entry and analyst rating only">Quick score</span>`) : ""}${st.lens === "lt" && it.sectorValue?.cyclical ? `<span class="tag" title="Cyclical industry: a low P/E may mark peak earnings">Cyclical</span>` : ""}${lens.join("") || `<span class="sub">No standout signals</span>`}</div>${earn}</div>
     <span class="caret">▶</span>
   </div><div class="detail ${st.open.has(it.symbol) ? "show" : ""}" id="d-${i}">${st.open.has(it.symbol) ? detailHtml(it) : ""}</div>`;
 }
@@ -304,11 +326,19 @@ function detailHtml(it) {
   const sv = it.sectorValue;
   const peer = sv?.note ? `<div class="note peer"><b>Peers</b>: ${esc(sv.note)}</div>` : "";
   const rcn = it.ruleChange?.note ? `<div class="note peer"><b>Rule change</b>: ${esc(it.ruleChange.note)}</div>` : "";
+  const sellVerdict = (k) => {
+    const r = SELL?.all?.byKind?.[k];
+    if (!r || r.d21?.vsAverage == null) return "";
+    const v = r.verdict === "useful" ? "has preceded weaker returns" : r.verdict === "opposite" ? "has preceded stronger returns, not weaker (partly flattered: companies that kept falling and left the index are missing)" : r.verdict === "too few" ? "too few cases to judge" : "no reliable edge";
+    return ` In our test (${SELL.stocks} S&amp;P 500 and FTSE 100 stocks, ${esc(SELL.from.slice(0, 4))} to ${esc(SELL.to.slice(0, 4))}, ${r.n.toLocaleString("en-GB")} cases): a month later these stocks did ${signPct(r.d21.vsAverage)} against an average day, worse ${r.d21.worse}% of the time: <b>${v}</b>.`;
+  };
+  const exn = it.exit?.kinds?.length ? `<div class="note bad"><b>Sell signal today</b> (display only): ${it.exit.kinds.map((k) => `${esc(SELL_KINDS[k]?.label ?? k)}. ${esc(SELL_KINDS[k]?.why ?? "")}${sellVerdict(k)}`).join(" ")}</div>` : "";
+  const stopn = it.exit?.stop ? `<div class="note">Trailing stop for a holder (highest close of 60 sessions minus 3 ATR): ${money(it.exit.stop, it.currency)}${it.exit.stop >= it.price ? (it.exit.kinds.includes("trailStop") ? "; the price closed below it today" : "; the price is already below it, so it fired on an earlier day") : `, ${signPct(((it.exit.stop / it.price) - 1) * 100)} from today`}. Our test found no edge in acting on it.</div>` : "";
   const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${rcn}${smn}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${exn}${peer}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -404,6 +434,37 @@ async function load() {
   }
 }
 load();
+
+// --- Swing lab: published short-term effects tested against random entry ------------
+const lab = { bt: null, live: null };
+const pts = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}%`);
+const LAB_TONE = { clear: "bg-buy", promising: "bg-watch", weak: "", none: "", loses: "bg-sell" };
+const MISSED = { years: "ahead of random in only {a} of {c} years (needs 3 in 4)", edge: "edge under the 0.4-point bar", sample: "too few trades", markets: "not ahead in both the US and the UK", positive: "loses money after costs" };
+function renderLab() {
+  if (!lab.bt) return;
+  $("labSection").hidden = false;
+  const b = lab.bt, rows = b.results.filter((r) => !r.stop);
+  $("labIntro").innerHTML = `Our own swing setup showed no edge over random entry after costs (research log, 1 and 5 Nov). So three short-term effects from published research were each written down first, then tested on ${b.fetched} S&amp;P 500 and FTSE 100 companies, ${esc(b.from.slice(0, 4))} to ${esc(b.to.slice(0, 4))}, against buying on random days with the same exit, after Trading 212 costs.`;
+  const head = `<div class="lab-row h"><span>Strategy</span><span class="num">Per trade</span><span class="num">Random</span><span class="num hide-s">Edge</span></div>`;
+  $("labTable").innerHTML = head + rows.map((r) => {
+    const v = labVerdict(r), stopped = b.results.find((x) => x.key === r.key && x.stop);
+    const why = v.key === "promising" ? MISSED[v.missed].replace("{a}", r.yearsAhead).replace("{c}", r.yearsCounted) : v.key === "none" ? `random days did ${pts(Math.abs(r.edge))} better` : v.key === "loses" ? `wins ${r.signal.win}% of trades but costs eat the small gains` : "";
+    return `<div class="lab-row"><span><b>${esc(r.label.split(" (")[0])}</b> <span class="pill plain ${LAB_TONE[v.key]}" style="margin-left:4px">${esc(v.label)}</span>
+      <span class="why">${esc((r.label.match(/\((.*)\)/)?.[1] ?? "").replace(/^./, (c) => c.toUpperCase()))}. ${r.signal.n.toLocaleString("en-GB")} trades, ${Math.round(r.signal.days)} sessions each${why ? `; ${esc(why)}` : ""}.${stopped ? ` With the 2×ATR stop: ${pts(stopped.signal.avg)} vs ${pts(stopped.baseline.avg)}.` : ""}</span></span>
+      <span class="num ${pnClass(r.signal.avg)}">${pts(r.signal.avg)}</span><span class="num muted">${pts(r.baseline.avg)}</span><span class="num hide-s ${pnClass(r.edge)}">${pts(r.edge)}</span></div>`;
+  }).join("");
+  const L = lab.live || [];
+  const open = L.filter((t) => t.status !== "closed").sort((a, b2) => (a.signalDate < b2.signalDate ? 1 : -1));
+  const closed = L.filter((t) => t.status === "closed");
+  const avg = (xs, f) => (xs.length ? xs.reduce((a, t) => a + f(t), 0) / xs.length : null);
+  const ix = closed.filter((t) => t.idxPct != null);
+  const liveHead = `<div class="k">Post-results drift, live on paper</div><p class="small muted" style="margin:4px 0 8px">The one candidate is tracked from the nightly scan exactly as tested: a ${DRIFT.minRet * 100}%+ day on ${DRIFT.volX}× normal volume, bought at the next open and sold at the close ${DRIFT.hold} sessions later, no stop.${closed.length ? ` Closed so far: ${closed.length}, ${pts(avg(closed, (t) => t.netPct))} a trade after costs${ix.length ? `, ${pts(avg(ix, (t) => t.netPct - t.idxPct))} vs the home index` : ""}.` : " No trade has closed yet; judge it after 50 or more."}</p>`;
+  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · +${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
+  $("labLive").innerHTML = `<div class="lab-live">${liveHead}${open.length ? open.slice(0, 12).map(row).join("") : `<p class="sub" style="margin:0">No open drift trades. Signals appear the night a stock jumps on heavy volume, usually on results.</p>`}${closed.length ? `<details style="margin-top:8px"><summary class="small muted">Closed (${closed.length})</summary>${closed.slice(-20).reverse().map(row).join("")}</details>` : ""}</div>`;
+  $("labCap").innerHTML = `The bar, fixed before the test: after costs at least 0.4 points a trade better than random entry, positive itself, 300+ trades, ahead in 3 of every 4 years and in both the US and the UK. <b>Per trade</b> is the average net return; <b>Random</b> buys on random days with the same exit (for the dip, random days in an uptrend). Today's index members only, so all rows are flattered alike. Paper only: nothing here changes the plan, and swing stays at 0% of the portfolio unless Douglas decides otherwise. Sources and numbers: research log, 10 Nov.`;
+}
+fetch(`data/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.bt = j; renderLab(); } }).catch(() => {});
+fetch(`history/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j)) { lab.live = j; renderLab(); } }).catch(() => {});
 
 // --- Swing paper trades ---------------------------------------------------------
 const pp = { log: null, market: "all", min: 0 };

@@ -212,3 +212,12 @@ test("picks line for the Monday push", async () => {
   assert.equal(picksLine(picks), "Picks: HSBA passes; wait: META (Entry 69, needs 70), NEM (results in 3 days).");
   assert.equal(picksLine([]), null);
 });
+
+test("sell signals on picks: push line and picks line", async () => {
+  const { pickSellLine, picksLine } = await import("../src/plan.js");
+  const it = { symbol: "META", ticker: "META", exit: { kinds: ["trendBreak"] } };
+  assert.equal(pickSellLine(it, { all: { byKind: { trendBreak: { verdict: "no edge" } } } }), "META (a pick): broke below its 200-day; showed no reliable edge in our test. Picks have no sell rule except the 5% ceiling; display only.");
+  assert.equal(pickSellLine({ ...it, symbol: "AAPL" }), null);
+  assert.equal(pickSellLine({ ...it, exit: { kinds: [] } }), null);
+  assert.match(picksLine([{ ticker: "META", ok: false, verdict: "Fair", gaps: ["Entry 69, needs 70"], exit: { kinds: ["bigFall"] } }]), /sell signals today: META fell 8%\+ in a day \(display only\)\.$/);
+});

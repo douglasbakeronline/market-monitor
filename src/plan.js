@@ -3,6 +3,7 @@
 // Douglas places every trade; this only says what the plan says is due.
 import { addDays } from "./util.js";
 import { resultsEstimate } from "./research.js";
+import { SELL_KINDS } from "./sellSignals.js";
 
 export const PLAN = {
   pots: [
@@ -103,7 +104,7 @@ export function pickStatus(pick, item, today = null) {
     : ed != null ? `Next results in ${ed} days.`
     : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
     : estNote ?? "No results date known; check before buying.";
-  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], exit: item.exit ?? null, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
 // Reserve drip dates (first Monday of each month from plan.reserveDrip.start)
@@ -154,6 +155,17 @@ export function picksWeekLine(items = {}, plan = PLAN) {
   return parts.length ? `Your picks this week: ${parts.join(", ")}.` : null;
 }
 
+// A pick shows a sell or risk signal today: one line for the research alert.
+// study: data/sell-study.json (byKind verdicts), so the line says whether that
+// signal has meant anything in our test.
+export function pickSellLine(it, study = null, plan = PLAN) {
+  const kinds = it?.exit?.kinds ?? [];
+  if (!kinds.length || !plan.picks.some((p) => p.symbol === it.symbol)) return null;
+  const v = (k) => study?.all?.byKind?.[k]?.verdict;
+  const tested = kinds.map((k) => (v(k) === "useful" ? "has preceded weaker returns in our test" : v(k) === "opposite" ? "has preceded stronger returns, not weaker, in our test" : v(k) ? "showed no reliable edge in our test" : null)).filter(Boolean);
+  return `${it.ticker} (a pick): ${kinds.map((k) => SELL_KINDS[k]?.label.toLowerCase() ?? k).join(", ")}${tested.length ? `; ${tested[0]}` : ""}. Picks have no sell rule except the 5% ceiling; display only.`;
+}
+
 // The bench (replacement candidates): verdict and how close each is, best first.
 export function benchStatus(items = {}, plan = PLAN) {
   const rank = (b) => (b.verdict === "Good entry" ? 0 : b.near ? 1 : b.verdict === "Fair" ? 2 : 3);
@@ -172,7 +184,8 @@ export function picksLine(picks = []) {
     const why = p.verdict === "Good entry" ? (p.earningsDays != null ? `results in ${p.earningsDays} day${p.earningsDays === 1 ? "" : "s"}` : null) : p.gaps?.[0] ?? null;
     return `${p.ticker}${why ? ` (${why})` : ""}`;
   });
-  return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : ""].filter(Boolean).join("; ")}.`;
+  const sells = picks.filter((p) => p.exit?.kinds?.length).map((p) => `${p.ticker} ${p.exit.kinds.map((k) => SELL_KINDS[k]?.label.toLowerCase() ?? k).join(", ")}`);
+  return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : "", sells.length ? `sell signals today: ${sells.join("; ")} (display only)` : ""].filter(Boolean).join("; ")}.`;
 }
 
 // One line for the Monday push and the digest.
