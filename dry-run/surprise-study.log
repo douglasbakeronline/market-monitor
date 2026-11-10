@@ -1,6 +1,18 @@
-100/503 (399 events)
-200/503 (792 events)
-300/503 (1180 events)
-400/503 (1579 events)
-500/503 (1968 events)
-exit=0
+file:///home/runner/work/market-monitor/market-monitor/src/surpriseStudy.js:103
+<<<<<<< Updated upstream
+^^
+
+SyntaxError: Unexpected token '<<'
+    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+    at #translate (node:internal/modules/esm/loader:438:20)
+    at afterLoad (node:internal/modules/esm/loader:506:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)
+    at afterResolve (node:internal/modules/esm/loader:611:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:276:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:381:17)
+
+Node.js v24.22.2
+exit=1
