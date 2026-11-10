@@ -54,7 +54,7 @@
   .pf-row.sub span:first-child { padding-left: 15px; }
   .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
   .pf-row span:not(:first-child) { text-align: right; }
-  .odds { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line-2); }
+  .odds { margin-top: 16px; padding: 12px 0 14px; border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
   .odds-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
   .seg button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; cursor: pointer; }
@@ -608,12 +608,35 @@ function goalOddsHtml(start, monthly, goal, cashShare) {
   </div>`;
 }
 
+// A short form so the goal odds work without setting up the pots first.
+function quickGoalHtml(pf, potsTotal) {
+  const v = pf || {};
+  return `<div class="odds"><div class="k">Odds of reaching a goal</div>
+    <p class="small muted" style="margin:4px 0 0">How often 38 years of real market history got a plan like yours to its goal. Saved in this browser only.</p>
+    <form class="pf-form" id="qgForm">${potsTotal > 0 ? "" : `<label>Invested now (£)<input inputmode="decimal" name="start" value="${v.start ?? ""}"></label>`}
+      <label>Monthly top-up (£)<input inputmode="decimal" name="monthly" value="${v.monthly ?? ""}"></label>
+      <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
+    <div style="margin-top:10px"><button class="btn primary" id="qgGo" type="button">Show my odds</button></div></div>`;
+}
+function wireQuickGoal(pf) {
+  if (!$("qgGo")) return;
+  $("qgGo").onclick = () => {
+    const o = { ...(pf || {}) };
+    for (const [k, x] of new FormData($("qgForm"))) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; }
+    if (!(o.goal > 0)) { $("qgForm").elements.goal.focus(); return; }
+    o.saved = o.saved || new Date().toISOString().slice(0, 10);
+    savePf(o); renderPf();
+  };
+}
+
 function renderPf(edit = false) {
   let pf = loadPf();
   const card = $("pfCard");
   if (!pf && !edit) {
     card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (70/15/15; swing is paper only) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
+    card.insertAdjacentHTML("beforeend", quickGoalHtml(null, 0));
     $("pfStart").onclick = () => renderPf(true);
+    wireQuickGoal(null);
     return;
   }
   if (!pf || edit) {
@@ -633,7 +656,7 @@ function renderPf(edit = false) {
   }
   const saved = pf, est = coreEstimate(saved, CORE_NOW);
   pf = est ? { ...saved, core: est.value } : saved;
-  const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0);
+  const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0) + (total ? 0 : pf.start || 0);
   const estNote = est ? `Core index estimated at ${gbp(est.value)} (VWRP ${est.pct >= 0 ? "+" : "\u2212"}${Math.abs(est.pct).toFixed(1)}% since you saved on ${fmtDM(est.since)}); dip reserve and picks as saved.`
     : !saved.vwrpAt && saved.core > 0 && CORE_NOW?.level ? "Update values once more and the core pot will then follow VWRP's price between updates." : "";
   const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
@@ -652,17 +675,19 @@ function renderPf(edit = false) {
       ${goal ? `<div style="margin-left:auto;text-align:right"><div class="k">Goal</div><div class="v">${gbp(goal)}</div><div class="small muted">${prog.toFixed(0)}% of the way</div></div>` : ""}</div>
     ${goal ? `<div class="bar" style="margin-top:10px"><i style="width:${prog}%;background:var(--buy)"></i></div>` : ""}
     ${estNote ? `<p class="small muted" style="margin:8px 0 0">${esc(estNote)}</p>` : ""}
-    <div class="k" style="margin-top:16px">Pots vs target</div>
+    ${goal ? goalOddsHtml(all, monthly, goal, total ? (pf.reserve || 0) / total : 0.05) : ""}
+    ${total ? `    <div class="k" style="margin-top:16px">Pots vs target</div>
     <div class="pf-bar">${rows.map((r) => `<i style="width:${r.w}%;background:${r.c}"></i>`).join("")}</div>
     <div class="pf-row small muted"><span></span><span>Now</span><span>Target</span><span>Gap</span></div>
     ${trows.map((r) => `<div class="pf-row${r.sub ? " sub" : ""}"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.tLabel ?? `${r.t}%`}</span>${r.gap == null ? "<span></span>" : `<span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${Math.round(r.gap) > 0 ? "+" : Math.round(r.gap) < 0 ? "\u2212" : "\u00b1"}${Math.abs(Math.round(r.gap))} pts</span>`}</div>`).join("")}
     <p class="small muted" style="margin:6px 0 0">The dip reserve tops up with 15% of new money and drips a sixth into the core each month without a buy tier, so it sits below 15% between dips.</p>
+` : ""}
     <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
     ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
     ${rebalanceHtml(pf, total)}
     ${lookThroughHtml(pf, total)}
-    ${goal ? goalOddsHtml(all, monthly, goal, total ? (pf.reserve || 0) / total : 0.05) : ""}
     <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
+  if (!goal) { card.insertAdjacentHTML("beforeend", quickGoalHtml(pf, total)); wireQuickGoal(pf); }
   $("pfEdit").onclick = () => renderPf(true);
   card.querySelectorAll("[data-case]").forEach((b) => { b.onclick = () => { ODDS_CASE = b.dataset.case; renderPf(); }; });
 }
