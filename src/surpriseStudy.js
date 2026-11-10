@@ -33,13 +33,18 @@ export const isQuadWitching = (date) => {
 };
 
 // Index of the results day for a fiscal quarter: the known results date when
-// given and in range, else the busiest day 7 to 75 days after the quarter end
+// (or the day after, if busier) when given and in range, else the busiest day 7 to 75 days after the quarter end
 // (not a quad-witching day).
 export function reportDay(rows, quarter, known = null) {
   const q = Date.parse(quarter), lo = q + 7 * 864e5, hi = q + 75 * 864e5;
   if (known) {
     const k = Date.parse(known);
-    if (k >= lo && k <= hi) { const i = rows.findIndex((r) => r.date >= known); if (i > 0) return i; }
+    if (k >= lo && k <= hi) {
+      // Companies that report after the close react the next day: take
+      // whichever of the two days traded more.
+      const i = rows.findIndex((r) => r.date >= known);
+      if (i > 0) return i + 1 < rows.length && (rows[i + 1].volume || 0) > (rows[i].volume || 0) ? i + 1 : i;
+    }
   }
   let best = -1, v = -1;
   for (let i = 1; i < rows.length; i++) {
@@ -136,3 +141,15 @@ export function resultsCheck(ev, study) {
   }
   return { fifth, label, note, tone };
 }
+
+// The beat record and the next results for a company, from its last four
+// quarters (history) and calendarEvents (next). Display only.
+export function resultsRecord(history = [], next = null) {
+  const xs = history.filter((h) => h.surprisePct != null).slice(-4);
+  const beats = xs.filter((h) => h.surprisePct > 0).length;
+  return { beats, of: xs.length, avgSurprise: xs.length ? Math.round((xs.reduce((a, h) => a + h.surprisePct, 0) / xs.length) * 10) / 10 : null,
+    next: next && (next.date || next.epsEstimate != null) ? next : null };
+}
+
+// One short phrase for a push line or a badge; null unless flagged.
+export const flagText = (rc) => (rc?.tone === "watch" ? "weak results and a fall" : rc?.tone === "good" ? "strong results and a rise" : null);

@@ -1,6 +1,7 @@
 // The agreed investing plan (docs/STRATEGY-NOTES.md), as data the monitor can
 // check against. Percentages and dates only: no amounts, no holdings.
 // Douglas places every trade; this only says what the plan says is due.
+import { flagText } from "./surpriseStudy.js";
 import { addDays } from "./util.js";
 import { resultsEstimate } from "./research.js";
 import { SELL_KINDS } from "./sellSignals.js";
@@ -104,7 +105,7 @@ export function pickStatus(pick, item, today = null) {
     : ed != null ? `Next results in ${ed} days.`
     : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
     : estNote ?? "No results date known; check before buying.";
-  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], exit: item.exit ?? null, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], exit: item.exit ?? null, resultsCheck: item.resultsCheck ?? null, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
 // Reserve drip dates (first Monday of each month from plan.reserveDrip.start)
@@ -185,7 +186,8 @@ export function picksLine(picks = []) {
     return `${p.ticker}${why ? ` (${why})` : ""}`;
   });
   const sells = picks.filter((p) => p.exit?.kinds?.length).map((p) => `${p.ticker} ${p.exit.kinds.map((k) => SELL_KINDS[k]?.label.toLowerCase() ?? k).join(", ")}`);
-  return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : "", sells.length ? `sell signals today: ${sells.join("; ")} (display only)` : ""].filter(Boolean).join("; ")}.`;
+  const flags = picks.filter((p) => flagText(p.resultsCheck)).map((p) => `${p.ticker} ${flagText(p.resultsCheck)}`);
+  return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : "", sells.length ? `sell signals today: ${sells.join("; ")} (display only)` : "", flags.length ? `last results: ${flags.join("; ")} (display only)` : ""].filter(Boolean).join("; ")}.`;
 }
 
 // One line for the Monday push and the digest.

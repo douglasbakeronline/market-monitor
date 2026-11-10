@@ -433,6 +433,17 @@ const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","
 const dayBox = (ymd) => { const d = new Date(ymd + "T12:00:00Z"); return `<div class="when"><span>${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]}</span><b>${d.getUTCDate()}</b><span>${MON[d.getUTCMonth()]}</span></div>`; };
 const inDays = (n) => n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`;
 let LAST_CP = null;
+// Last results and the beat record for a pick (nightly scan; display only).
+function resultsHint(rc) {
+  if (!rc) return "";
+  const r = rc.record, parts = [];
+  if (rc.surprisePct != null) parts.push(`Last results ${rc.surprisePct >= 0 ? "beat" : "missed"} the EPS forecast by ${Math.abs(rc.surprisePct).toFixed(1)}%, ${rc.reaction >= 0 ? "+" : "\u2212"}${Math.abs(rc.reaction).toFixed(1)}% on the day`);
+  if (r?.of) parts.push(`beat in ${r.beats} of the last ${r.of} quarters`);
+  if (r?.next?.epsEstimate != null) parts.push(`next forecast EPS ${r.next.epsEstimate.toFixed(2)}${r.next.date ? ` (${fmtDM(r.next.date)})` : ""}`);
+  if (!parts.length) return "";
+  const flag = rc.tone === "watch" ? ` <span class="neg">Weak results and a fall: this group trailed the S&amp;P over the next 60 sessions in our one-year test (display only).</span>` : rc.tone === "good" ? ` <span class="pos">Strong results and a rise (display only).</span>` : "";
+  return ` <span class="muted">${esc(parts.join("; "))}.</span>${flag}`;
+}
 // Pick sizes in the tranche check come from the trade log: redraw after it changes.
 const replan = () => { if (LAST_CP) renderPlan(LAST_CP); };
 function renderPlan(cp) {
@@ -448,7 +459,7 @@ function renderPlan(cp) {
     const full = sz && sz.status !== "room";
     const mine = sz ? ` Your log: ${sz.pct.toFixed(1)}% of the pots ${sz.atCost ? "at cost" : "at today's price"}${sz.status === "ceiling" ? `, past the ${REBALANCE.pickCeilingPct}% ceiling: no further tranches, trim back to ${REBALANCE.pickTrimToPct}%` : full ? `, at the ${REBALANCE.pickMaxPct}% maximum: no further tranches` : ""}.` : "";
     const [lab, cls] = full ? ["Full", "t-watch"] : p.ok ? ["Pass", "pos"] : p.ok === false ? ["Wait", "t-watch"] : ["n/a", "muted"];
-    return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}${p.change ? ` <span class="${p.change > 0 ? "pos" : "neg"} small" title="Long-term score change over the past week">${p.change > 0 ? "\u25b2" : "\u25bc"}${Math.abs(p.change)}</span>` : ""}<span class="why">${esc(p.reason + mine)}${p.exit?.kinds?.length ? ` <span class="neg">Sell signal today: ${esc(p.exit.kinds.map((k) => SELL_LABEL[k] ?? k).join(", "))} (display only).</span>` : ""}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
+    return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}${p.change ? ` <span class="${p.change > 0 ? "pos" : "neg"} small" title="Long-term score change over the past week">${p.change > 0 ? "\u25b2" : "\u25bc"}${Math.abs(p.change)}</span>` : ""}<span class="why">${esc(p.reason + mine)}${p.exit?.kinds?.length ? ` <span class="neg">Sell signal today: ${esc(p.exit.kinds.map((k) => SELL_LABEL[k] ?? k).join(", "))} (display only).</span>` : ""}${resultsHint(p.resultsCheck)}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
   }).join("");
   const bench = cp.bench ?? [];
   $("planBench").innerHTML = bench.length ? `<div class="k" style="margin-top:14px">Bench <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· replacements if a pick is dropped</span></div><div class="bench">${bench.map((b) => {

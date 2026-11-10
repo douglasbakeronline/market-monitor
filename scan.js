@@ -17,8 +17,8 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
-import { reportDay, resultsCheck } from "./src/surpriseStudy.js";
-import { fetchEarningsHistory } from "./src/data/fundamentals.js";
+import { reportDay, resultsCheck, resultsRecord } from "./src/surpriseStudy.js";
+import { fetchResultsData } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
@@ -232,14 +232,15 @@ async function main() {
     for (const it of out) {
       if (!want.has(it.symbol)) continue;
       try {
-        const h = (await fetchEarningsHistory(it.symbol)).at(-1), rows = rowsBySymbol[it.symbol];
-        if (!h || !rows?.length) continue;
         // Yahoo's REIT forecasts mix FFO with earnings per share, so skip REITs.
         if (/REIT|Real Estate/i.test(it.sector || "")) continue;
+        const rd = await fetchResultsData(it.symbol), h = rd.history.at(-1), rows = rowsBySymbol[it.symbol];
+        if (!h || !rows?.length) continue;
+        const record = resultsRecord(rd.history, rd.next);
         const d = reportDay(rows, h.quarter, it.lastEarnings);
-        if (d < 1 || (Date.now() - Date.parse(rows[d].date)) / 864e5 > 120) continue;
+        if (d < 1 || (Date.now() - Date.parse(rows[d].date)) / 864e5 > 120) { it.resultsCheck = { record }; continue; }
         const reaction = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10;
-        it.resultsCheck = { quarter: h.quarter, date: rows[d].date, actual: h.actual, estimate: h.estimate, surprisePct: h.surprisePct, reaction, ...resultsCheck({ surprisePct: h.surprisePct, reaction }, study) };
+        it.resultsCheck = { quarter: h.quarter, date: rows[d].date, actual: h.actual, estimate: h.estimate, surprisePct: h.surprisePct, reaction, record, ...resultsCheck({ surprisePct: h.surprisePct, reaction }, study) };
         const ev = driftToday_.find((x) => x.symbol === it.symbol);
         const lt = ev && drift.find((x) => x.id === `${ev.date}:${it.symbol}`);
         if (lt) { lt.surprisePct = h.surprisePct; tagged++; }

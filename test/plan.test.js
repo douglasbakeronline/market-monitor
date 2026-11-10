@@ -211,6 +211,8 @@ test("picks line for the Monday push", async () => {
   ];
   assert.equal(picksLine(picks), "Picks: HSBA passes; wait: META (Entry 69, needs 70), NEM (results in 3 days).");
   assert.equal(picksLine([]), null);
+  const flagged = picks.map((p) => (p.ticker === "HSBA" ? { ...p, resultsCheck: { tone: "watch" } } : p));
+  assert.match(picksLine(flagged), /last results: HSBA weak results and a fall \(display only\)\.$/);
 });
 
 test("sell signals on picks: push line and picks line", async () => {

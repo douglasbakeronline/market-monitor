@@ -152,6 +152,9 @@ async function main() {
 
   // Co-pilot: what the agreed plan says is due, plus the pullback rule.
   const planItems = Object.fromEntries([...(scan?.coreExtras ?? []), ...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
+  // Latest results check from the nightly scan (display only; swing lab round 4).
+  const rcItems = (await readJson("data/results-check.json", null))?.items ?? {};
+  for (const [sym, rc] of Object.entries(rcItems)) if (planItems[sym]) planItems[sym] = { ...planItems[sym], resultsCheck: rc };
   // Confirmed buy tiers so far (they pause the monthly reserve drip).
   const tiers = (await readJson("history/signals.json", [])).filter((x) => x?.kind === "buy" && x.date).map((x) => x.date);
   const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers });

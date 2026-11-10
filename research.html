@@ -339,7 +339,8 @@ function detailHtml(it) {
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
   const rc = it.resultsCheck ?? RC[it.symbol];
-  const rsn = rc ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}</div>` : "";
+  const rec = rc?.record, recTxt = rec?.of ? ` Beat the forecast in ${rec.beats} of the last ${rec.of} quarters${rec.next?.epsEstimate != null ? `; next forecast EPS ${rec.next.epsEstimate.toFixed(2)}${rec.next.date ? ` (${fmtDM(rec.next.date)})` : ""}` : ""}.` : "";
+  const rsn = rc?.label ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}${esc(recTxt)}</div>` : recTxt ? `<div class="note peer"><b>Results record</b>:${esc(recTxt)}</div>` : "";
   return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${rsn}${notes}${exn}${peer}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
