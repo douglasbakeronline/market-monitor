@@ -75,3 +75,56 @@ test("stale values count neither for coverage nor medians", () => {
   assert.equal(m.coverage, 0);
   assert.equal(m.ready, false);
 });
+
+// --- EV view (display only) ---
+import { evView, evViewSummary } from "../src/evSample.js";
+import { longTermLive } from "../src/research.js";
+import { peerFor } from "../src/sectorValue.js";
+
+const fBase = { sector: "Industrials", industry: "Specialty Industrial Machinery", forwardPE: 18, trailingPE: 20, peg: 1.4, evToEbitda: 30,
+  profitMargin: 0.18, roe: 0.22, revenueGrowth: 0.1, earningsGrowth: 0.12, debtToEquity: 60, targetMean: 120, recommendationMean: 2, analysts: 20 };
+const tBase = { last: 100, offHigh: -8, vs200: 2, rsi: 48, mom12_1: 20, sma50: 98, sma200: 95 };
+const med = { forwardPE: 20, trailingPE: 22, pe: 20, n: 40 };
+const peerOf = (f) => peerFor(f, { Industrials: med }, null, "US");
+
+test("EV view: a high EV/EBITDA in a richly valued sector scores better against peers than on the fixed bands", () => {
+  const peer = peerOf(fBase), live = longTermLive(fBase, tBase, peer);
+  const ep = { ev: 30, median: 28 };
+  const v = evView(fBase, tBase, peer, ep, live);
+  const evItem = (r) => r.pillars.find((p) => p.key === "value").items.find((i) => i.key === "evToEbitda");
+  assert.ok(evItem(live).score < 30, "30x is poor on the fixed bands");
+  assert.ok(v.value > v.valueNow, "near its sector median, value improves");
+  assert.ok(v.score >= v.scoreNow);
+  assert.equal(v.scoreNow, live.score);
+  assert.match(v.note, /Scoring EV\/EBITDA against peers would/);
+});
+
+test("EV view: quick-scored stocks gain the sample EV/EBITDA; nothing for missing peers or unscored", () => {
+  const quick = { ...fBase, evToEbitda: null };
+  const peer = peerOf(quick), live = longTermLive(quick, tBase, peer);
+  assert.ok(!live.pillars.find((p) => p.key === "value").items.some((i) => i.key === "evToEbitda" && i.score != null));
+  const v = evView(quick, tBase, peer, { ev: 8, median: 16 }, live);
+  assert.ok(v.value > v.valueNow, "a cheap sample multiple lifts value");
+  assert.equal(evView(fBase, tBase, null, { ev: 8, median: 16 }, live), null);
+  assert.equal(evView(fBase, tBase, peer, null, live), null);
+  assert.equal(evView(fBase, tBase, peer, { ev: 8, median: 16 }, { score: null }), null);
+});
+
+test("EV view summary counts changed verdicts and lists moves into and out of Good entry", () => {
+  const view = (now, to, s0, s1) => ({ verdictNow: now, verdict: to, scoreNow: s0, score: s1, changed: now !== to });
+  const s = evViewSummary([
+    { symbol: "A", view: view("Fair", "Good entry", 71, 73), deep: true },
+    { symbol: "B", view: view("Good entry", "Fair", 73, 70) },
+    { symbol: "C", view: view("Fair", "Fair", 60, 60) },
+    { symbol: "D", view: null },
+  ]);
+  assert.equal(s.n, 3);
+  assert.equal(s.changed, 2);
+  assert.deepEqual(s.toGood, ["A"]);
+  assert.deepEqual(s.fromGood, ["B"]);
+  assert.equal(s.up, 1);
+  assert.equal(s.down, 1);
+  assert.equal(s.moves["Fair → Good entry"], 1);
+  assert.equal(s.full, 1);
+  assert.equal(s.changedFull, 1);
+});

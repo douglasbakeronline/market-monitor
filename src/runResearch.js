@@ -8,6 +8,7 @@ import { pickResultsLine, pickSellLine } from "./plan.js";
 import { latestSellSignals } from "./sellSignals.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf, reitView } from "./sectorValue.js";
+import { evPeer, evView } from "./evSample.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
 
@@ -41,6 +42,13 @@ export async function runResearch({ regimeKey, state }) {
       const peer = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
       const lt = longTermLive(f, t, peer), old = longTerm(f, t);
       const sectorValue = peer ? sectorValueNote(f, peer, old, lt, reitView(f, scanMeta?.reitPocf ?? null)) : null;
+      // EV/EBITDA against the scan's peer sample, and the would-be score (display only).
+      const ep = sectorValue ? evPeer(f?.evToEbitda, f?.sector, marketOf(s.symbol), scanMeta?.evSample ?? null) : null;
+      if (ep) {
+        const view = evView(f, t, peer, ep, lt);
+        Object.assign(sectorValue, { ev: ep, ...(view ? { evView: view } : {}) });
+        sectorValue.note = `${sectorValue.note} ${ep.note}${view ? ` ${view.note}` : ""}`.trim();
+      }
       const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {

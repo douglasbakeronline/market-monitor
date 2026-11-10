@@ -11,7 +11,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda } from "./src/data/fundamentals.js";
-import { pickRefresh, record, prune, evMedians, evPeer, freshEv } from "./src/evSample.js";
+import { pickRefresh, record, prune, evMedians, evPeer, freshEv, evView, evViewSummary } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
@@ -128,7 +128,13 @@ async function main() {
     it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
     it.rc = ruleChangeNote(old, it.lt);
     const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
-    if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
+    if (it.sv && ep) {
+      it.sv.ev = ep;
+      // EV view: the would-be score with EV/EBITDA against peers (display only).
+      const view = evView(it.f, it.t, peer, ep, it.lt);
+      if (view) it.sv.evView = view;
+      it.sv.note = `${it.sv.note} ${ep.note}${view ? ` ${view.note}` : ""}`.trim();
+    }
   }
 
   // Results dates seen so far, so estimates learn each company's reporting gap.
@@ -289,7 +295,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, evView: evViewSummary(out.map((i) => ({ symbol: i.symbol, view: i.sectorValue?.evView ?? null, deep: !!i.deep }))), ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
