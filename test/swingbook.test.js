@@ -47,3 +47,39 @@ test("digest line", async () => {
   assert.equal(bookLine({ start: "2026-11-02", returnPct: -2.42, sp: { pct: 1.07 }, open: [1, 2, 3, 4], closed: 2, avgNetR: -1.05 }), "Swing book (paper): -2.4% since 2 Nov (S&P 500 +1.1%); 4 open, 2 closed, average -1.05R after costs.");
   assert.equal(bookLine(null), null);
 });
+
+test("random books: same rules, random choice; share beaten", async () => {
+  const { randomBooks } = await import("../src/swingBook.js");
+  // Best score always wins big, others lose: the ranked book beats random choice.
+  const log = [];
+  for (let d = 2; d < 20; d += 3) for (let k = 0; k < 6; k++) {
+    const day = `2026-11-${String(d).padStart(2, "0")}`, out = `2026-11-${String(d + 2).padStart(2, "0")}`;
+    log.push(T(`S${d}-${k}`, day, 60 + k * 5, k >= 4 ? 2 : -1, out));
+  }
+  const r = randomBooks(log, () => 0, { runs: 100, seed: 3 });
+  assert.equal(r.runs, 100);
+  assert.ok(r.beatShare >= 90, `beat ${r.beatShare}%`);
+  assert.ok(r.median < r.mine);
+});
+
+test("benchmark series and book news", async () => {
+  const { benchSeries, bookNews } = await import("../src/swingBook.js");
+  const rows = [{ date: "2026-10-30", close: 100 }, { date: "2026-11-02", close: 101 }, { date: "2026-11-03", close: 99 }];
+  assert.deepEqual(benchSeries(rows, "2026-11-02"), [{ date: "2026-11-02", pct: 1 }, { date: "2026-11-03", pct: -1 }]);
+  const b = { start: "2026-11-02", returnPct: -2.4, orders: [{ signalDate: "2026-11-10", symbol: "GWW", ticker: "GWW", stopPct: 4.9 }], recent: [{ id: "x", ticker: "DASH", netR: -1.05, reason: "stop" }] };
+  const first = bookNews(b, null);
+  assert.equal(first.line, null, "first run is silent");
+  assert.equal(bookNews(b, first.seen).line, null, "nothing new");
+  const later = bookNews({ ...b, recent: [{ id: "y", ticker: "DE", netR: 1.9, reason: "target" }, ...b.recent] }, first.seen);
+  assert.equal(later.line, "closed: DE +1.9R (target). Book -2.4% since 2 Nov.");
+  const ord = bookNews({ ...b, orders: [{ signalDate: "2026-11-11", symbol: "MSFT", ticker: "MSFT", stopPct: 3.1 }] }, first.seen);
+  assert.match(ord.line, /^buy at the next open: MSFT \(stop 3\.1% below\)/);
+});
+
+test("paper trades keep why a setup fired, and the book passes it on", async () => {
+  const { addSetups } = await import("../src/paperTrades.js");
+  const { swingBook } = await import("../src/swingBook.js");
+  const log = addSetups([], [{ symbol: "MSFT", ticker: "MSFT", price: 100, stop: 95, score: 80, why: ["Breakout", "MACD cross up"] }], "2026-11-10");
+  assert.deepEqual(log[0].why, ["Breakout", "MACD cross up"]);
+  assert.deepEqual(swingBook(log).orders[0].why, ["Breakout", "MACD cross up"]);
+});

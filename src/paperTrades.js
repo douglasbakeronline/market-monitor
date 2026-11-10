@@ -19,7 +19,7 @@ export function addSetups(log, setups, date) {
   for (const s of setups) {
     if (open.has(s.symbol) || !s.stop || !(s.price > s.stop)) continue;
     out.push({ id: `${date}:${s.symbol}`, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, currency: s.currency,
-      signalDate: date, signalPrice: s.price, stop: s.stop, score: s.score, status: "pending" });
+      signalDate: date, signalPrice: s.price, stop: s.stop, score: s.score, ...(s.why?.length ? { why: s.why } : {}), status: "pending" });
     open.add(s.symbol);
   }
   return out;

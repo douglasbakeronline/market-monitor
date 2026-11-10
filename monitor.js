@@ -19,7 +19,7 @@ import { copilot, pullbackAlert, copilotLines, picksWeekLine } from "./src/plan.
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
-import { bookLine } from "./src/swingBook.js";
+import { bookLine, bookNews } from "./src/swingBook.js";
 import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
@@ -157,6 +157,10 @@ async function main() {
   const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers });
   const pb = pullbackAlert(cp, state);
   if (pb) alerts.push(pb);
+  // Claude's swing book (paper): a push when it places orders or closes trades.
+  const bn = bookNews(await readJson("history/swing-book.json", null), state.bookSeen ?? null);
+  state.bookSeen = bn.seen;
+  if (bn.line) alerts.push({ kind: "book", priority: "low", tags: "chart_with_upwards_trend", title: `Swing book (paper) · ${today}`, body: `${bn.line} Paper only: no real money.` });
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;

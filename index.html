@@ -69,7 +69,11 @@
   .mc-legend i.hit { background: var(--buy); } .mc-legend i.miss { background: var(--line); }
   .book-head { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
   .book-head > div:first-child { flex: 1; min-width: 200px; }
-  .book-spark svg { display: block; }
+  .book-chart { width: 100%; height: auto; display: block; margin-top: 10px; }
+  .book-chart text { font-size: 11px; fill: var(--muted); font-family: inherit; }
+  .book-chart .grid { stroke: var(--line-2); } .book-chart .zero { stroke: var(--line); stroke-dasharray: 3 3; }
+  .book-chart .bk { fill: none; stroke: var(--accent); stroke-width: 2.2; } .book-chart .sp { fill: none; stroke: var(--muted); stroke-width: 1.4; opacity: 0.8; }
+  .fan-key .kbk { background: var(--accent); height: 3px; } .fan-key .ksp { background: var(--muted); height: 2px; }
   .tr-head.book-stats { grid-template-columns: repeat(4, 1fr); }
   @media (max-width: 640px) { .tr-head.book-stats { grid-template-columns: repeat(2, 1fr); } }
   .book-orders { margin-top: 12px; padding: 9px 12px; background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; font-size: 13px; }
@@ -481,12 +485,35 @@ function renderCore(c) {
 // --- Swing paper trading ----------------------------------------------------------
 // --- Claude's swing book (paper; history/swing-book.json from the nightly scan) ---
 fetch("history/swing-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then(renderBook).catch(() => {});
+// Book value (steps at each close, then today's value) against the S&P 500.
+function bookChart(b) {
+  const sp = b.spSeries ?? [];
+  const last = sp.at(-1)?.date ?? b.curve.at(-1)?.date ?? b.start;
+  const book = [{ date: b.start, pct: 0 }, ...b.curve.map((c) => ({ date: c.date, pct: ((c.equity / b.equity0) - 1) * 100 })), { date: last, pct: b.returnPct }];
+  const dates = [...new Set([b.start, ...sp.map((x) => x.date), ...book.map((x) => x.date)])].sort();
+  if (dates.length < 2) return "";
+  const narrow = window.innerWidth < 560;
+  const W = narrow ? 340 : 600, H = narrow ? 130 : 120, L = 44, R = 8, T = 8, B = 20;
+  const vals = [...book.map((x) => x.pct), ...sp.map((x) => x.pct), 0];
+  const lo = Math.min(...vals), hi = Math.max(...vals), pad = Math.max(0.5, (hi - lo) * 0.15);
+  const y0 = lo - pad, y1 = hi + pad;
+  const xi = (d) => L + (dates.indexOf(d) / (dates.length - 1)) * (W - L - R), y = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  // Step line for the book: value only changes when a trade closes.
+  let path = `M${xi(book[0].date).toFixed(1)},${y(0).toFixed(1)}`;
+  for (const p of book.slice(1)) path += `H${xi(p.date).toFixed(1)}V${y(p.pct).toFixed(1)}`;
+  const spPath = sp.length ? `M${sp.map((p) => `${xi(p.date).toFixed(1)},${y(p.pct).toFixed(1)}`).join("L")}` : "";
+  const ticks = [y1, 0, y0].filter((v, i, a) => a.indexOf(v) === i);
+  return `<svg class="book-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Book value against the S&amp;P 500 since ${esc(b.start)}">
+    ${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" class="${t === 0 ? "zero" : "grid"}"/><text x="${L - 5}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${t > 0.05 ? "+" : t < -0.05 ? "\u2212" : ""}${Math.abs(t).toFixed(1)}%</text>`).join("")}
+    <text x="${L}" y="${H - 4}">${fmtDM(dates[0])}</text><text x="${W - R}" y="${H - 4}" text-anchor="end">${fmtDM(dates.at(-1))}</text>
+    ${spPath ? `<path d="${spPath}" class="sp"/>` : ""}<path d="${path}" class="bk"/>
+  </svg><div class="fan-key small muted"><span><i class="kbk"></i>Swing book</span>${spPath ? `<span><i class="ksp"></i>S&amp;P 500</span>` : ""}</div>`;
+}
 function renderBook(b) {
   if (!b?.start) return;
   $("ppSection").hidden = false;
   const el = $("bookCard"); el.hidden = false;
   const money2 = (v) => `${Math.round(v) < 0 ? "\u2212" : ""}£${Math.abs(Math.round(v)).toLocaleString("en-GB")}`;
-  const pts = [b.equity0, ...b.curve.map((c) => c.equity), b.value].map((v) => ((v / b.equity0) - 1) * 100);
   const rCell = (r) => `<span class="${pnClass(r)}">${minus(`${r > 0 ? "+" : ""}${(r ?? 0).toFixed(2)}R`)}</span>`;
   const px = (v, c) => (v == null ? "n/a" : c === "GBp" ? `${Math.round(v).toLocaleString("en-GB")}p` : v.toLocaleString("en-GB", { maximumFractionDigits: 2 }));
   const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
@@ -494,10 +521,12 @@ function renderBook(b) {
   el.innerHTML = `<div class="book-head"><div><div class="k">Claude's swing book <span class="pill plain" style="margin-left:4px">Paper</span>${b.paused ? ` <span class="pill bg-sell">Paused: down 25%</span>` : ""}</div>
       <div class="big">${money2(b.value)} <span class="${pnClass(b.returnPct)}" style="font-size:16px">${signPct(b.returnPct)}</span></div>
       <div class="small muted">from a notional ${money2(b.equity0)} on ${fmtDM(b.start)}${vs ? `; ${vs}` : ""}</div></div>
-      <div class="book-spark" title="Book value since the start, %"><svg width="160" height="46" viewBox="0 0 160 46" role="img" aria-label="Book value since the start">${sparkline(pts, 160, 46, b.returnPct >= 0 ? "var(--buy)" : "var(--sell)", { zero: true })}</svg></div></div>
+      </div>
+    ${bookChart(b)}
     <div class="tr-head book-stats" style="margin-top:12px">${stat("Open", `${b.open.length} of ${b.rules.maxOpen}`, b.open.length ? `${money2(b.open.reduce((a, x) => a + x.openPnl, 0))} open P&amp;L` : "")}${stat("Closed", b.closed, b.winRate == null ? "" : `${b.winRate}% won`)}${stat("Average", b.avgNetR == null ? "Too early" : rCell(b.avgNetR), "per trade after costs")}${stat("Every setup", b.everySetup?.avgNetR == null ? "n/a" : rCell(b.everySetup.avgNetR), `${b.everySetup?.closed ?? 0} closed, for comparison`)}</div>
-    ${b.orders.length ? `<div class="book-orders"><b>Next session:</b> ${b.orders.map((o) => `buy <b>${esc(o.ticker)}</b> at the open (setup ${o.score}; stop ${px(o.stop, o.currency)}, ${o.stopPct}% below; target 2R)`).join("; ")}.</div>` : `<div class="book-orders small muted">${b.paused ? "Paused: no new trades until reviewed." : `All ${b.rules.maxOpen} slots full${b.waiting ? `; ${b.waiting} new setup${b.waiting === 1 ? "" : "s"} waiting` : ""}.`}</div>`}
-    ${b.open.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.open.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.entryDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.market)} · in at ${px(x.entry, x.currency)}, stop ${px(x.stop, x.currency)}, target ${px(x.target, x.currency)} · ${Math.round((x.posValue / b.value) * 100)}% of the book</span></span><span class="num">${rCell(x.openR)}<span class="sub">${money2(x.openPnl)}</span></span></div>`).join("")}` : ""}
+    ${b.random?.runs ? `<p class="small" style="margin:0">Against luck: the same rules choosing at random among each day's setups (${b.random.runs} runs) ended at a median ${signPct(b.random.median)} (middle 80%: ${signPct(b.random.p10)} to ${signPct(b.random.p90)}); picking the best score first beat ${b.random.beatShare}% of them${b.closed < 30 ? ", which means little until about 30 trades have closed" : ""}.</p>` : ""}
+    ${b.orders.length ? `<div class="book-orders"><b>Next session:</b> ${b.orders.map((o) => `buy <b>${esc(o.ticker)}</b> at the open (setup ${o.score}${o.why?.length ? `: ${esc(o.why.join(", ").toLowerCase())}` : ""}; stop ${px(o.stop, o.currency)}, ${o.stopPct}% below; target 2R)`).join("; ")}.</div>` : `<div class="book-orders small muted">${b.paused ? "Paused: no new trades until reviewed." : `All ${b.rules.maxOpen} slots full${b.waiting ? `; ${b.waiting} new setup${b.waiting === 1 ? "" : "s"} waiting` : ""}.`}</div>`}
+    ${b.open.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.open.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.entryDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.market)} · in at ${px(x.entry, x.currency)}, stop ${px(x.stop, x.currency)}, target ${px(x.target, x.currency)} · ${Math.round((x.posValue / b.value) * 100)}% of the book${x.why?.length ? ` · ${esc(x.why.join(", ").toLowerCase())}` : ""}</span></span><span class="num">${rCell(x.openR)}<span class="sub">${money2(x.openPnl)}</span></span></div>`).join("")}` : ""}
     ${b.recent.length ? `<div class="k" style="margin-top:12px">Closed</div>${b.recent.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.exitDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${{ stop: "stopped", target: "target hit", time: "20-session exit" }[x.reason] ?? esc(x.reason)}</span></span><span class="num">${rCell(x.netR)}<span class="sub">${x.pnl >= 0 ? "+" : ""}${money2(x.pnl)}</span></span></div>`).join("")}` : ""}
     <p class="small muted" style="margin:10px 0 0">What a swing pot would hold under the agreed funded-swing rules: at most ${b.rules.maxOpen} trades, the best-scoring clean setups first, ${b.rules.riskPct}% of the book at risk on each (no position over ${b.rules.maxPosPct}%), stop set at entry, out at 2R or after 20 sessions, costs included, paused if the book falls ${b.rules.pausePct}%. Paper only: swing stays at 0% real money (agreed 5 Nov) because setups have not beaten random entry after costs. Updated each night after the US close.</p>`;
 }

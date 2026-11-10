@@ -24,7 +24,7 @@ import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
-import { swingBook } from "./src/swingBook.js";
+import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { costR } from "./src/swingRetune.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
@@ -181,7 +181,8 @@ async function main() {
     // Euro Stoxx names are scored but not paper-traded: the swing backtests and
     // cost model cover US and UK only.
     const setups = out.filter((i) => i.swing?.verdict === "Setup" && i.market !== "EU").map((i) => ({ symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market,
-      currency: i.currency, price: i.price, stop: i.swing.stop, score: i.swing.score, date: i.date }));
+      currency: i.currency, price: i.price, stop: i.swing.stop, score: i.swing.score, date: i.date,
+      why: (i.signals || []).filter((x) => x.tone === "bull").map((x) => x.label).slice(0, 3) }));
     for (const [date, group] of Object.entries(Object.groupBy(setups, (x) => x.date))) paper = addSetups(paper, group, date);
   } else console.log("Paper trades: markets open, not updated.");
   await writeJson("history/paper-trades.json", paper, true);
@@ -189,15 +190,17 @@ async function main() {
   // with the S&P 500 over the same days for comparison. Never stops the scan.
   try {
     const book = swingBook(paper, costR);
-    let sp = null;
+    let sp = null, spSeries = [];
     if (book.start) {
       const { rows } = await fetchDaily("^GSPC", { range: "1y" });
       const before = [...rows].reverse().find((r) => r.date < book.start), last = rows.at(-1);
       if (before && last) sp = { from: before.date, to: last.date, pct: r2(((last.close / before.close) - 1) * 100) };
+      spSeries = benchSeries(rows, book.start);
     }
+    const random = randomBooks(paper, costR, { runs: 200, seed: 7 });
     const closedAll = paper.filter((t) => t.status === "closed" && t.r != null);
     const everySetup = closedAll.length ? r2(closedAll.reduce((a, t) => a + t.r - costR(t), 0) / closedAll.length) : null;
-    await writeJson("history/swing-book.json", { updated: new Date().toISOString(), ...book, sp, everySetup: { closed: closedAll.length, avgNetR: everySetup } }, true);
+    await writeJson("history/swing-book.json", { updated: new Date().toISOString(), ...book, sp, spSeries, random, everySetup: { closed: closedAll.length, avgNetR: everySetup } }, true);
     console.log(`Swing book (paper): ${book.returnPct}% since ${book.start} (S&P ${sp?.pct ?? "n/a"}%), ${book.open.length} open, ${book.orders.length} orders for the next session.`);
   } catch (e) { console.warn(`Swing book failed: ${e.message}`); }
   await writeJson("history/results-dates.json", resultsHist);

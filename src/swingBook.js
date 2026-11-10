@@ -17,8 +17,11 @@ const rank = (a, b) => (b.score ?? 0) - (a.score ?? 0) || ((a.stopPct ?? 99) - (
 
 // log: paper trades; costR(t): cost in R; opts as BOOK. Pending trades (entry at
 // the next open) are the book's orders for the next session if slots are free.
+// opts.order: how same-day candidates are ranked (default: best score first);
+// randomBooks() passes a shuffle to see what luck alone would have done.
 export function swingBook(log = [], costR = () => 0, opts = {}) {
   const o = { ...BOOK, ...opts };
+  const order = o.order ?? ((xs) => xs.sort(rank));
   const live = log.filter((t) => (t.status === "open" || t.status === "closed") && t.entryDate && t.entry > 0 && t.risk > 0);
   const byEntry = Object.groupBy(live, (t) => t.entryDate);
   const dates = [...new Set([...live.map((t) => t.entryDate), ...live.filter((t) => t.status === "closed").map((t) => t.exitDate)])].sort();
@@ -37,14 +40,14 @@ export function swingBook(log = [], costR = () => 0, opts = {}) {
       }
     }
     if (equity <= o.equity0 * (1 - o.pausePct / 100)) paused = true;
-    const cands = (byEntry[d] ?? []).map((t) => ({ ...t, stopPct: (t.risk / t.entry) * 100 })).sort(rank);
+    const cands = order((byEntry[d] ?? []).map((t) => ({ ...t, stopPct: (t.risk / t.entry) * 100 })));
     for (const t of cands) {
       if (paused || held.length >= o.maxOpen) { skipped++; continue; }
       let riskAmt = equity * (o.riskPct / 100);
       const posValue = riskAmt * (t.entry / t.risk);
       if (posValue > equity * (o.maxPosPct / 100)) riskAmt = equity * (o.maxPosPct / 100) * (t.risk / t.entry);
       const rec = { id: t.id, symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, currency: t.currency, score: t.score,
-        entryDate: t.entryDate, entry: t.entry, stop: t.stop, target: t.target, riskAmt: r2(riskAmt), posValue: r2(riskAmt * (t.entry / t.risk)) };
+        entryDate: t.entryDate, entry: t.entry, stop: t.stop, target: t.target, riskAmt: r2(riskAmt), posValue: r2(riskAmt * (t.entry / t.risk)), ...(t.why ? { why: t.why } : {}) };
       held.push({ t, riskAmt, rec });
       taken.push(rec);
       // A trade that opened and closed the same day is settled at once.
@@ -63,7 +66,7 @@ export function swingBook(log = [], costR = () => 0, opts = {}) {
   // Orders for the next session: today's clean setups, best first, into free slots.
   const pending = log.filter((t) => t.status === "pending").map((t) => ({ ...t, stopPct: t.signalPrice ? ((t.signalPrice - t.stop) / t.signalPrice) * 100 : null })).sort(rank);
   const free = paused ? 0 : Math.max(0, o.maxOpen - open.length);
-  const orders = pending.slice(0, free).map((t) => ({ symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, currency: t.currency, score: t.score, signalDate: t.signalDate, signalPrice: t.signalPrice, stop: t.stop, stopPct: t.stopPct == null ? null : r2(t.stopPct) }));
+  const orders = pending.slice(0, free).map((t) => ({ symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, currency: t.currency, score: t.score, signalDate: t.signalDate, signalPrice: t.signalPrice, stop: t.stop, stopPct: t.stopPct == null ? null : r2(t.stopPct), ...(t.why ? { why: t.why } : {}) }));
   const closed = taken.filter((x) => x.pnl != null);
   const wins = closed.filter((x) => x.pnl > 0).length;
   const value = equity + unreal;
@@ -83,4 +86,48 @@ export function bookLine(b) {
   const pct = (x) => `${x > 0 ? "+" : ""}${x.toFixed(1)}%`;
   const d = new Date(b.start + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
   return `Swing book (paper): ${pct(b.returnPct)} since ${d}${b.sp?.pct != null ? ` (S&P 500 ${pct(b.sp.pct)})` : ""}; ${b.open.length} open, ${b.closed} closed${b.avgNetR != null ? `, average ${b.avgNetR > 0 ? "+" : ""}${b.avgNetR}R after costs` : ""}${b.paused ? "; paused after a 25% fall" : ""}.`;
+}
+
+// Seeded PRNG (mulberry32) for repeatable random books.
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+// The same book, same rules and same days, but choosing among each day's
+// setups at random: how often did luck do better than "best score first"?
+export function randomBooks(log = [], costR = () => 0, { runs = 200, seed = 7, ...opts } = {}) {
+  const rand = rng(seed);
+  const shuffle = (xs) => { for (let i = xs.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [xs[i], xs[j]] = [xs[j], xs[i]]; } return xs; };
+  const mine = swingBook(log, costR, opts).returnPct;
+  const rs = Array.from({ length: runs }, () => swingBook(log, costR, { ...opts, order: shuffle }).returnPct).sort((a, b) => a - b);
+  const median = rs.length ? rs[Math.floor(rs.length / 2)] : null;
+  const beat = rs.length ? Math.round((rs.filter((x) => x < mine).length / rs.length) * 100) : null;
+  return { runs, mine, median, p10: rs[Math.floor(rs.length * 0.1)] ?? null, p90: rs[Math.floor(rs.length * 0.9)] ?? null, beatShare: beat };
+}
+
+// Daily % change of a benchmark from the day before the book's start, for the
+// card's comparison line. rows: [{date, close}] oldest first.
+export function benchSeries(rows = [], start) {
+  if (!start) return [];
+  const before = [...rows].reverse().find((r) => r.date < start);
+  if (!before) return [];
+  return rows.filter((r) => r.date >= start).map((r) => ({ date: r.date, pct: r2((r.close / before.close - 1) * 100) }));
+}
+
+// What changed in the book since `seen` (ids of orders and closed trades
+// already announced): one push line, or null. First run (seen null) is silent.
+export function bookNews(b, seen) {
+  if (!b?.start) return { line: null, seen };
+  const orderIds = b.orders.map((o) => `${o.signalDate}:${o.symbol}`), closedIds = b.recent.map((x) => x.id);
+  const next = { orders: orderIds, closed: [...new Set([...(seen?.closed ?? []), ...closedIds])].slice(-60) };
+  if (!seen) return { line: null, seen: next };
+  const newOrders = b.orders.filter((o) => !(seen.orders ?? []).includes(`${o.signalDate}:${o.symbol}`));
+  const newClosed = b.recent.filter((x) => !(seen.closed ?? []).includes(x.id));
+  if (!newOrders.length && !newClosed.length) return { line: null, seen: next };
+  const parts = [];
+  if (newOrders.length) parts.push(`buy at the next open: ${newOrders.map((o) => `${o.ticker} (stop ${o.stopPct}% below)`).join(", ")}`);
+  if (newClosed.length) parts.push(`closed: ${newClosed.map((x) => `${x.ticker} ${x.netR > 0 ? "+" : ""}${x.netR}R (${{ stop: "stopped", target: "target", time: "20 sessions" }[x.reason] ?? x.reason})`).join(", ")}`);
+  const d = new Date(b.start + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  return { line: `${parts.join("; ")}. Book ${b.returnPct > 0 ? "+" : ""}${b.returnPct}% since ${d}.`, seen: next };
 }
