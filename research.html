@@ -96,6 +96,12 @@
   .pp-row .num { text-align: right; min-width: 56px; }
   .pp-row .num .sub { display: block; font-size: 11px; color: var(--muted); }
   .pp-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lab-row { display: grid; grid-template-columns: 1fr 64px 64px 64px; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
+  .lab-row.h { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; border-top: 0; padding-bottom: 4px; }
+  .lab-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .lab-row .why { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .lab-live { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+  @media (max-width: 520px) { .lab-row { grid-template-columns: 1fr 56px 56px; } .lab-row .hide-s { display: none; } }
   @media (max-width: 520px) { .pp-head { grid-template-columns: repeat(2, 1fr); } .pp-row { grid-template-columns: 52px 1fr auto; } .pp-row .hide-s { display: none; } }
 </style>
 </head>
@@ -136,6 +142,16 @@
   <div class="list lens-lt" id="list"></div>
   <div style="text-align:center;margin-top:12px" id="moreWrap" hidden><button class="chip" type="button" id="more">Show more</button></div>
 
+  <section class="section" id="labSection" hidden>
+    <div class="eyebrow">Swing lab</div>
+    <div class="card">
+      <p class="small" style="margin:0" id="labIntro"></p>
+      <div id="labTable"></div>
+      <div id="labLive"></div>
+    </div>
+    <p class="cap" id="labCap"></p>
+  </section>
+
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Swing paper trades</div>
     <div class="card">
@@ -169,6 +185,7 @@
 import { initTheme, esc, signPct, pnClass, money, bigMoney, fmtDate, ago, fmtDay, toneVar, sparkline, fmtDM } from "./assets/site.js";
 import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
+import { labVerdict, DRIFT } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 let SELL = null;
@@ -417,6 +434,37 @@ async function load() {
   }
 }
 load();
+
+// --- Swing lab: published short-term effects tested against random entry ------------
+const lab = { bt: null, live: null };
+const pts = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(2)}%`);
+const LAB_TONE = { clear: "bg-buy", promising: "bg-watch", weak: "", none: "", loses: "bg-sell" };
+const MISSED = { years: "ahead of random in only {a} of {c} years (needs 3 in 4)", edge: "edge under the 0.4-point bar", sample: "too few trades", markets: "not ahead in both the US and the UK", positive: "loses money after costs" };
+function renderLab() {
+  if (!lab.bt) return;
+  $("labSection").hidden = false;
+  const b = lab.bt, rows = b.results.filter((r) => !r.stop);
+  $("labIntro").innerHTML = `Our own swing setup showed no edge over random entry after costs (research log, 1 and 5 Nov). So three short-term effects from published research were each written down first, then tested on ${b.fetched} S&amp;P 500 and FTSE 100 companies, ${esc(b.from.slice(0, 4))} to ${esc(b.to.slice(0, 4))}, against buying on random days with the same exit, after Trading 212 costs.`;
+  const head = `<div class="lab-row h"><span>Strategy</span><span class="num">Per trade</span><span class="num">Random</span><span class="num hide-s">Edge</span></div>`;
+  $("labTable").innerHTML = head + rows.map((r) => {
+    const v = labVerdict(r), stopped = b.results.find((x) => x.key === r.key && x.stop);
+    const why = v.key === "promising" ? MISSED[v.missed].replace("{a}", r.yearsAhead).replace("{c}", r.yearsCounted) : v.key === "none" ? `random days did ${pts(Math.abs(r.edge))} better` : v.key === "loses" ? `wins ${r.signal.win}% of trades but costs eat the small gains` : "";
+    return `<div class="lab-row"><span><b>${esc(r.label.split(" (")[0])}</b> <span class="pill plain ${LAB_TONE[v.key]}" style="margin-left:4px">${esc(v.label)}</span>
+      <span class="why">${esc((r.label.match(/\((.*)\)/)?.[1] ?? "").replace(/^./, (c) => c.toUpperCase()))}. ${r.signal.n.toLocaleString("en-GB")} trades, ${Math.round(r.signal.days)} sessions each${why ? `; ${esc(why)}` : ""}.${stopped ? ` With the 2×ATR stop: ${pts(stopped.signal.avg)} vs ${pts(stopped.baseline.avg)}.` : ""}</span></span>
+      <span class="num ${pnClass(r.signal.avg)}">${pts(r.signal.avg)}</span><span class="num muted">${pts(r.baseline.avg)}</span><span class="num hide-s ${pnClass(r.edge)}">${pts(r.edge)}</span></div>`;
+  }).join("");
+  const L = lab.live || [];
+  const open = L.filter((t) => t.status !== "closed").sort((a, b2) => (a.signalDate < b2.signalDate ? 1 : -1));
+  const closed = L.filter((t) => t.status === "closed");
+  const avg = (xs, f) => (xs.length ? xs.reduce((a, t) => a + f(t), 0) / xs.length : null);
+  const ix = closed.filter((t) => t.idxPct != null);
+  const liveHead = `<div class="k">Post-results drift, live on paper</div><p class="small muted" style="margin:4px 0 8px">The one candidate is tracked from the nightly scan exactly as tested: a ${DRIFT.minRet * 100}%+ day on ${DRIFT.volX}× normal volume, bought at the next open and sold at the close ${DRIFT.hold} sessions later, no stop.${closed.length ? ` Closed so far: ${closed.length}, ${pts(avg(closed, (t) => t.netPct))} a trade after costs${ix.length ? `, ${pts(avg(ix, (t) => t.netPct - t.idxPct))} vs the home index` : ""}.` : " No trade has closed yet; judge it after 50 or more."}</p>`;
+  const row = (t) => `<div class="pp-row"><span class="when">${esc(fmtDay(t.signalDate))}</span><span><b>${esc(t.ticker)}</b> <span class="muted">${esc(t.market)} · +${t.movePct}% on ${t.volX}× volume${t.results ? " · results" : ""}</span></span><span class="num hide-s muted">${t.status === "pending" ? "buys next open" : `${t.sessions ?? 0} of ${DRIFT.hold}`}</span><span class="num ${pnClass(t.netPct)}">${t.netPct == null ? "" : pts(t.netPct)}${t.idxPct != null ? `<span class="sub">index ${pts(t.idxPct)}</span>` : ""}</span></div>`;
+  $("labLive").innerHTML = `<div class="lab-live">${liveHead}${open.length ? open.slice(0, 12).map(row).join("") : `<p class="sub" style="margin:0">No open drift trades. Signals appear the night a stock jumps on heavy volume, usually on results.</p>`}${closed.length ? `<details style="margin-top:8px"><summary class="small muted">Closed (${closed.length})</summary>${closed.slice(-20).reverse().map(row).join("")}</details>` : ""}</div>`;
+  $("labCap").innerHTML = `The bar, fixed before the test: after costs at least 0.4 points a trade better than random entry, positive itself, 300+ trades, ahead in 3 of every 4 years and in both the US and the UK. <b>Per trade</b> is the average net return; <b>Random</b> buys on random days with the same exit (for the dip, random days in an uptrend). Today's index members only, so all rows are flattered alike. Paper only: nothing here changes the plan, and swing stays at 0% of the portfolio unless Douglas decides otherwise. Sources and numbers: research log, 10 Nov.`;
+}
+fetch(`data/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.results) { lab.bt = j; renderLab(); } }).catch(() => {});
+fetch(`history/swing-lab.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (Array.isArray(j)) { lab.live = j; renderLab(); } }).catch(() => {});
 
 // --- Swing paper trades ---------------------------------------------------------
 const pp = { log: null, market: "all", min: 0 };
