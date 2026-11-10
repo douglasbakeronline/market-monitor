@@ -19,6 +19,7 @@ import { copilot, pullbackAlert, copilotLines } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
+import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
@@ -112,7 +113,9 @@ async function main() {
   const existingResearch = await readJson("research.json", null);
   const scan = await readJson("scan.json", null);
   let researchAlerts = [], researchEvents = [], researchRows = {}, research = existingResearch;
-  if (slot?.research || process.env.FORCE_RESEARCH || hoursSince(existingResearch?.updated) > 26) {
+  // A scoring rule change (SCORING_VERSION) refreshes research at the next run,
+  // so the list and the pick tranche check never show the old rule's verdicts.
+  if (slot?.research || process.env.FORCE_RESEARCH || hoursSince(existingResearch?.updated) > 26 || existingResearch?.scoringVersion !== SCORING_VERSION) {
     try {
       const r = await runResearch({ regimeKey: reg.key, state });
       research = r.data;

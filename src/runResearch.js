@@ -110,7 +110,7 @@ export async function runResearch({ regimeKey, state }) {
     title: `Research · ${lines.length} new signal${lines.length > 1 ? "s" : ""}`, body: lines.join("\n") }] : [];
 
   return {
-    data: { updated: new Date().toISOString(), placeholder, regime: regimeKey, count: items.length, failed, items },
+    data: { updated: new Date().toISOString(), scoringVersion: SCORING_VERSION, placeholder, regime: regimeKey, count: items.length, failed, items },
     alerts, researchState: next, events: baseline ? [] : events, rowsBySymbol,
   };
 }
