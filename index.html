@@ -54,12 +54,28 @@
   .pf-row.sub span:first-child { padding-left: 15px; }
   .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
   .pf-row span:not(:first-child) { text-align: right; }
-  .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-  .proj > div { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 10px; }
+  .odds { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line-2); }
+  .odds-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+  .seg button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .odds-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; margin-top: 10px; }
+  .odds-stats > div { background: var(--card-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 10px; }
+  .fan { width: 100%; height: auto; margin-top: 10px; display: block; }
+  .fan text { font-size: 11px; fill: var(--muted); font-family: inherit; }
+  .fan .grid { stroke: var(--line-2); stroke-width: 1; }
+  .fan .b90 { fill: var(--accent); opacity: 0.14; }
+  .fan .b50 { fill: var(--accent); opacity: 0.28; }
+  .fan .med { fill: none; stroke: var(--accent); stroke-width: 2.2; }
+  .fan .goal { stroke: var(--buy); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fan .goal-t { fill: var(--buy); font-weight: 600; }
+  .fan-key { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+  .fan-key i { display: inline-block; width: 14px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; background: var(--accent); }
+  .fan-key .k90 { opacity: 0.14; } .fan-key .k50 { opacity: 0.32; } .fan-key .kmed { height: 2px; }
   .rb { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-2); }
   .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
   .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  @media (max-width: 640px) { .pf-form { grid-template-columns: 1fr 1fr; } .proj { grid-template-columns: 1fr; } .pf-row { grid-template-columns: 1fr 48px 48px 60px; } }
+  @media (max-width: 640px) { .pf-form { grid-template-columns: 1fr 1fr; } .pf-row { grid-template-columns: 1fr 48px 48px 60px; } }
 
   /* Trade log (browser only) */
   .tl-head { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
@@ -342,6 +358,7 @@
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN, dripSchedule } from "./src/plan.js";
+import { simulateGoal, historyCheck, cagr } from "./src/goalSim.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
@@ -465,12 +482,6 @@ function savePf(v) { try { localStorage.setItem(PF_KEY, JSON.stringify(v)); } ca
 // went paper-only on 5 Nov; an old swing value should show as over target).
 const potsFor = (v) => POTS.filter(([k, , t]) => t > 0 || (v?.[k] || 0) > 0);
 
-function yearsTo(target, start, monthly, rate) {
-  let v = start, m = 0; const g = Math.pow(1 + rate, 1 / 12);
-  while (v < target && m < 600) { v = v * g + monthly; m++; }
-  return m >= 600 ? null : m / 12;
-}
-const fv = (start, monthly, rate, years) => { let v = start; const g = Math.pow(1 + rate, 1 / 12); for (let m = 0; m < years * 12; m++) v = v * g + monthly; return v; };
 // Rebalancing view: the rule agreed on 10 Nov (src/rebalance.js).
 // Since 10 Nov unused reserve drips into the core, so the reserve runs below
 // 15% between dips by design: weights are judged on core + reserve (85%) and picks.
@@ -536,6 +547,67 @@ function pickSizesNow() {
   const v = est ? { ...pf, core: est.value } : pf;
   return pickSizes(loadTl(), POTS.reduce((a, [k]) => a + (v[k] || 0), 0), REBALANCE, PICK_PRICES);
 }
+// --- Goal odds: block bootstrap of real monthly returns (src/goalSim.js) ----------
+let RETURNS = null, ODDS_CASE = "history";
+fetch("data/returns.json").then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.usd?.r?.length) { RETURNS = j; if (!$("pfForm")) renderPf(); } }).catch(() => {});
+const shortGbp = (v) => (v >= 1e6 ? `£${(v / 1e6).toFixed(v >= 1e7 ? 0 : 1)}m` : v >= 1e3 ? `£${Math.round(v / 1e3)}k` : `£${Math.round(v)}`);
+function fanSvg(sim, goal, horizon) {
+  // A narrower drawing on phones keeps the labels readable.
+  const narrow = window.innerWidth < 560;
+  const W = narrow ? 340 : 600, H = narrow ? 200 : 210, L = 44, R = 8, T = 12, B = 22;
+  const bs = sim.bands.slice(0, horizon + 1);
+  const raw = Math.max(goal * 1.1, ...bs.map((b) => b.p90));
+  // Round axis steps: 1, 2, 2.5 or 5 times a power of ten.
+  const stepOf = (v) => { const p = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map((k) => k * p).find((k) => v / k <= 1) ; };
+  const ystep = stepOf(raw / 4), top = Math.ceil(raw / ystep) * ystep;
+  const x = (y) => L + (y / horizon) * (W - L - R), y = (v) => T + (1 - v / top) * (H - T - B);
+  const area = (lo, hi) => `M${bs.map((b) => `${x(b.year).toFixed(1)},${y(b[hi]).toFixed(1)}`).join("L")}L${[...bs].reverse().map((b) => `${x(b.year).toFixed(1)},${y(b[lo]).toFixed(1)}`).join("L")}Z`;
+  const line = `M${bs.map((b) => `${x(b.year).toFixed(1)},${y(b.p50).toFixed(1)}`).join("L")}`;
+  const ticks = Array.from({ length: Math.round(top / ystep) + 1 }, (_, i) => i * ystep);
+  const step = horizon > 20 ? 10 : 5;
+  const xt = Array.from({ length: Math.floor(horizon / step) + 1 }, (_, i) => i * step);
+  const gy = y(goal);
+  return `<svg class="fan" viewBox="0 0 ${W} ${H}" role="img" aria-label="Range of simulated portfolio values over ${horizon} years against the goal">
+    ${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" class="grid"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${shortGbp(t)}</text>`).join("")}
+    ${xt.map((t) => `<text x="${x(t).toFixed(1)}" y="${H - 6}" text-anchor="${t === 0 ? "start" : t === horizon ? "end" : "middle"}">${t === 0 ? "Now" : `${t} yrs`}</text>`).join("")}
+    <path d="${area("p10", "p90")}" class="b90"/><path d="${area("p25", "p75")}" class="b50"/>
+    <path d="${line}" class="med"/>
+    <line x1="${L}" x2="${W - R}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" class="goal"/><text x="${W - R - 4}" y="${(gy - 5).toFixed(1)}" text-anchor="end" class="goal-t">Goal ${shortGbp(goal)}</text>
+  </svg>`;
+}
+function goalOddsHtml(start, monthly, goal, cashShare) {
+  if (!RETURNS) return `<div class="k" style="margin-top:16px">Odds of reaching your goal</div><p class="small muted" style="margin:6px 0 0">Loading return history…</p>`;
+  const r = RETURNS.usd.r, cautious = ODDS_CASE === "cautious";
+  const cash = Math.min(0.3, Math.max(0, cashShare));
+  // The reserve drips into the core in quiet months (10 Nov rule): the 1988-2026
+  // backtest held 4.4% in cash on average (research log 6 Nov), so the cash
+  // share drifts from today's towards that.
+  const sim = simulateGoal({ returns: r, start, monthly, goal, years: 30, paths: 2000, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0, seed: 20261110 });
+  if (!sim) return "";
+  const horizon = Math.min(30, Math.max(10, Math.ceil((sim.slowYears ?? 25) / 5) * 5));
+  const at = (yrs) => Math.round(sim.hitBy[yrs] * 100);
+  const marks = [5, 10, 15, 20].filter((y) => y <= horizon);
+  const yearOf = (yrs) => new Date().getFullYear() + yrs;
+  const med = sim.medianYears, slow = sim.slowYears;
+  const headline = sim.hitBy[0] === 1 ? "Already there in every path." : med == null ? `Fewer than half the paths reach it within 30 years.` : `Half the paths reach it within ${med.toFixed(1)} years (around ${yearOf(Math.round(med))})${slow != null ? `; 1 in 10 take ${slow.toFixed(0)}+ years` : ""}.`;
+  const hist = (cagr(r) * 100).toFixed(1);
+  // Cross-check against real history without resampling, at the middle milestone.
+  const mid = marks[Math.floor((marks.length - 1) / 2)] ?? 10;
+  const hc = historyCheck({ returns: r, start, monthly, goal, years: mid, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0 });
+  const startYears = hc ? `${RETURNS.usd.start.slice(0, 4)} to ${Number(RETURNS.usd.end.slice(0, 4)) - mid}` : "";
+  const infl = Math.pow(1.025, 10);
+  return `<div class="odds">
+    <div class="odds-head"><div class="k">Odds of reaching your goal</div>
+      <div class="seg" role="group" aria-label="Return assumption"><button type="button" data-case="history" aria-pressed="${!cautious}">History</button><button type="button" data-case="cautious" aria-pressed="${cautious}">Cautious</button></div></div>
+    <div class="odds-stats">${marks.map((y) => `<div><div class="k">Within ${y} years</div><div class="v">${sim.hitBy[y] > 0 && at(y) === 0 ? "<1" : at(y)}%</div><div class="small muted">by ${yearOf(y)}</div></div>`).join("")}</div>
+    <p class="small" style="margin:10px 0 0">${esc(headline)}${monthly ? ` Assumes ${gbp(monthly)} a month throughout.` : " Add a monthly top-up to include it."}</p>
+    ${hc && sim.hitBy[0] < 1 ? `<p class="small" style="margin:6px 0 0"><b>History check:</b> started in each of the ${hc.windows} months from ${startYears} instead, the same plan got there within ${mid} years ${Math.round(hc.share * 100)}% of the time (simulated: ${at(mid)}%).</p>` : ""}
+    ${fanSvg(sim, goal, horizon)}
+    <div class="fan-key small muted"><span><i class="k90"></i>8 in 10 paths</span><span><i class="k50"></i>middle half</span><span><i class="kmed"></i>middle path</span></div>
+    <p class="small muted" style="margin:8px 0 0">${sim.paths.toLocaleString("en-GB")} paths, each built from random 12-month stretches of real monthly returns: the S&amp;P 500 with dividends, ${esc(RETURNS.usd.start.slice(0, 4))} to ${esc(RETURNS.usd.end.slice(0, 4))} (${hist}% a year), so crashes and recoveries keep their real shape. ${cautious ? "Cautious takes 2 points a year off every path, roughly the gap by which world shares (what VWRP holds) trailed the US over that period. " : "US shares did better than the world over this period, so treat History as the hopeful case and Cautious as the planning case. "}Cash (your dip reserve, at 3% a year) starts at ${Math.round(cash * 100)}% and drifts towards ${Math.min(Math.round(cash * 100), 4.4)}% as it drips into the core, the average in our reserve backtest. Before inflation: at 2.5% a year, £100k in 10 years buys what about ${shortGbp(1e5 / infl)} does today. A range from history, not a forecast.</p>
+  </div>`;
+}
+
 function renderPf(edit = false) {
   let pf = loadPf();
   const card = $("pfCard");
@@ -575,7 +647,6 @@ function renderPf(edit = false) {
   const swingLeft = rows.find((r) => r.k === "swing" && r.t === 0 && r.w > 0);
   const hint = swingLeft ? "Swing is paper only now (5 Nov): the plan moves its money into the core index." : !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
   const monthly = pf.monthly || 0, goal = pf.goal;
-  const proj = goal ? [0.06, 0.08, 0.1].map((r) => { const y = yearsTo(goal, all, monthly, r); return `<div><div class="k">At ${r * 100}% a year</div><div class="v">${y == null ? "50+ years" : `${y.toFixed(1)} years`}</div><div class="small muted">${gbp(fv(all, monthly, r, 10))} after 10 years</div></div>`; }).join("") : "";
   const prog = goal ? Math.min(100, (all / goal) * 100) : null;
   card.innerHTML = `<div class="plan-head"><div><div class="k">Total</div><div class="big">${gbp(all)}</div>${pf.savings ? `<div class="small muted">${gbp(total)} in the pots + ${gbp(pf.savings)} savings</div>` : ""}</div>
       ${goal ? `<div style="margin-left:auto;text-align:right"><div class="k">Goal</div><div class="v">${gbp(goal)}</div><div class="small muted">${prog.toFixed(0)}% of the way</div></div>` : ""}</div>
@@ -590,9 +661,10 @@ function renderPf(edit = false) {
     ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
     ${rebalanceHtml(pf, total)}
     ${lookThroughHtml(pf, total)}
-    ${goal ? `<div class="k" style="margin-top:16px">Time to goal${monthly ? ` with ${gbp(monthly)} a month` : ""}</div><div class="proj">${proj}</div>` : ""}
+    ${goal ? goalOddsHtml(all, monthly, goal, total ? (pf.reserve || 0) / total : 0.05) : ""}
     <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
   $("pfEdit").onclick = () => renderPf(true);
+  card.querySelectorAll("[data-case]").forEach((b) => { b.onclick = () => { ODDS_CASE = b.dataset.case; renderPf(); }; });
 }
 
 // --- Trade log (localStorage only) ------------------------------------------------

@@ -2,6 +2,14 @@
 
 Dated findings that shape the rules. Newest first. Each entry: question, finding, strength of evidence, sources, implications.
 
+## 2026-11-10: How likely is the goal, given the plan? (goal odds on the Dashboard)
+- Question: the pots panel showed time to goal at fixed 6%, 8% and 10% a year, which hides the range. What does history say about the odds, and does a simulation agree with real history?
+- Method: block bootstrap of monthly S&P 500 total returns (^SP500TR, dividends reinvested, Feb 1988 to Oct 2026, 465 months, 11.4% a year in dollars; 12.3% a year in pounds since 2004): 2,000 paths, each strung from random 12-month stretches, so crashes and recoveries keep their real shape. The plan's cash (dip reserve, 3% a year) starts at today's share and drifts towards 4.4%, the average cash share in the 6 Nov reserve backtest. A "Cautious" case takes 2 points a year off every month (roughly the gap by which world shares trailed the US over the period). Cross-check: the same plan run without resampling from each real start month with enough history. `src/goalSim.js` (`simulateGoal`, `historyCheck`), data `data/returns.json` from `tools/returns.mjs`.
+- Finding: the simulation and real history agree closely. Example inputs (about £38k now, £600 a month, a £250k goal): reached within 10 years in 51% of simulated paths vs 47% of the 346 real start months 1988 to 2016; Cautious 34% vs 28%. The bootstrap is slightly kinder than real history, so the page shows both.
+- Strength: Moderate as a description of the range; weak as a forecast. One country's best-performing 38 years; nominal, before inflation; no fees beyond what the index already nets.
+- Sources: own computation, 10 Nov 2026; Yahoo ^SP500TR and GBPUSD=X.
+- Implication: display only (pots panel, browser only); treat Cautious as the planning case. No rule change. Refresh `data/returns.json` once a year.
+
 ## 2026-11-09: Should the pullback rule watch VWRP in pounds instead of the S&P 500 and FTSE 100?
 - Question: roadmap "Later" item. The rule brings a core purchase forward when the S&P 500 or FTSE 100 is 5%+ off its 52-week high, but the fund bought is VWRP in pounds (today: VWRP -6.6%, S&P -5.7%, FTSE -2.3%). Would watching the fund itself fire at better moments?
 - Method: monthly core purchases (first trading day of the month) of VWRL.L (same fund, distributing; Jul 2013 to Nov 2026, 160 purchases) and, for a longer run, ACWI converted to pounds (May 2009 to Nov 2026, 210). For each trigger source, the purchase moves to the first day after the previous one on which the source was 5% (or 7%) off its high, using only the previous close (what the morning playback knows). Measured in the fund's own price: share of purchases brought forward and % saved against the scheduled date. Price only. `tools/core-trigger.mjs`, `src/coreTrigger.js`.
