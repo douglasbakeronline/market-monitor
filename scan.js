@@ -239,7 +239,7 @@ async function main() {
         const rd = await fetchResultsData(it.symbol), h = rd.history.at(-1), rows = rowsBySymbol[it.symbol];
         if (!h || !rows?.length) continue;
         // How far results days usually move it (all names, REITs included).
-        const moves = resultsMoves(rows, rd.history, it.lastEarnings);
+        const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? []);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
         const record = resultsRecord(rd.history, rd.next);

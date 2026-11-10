@@ -131,3 +131,24 @@ test("results-day moves: busiest day after each quarter, typical size", async ()
   assert.equal(resultsMoves(rows, hist.slice(-1)), null);
   assert.equal(movesText(null), null);
 });
+
+test("results-day moves skip index-event days and use known dates", async () => {
+  const { resultsMoves, isIndexEventDay } = await import("../src/surpriseStudy.js");
+  const rows = [];
+  let px = 100;
+  const move = { "2026-02-10": 1.05, "2026-05-05": 0.96, "2026-05-29": 1.03 };
+  const vol = { "2026-02-10": 5e6, "2026-05-05": 5e6, "2026-05-29": 9e6 };
+  for (let t = Date.parse("2026-01-02"); t <= Date.parse("2026-06-30"); t += 86400000) {
+    const date = new Date(t).toISOString().slice(0, 10), dow = new Date(t).getUTCDay();
+    if (dow === 0 || dow === 6) continue;
+    px *= move[date] ?? 1;
+    rows.push({ date, close: px, volume: vol[date] ?? 1e6 });
+  }
+  const i = rows.findIndex((r) => r.date === "2026-05-29");
+  assert.equal(isIndexEventDay(rows, i), true, "MSCI review day");
+  assert.equal(isIndexEventDay(rows, i - 1), false);
+  const hist = [{ quarter: "2025-12-31" }, { quarter: "2026-03-31" }];
+  assert.deepEqual(resultsMoves(rows, hist).moves.map((m) => [m.date, m.pct]), [["2026-02-10", 5], ["2026-05-05", -4]]);
+  // A known date wins, even on an index-event day.
+  assert.deepEqual(resultsMoves(rows, hist, null, ["2026-05-29"]).moves.map((m) => m.date), ["2026-02-10", "2026-05-29"]);
+});

@@ -157,21 +157,47 @@ export function resultsRecord(history = [], next = null) {
 // One short phrase for a push line or a badge; null unless flagged.
 export const flagText = (rc) => (rc?.tone === "watch" ? "weak results and a fall" : rc?.tone === "good" ? "strong results and a rise" : null);
 
+// Index-event days that trade heavily for reasons other than results: quad
+// witching, the MSCI reviews (last trading day of Feb, May, Aug, Nov) and the
+// Russell reconstitution (last Friday of June).
+export function isIndexEventDay(rows, i) {
+  const date = rows[i].date, m = +date.slice(5, 7), d = new Date(date + "T12:00:00Z");
+  if (isQuadWitching(date)) return true;
+  const lastOfMonth = !rows[i + 1] ? false : rows[i + 1].date.slice(0, 7) !== date.slice(0, 7);
+  if ([2, 5, 8, 11].includes(m) && lastOfMonth) return true;
+  return m === 6 && d.getUTCDay() === 5 && d.getUTCDate() >= 24;
+}
+
 // How far the price usually moves on results day: the reaction (close before
-// to close on the busiest day after each quarter's end) for each quarter in
-// `history` that the price rows cover. `known` is the latest results date, if
-// known. Display only: so a pick's results-day move can be read against its
-// own normal range rather than as news.
-export function resultsMoves(rows = [], history = [], known = null) {
+// to close on) for each quarter in `history` that the price rows cover. A
+// known results date (`known`: the latest, or any in `dates`) is used when it
+// falls 7 to 75 days after the quarter end (the next day if that traded more,
+// for after-close reporters); otherwise the busiest day in that window that is
+// not an index-event day. Display only: so a pick's results-day move can be
+// read against its own normal range rather than as news.
+export function resultsMoves(rows = [], history = [], known = null, dates = []) {
   if (!rows?.length) return null;
-  const moves = [];
-  const qs = history.filter((h) => h?.quarter).map((h) => h.quarter);
-  qs.forEach((q, i) => {
-    const d = reportDay(rows, q, i === qs.length - 1 ? known : null);
-    if (d < 1) return;
+  const moves = [], all = [...new Set([...(dates || []), ...(known ? [known] : [])])].sort();
+  for (const h of history) {
+    if (!h?.quarter) continue;
+    const q = Date.parse(h.quarter), lo = q + 7 * 864e5, hi = q + 75 * 864e5;
+    const k = all.find((x) => Date.parse(x) >= lo && Date.parse(x) <= hi);
+    let d = -1;
+    if (k) d = reportDay(rows, h.quarter, k);
+    else {
+      let v = -1;
+      for (let i = 1; i < rows.length; i++) {
+        const t = Date.parse(rows[i].date);
+        if (t < lo) continue;
+        if (t > hi) break;
+        if (isIndexEventDay(rows, i)) continue;
+        if ((rows[i].volume || 0) > v) { v = rows[i].volume || 0; d = i; }
+      }
+    }
+    if (d < 1) continue;
     moves.push({ date: rows[d].date, pct: Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10 });
-  });
-  const uniq = [...new Map(moves.map((m) => [m.date, m])).values()];
+  }
+  const uniq = [...new Map(moves.map((m) => [m.date, m])).values()].slice(-4);
   if (uniq.length < 2) return null;
   const abs = uniq.map((m) => Math.abs(m.pct)).sort((a, b) => a - b);
   const mid = abs.length / 2;
