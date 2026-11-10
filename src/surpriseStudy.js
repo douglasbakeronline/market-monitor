@@ -100,8 +100,6 @@ export function analyseSurprise(events, { minQuarter = 100 } = {}) {
   const reaction = HORIZONS.map((h) => ({ h, up: avgAt(up, h).vsIdx, down: avgAt(down, h).vsIdx }));
   return { events: evs.length, cuts: { q20: r2(q20), q80: r2(q80) }, quintiles, H4, H5, reaction };
 }
-<<<<<<< Updated upstream
-=======
 
 // Live: classify a company's latest results against the study's fifths and
 // say what the study found for that group (display only; study = the saved
@@ -123,4 +121,3 @@ export function resultsCheck(ev, study) {
   }
   return { fifth, label, note, tone };
 }
->>>>>>> Stashed changes

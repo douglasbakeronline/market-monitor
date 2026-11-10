@@ -48,8 +48,6 @@ test("analysis: a clean surprise effect passes H4 and H5; quintiles cover all ev
   assert.equal(flat.H4.pass, false);
   assert.equal(flat.H5.pass, false);
 });
-<<<<<<< Updated upstream
-=======
 
 test("results check: fifths and the group note", async () => {
   const { resultsCheck } = await import("../src/surpriseStudy.js");
@@ -66,4 +64,3 @@ test("results check: fifths and the group note", async () => {
   assert.equal(mid.note, null);
   assert.equal(resultsCheck({ surprisePct: null }, study), null);
 });
->>>>>>> Stashed changes
