@@ -338,7 +338,7 @@
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, REBALANCE } from "./src/rebalance.js";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
 initTheme();
 
@@ -351,6 +351,8 @@ const TONE_TAG = { buy: "Buy zone", "buy-lite": "Add steadily", watch: "Watch", 
 const $ = (id) => document.getElementById(id);
 
 function render(d) {
+  CORE_NOW = d.coreFund ?? null;
+  if (!$("pfForm")) renderPf();
   // Meta + banners
   const fresh = d.health?.ok !== false;
   $("meta").innerHTML = `<span class="pill ${fresh ? "bg-buy" : "bg-sell"}">${fresh ? "Live data" : "Stale data"}</span><span>Updated ${esc(fmtDate(d.updated))} (${ago(d.updated)})</span>`;
@@ -430,6 +432,7 @@ async function renderPaper(s) {
 
 // --- Private pots and goal (localStorage only) -------------------------------------
 const PF_KEY = "mm-portfolio";
+let CORE_NOW = null; // data.json coreFund (VWRP), set once the data loads
 const POTS = [["core", "Core index", 70, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing (paper only)", 0, "var(--caution)"]];
 const gbp = (v) => "£" + Math.round(v).toLocaleString("en-GB");
 function loadPf() { try { return JSON.parse(localStorage.getItem(PF_KEY) || "null"); } catch { return null; } }
@@ -468,7 +471,7 @@ function rebalanceHtml(pf, total) {
     <p class="small muted" style="margin:6px 0 0">Rule: check weights at the Sunday review; act at most ${REBALANCE.maxPerYear === 2 ? "twice" : REBALANCE.maxPerYear + " times"} a year unless a pot is ${REBALANCE.bandPts}+ points off, using new money and dividends before selling; trim a pick past ${REBALANCE.pickCeilingPct}% of the portfolio back to ${REBALANCE.pickTrimToPct}%. Log a rebalance in the trade log under "Rebalance to target weights" so it counts.</p></div>`;
 }
 function renderPf(edit = false) {
-  const pf = loadPf();
+  let pf = loadPf();
   const card = $("pfCard");
   if (!pf && !edit) {
     card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (70/15/15; swing is paper only) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
@@ -484,13 +487,17 @@ function renderPf(edit = false) {
       <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
       ${(() => { const lt = potTotals(loadTl()); return lt.counted && POTS.some(([k]) => lt[k] > 0) ? `<p class="small muted" style="margin:10px 0 0"><button class="linkbtn" id="pfFill" type="button">Fill blank pots from the trade log</button> (net invested, not today's value: adjust for gains and losses)</p>` : ""; })()}
       <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="pfSave" type="button">Save in this browser</button><button class="btn" id="pfCancel" type="button">Cancel</button>${pf ? `<button class="btn" id="pfClear" type="button" style="margin-left:auto">Clear</button>` : ""}</div>`;
-    $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); savePf(o); renderPf(); };
+    $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); if (CORE_NOW?.level && CORE_NOW.date) o.vwrpAt = { level: CORE_NOW.level, date: CORE_NOW.date }; savePf(o); renderPf(); };
     $("pfCancel").onclick = () => renderPf();
     if ($("pfFill")) $("pfFill").onclick = () => { const lt = potTotals(loadTl()); for (const [k] of POTS) { const el = $("pfForm").elements[k]; if (el && !el.value.trim() && lt[k] > 0) el.value = Math.round(lt[k]); } };
     if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); }; }
     return;
   }
+  const saved = pf, est = coreEstimate(saved, CORE_NOW);
+  pf = est ? { ...saved, core: est.value } : saved;
   const total = POTS.reduce((a, [k]) => a + (pf[k] || 0), 0), all = total + (pf.savings || 0);
+  const estNote = est ? `Core index estimated at ${gbp(est.value)} (VWRP ${est.pct >= 0 ? "+" : "\u2212"}${Math.abs(est.pct).toFixed(1)}% since you saved on ${fmtDM(est.since)}); dip reserve and picks as saved.`
+    : !saved.vwrpAt && saved.core > 0 && CORE_NOW?.level ? "Update values once more and the core pot will then follow VWRP's price between updates." : "";
   const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
   const drift = rows.filter((r) => Math.abs(r.gap) >= 5);
   const swingLeft = rows.find((r) => r.k === "swing" && r.t === 0 && r.w > 0);
@@ -501,6 +508,7 @@ function renderPf(edit = false) {
   card.innerHTML = `<div class="plan-head"><div><div class="k">Total</div><div class="big">${gbp(all)}</div>${pf.savings ? `<div class="small muted">${gbp(total)} in the pots + ${gbp(pf.savings)} savings</div>` : ""}</div>
       ${goal ? `<div style="margin-left:auto;text-align:right"><div class="k">Goal</div><div class="v">${gbp(goal)}</div><div class="small muted">${prog.toFixed(0)}% of the way</div></div>` : ""}</div>
     ${goal ? `<div class="bar" style="margin-top:10px"><i style="width:${prog}%;background:var(--buy)"></i></div>` : ""}
+    ${estNote ? `<p class="small muted" style="margin:8px 0 0">${esc(estNote)}</p>` : ""}
     <div class="k" style="margin-top:16px">Pots vs target</div>
     <div class="pf-bar">${rows.map((r) => `<i style="width:${r.w}%;background:${r.c}"></i>`).join("")}</div>
     <div class="pf-row small muted"><span></span><span>Now</span><span>Target</span><span>Gap</span></div>

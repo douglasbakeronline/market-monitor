@@ -68,3 +68,16 @@ test("rebalancesInYear counts distinct rebalance days in the last 365", () => {
 test("digestLine states the agreed rule", () => {
   assert.match(digestLine(), /5\+ points off target \(otherwise at most twice a year\).*past 5% of the portfolio back to 3%\.$/);
 });
+
+test("coreEstimate scales the core pot by VWRP's move since saving", async () => {
+  const { coreEstimate } = await import("../src/rebalance.js");
+  const pf = { core: 7000, reserve: 1500, vwrpAt: { level: 140, date: "2026-11-09" } };
+  const e = coreEstimate(pf, { level: 147, date: "2026-11-16" });
+  assert.equal(e.value, 7350);
+  assert.equal(e.pct.toFixed(1), "5.0");
+  assert.equal(e.since, "2026-11-09");
+  assert.equal(coreEstimate(pf, { level: 147, date: "2026-11-09" }), null, "same day: nothing to do");
+  assert.equal(coreEstimate({ core: 7000 }, { level: 147, date: "2026-11-16" }), null, "older saves have no VWRP level");
+  assert.equal(coreEstimate(pf, null), null);
+  assert.equal(coreEstimate({ ...pf, core: 0 }, { level: 147, date: "2026-11-16" }), null);
+});

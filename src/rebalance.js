@@ -73,3 +73,16 @@ export function pickSizeLine(sizes, rules = REBALANCE) {
   if (full.length) return `At the ${rules.pickMaxPct}% maximum, so no further tranches: ${full.map(f).join(", ")}.`;
   return `Every pick is below the ${rules.pickMaxPct}% maximum (largest ${f(sizes[0])}).`;
 }
+
+// The core pot is all VWRP, so between updates its value can follow the fund:
+// scale it by VWRP's move since the values were saved (`pf.vwrpAt`, recorded at
+// save time). The reserve is cash and stays as saved; picks stay as saved too
+// (their mix is unknown here). Returns null when there is nothing to estimate.
+export function coreEstimate(pf, core = null) {
+  const at = pf?.vwrpAt, now = core?.level;
+  if (!(pf?.core > 0) || !(at?.level > 0) || !(now > 0) || !core?.date || core.date <= at.date) return null;
+  const factor = now / at.level;
+  const pct = (factor - 1) * 100;
+  if (Math.abs(pct) < 0.05) return null;
+  return { value: Math.round(pf.core * factor), pct, since: at.date, asOf: core.date };
+}
