@@ -388,7 +388,14 @@ function renderPlan(cp) {
   $("planHead").textContent = cp.headline.replace(/;.*/, "");
   $("planNext").textContent = cp.actions.length && cp.upcoming[0] ? `Then: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)}` : cp.upcoming[0] ? `Next: ${cp.upcoming[0].title}, ${fmtDM(cp.upcoming[0].date)} (${inDays(cp.upcoming[0].inDays)})` : "";
   $("planActions").innerHTML = cp.actions.map((a) => { const [l, c] = STATUS[a.status] || STATUS.due; return `<div class="act">${dayBox(a.date)}<div><div class="t">${esc(a.title)}</div><div class="d">${esc(a.detail)}</div>${a.note ? `<div class="n">${esc(a.note)}</div>` : ""}</div><span class="pill ${c}">${l}</span></div>`; }).join("");
-  $("planPicks").innerHTML = cp.picks.map((p) => `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}<span class="why">${esc(p.reason)}</span></td><td class="ok ${p.ok ? "pos" : p.ok === false ? "t-watch" : "muted"}">${p.ok ? "Pass" : p.ok === false ? "Wait" : "n/a"}</td></tr>`).join("");
+  const sizes = pickSizesNow();
+  $("planPicks").innerHTML = cp.picks.map((p) => {
+    const sz = sizes?.find((x) => x.ticker.replace(/\.L$/, "") === p.ticker);
+    const full = sz && sz.status !== "room";
+    const mine = sz ? ` Your log: ${sz.pct.toFixed(1)}% of the pots at cost${sz.status === "ceiling" ? `, past the ${REBALANCE.pickCeilingPct}% ceiling: no further tranches, trim back to ${REBALANCE.pickTrimToPct}%` : full ? `, at the ${REBALANCE.pickMaxPct}% maximum: no further tranches` : ""}.` : "";
+    const [lab, cls] = full ? ["Full", "t-watch"] : p.ok ? ["Pass", "pos"] : p.ok === false ? ["Wait", "t-watch"] : ["n/a", "muted"];
+    return `<tr><td class="tk">${esc(p.ticker)}</td><td>${esc(p.verdict ?? "n/a")}${p.score != null ? ` <span class="muted">${p.score}</span>` : ""}<span class="why">${esc(p.reason + mine)}</span></td><td class="ok ${cls}">${lab}</td></tr>`;
+  }).join("");
   const pb = cp.pullback;
   if (!pb.nextCore) $("planPb").innerHTML = `<p class="small muted" style="margin:6px 0 0">No core purchase left that can come forward before the new ISA allowance.</p>`;
   else {
@@ -469,6 +476,15 @@ function rebalanceHtml(pf, total) {
     <p class="small" style="margin:6px 0 0">${esc(when)}</p>
     ${picks ? `<p class="small" style="margin:6px 0 0">${esc(picks)} <span class="muted">(each pick at cost from your trade log, as a share of the pots)</span></p>` : ""}
     <p class="small muted" style="margin:6px 0 0">Rule: check weights at the Sunday review; act at most ${REBALANCE.maxPerYear === 2 ? "twice" : REBALANCE.maxPerYear + " times"} a year unless a pot is ${REBALANCE.bandPts}+ points off, using new money and dividends before selling; trim a pick past ${REBALANCE.pickCeilingPct}% of the portfolio back to ${REBALANCE.pickTrimToPct}%. Log a rebalance in the trade log under "Rebalance to target weights" so it counts.</p></div>`;
+}
+// Each pick's size from the trade log against the pots' value now (null
+// without saved pot values).
+function pickSizesNow() {
+  const pf = loadPf();
+  if (!pf) return null;
+  const est = coreEstimate(pf, CORE_NOW);
+  const v = est ? { ...pf, core: est.value } : pf;
+  return pickSizes(loadTl(), POTS.reduce((a, [k]) => a + (v[k] || 0), 0));
 }
 function renderPf(edit = false) {
   let pf = loadPf();

@@ -41,6 +41,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 10 Nov (early): pick tranche check shows each pick's size from the trade log; "Full" at the 3% maximum.
 - 10 Nov (early): pots panel scales the core pot by VWRP's move since the values were saved.
 - 10 Nov (early): Key dates cover VWRP's top 20 holdings (TSMC, Samsung, SK hynix via extra quotes); holdings under 1% only in their results week.
 - 10 Nov (night): rebalancing rule agreed by Douglas and made live: strategy notes, pots panel ("Agreed 10 Nov", rebalances in the last 12 months, act-now note), Sunday digest reminder.
