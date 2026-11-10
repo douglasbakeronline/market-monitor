@@ -81,3 +81,12 @@ test("coreEstimate scales the core pot by VWRP's move since saving", async () =>
   assert.equal(coreEstimate(pf, null), null);
   assert.equal(coreEstimate({ ...pf, core: 0 }, { level: 147, date: "2026-11-16" }), null);
 });
+
+test("lookThrough adds a pick to its weight inside the core fund", async () => {
+  const { lookThrough } = await import("../src/rebalance.js");
+  const hold = [{ symbol: "NVDA", name: "Nvidia", weight: 4.5 }, { symbol: "META", name: "Meta", weight: 1.2 }];
+  const r = lookThrough(70, hold, [{ ticker: "META", pct: 2 }, { ticker: "HSBA", pct: 1 }], { HSBA: "HSBC" });
+  assert.deepEqual(r.map((x) => [x.ticker, x.pct.toFixed(2)]), [["NVDA", "3.15"], ["META", "2.84"], ["HSBA", "1.00"]]);
+  assert.equal(r[1].core.toFixed(2), "0.84");
+  assert.equal(r[2].name, "HSBC");
+});

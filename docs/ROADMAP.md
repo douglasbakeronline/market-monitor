@@ -37,6 +37,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 10 Nov (morning): look-through of the biggest single companies in the pots panel.
 - 10 Nov (morning): research rebuilds itself after a scoring rule change (`scoringVersion` in research.json).
 - 10 Nov (morning): track record headline and tables against each signal's home index.
 - 10 Nov (morning): reasons for every "not a good entry" (tranche check, Research page); "Near good entry" filter; 10-day flicker guard on research alerts and events.

@@ -86,3 +86,23 @@ export function coreEstimate(pf, core = null) {
   if (Math.abs(pct) < 0.05) return null;
   return { value: Math.round(pf.core * factor), pct, since: at.date, asOf: core.date };
 }
+
+// Look-through: the biggest single companies across the whole portfolio, the
+// core fund's holdings scaled by the core's share plus each pick at cost.
+// holdings: PLAN.coreHoldings ({ symbol, name, weight % of VWRP }); picks:
+// pickSizes() output ({ ticker, pct }); names: { TICKER: name } for picks.
+const tick = (s) => String(s || "").replace(/\.L$/, "").toUpperCase();
+export function lookThrough(corePct, holdings = [], picks = [], names = {}, top = 6) {
+  const by = {};
+  for (const h of holdings) {
+    const k = tick(h.symbol);
+    by[k] = { name: h.name, core: (corePct * h.weight) / 100, pick: 0 };
+  }
+  for (const p of picks) {
+    const k = tick(p.ticker);
+    by[k] = by[k] || { name: names[k] || k, core: 0, pick: 0 };
+    by[k].pick += p.pct;
+  }
+  return Object.entries(by).map(([ticker, x]) => ({ ticker, name: x.name, core: x.core, pick: x.pick, pct: x.core + x.pick }))
+    .filter((x) => x.pct > 0).sort((a, b) => b.pct - a.pct).slice(0, top);
+}

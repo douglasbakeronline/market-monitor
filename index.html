@@ -47,6 +47,7 @@
   .pf-bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; margin: 6px 0 2px; background: var(--line-2); }
   .pf-bar i { display: block; height: 100%; }
   .pf-row { display: grid; grid-template-columns: 1fr 60px 60px 70px; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-2); align-items: center; }
+  .lt-row .sub { display: block; font-size: 12px; color: var(--ink-2); }
   .pf-row.sub { color: var(--ink-2); font-size: 12px; border-top: 0; padding-top: 0; }
   .pf-row.sub span:first-child { padding-left: 15px; }
   .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
@@ -340,7 +341,7 @@
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
 import { PLAN, dripSchedule } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, REBALANCE } from "./src/rebalance.js";
+import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
 initTheme();
 
@@ -483,6 +484,19 @@ function rebalanceHtml(pf, total) {
     ${picks ? `<p class="small" style="margin:6px 0 0">${esc(picks)} <span class="muted">(each pick at cost from your trade log, as a share of the pots)</span></p>` : ""}
     <p class="small muted" style="margin:6px 0 0">Rule: check weights at the Sunday review; act at most ${REBALANCE.maxPerYear === 2 ? "twice" : REBALANCE.maxPerYear + " times"} a year unless a pot is ${REBALANCE.bandPts}+ points off, using new money and dividends before selling; trim a pick past ${REBALANCE.pickCeilingPct}% of the portfolio back to ${REBALANCE.pickTrimToPct}%. Log a rebalance in the trade log under "Rebalance to target weights" so it counts.</p></div>`;
 }
+// Biggest single companies across the portfolio: VWRP's top holdings scaled by
+// the core's share, plus picks at cost from the trade log.
+const PICK_NAMES = Object.fromEntries(PLAN.picks.map((p) => [p.symbol.replace(/\.L$/, ""), p.name]));
+function lookThroughHtml(pf, total) {
+  if (!total || !(pf.core > 0)) return "";
+  const rows = lookThrough(((pf.core || 0) / total) * 100, PLAN.coreHoldings, pickSizes(loadTl(), total), PICK_NAMES);
+  if (!rows.length) return "";
+  const f = (v) => `${v.toFixed(v >= 1 ? 1 : 2)}%`;
+  return `<div class="rb"><div class="k">Biggest single companies <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· look-through</span></div>
+    ${rows.map((r) => `<div class="pf-row lt-row"><span>${esc(r.name)}<span class="sub">${[r.core ? `${f(r.core)} via VWRP` : "", r.pick ? `${f(r.pick)} as a pick` : ""].filter(Boolean).join(" + ")}</span></span><span></span><span></span><span>${f(r.pct)}</span></div>`).join("")}
+    <p class="small muted" style="margin:6px 0 0">Share of the pots in each company: VWRP's weights (as of ${esc(PLAN.coreHoldingsAsOf)}) times the core's share, plus picks at cost. A pick the fund also holds is counted both ways.</p></div>`;
+}
+
 // Each pick's size from the trade log against the pots' value now (null
 // without saved pot values).
 function pickSizesNow() {
@@ -545,6 +559,7 @@ function renderPf(edit = false) {
     <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
     ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
     ${rebalanceHtml(pf, total)}
+    ${lookThroughHtml(pf, total)}
     ${goal ? `<div class="k" style="margin-top:16px">Time to goal${monthly ? ` with ${gbp(monthly)} a month` : ""}</div><div class="proj">${proj}</div>` : ""}
     <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn" id="pfEdit" type="button">Update values</button><span class="small muted">Last updated ${pf.saved ? fmtDM(pf.saved) : "n/a"}</span></div>`;
   $("pfEdit").onclick = () => renderPf(true);
