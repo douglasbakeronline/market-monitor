@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise, entryViewNote, bothViewNote } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
 import { readJson, writeJson } from "./state.js";
 import { peerFor, sectorValueNote, marketOf } from "./sectorValue.js";
@@ -33,11 +33,12 @@ export async function runResearch({ regimeKey, state }) {
       earnings = recordEarnings(earnings, s.symbol, f?.lastEarnings);
       const signals = swingSignals(t);
       const earningsDays = daysUntil(f?.nextEarnings, today);
-      const lt = longTerm(f, t);
+      // Live scoring since 10 Nov: value against sector peers (medians from the
+      // latest scan) and the new Entry rule; the old rule only for the note.
       const peer = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
-      const sectorValue = peer ? sectorValueNote(f, peer, lt, longTerm(f, t, peer)) : null;
-      const entryView = entryViewNote(lt, longTerm(f, t, null, { entryAlt: true }), t);
-      const bothView = peer ? bothViewNote(lt, longTerm(f, t, peer, { entryAlt: true }), sectorValue, entryView) : null;
+      const lt = longTermLive(f, t, peer), old = longTerm(f, t);
+      const sectorValue = peer ? sectorValueNote(f, peer, old, lt) : null;
+      const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
         symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: marketOf(s.symbol),
@@ -51,7 +52,7 @@ export async function runResearch({ regimeKey, state }) {
         earnings: earningsFields(f?.nextEarnings, null, today).earnings,
         lastEarnings: latestPast([...(earnings[s.symbol] || []), f?.lastEarnings], today),
         lastResults: lastReaction(earnings[s.symbol], prices.rows, today),
-        longTerm: lt, swing, signals, sectorValue, entryView, bothView,
+        longTerm: lt, swing, signals, sectorValue, ruleChange,
         regimeNote: regimeNote(regimeKey, lt.verdict),
         series: t?.series ?? [],
       };
@@ -71,7 +72,7 @@ export async function runResearch({ regimeKey, state }) {
   const scores = recordScores(await readJson("history/scores.json", {}), items, today);
   for (const it of items) {
     it.scoreHistory = (scores[it.symbol] || []).slice(-90);
-    it.change = scoreChange(scores[it.symbol], today, 7);
+    it.change = scoreChange(scores[it.symbol], today, 7, { ltFrom: SCORING_VERSION });
   }
   await writeJson("history/scores.json", scores);
   await writeJson("history/earnings.json", earnings);
@@ -83,8 +84,11 @@ export async function runResearch({ regimeKey, state }) {
     const p = prev[it.symbol] || {};
     // A stock just added to the list is recorded silently, not announced as new.
     const sme = smartEvent(p.sm, it.smartMoney);
-    if (!prev[it.symbol]) { next[it.symbol] = { lt: it.longTerm.verdict, sw: it.swing?.verdict ?? null, sm: sme.key }; continue; }
+    if (!prev[it.symbol]) { next[it.symbol] = { lt: it.longTerm.verdict, sw: it.swing?.verdict ?? null, sm: sme.key, v: SCORING_VERSION }; continue; }
     const lt = it.longTerm.verdict, sw = it.swing?.verdict ?? null;
+    // After a scoring rule change, the old verdict is not comparable: re-baseline
+    // the long-term verdict silently (swing and smart money carry on).
+    if (p.v !== SCORING_VERSION) p.lt = lt;
     const ed = it.earnings?.days;
     const earn = ed != null && ed >= 0 && ed <= 7 ? ` Earnings ${ed === 0 ? "today" : ed === 1 ? "tomorrow" : `in ${ed} days`}: consider waiting for the results.` : "";
     const move = it.perf?.day != null ? `, ${it.perf.day >= 0 ? "+" : ""}${it.perf.day}% today` : "";
@@ -94,7 +98,7 @@ export async function runResearch({ regimeKey, state }) {
     if (lt === "Good entry" && p.lt !== "Good entry") lines.push(`${it.ticker}: now a long-term good entry (${it.longTerm.score}/100, was ${(p.lt || "unscored").toLowerCase()}${move}).${earn}`);
     if (sw?.startsWith("Setup") && !p.sw?.startsWith("Setup")) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
     if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
-    next[it.symbol] = { lt, sw, sm: sme.key };
+    next[it.symbol] = { lt, sw, sm: sme.key, v: SCORING_VERSION };
   }
   for (const sym of failed) if (prev[sym]) next[sym] = prev[sym]; // keep memory through a failed fetch
   // First run: record a baseline silently rather than announce everything as new.

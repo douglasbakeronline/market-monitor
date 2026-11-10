@@ -148,7 +148,9 @@ async function main() {
 
   // Co-pilot: what the agreed plan says is due, plus the pullback rule.
   const planItems = Object.fromEntries([...(scan?.coreExtras ?? []), ...(scan?.items ?? []), ...(research?.items ?? [])].map((i) => [i.symbol, i]));
-  const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems });
+  // Confirmed buy tiers so far (they pause the monthly reserve drip).
+  const tiers = (await readJson("history/signals.json", [])).filter((x) => x?.kind === "buy" && x.date).map((x) => x.date);
+  const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers });
   const pb = pullbackAlert(cp, state);
   if (pb) alerts.push(pb);
   // Track record: log today's signals with prices, then score all past ones.
@@ -207,7 +209,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }

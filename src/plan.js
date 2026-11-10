@@ -7,7 +7,7 @@ import { resultsEstimate } from "./research.js";
 export const PLAN = {
   pots: [
     { key: "core", name: "Core index (VWRP)", target: 70, note: "Never sold on a signal. Includes the 10% first meant for swing (5 Nov)." },
-    { key: "reserve", name: "Dip reserve (cash)", target: 15, note: "A third at each confirmed buy tier." },
+    { key: "reserve", name: "Dip reserve (cash)", target: 15, note: "A third at each confirmed buy tier; a sixth drips into the core each quiet month (10 Nov)." },
     { key: "picks", name: "Long-term picks", target: 15, note: "Five companies, up to 3% each, 1% tranches." },
     { key: "swing", name: "Swing (paper only)", target: 0, note: "No real trades: the 5 Nov retune found no edge after costs." },
   ],
@@ -63,6 +63,10 @@ export const PLAN = {
     { symbol: "JNJ", name: "Johnson & Johnson", weight: 0.6 },
   ],
   coreSmallDays: 7, // holdings under 1% of VWRP show only in the last week, to keep Key dates short
+  // Unused dip reserve drips into the core (agreed 10 Nov 2026, research log
+  // 5 and 6 Nov): on the first Monday of each month, a sixth of the reserve
+  // cash moves into VWRP unless a buy tier was confirmed in the 30 days before.
+  reserveDrip: { start: "2026-12-07", fraction: 6, quietDays: 30 },
   pullbackPct: -5,   // core purchase comes forward if an index is this far off its high
   pickNoResultsDays: 7,
   recentResultsDays: 60, // latest results this recent means the next are weeks away (quarterly reporters)
@@ -102,8 +106,31 @@ export function pickStatus(pick, item, today = null) {
   return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
 }
 
+// Reserve drip dates (first Monday of each month from plan.reserveDrip.start)
+// between `from` and `to`, each paused when a confirmed buy tier (tierDates,
+// YYYY-MM-DD) came within quietDays before it.
+export function dripSchedule(from, to, tierDates = [], plan = PLAN) {
+  const d = plan.reserveDrip;
+  if (!d || !from || !to) return [];
+  const out = [];
+  const start = from > d.start ? from : d.start;
+  let y = +start.slice(0, 4), m = +start.slice(5, 7) - 1;
+  for (let k = 0; k < 120; k++, m++) {
+    const first = new Date(Date.UTC(y, m, 1));
+    const date = new Date(Date.UTC(y, m, 1 + ((8 - first.getUTCDay()) % 7))).toISOString().slice(0, 10);
+    if (date > to) break;
+    if (date < start) continue;
+    const tier = tierDates.filter((t) => t <= date && days(t, date) <= d.quietDays).sort().at(-1) ?? null;
+    out.push({ date, kind: "drip", paused: !!tier, tier,
+      title: tier ? "Reserve drip paused" : "Reserve drip: a sixth of the dip reserve into VWRP",
+      detail: tier ? `A buy tier was confirmed on ${dayLabel(tier)}, within ${d.quietDays} days: no drip this month.` : `Move a sixth (1/${d.fraction}) of the dip reserve cash into the core. Unused reserve drips in each quiet month (agreed 10 Nov); new money still sets 15% aside for it.` });
+  }
+  return out;
+}
+
 // What does the plan say for the coming week? `today` is a London date.
-export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
+// tiers: dates of confirmed buy tiers (for the reserve drip).
+export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }) {
   const end = addDays(today, 7);
   const nextCore = plan.schedule.find((s) => s.kind === "core" && s.pullback !== false && s.date > today) ?? null;
   const worst = [sp, ftse].filter((m) => m?.drawdownPct != null).sort((a, b) => a.drawdownPct - b.drawdownPct)[0] ?? null;
@@ -116,21 +143,23 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN }) {
   pullback.distance = worst ? Math.round((worst.drawdownPct - plan.pullbackPct) * 10) / 10 : null;
 
   const picks = plan.picks.map((p) => pickStatus(p, items[p.symbol], today));
-  const actions = plan.schedule.filter((s) => s.date >= today && s.date <= end).map((s) => {
+  const drips = dripSchedule(today, addDays(today, 400), tiers, plan);
+  const sched = [...plan.schedule, ...drips].sort((a, b) => a.date.localeCompare(b.date));
+  const actions = sched.filter((s) => s.date >= today && s.date <= end).map((s) => {
     const a = { ...s, inDays: days(today, s.date) };
     if (s.kind === "picks") {
       const okN = picks.filter((p) => p.ok).length;
       a.status = okN === picks.length ? "go" : okN ? "partial" : "hold";
       const wait = picks.filter((p) => !p.ok).map((p) => p.ticker);
       a.note = `${okN} of ${picks.length} picks pass the check today${wait.length ? ` (${wait.join(", ")} ${wait.length === 1 ? "waits" : "wait"})` : ""}.`;
-    } else a.status = "due";
+    } else a.status = s.paused ? "hold" : "due";
     return a;
   });
   if (pullback.triggered) actions.unshift({ date: today, kind: "pullback", inDays: 0, status: "go",
     title: "Pullback rule: bring the next core purchase forward",
     detail: `${pullback.index} is ${Math.abs(pullback.drawdown).toFixed(1)}% below its high (rule: ${Math.abs(plan.pullbackPct)}% or more). The plan says make the core purchase due ${dayLabel(pullback.nextCore.date)} now.` });
 
-  const upcoming = plan.schedule.filter((s) => s.date > end).slice(0, 2).map((s) => ({ ...s, inDays: days(today, s.date) }));
+  const upcoming = sched.filter((s) => s.date > end && !s.paused).slice(0, 2).map((s) => ({ ...s, inDays: days(today, s.date) }));
   const auto = coreHoldingDates(items, today, plan);
   const covered = new Set(auto.map((d) => d.symbol));
   const dates = plan.keyDates.filter((k) => k.date >= today && days(today, k.date) <= 21 && !covered.has(k.symbol))

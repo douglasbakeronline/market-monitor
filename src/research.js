@@ -154,8 +154,8 @@ const P = {
   debtToEquity: [[0, 100], [30, 90], [80, 65], [150, 35], [250, 10], [400, 0]],
   offHigh: [[-45, 65], [-30, 95], [-20, 90], [-12, 70], [-6, 45], [0, 20]],
   vs200: [[-30, 45], [-15, 70], [-5, 85], [0, 75], [8, 50], [20, 25], [40, 5]],
-  // Proposed Entry rule (research log 4 and 5 Nov; display only until Douglas
-  // agrees): no extra credit for a discount beyond 3%, flat to -20% and beyond.
+  // Entry rule live since 10 Nov (research log 4 and 5 Nov; agreed by Douglas):
+  // no extra credit for a discount beyond 3%, flat to -20% and beyond.
   offHighAlt: [[-20, 70], [-3, 70], [0, 62]],
   // 12-1 month momentum, %: the strongest fifth did best in our test.
   mom: [[-30, 15], [-10, 35], [0, 45], [10, 58], [25, 78], [50, 95]],
@@ -187,10 +187,11 @@ const relMetric = (key, label, value, med, display, why) => (med > 0 && value !=
   ? { key, label, value, display: `${display} (sector ${med.toFixed(1)})`, score: Math.round(interp(value / med, P.rel)), why: `${why} Scored against the sector median.` }
   : metric(key, label, value, display, why));
 
-// peer (optional, display only): sector medians and a cyclical flag from
-// src/sectorValue.js. Without it the score is exactly the live one.
-// opts.entryAlt (display only): score Entry under the proposed rule, see
-// entryViewNote(). Without it the score is exactly the live one.
+// Live scoring since 10 Nov 2026 is longTermLive() below: value against sector
+// peers (with the cyclical cap) and the new Entry rule with momentum. Called
+// bare, longTerm(f, t) is the rule before 10 Nov, kept for the "old rule" note.
+// peer: sector medians and a cyclical flag from src/sectorValue.js.
+// opts.entryAlt: score Entry under the 10 Nov rule.
 export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
   const fin = FIN_SECTORS.includes(f?.sector);
   const fx = (n, d = 1) => (n == null ? "n/a" : n.toFixed(d));
@@ -214,7 +215,7 @@ export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
   ].filter(Boolean);
 
   const offHighItem = metric("offHigh", "Off 52-week high", t?.offHigh, t?.offHigh == null ? "n/a" : `${t.offHigh.toFixed(1)}%`, "A discount to the recent high improves the entry, within reason.");
-  if (entryAlt && t?.offHigh != null) offHighItem.score = Math.round(interp(t.offHigh, P.offHighAlt));
+  if (entryAlt && t?.offHigh != null) { offHighItem.score = Math.round(interp(t.offHigh, P.offHighAlt)); offHighItem.why = "Just below the high scores a little better than at it; a deeper fall earns no extra credit (our ten-year test found none)."; }
   const entry = [
     offHighItem,
     entryAlt && t?.mom12_1 != null ? metric("mom", "Momentum (12-1 months)", t.mom12_1, `${t.mom12_1 >= 0 ? "+" : ""}${t.mom12_1.toFixed(1)}%`, "Return from a year ago to a month ago. Strong past winners have tended to keep doing well.") : null,
@@ -268,7 +269,18 @@ export function longTerm(f, t, peer = null, { entryAlt = false } = {}) {
   return { score, verdict, note, falling, pillars, coverage, financials: fin };
 }
 
-// Entry view (display only): what the proposed Entry rule would change.
+// The live long-term score (agreed by Douglas 10 Nov 2026).
+export const SCORING_VERSION = "2026-11-10";
+export const longTermLive = (f, t, peer = null) => longTerm(f, t, peer, { entryAlt: true });
+
+// What the 10 Nov rule change did to this stock's verdict (null when nothing
+// changed). old = longTerm(f, t) (rule before 10 Nov); live = longTermLive().
+export function ruleChangeNote(old, live) {
+  if (!old || !live || old.score == null || live.score == null || live.trust || old.verdict === live.verdict) return null;
+  return { verdict: old.verdict, score: old.score, note: `Scoring changed on 10 Nov (value against sector peers, new Entry rule with momentum): ${live.verdict} now, ${old.verdict} (${old.score}) under the old rule.` };
+}
+
+// Entry view (no longer shown; the rule went live 10 Nov): what the Entry rule changes.
 // now = live longTerm(); alt = longTerm(f, t, null, { entryAlt: true }).
 export function entryViewNote(now, alt, t) {
   if (!now || !alt || now.score == null || alt.score == null || now.trust) return null;

@@ -47,6 +47,8 @@
   .pf-bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; margin: 6px 0 2px; background: var(--line-2); }
   .pf-bar i { display: block; height: 100%; }
   .pf-row { display: grid; grid-template-columns: 1fr 60px 60px 70px; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-2); align-items: center; }
+  .pf-row.sub { color: var(--ink-2); font-size: 12px; border-top: 0; padding-top: 0; }
+  .pf-row.sub span:first-child { padding-left: 15px; }
   .pf-row .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
   .pf-row span:not(:first-child) { text-align: right; }
   .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
@@ -336,7 +338,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
-import { PLAN } from "./src/plan.js";
+import { PLAN, dripSchedule } from "./src/plan.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents } from "./src/tradeLog.js";
@@ -455,10 +457,14 @@ function yearsTo(target, start, monthly, rate) {
 }
 const fv = (start, monthly, rate, years) => { let v = start; const g = Math.pow(1 + rate, 1 / 12); for (let m = 0; m < years * 12; m++) v = v * g + monthly; return v; };
 // Rebalancing view: the rule agreed on 10 Nov (src/rebalance.js).
-const POT_TARGETS = Object.fromEntries(POTS.map(([k, , t]) => [k, t]));
+// Since 10 Nov unused reserve drips into the core, so the reserve runs below
+// 15% between dips by design: weights are judged on core + reserve (85%) and picks.
+const POT_TARGETS = { core: 85, picks: 15, swing: 0 };
+const merged = (v) => ({ ...v, core: (v.core || 0) + (v.reserve || 0), reserve: 0 });
 const POT_LABEL = Object.fromEntries(POTS.map(([k, n]) => [k, n.toLowerCase()]));
 function rebalanceHtml(pf, total) {
-  const tu = topUpToTarget(pf, POT_TARGETS);
+  const m = merged(pf);
+  const tu = topUpToTarget(m, POT_TARGETS);
   if (!tu) return "";
   const mo = monthsOfTopUps(tu.newMoney, pf.monthly || 0);
   const parts = Object.entries(tu.split).map(([k, a]) => `${POT_LABEL[k]} ${gbp(a)}`).join(", ");
@@ -467,7 +473,7 @@ function rebalanceHtml(pf, total) {
   const tl = loadTl();
   const picks = pickSizeLine(pickSizes(tl, total));
   const done = rebalancesInYear(tl, new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }));
-  const offBand = Object.entries(POT_TARGETS).some(([k, t]) => total && Math.abs(((pf[k] || 0) / total) * 100 - t) >= REBALANCE.bandPts);
+  const offBand = Object.entries(POT_TARGETS).some(([k, t]) => total && Math.abs(((m[k] || 0) / total) * 100 - t) >= REBALANCE.bandPts);
   const left = Math.max(0, REBALANCE.maxPerYear - done);
   const when = offBand ? `A pot is ${REBALANCE.bandPts}+ points off, so the rule says act now (new money and dividends first).`
     : `${done} rebalance${done === 1 ? "" : "s"} logged in the last 12 months, so ${left ? `${left} left` : "none left until one drops out"} unless a pot drifts ${REBALANCE.bandPts}+ points.`;
@@ -515,7 +521,13 @@ function renderPf(edit = false) {
   const estNote = est ? `Core index estimated at ${gbp(est.value)} (VWRP ${est.pct >= 0 ? "+" : "\u2212"}${Math.abs(est.pct).toFixed(1)}% since you saved on ${fmtDM(est.since)}); dip reserve and picks as saved.`
     : !saved.vwrpAt && saved.core > 0 && CORE_NOW?.level ? "Update values once more and the core pot will then follow VWRP's price between updates." : "";
   const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
-  const drift = rows.filter((r) => Math.abs(r.gap) >= 5);
+  const wOf = (k) => (total ? ((pf[k] || 0) / total) * 100 : 0);
+  const trows = [
+    { k: "core", n: "Core index + dip reserve", c: "var(--accent)", w: wOf("core") + wOf("reserve"), t: 85, gap: wOf("core") + wOf("reserve") - 85 },
+    { k: "reserve", n: "of which dip reserve", c: "var(--buylite)", w: wOf("reserve"), tLabel: "\u2264 15%", sub: true },
+    ...rows.filter((r) => r.k !== "core" && r.k !== "reserve"),
+  ];
+  const drift = trows.filter((r) => r.gap != null && Math.abs(r.gap) >= 5);
   const swingLeft = rows.find((r) => r.k === "swing" && r.t === 0 && r.w > 0);
   const hint = swingLeft ? "Swing is paper only now (5 Nov): the plan moves its money into the core index." : !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
   const monthly = pf.monthly || 0, goal = pf.goal;
@@ -528,7 +540,8 @@ function renderPf(edit = false) {
     <div class="k" style="margin-top:16px">Pots vs target</div>
     <div class="pf-bar">${rows.map((r) => `<i style="width:${r.w}%;background:${r.c}"></i>`).join("")}</div>
     <div class="pf-row small muted"><span></span><span>Now</span><span>Target</span><span>Gap</span></div>
-    ${rows.map((r) => `<div class="pf-row"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.t}%</span><span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${r.gap >= 0 ? "+" : "\u2212"}${Math.abs(r.gap).toFixed(0)} pts</span></div>`).join("")}
+    ${trows.map((r) => `<div class="pf-row${r.sub ? " sub" : ""}"><span><i class="sw" style="background:${r.c}"></i>${r.n}</span><span>${r.w.toFixed(0)}%</span><span class="muted">${r.tLabel ?? `${r.t}%`}</span>${r.gap == null ? "<span></span>" : `<span class="${Math.abs(r.gap) >= 5 ? "t-watch" : "muted"}">${Math.round(r.gap) > 0 ? "+" : Math.round(r.gap) < 0 ? "\u2212" : "\u00b1"}${Math.abs(Math.round(r.gap))} pts</span>`}</div>`).join("")}
+    <p class="small muted" style="margin:6px 0 0">The dip reserve tops up with 15% of new money and drips a sixth into the core each month without a buy tier, so it sits below 15% between dips.</p>
     <p class="small" style="margin:10px 0 0">${esc(hint)}</p>
     ${(() => { const lt = potTotals(loadTl()); return lt.counted ? `<p class="small muted" style="margin:6px 0 0">Net invested per your trade log (buys minus sells): ${POTS.filter(([k]) => lt[k]).map(([k, n]) => `${n.toLowerCase()} ${lt[k] < 0 ? "\u2212" : ""}${gbp(Math.abs(lt[k]))}`).join(" · ") || "nothing yet"}.</p>` : ""; })()}
     ${rebalanceHtml(pf, total)}
@@ -550,7 +563,7 @@ let DIPS = [];
 fetch("history/signals.json?t=" + Date.now()).then((r) => r.json()).then((log) => { DIPS = dipEvents(log); if (DIPS.length) renderTl(); }).catch(() => {});
 function renderTl(form = false, err = "") {
   const card = $("tlCard"), today = londonToday(), trades = sortTrades(loadTl());
-  const adh = adherence(PLAN.schedule, trades, today, DIPS);
+  const adh = adherence([...PLAN.schedule, ...dripSchedule(PLAN.reserveDrip.start, today, DIPS.map((d) => d.date))], trades, today, DIPS);
   const shown = adh.items.slice(-4).reverse();
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
   const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";

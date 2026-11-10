@@ -107,7 +107,7 @@ export function peerFor(f, medians, regional = null, market = null) {
 export const CYCLICAL_VALUE_CAP = 60;
 
 // Summary attached to each stock: what peers say, and what would change.
-// now = the live longTerm() result; alt = longTerm(f, t, peer).
+// now = the old-rule longTerm(f, t); alt = the live longTermLive(f, t, peer).
 export function sectorValueNote(f, peer, now, alt) {
   if (!peer || !now || now.score == null || !alt) return null;
   const pe = f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null;
@@ -120,7 +120,7 @@ export function sectorValueNote(f, peer, now, alt) {
   }
   if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
   if (peer.sector === "Real Estate") parts.push("REITs are better judged on funds from operations than P/E.");
-  if (vAlt != null && vNow != null) parts.push(`Value vs peers would score ${vAlt} (now ${vNow})${alt.verdict !== now.verdict ? `; the verdict would be ${alt.verdict} (now ${now.verdict})` : ""}.`);
+  if (vAlt != null && vNow != null) parts.push(`Value scored against peers: ${vAlt}${vAlt !== vNow ? ` (${vNow} on the old fixed bands)` : ""}.`);
   return {
     sector: peer.sector, region: peer.region ?? null, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
     cyclical: peer.cyclical, value: vAlt, valueNow: vNow, score: alt.score, verdict: alt.verdict, changed: alt.verdict !== now.verdict,

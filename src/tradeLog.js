@@ -9,6 +9,7 @@ export const RULES = [
   { key: "pullback", label: "Pullback rule (core brought forward)", pot: "core", kinds: ["core"] },
   { key: "tranche", label: "Pick tranche", pot: "picks", kinds: ["picks"] },
   { key: "dip", label: "Dip tier (reserve deployed)", pot: "core", kinds: ["dip"] },
+  { key: "drip", label: "Reserve drip into core (monthly)", pot: "core", kinds: ["drip"] },
   { key: "swing", label: "Swing setup", pot: "swing", kinds: [] },
   { key: "reinvest", label: "Dividend or proceeds reinvested", pot: "core", kinds: [] },
   { key: "rebalance", label: "Rebalance to target weights", pot: "core", kinds: [] },
@@ -83,7 +84,7 @@ export function potTotals(trades) {
 // confirmed dip tier (from dipEvents), matched to a logged trade citing that
 // rule. A trade can satisfy only one item.
 export function adherence(schedule, trades, today, dips = []) {
-  const due = [...schedule.filter((s) => (s.kind === "core" || s.kind === "picks") && s.date <= today), ...dips.filter((d) => d.date <= today)]
+  const due = [...schedule.filter((s) => (s.kind === "core" || s.kind === "picks" || (s.kind === "drip" && !s.paused)) && s.date <= today), ...dips.filter((d) => d.date <= today)]
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const used = new Set();
   const items = due.map((s) => {

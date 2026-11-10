@@ -151,7 +151,7 @@
     <div class="grid-2">
       <div class="card small">
         <b>Long-term (0–100)</b>
-        <p class="muted" style="margin:6px 0 0">Weighted blend of <b>Quality</b> 32% (margins, return on equity, growth, debt), <b>Value</b> 32% (forward and trailing P/E, PEG, EV/EBITDA), <b>Entry</b> 26% (discount to the 52-week high, position vs the 200-day, RSI) and <b>Analysts</b> 10% (target upside, rating). <b>Good entry</b> needs 72+, a strong entry score and decent quality and value, and the stock mustn't still be in a downtrend. <b>Stretched</b> means the business may be fine but the price has run hot. Banks skip debt and EV ratios, which don't mean much for them.</p>
+        <p class="muted" style="margin:6px 0 0">Weighted blend of <b>Quality</b> 32% (margins, return on equity, growth, debt), <b>Value</b> 32% (forward and trailing P/E and EV/EBITDA against the sector's median in the same region, PEG; cyclicals capped at 60), <b>Entry</b> 26% (12-1 month momentum, distance from the 52-week high with no extra credit for a fall beyond 3%, position vs the 200-day, RSI; since 10 Nov) and <b>Analysts</b> 10% (target upside, rating). <b>Good entry</b> needs 72+, a strong entry score and decent quality and value, and the stock mustn't still be in a downtrend. <b>Stretched</b> means the business may be fine but the price has run hot. Banks skip debt and EV ratios, which don't mean much for them.</p>
       </div>
       <div class="card small">
         <b>Swing (0–100)</b>
@@ -183,12 +183,12 @@ const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: 
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
 const peOf = (it) => it.pe ?? it.longTerm?.pillars?.find((p) => p.key === "value")?.items?.find((m) => m.key === "forwardPE" || m.key === "trailingPE")?.value ?? null;
-// The two scoring proposals waiting on Douglas: how many full-score verdicts each would change.
+// The 10 Nov scoring change (value against sector peers, new Entry rule):
+// how many full-score verdicts it moved against the old rule.
 function proposalLine(D) {
-  const c = (x) => (x?.compared ? `${x.changed} of ${x.compared}` : null);
-  const p = c(D.sectorValueChanges), e = c(D.entryViewChanges), b = c(D.bothViewChanges);
-  if (!p && !e) return "";
-  return ` <b>Proposals</b> (display only, waiting on your OK): the peer view would change ${p ?? "n/a"} full-score verdicts, the Entry view ${e ?? "n/a"}${b ? `, both together ${b}` : ""}. Open a stock to see its notes.`;
+  const r = D.ruleChanges;
+  if (!r?.compared) return "";
+  return ` <b>Scoring changed 10 Nov</b> (value against sector peers, new Entry rule with momentum): ${r.changed} of ${r.compared} full-score verdicts differ from the old rule. Open a stock to see its note.`;
 }
 
 // A quick-scored scan item that also sits on the research list, which has its full score.
@@ -297,16 +297,13 @@ function detailHtml(it) {
   const lr = it.lastResults;
   const results = lr ? (lr.pending ? `<div class="note">Reported ${fmtDay(lr.date)}: the reaction shows after the next close.</div>` : `<div class="note ${lr.pct >= 0 ? "good" : ""}">Results ${fmtDay(lr.date)}: ${signPct(lr.pct)} from the close before to the close after.</div>`) : "";
   const sv = it.sectorValue;
-  const peer = sv?.note ? `<div class="note peer"><b>Peer view</b> (not used in the verdict yet): ${esc(sv.note)}</div>` : "";
-  const ev = it.entryView;
-  const entryNote = ev?.note ? `<div class="note peer"><b>Entry view</b> (proposal, not used yet): ${esc(ev.note)}</div>` : "";
-  const bv = it.bothView;
-  const bothNote = bv?.note && (bv.changed || sv?.changed || ev?.changed) ? `<div class="note peer"><b>Both together</b> (not used yet): ${esc(bv.note)}</div>` : "";
+  const peer = sv?.note ? `<div class="note peer"><b>Peers</b>: ${esc(sv.note)}</div>` : "";
+  const rcn = it.ruleChange?.note ? `<div class="note peer"><b>Rule change</b>: ${esc(it.ruleChange.note)}</div>` : "";
   const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${entryNote}${bothNote}${smn}
+  return `<p class="summary">${esc(it.summary)}</p>${quick}${eu}${results}${notes}${peer}${rcn}${smn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -334,7 +331,7 @@ function detailHtml(it) {
     </div>
   </div>
   <div class="perf">${perf.map(([k, v]) => `<div class="panel" style="padding:8px 10px"><div class="k">${k}</div><div class="v ${pnClass(v)}">${signPct(v)}</div></div>`).join("")}</div>
-  ${it.scoreHistory ? `<div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>` : ""}
+  ${it.scoreHistory ? `<div class="panel" style="margin-top:14px"><h3><span>Score history</span><span>${it.change?.lt != null ? `long-term ${it.change.lt > 0 ? "+" : ""}${it.change.lt} this week` : ""}</span></h3>${scoreTrend(it.scoreHistory)}</div>` : ""}
   ${it.series?.length ? `<div class="panel" style="margin-top:14px"><h3><span>Last 6 months</span><span>rebased</span></h3><svg viewBox="0 0 600 90" class="chart" style="width:100%;height:auto">${sparkline(it.series, 600, 90, (it.perf?.m3 ?? 0) >= 0 ? "var(--pos)" : "var(--neg)", { fill: true })}</svg></div>` : ""}
   <div class="links"><a href="${yahoo}" target="_blank" rel="noopener">Yahoo Finance ↗</a>${finviz}<a href="index.html?alert=${encodeURIComponent(it.symbol)}&name=${encodeURIComponent(it.name || "")}&price=${encodeURIComponent(it.price ?? "")}#paSection">Set a price alert →</a></div>`;
 }

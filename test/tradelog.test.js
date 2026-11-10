@@ -87,3 +87,10 @@ test("adherence: dip tiers join the list and match only dip-rule buys within a w
   const early = adherence(PLAN.schedule, [...core, T({ date: "2026-11-10", rule: "dip", ticker: "VWRP" })], "2026-11-30", dips);
   assert.equal(early.items.find((i) => i.kind === "dip").status, "missed", "a buy before the tier fired is not this tier");
 });
+
+test("adherence counts unpaused reserve drips", () => {
+  const sched = [{ date: "2026-12-07", kind: "drip", title: "Drip" }, { date: "2027-01-04", kind: "drip", paused: true, title: "Paused" }];
+  const tr = [normaliseTrade({ date: "2026-12-08", action: "buy", rule: "drip", ticker: "VWRP", amount: 100 }).trade];
+  const a = adherence(sched, tr, "2027-01-20");
+  assert.deepEqual(a.items.map((i) => [i.date, i.status]), [["2026-12-07", "on-time"]]);
+});

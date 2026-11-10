@@ -11,7 +11,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals } from "./src/data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored, entryViewNote, bothViewNote } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -57,7 +57,7 @@ async function main() {
       f.closedEnd = u.sector === "Closed End Investments";
       const earningsDays = daysUntil(f.nextEarnings, today);
       const signals = swingSignals(t);
-      items.push({ u, t, f, signals, earningsDays, lt: longTerm(f, t), swing: swingVerdict(t, signals, earningsDays), deep: false });
+      items.push({ u, t, f, signals, earningsDays, lt: longTermLive(f, t), swing: swingVerdict(t, signals, earningsDays), deep: false });
     } catch (e) { failed.push(u.symbol); }
     await sleep(120);
   }
@@ -70,6 +70,12 @@ async function main() {
   }
   console.log(`Stage 1: ${items.length} scored, ${failed.length} failed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
+  // Value against sector peers (live since 10 Nov): medians from the quick data
+  // pick the stage 2 candidates; they are recomputed after stage 2 below.
+  const peerOf = (it, med, reg) => peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, med, reg, MARKET[it.u.index] ?? "US");
+  const peerRowsOf = () => items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: notScored(it.f) }));
+  { const rows = peerRowsOf(), m1 = sectorMedians(rows), r1m = regionMedians(rows); for (const it of items) { it.peer = peerOf(it, m1, r1m); it.lt = longTermLive(it.f, it.t, it.peer); } }
+
   // Stage 2: deepen the best long-term candidates and the swing setups.
   const byLong = items.filter((i) => i.lt.score != null).sort((a, b) => b.lt.score - a.lt.score).slice(0, DEEP_LONG);
   const bySwing = items.filter((i) => i.swing?.verdict?.startsWith("Setup")).sort((a, b) => b.swing.score - a.swing.score).slice(0, DEEP_SWING);
@@ -80,7 +86,7 @@ async function main() {
       it.f = { ...it.f, ...Object.fromEntries(Object.entries(full).filter(([, v]) => v != null)) };
       it.f.sector = full.sector || it.u.sector;
       it.earningsDays = daysUntil(it.f.nextEarnings, today);
-      it.lt = longTerm(it.f, it.t);
+      it.lt = longTermLive(it.f, it.t, it.peer);
       it.swing = swingVerdict(it.t, it.signals, it.earningsDays);
       it.deep = true;
     }
@@ -88,15 +94,16 @@ async function main() {
   }
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
-  // Sector-relative valuation, display only (verdicts unchanged; see src/sectorValue.js).
-  const peerRows = items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: notScored(it.f) }));
+  // Final scores with medians that include the deepened data. The old rule
+  // (before 10 Nov) is kept only for the "what changed" note.
+  const peerRows = peerRowsOf();
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
   for (const it of items) {
-    const peer = peerFor({ ...it.f, sector: it.u.sector || it.f.sector }, medians, regional, MARKET[it.u.index] ?? "US");
-    it.sv = peer ? sectorValueNote(it.f, peer, it.lt, longTerm(it.f, it.t, peer)) : null;
-    // Proposed Entry rule, display only (roadmap: Entry pillar step 2 waits on Douglas).
-    it.ev = entryViewNote(it.lt, longTerm(it.f, it.t, null, { entryAlt: true }), it.t);
-    it.bv = peer ? bothViewNote(it.lt, longTerm(it.f, it.t, peer, { entryAlt: true }), it.sv, it.ev) : null;
+    const peer = peerOf(it, medians, regional);
+    it.lt = longTermLive(it.f, it.t, peer);
+    const old = longTerm(it.f, it.t);
+    it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt) : null;
+    it.rc = ruleChangeNote(old, it.lt);
   }
 
   // Results dates seen so far, so estimates learn each company's reporting gap.
@@ -107,7 +114,7 @@ async function main() {
   // refreshed weekly by tools/smart-money.mjs in this workflow.
   const smart = await readJson("data/smart-money.json", null);
 
-  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, ev, bv }) => {
+  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, rc }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
@@ -117,7 +124,7 @@ async function main() {
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
-      swing, signals, deep: isDeep, sectorValue: sv, entryView: ev, bothView: bv,
+      swing, signals, deep: isDeep, sectorValue: sv, ruleChange: rc,
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
@@ -133,7 +140,8 @@ async function main() {
   const prev = await readJson("scan.json", null);
   const prevGood = new Set(prev?.items?.filter((i) => i.deep && i.longTerm.verdict === "Good entry").map((i) => i.symbol) ?? []);
   const prevSetup = new Set(prev?.items?.filter((i) => i.swing?.verdict?.startsWith("Setup")).map((i) => i.symbol) ?? []);
-  const hasPrev = !!prev?.items?.length;
+  // A scoring rule change re-baselines "new" rather than listing every verdict it moved.
+  const hasPrev = !!prev?.items?.length && prev.scoringVersion === SCORING_VERSION;
   const newGood = hasPrev ? out.filter((i) => i.deep && i.longTerm.verdict === "Good entry" && !prevGood.has(i.symbol)).map((i) => i.symbol) : [];
   const newSetups = hasPrev ? out.filter((i) => i.swing?.verdict?.startsWith("Setup") && !prevSetup.has(i.symbol)).map((i) => i.symbol) : [];
 
@@ -167,34 +175,20 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, sectorValueChanges: sectorValueChanges(out), entryViewChanges: viewChanges(out, "entryView"), bothViewChanges: viewChanges(out, "bothView"), coreExtras: coreDates, items: out,
+    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
   });
-  const svc = sectorValueChanges(out);
-  console.log(`Sector-relative value (display only): ${svc.changed} of ${svc.compared} full-score verdicts would change; Good entry lost: ${svc.lostGood.join(", ") || "none"}; gained: ${svc.gainedGood.join(", ") || "none"}.`);
-  const evc = viewChanges(out, "entryView");
-  console.log(`Entry view (display only): ${evc.changed} of ${evc.compared} full-score verdicts would change; Good entry lost: ${evc.lostGood.join(", ") || "none"}; gained: ${evc.gainedGood.join(", ") || "none"}.`);
-  const bvc = viewChanges(out, "bothView");
-  console.log(`Both proposals (display only): ${bvc.changed} of ${bvc.compared} full-score verdicts would change (only together: ${out.filter((i) => i.deep && i.bothView?.onlyTogether).map((i) => i.symbol).join(", ") || "none"}); Good entry lost: ${bvc.lostGood.join(", ") || "none"}; gained: ${bvc.gainedGood.join(", ") || "none"}.`);
+  const rcs = ruleChanges(out);
+  console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
 }
 
-// How many full-score verdicts would change under peer-based value (for the
-// decision waiting on Douglas), with the biggest names as examples.
-function sectorValueChanges(out) {
-  const deep = out.filter((i) => i.deep && i.sectorValue);
-  const changed = deep.filter((i) => i.sectorValue.changed);
-  const lostGood = changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol);
-  const gainedGood = changed.filter((i) => i.sectorValue.verdict === "Good entry").map((i) => i.symbol);
-  return { compared: deep.length, changed: changed.length, lostGood, gainedGood, cyclical: deep.filter((i) => i.sectorValue.cyclical).length };
-}
-
-// The same count for any display-only "would be" view with { verdict, changed }.
-function viewChanges(out, key) {
-  const deep = out.filter((i) => i.deep && i[key]);
-  const changed = deep.filter((i) => i[key].changed);
+// Full-score verdicts the 10 Nov scoring change moved, against the old rule.
+function ruleChanges(out) {
+  const deep = out.filter((i) => i.deep && i.longTerm?.score != null && !i.longTerm.trust);
+  const changed = deep.filter((i) => i.ruleChange);
   return { compared: deep.length, changed: changed.length,
-    lostGood: changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol),
-    gainedGood: changed.filter((i) => i[key].verdict === "Good entry").map((i) => i.symbol) };
+    lostGood: changed.filter((i) => i.ruleChange.verdict === "Good entry").map((i) => i.symbol),
+    gainedGood: changed.filter((i) => i.longTerm.verdict === "Good entry").map((i) => i.symbol) };
 }
 
 // True when neither London nor New York is in its trading session.

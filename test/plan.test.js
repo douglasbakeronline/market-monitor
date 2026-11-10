@@ -145,3 +145,17 @@ test("core holdings: small ones show only in the last week; extras come from quo
     { symbol: "005930.KS", name: "Samsung Electronics", earnings: null, lastEarnings: "2026-10-30" },
   ]);
 });
+
+test("reserve drip: first Monday of each month from 7 Dec, paused within 30 days of a confirmed tier", async () => {
+  const { dripSchedule, copilot } = await import("../src/plan.js");
+  const d = dripSchedule("2026-11-10", "2027-03-31", ["2027-01-20"]);
+  assert.deepEqual(d.map((x) => [x.date, x.paused]), [["2026-12-07", false], ["2027-01-04", false], ["2027-02-01", true], ["2027-03-01", false]]);
+  assert.match(d[2].detail, /confirmed on Wed 20 Jan/);
+  const cp = copilot({ today: "2026-12-03", sp: null, ftse: null });
+  assert.equal(cp.actions[0].kind, "drip");
+  assert.equal(cp.actions[0].status, "due");
+  const paused = copilot({ today: "2027-01-29", sp: null, ftse: null, tiers: ["2027-01-20"] });
+  assert.equal(paused.actions[0].status, "hold");
+  assert.equal(paused.upcoming[0].date, "2027-03-01", "paused drips are not 'next'");
+  assert.equal(copilot({ today: "2026-12-03", sp: null, ftse: null }).pullback.nextCore, null, "a drip is not a core date for the pullback rule");
+});

@@ -15,13 +15,15 @@ export function recordScores(scores, items, date) {
 }
 
 // Change in long-term score vs the most recent point at least `days` old.
-export function scoreChange(points, today, days = 7) {
+// ltFrom: a scoring rule change date; long-term changes measured across it are
+// left out (null), as they would show the rule, not the stock.
+export function scoreChange(points, today, days = 7, { ltFrom = null } = {}) {
   if (!points?.length) return null;
   const cutoff = new Date(Date.parse(today) - days * 86400000).toISOString().slice(0, 10);
   const now = points[points.length - 1];
   const then = [...points].reverse().find((p) => p[0] <= cutoff);
   if (!then || now[1] == null || then[1] == null) return null;
-  return { lt: now[1] - then[1], sw: now[2] != null && then[2] != null ? now[2] - then[2] : null, since: then[0] };
+  return { lt: ltFrom && then[0] < ltFrom ? null : now[1] - then[1], sw: now[2] != null && then[2] != null ? now[2] - then[2] : null, since: then[0] };
 }
 
 // earnings: { symbol: ["YYYY-MM-DD", ...] }
