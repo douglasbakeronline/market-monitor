@@ -190,3 +190,72 @@ export function analyseLab(trades, bar = LAB_BAR) {
   }
   return res;
 }
+
+// Plain-English verdict for a lab result.
+export function labVerdict(r) {
+  if (r.clear) return { key: "clear", label: "Clears the bar" };
+  if (!r.checks.positive) return { key: "loses", label: "Loses money after costs" };
+  if (!(r.edge > 0)) return { key: "none", label: "No better than random" };
+  const missed = Object.entries(r.checks).filter(([, ok]) => !ok).map(([k]) => k);
+  if (missed.length === 1) return { key: "promising", label: "Promising, not proven", missed: missed[0] };
+  return { key: "weak", label: "Small edge, not reliable", missed };
+}
+
+// --- Live forward test of post-results drift (paper only) ----------------------
+// The 10 Nov backtest found drift the one candidate (research log), short of
+// the bar only on year-to-year consistency, so it is paper-traded from the
+// nightly scan exactly as tested: signal at the close, buy at the next open,
+// sell at the close 20 sessions later, no stop, after costs, and compared with
+// the home index over the same days.
+export const DRIFT = { minRet: 0.04, volX: 3, hold: 20 };
+
+// Drift on the last bar of rows: the day's move and volume against the 50
+// sessions before. null when it doesn't fire.
+export function driftToday(rows) {
+  const d = (rows?.length ?? 0) - 1;
+  if (d < 51) return null;
+  const prev = rows[d - 1].close, ret = rows[d].close / prev - 1;
+  let s = 0;
+  for (let k = d - 50; k < d; k++) s += rows[k].volume || 0;
+  const avg = s / 50, vx = avg > 0 ? (rows[d].volume || 0) / avg : 0;
+  return ret >= DRIFT.minRet && vx >= DRIFT.volX ? { date: rows[d].date, price: rows[d].close, movePct: Math.round(ret * 1000) / 10, volX: Math.round(vx * 10) / 10 } : null;
+}
+
+// Add tonight's drift signals (one open trade per symbol).
+export function addDrift(log, sigs) {
+  const open = new Set(log.filter((t) => t.status !== "closed").map((t) => t.symbol));
+  const out = log.slice();
+  for (const s of sigs) {
+    if (open.has(s.symbol)) continue;
+    out.push({ id: `${s.date}:${s.symbol}`, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, signalDate: s.date, signalPrice: s.price,
+      movePct: s.movePct, volX: s.volX, results: !!s.results, status: "pending" });
+    open.add(s.symbol);
+  }
+  return out;
+}
+
+// Advance a trade on later bars; idx maps date -> home index close.
+export function updateDrift(trade, rows, idx = null) {
+  if (!rows?.length || trade.status === "closed") return trade;
+  const after = rows.filter((r) => r.date > trade.signalDate);
+  if (!after.length) return trade;
+  const t = { ...trade };
+  if (t.status === "pending") { t.status = "open"; t.entryDate = after[0].date; t.entry = after[0].open; }
+  const held = after.filter((r) => r.date >= t.entryDate);
+  const last = held[Math.min(held.length, DRIFT.hold) - 1];
+  const gross = (last.close / t.entry - 1) * 100;
+  const i0 = idx?.get(t.signalDate), i1 = idx?.get(last.date);
+  const idxPct = i0 && i1 ? (i1 / i0 - 1) * 100 : null;
+  Object.assign(t, { sessions: Math.min(held.length, DRIFT.hold), lastDate: last.date, lastPrice: r2(last.close), retPct: r2(gross), netPct: r2(gross - (COSTS[t.market] ?? 0) * 100), idxPct: r2(idxPct) });
+  if (held.length >= DRIFT.hold) { t.status = "closed"; t.exitDate = last.date; t.exit = r2(last.close); }
+  return t;
+}
+
+export function summariseDrift(log = []) {
+  const closed = log.filter((t) => t.status === "closed"), open = log.filter((t) => t.status !== "closed");
+  const avg = (xs, f) => (xs.length ? r2(xs.reduce((a, t) => a + f(t), 0) / xs.length) : null);
+  const ix = closed.filter((t) => t.idxPct != null);
+  return { since: log.map((t) => t.signalDate).sort()[0] ?? null, total: log.length, open: open.length, closed: closed.length,
+    avgNet: avg(closed, (t) => t.netPct), win: closed.length ? Math.round((closed.filter((t) => t.netPct > 0).length / closed.length) * 100) : null,
+    vsIdx: avg(ix, (t) => t.netPct - t.idxPct) };
+}

@@ -91,3 +91,36 @@ test("runStock and analyseLab: every strategy and stop setting reported, verdict
   const uk = win.concat(Array.from({ length: 120 }, (_, i) => mk("signal", -3, "UK", "2021")), Array.from({ length: 120 }, () => mk("random", 1, "UK", "2021")));
   assert.equal(analyseLab(uk).find((r) => r.key === "drift" && !r.stop).checks.markets, false);
 });
+
+test("live drift: fires on the last bar, enters next open, closes after 20 sessions with index comparison", async () => {
+  const { driftToday, addDrift, updateDrift, summariseDrift, labVerdict } = await import("../src/swingLab.js");
+  const rows = bars(120);
+  rows[90] = { ...rows[90], close: rows[89].close * 1.06, volume: 4e6 };
+  assert.equal(driftToday(rows.slice(0, 90)), null);
+  const s = driftToday(rows.slice(0, 91));
+  assert.equal(s.date, rows[90].date);
+  assert.equal(s.movePct, 6);
+  assert.ok(s.volX >= 3.9);
+  let log = addDrift([], [{ ...s, symbol: "X", ticker: "X", market: "US" }]);
+  log = addDrift(log, [{ ...s, symbol: "X", ticker: "X", market: "US" }]);
+  assert.equal(log.length, 1);
+  const idx = new Map(rows.map((r) => [r.date, 1000]));
+  const mid = updateDrift(log[0], rows.slice(0, 100), idx);
+  assert.equal(mid.status, "open");
+  assert.equal(mid.entry, rows[91].open);
+  assert.equal(mid.sessions, 9);
+  const done = updateDrift(mid, rows, idx);
+  assert.equal(done.status, "closed");
+  assert.equal(done.exitDate, rows[110].date);
+  assert.equal(done.idxPct, 0);
+  const sum = summariseDrift([done, mid]);
+  assert.equal(sum.closed, 1);
+  assert.equal(sum.open, 1);
+  assert.equal(sum.vsIdx, sum.avgNet);
+  // Verdict wording.
+  const base = { clear: false, edge: 0.5, checks: { edge: true, positive: true, sample: true, years: false, markets: true } };
+  assert.equal(labVerdict(base).key, "promising");
+  assert.equal(labVerdict({ ...base, checks: { ...base.checks, positive: false } }).key, "loses");
+  assert.equal(labVerdict({ ...base, edge: -0.2, checks: { ...base.checks, edge: false } }).key, "none");
+  assert.equal(labVerdict({ ...base, clear: true }).key, "clear");
+});

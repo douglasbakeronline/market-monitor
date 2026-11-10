@@ -1,0 +1,815 @@
+{
+ "ran": "2026-11-10",
+ "universe": 603,
+ "fetched": 598,
+ "range": "10y",
+ "from": "2017-11-09",
+ "to": "2026-11-09",
+ "trades": 635390,
+ "bar": {
+  "minEdge": 0.4,
+  "minTrades": 300,
+  "yearShare": 0.75,
+  "minYearTrades": 50
+ },
+ "results": [
+  {
+   "key": "drift",
+   "label": "Post-results drift (+4% day on 3x volume, hold 20 sessions)",
+   "stop": false,
+   "signal": {
+    "n": 2453,
+    "avg": 1.36,
+    "win": 54,
+    "vsIdx": 0.52,
+    "days": 20,
+    "sd": 12,
+    "t": 5.6
+   },
+   "baseline": {
+    "n": 43737,
+    "avg": 0.78,
+    "win": 54,
+    "vsIdx": -0.2,
+    "days": 20,
+    "sd": 9.48,
+    "t": 17.3,
+    "kind": "random day"
+   },
+   "anyDay": {
+    "n": 43737,
+    "avg": 0.78,
+    "win": 54,
+    "vsIdx": -0.2,
+    "days": 20,
+    "sd": 9.48,
+    "t": 17.3
+   },
+   "edge": 0.58,
+   "tEdge": 2.32,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 27,
+     "avg": 1.71,
+     "base": 3.09,
+     "edge": -1.38
+    },
+    {
+     "year": "2018",
+     "n": 273,
+     "avg": 1.01,
+     "base": -0.7,
+     "edge": 1.71
+    },
+    {
+     "year": "2019",
+     "n": 275,
+     "avg": 1.58,
+     "base": 1.68,
+     "edge": -0.1
+    },
+    {
+     "year": "2020",
+     "n": 336,
+     "avg": 1.63,
+     "base": 1.39,
+     "edge": 0.24
+    },
+    {
+     "year": "2021",
+     "n": 224,
+     "avg": -0.27,
+     "base": 1.19,
+     "edge": -1.46
+    },
+    {
+     "year": "2022",
+     "n": 231,
+     "avg": 0.32,
+     "base": -0.68,
+     "edge": 1
+    },
+    {
+     "year": "2023",
+     "n": 285,
+     "avg": 1.76,
+     "base": 0.87,
+     "edge": 0.89
+    },
+    {
+     "year": "2024",
+     "n": 327,
+     "avg": 2.75,
+     "base": 1.1,
+     "edge": 1.65
+    },
+    {
+     "year": "2025",
+     "n": 280,
+     "avg": 1.04,
+     "base": 1.08,
+     "edge": -0.04
+    },
+    {
+     "year": "2026",
+     "n": 195,
+     "avg": 1.63,
+     "base": 0.79,
+     "edge": 0.84
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 2093,
+     "avg": 1.33,
+     "base": 0.9,
+     "edge": 0.43
+    },
+    {
+     "market": "UK",
+     "n": 360,
+     "avg": 1.49,
+     "base": 0.18,
+     "edge": 1.31
+    }
+   ],
+   "yearsAhead": 6,
+   "yearsCounted": 9,
+   "checks": {
+    "edge": true,
+    "positive": true,
+    "sample": true,
+    "years": false,
+    "markets": true
+   },
+   "clear": false
+  },
+  {
+   "key": "drift",
+   "label": "Post-results drift (+4% day on 3x volume, hold 20 sessions)",
+   "stop": true,
+   "signal": {
+    "n": 2513,
+    "avg": 0.67,
+    "win": 46,
+    "vsIdx": 0.09,
+    "days": 15,
+    "sd": 11.22,
+    "t": 2.99
+   },
+   "baseline": {
+    "n": 53627,
+    "avg": 0.45,
+    "win": 44,
+    "vsIdx": -0.27,
+    "days": 14.61,
+    "sd": 8.37,
+    "t": 12.56,
+    "kind": "random day"
+   },
+   "anyDay": {
+    "n": 53627,
+    "avg": 0.45,
+    "win": 44,
+    "vsIdx": -0.27,
+    "days": 14.61,
+    "sd": 8.37,
+    "t": 12.56
+   },
+   "edge": 0.22,
+   "tEdge": 0.95,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 27,
+     "avg": 2.11,
+     "base": 2.66,
+     "edge": -0.55
+    },
+    {
+     "year": "2018",
+     "n": 275,
+     "avg": 0.55,
+     "base": -0.44,
+     "edge": 0.99
+    },
+    {
+     "year": "2019",
+     "n": 277,
+     "avg": 1.22,
+     "base": 1.17,
+     "edge": 0.05
+    },
+    {
+     "year": "2020",
+     "n": 364,
+     "avg": 0.81,
+     "base": 1.38,
+     "edge": -0.57
+    },
+    {
+     "year": "2021",
+     "n": 226,
+     "avg": -0.55,
+     "base": 0.51,
+     "edge": -1.06
+    },
+    {
+     "year": "2022",
+     "n": 235,
+     "avg": -1.42,
+     "base": -0.76,
+     "edge": -0.66
+    },
+    {
+     "year": "2023",
+     "n": 289,
+     "avg": 1.51,
+     "base": 0.48,
+     "edge": 1.03
+    },
+    {
+     "year": "2024",
+     "n": 331,
+     "avg": 1.57,
+     "base": 0.64,
+     "edge": 0.93
+    },
+    {
+     "year": "2025",
+     "n": 284,
+     "avg": 0.8,
+     "base": 0.78,
+     "edge": 0.02
+    },
+    {
+     "year": "2026",
+     "n": 205,
+     "avg": 0.58,
+     "base": 0.05,
+     "edge": 0.53
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 2147,
+     "avg": 0.63,
+     "base": 0.55,
+     "edge": 0.08
+    },
+    {
+     "market": "UK",
+     "n": 366,
+     "avg": 0.92,
+     "base": -0.05,
+     "edge": 0.97
+    }
+   ],
+   "yearsAhead": 6,
+   "yearsCounted": 9,
+   "checks": {
+    "edge": false,
+    "positive": true,
+    "sample": true,
+    "years": false,
+    "markets": true
+   },
+   "clear": false
+  },
+  {
+   "key": "dip",
+   "label": "Dip in an uptrend (2-day RSI < 10 above the 200-day, exit above the 5-day)",
+   "stop": false,
+   "signal": {
+    "n": 33793,
+    "avg": -0.08,
+    "win": 61,
+    "vsIdx": -0.31,
+    "days": 3.96,
+    "sd": 3.72,
+    "t": -3.74
+   },
+   "baseline": {
+    "n": 66875,
+    "avg": -0.24,
+    "win": 51,
+    "vsIdx": -0.35,
+    "days": 2.37,
+    "sd": 2.68,
+    "t": -22.77,
+    "kind": "random day in an uptrend"
+   },
+   "anyDay": {
+    "n": 106126,
+    "avg": -0.19,
+    "win": 52,
+    "vsIdx": -0.34,
+    "days": 2.48,
+    "sd": 3.1,
+    "t": -19.93
+   },
+   "edge": 0.16,
+   "tEdge": 7.06,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 559,
+     "avg": 0.12,
+     "base": -0.13,
+     "edge": 0.25
+    },
+    {
+     "year": "2018",
+     "n": 3565,
+     "avg": -0.69,
+     "base": -0.48,
+     "edge": -0.21
+    },
+    {
+     "year": "2019",
+     "n": 3494,
+     "avg": 0.06,
+     "base": -0.17,
+     "edge": 0.23
+    },
+    {
+     "year": "2020",
+     "n": 3260,
+     "avg": -0.32,
+     "base": -0.32,
+     "edge": 0
+    },
+    {
+     "year": "2021",
+     "n": 5135,
+     "avg": 0.31,
+     "base": -0.17,
+     "edge": 0.48
+    },
+    {
+     "year": "2022",
+     "n": 2467,
+     "avg": -0.65,
+     "base": -0.43,
+     "edge": -0.22
+    },
+    {
+     "year": "2023",
+     "n": 3546,
+     "avg": -0.09,
+     "base": -0.16,
+     "edge": 0.07
+    },
+    {
+     "year": "2024",
+     "n": 4815,
+     "avg": 0.01,
+     "base": -0.19,
+     "edge": 0.2
+    },
+    {
+     "year": "2025",
+     "n": 3518,
+     "avg": 0.12,
+     "base": -0.17,
+     "edge": 0.29
+    },
+    {
+     "year": "2026",
+     "n": 3434,
+     "avg": 0.16,
+     "base": -0.17,
+     "edge": 0.33
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 28450,
+     "avg": -0.02,
+     "base": -0.2,
+     "edge": 0.18
+    },
+    {
+     "market": "UK",
+     "n": 5343,
+     "avg": -0.39,
+     "base": -0.44,
+     "edge": 0.05
+    }
+   ],
+   "yearsAhead": 7,
+   "yearsCounted": 10,
+   "checks": {
+    "edge": false,
+    "positive": false,
+    "sample": true,
+    "years": false,
+    "markets": true
+   },
+   "clear": false
+  },
+  {
+   "key": "dip",
+   "label": "Dip in an uptrend (2-day RSI < 10 above the 200-day, exit above the 5-day)",
+   "stop": true,
+   "signal": {
+    "n": 35905,
+    "avg": -0.15,
+    "win": 60,
+    "vsIdx": -0.32,
+    "days": 3.25,
+    "sd": 3.38,
+    "t": -8.59
+   },
+   "baseline": {
+    "n": 68092,
+    "avg": -0.28,
+    "win": 50,
+    "vsIdx": -0.38,
+    "days": 2,
+    "sd": 2.43,
+    "t": -30.2,
+    "kind": "random day in an uptrend"
+   },
+   "anyDay": {
+    "n": 108906,
+    "avg": -0.24,
+    "win": 52,
+    "vsIdx": -0.36,
+    "days": 2.1,
+    "sd": 2.83,
+    "t": -28.27
+   },
+   "edge": 0.13,
+   "tEdge": 6.34,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 580,
+     "avg": 0.06,
+     "base": -0.27,
+     "edge": 0.33
+    },
+    {
+     "year": "2018",
+     "n": 3905,
+     "avg": -0.66,
+     "base": -0.46,
+     "edge": -0.2
+    },
+    {
+     "year": "2019",
+     "n": 3646,
+     "avg": -0.04,
+     "base": -0.17,
+     "edge": 0.13
+    },
+    {
+     "year": "2020",
+     "n": 3496,
+     "avg": -0.2,
+     "base": -0.22,
+     "edge": 0.02
+    },
+    {
+     "year": "2021",
+     "n": 5434,
+     "avg": 0.13,
+     "base": -0.24,
+     "edge": 0.37
+    },
+    {
+     "year": "2022",
+     "n": 2680,
+     "avg": -0.67,
+     "base": -0.45,
+     "edge": -0.22
+    },
+    {
+     "year": "2023",
+     "n": 3727,
+     "avg": -0.11,
+     "base": -0.24,
+     "edge": 0.13
+    },
+    {
+     "year": "2024",
+     "n": 5111,
+     "avg": -0.07,
+     "base": -0.27,
+     "edge": 0.2
+    },
+    {
+     "year": "2025",
+     "n": 3694,
+     "avg": -0.05,
+     "base": -0.29,
+     "edge": 0.24
+    },
+    {
+     "year": "2026",
+     "n": 3632,
+     "avg": -0.02,
+     "base": -0.27,
+     "edge": 0.25
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 30281,
+     "avg": -0.1,
+     "base": -0.24,
+     "edge": 0.14
+    },
+    {
+     "market": "UK",
+     "n": 5624,
+     "avg": -0.43,
+     "base": -0.48,
+     "edge": 0.05
+    }
+   ],
+   "yearsAhead": 8,
+   "yearsCounted": 10,
+   "checks": {
+    "edge": false,
+    "positive": false,
+    "sample": true,
+    "years": true,
+    "markets": true
+   },
+   "clear": false
+  },
+  {
+   "key": "high",
+   "label": "52-week-high breakout (hold 20 sessions)",
+   "stop": false,
+   "signal": {
+    "n": 8101,
+    "avg": 0.22,
+    "win": 52,
+    "vsIdx": -0.43,
+    "days": 20,
+    "sd": 8.5,
+    "t": 2.36
+   },
+   "baseline": {
+    "n": 43659,
+    "avg": 0.81,
+    "win": 54,
+    "vsIdx": -0.18,
+    "days": 20,
+    "sd": 9.59,
+    "t": 17.68,
+    "kind": "random day"
+   },
+   "anyDay": {
+    "n": 43659,
+    "avg": 0.81,
+    "win": 54,
+    "vsIdx": -0.18,
+    "days": 20,
+    "sd": 9.59,
+    "t": 17.68
+   },
+   "edge": -0.59,
+   "tEdge": -5.61,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 275,
+     "avg": 2.08,
+     "base": 3.01,
+     "edge": -0.93
+    },
+    {
+     "year": "2018",
+     "n": 809,
+     "avg": -1.6,
+     "base": -0.64,
+     "edge": -0.96
+    },
+    {
+     "year": "2019",
+     "n": 945,
+     "avg": 0.61,
+     "base": 1.67,
+     "edge": -1.06
+    },
+    {
+     "year": "2020",
+     "n": 818,
+     "avg": -0.13,
+     "base": 1.54,
+     "edge": -1.67
+    },
+    {
+     "year": "2021",
+     "n": 1307,
+     "avg": 0.18,
+     "base": 1.15,
+     "edge": -0.97
+    },
+    {
+     "year": "2022",
+     "n": 485,
+     "avg": -1.24,
+     "base": -0.46,
+     "edge": -0.78
+    },
+    {
+     "year": "2023",
+     "n": 770,
+     "avg": 0.51,
+     "base": 0.82,
+     "edge": -0.31
+    },
+    {
+     "year": "2024",
+     "n": 1074,
+     "avg": 1.2,
+     "base": 1.03,
+     "edge": 0.17
+    },
+    {
+     "year": "2025",
+     "n": 894,
+     "avg": 0.59,
+     "base": 1.04,
+     "edge": -0.45
+    },
+    {
+     "year": "2026",
+     "n": 724,
+     "avg": 0.3,
+     "base": 0.78,
+     "edge": -0.48
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 6858,
+     "avg": 0.32,
+     "base": 0.92,
+     "edge": -0.6
+    },
+    {
+     "market": "UK",
+     "n": 1243,
+     "avg": -0.29,
+     "base": 0.28,
+     "edge": -0.57
+    }
+   ],
+   "yearsAhead": 1,
+   "yearsCounted": 10,
+   "checks": {
+    "edge": false,
+    "positive": true,
+    "sample": true,
+    "years": false,
+    "markets": false
+   },
+   "clear": false
+  },
+  {
+   "key": "high",
+   "label": "52-week-high breakout (hold 20 sessions)",
+   "stop": true,
+   "signal": {
+    "n": 8147,
+    "avg": -0.06,
+    "win": 41,
+    "vsIdx": -0.48,
+    "days": 14.3,
+    "sd": 7.09,
+    "t": -0.79
+   },
+   "baseline": {
+    "n": 53456,
+    "avg": 0.48,
+    "win": 44,
+    "vsIdx": -0.25,
+    "days": 14.63,
+    "sd": 8.48,
+    "t": 12.96,
+    "kind": "random day"
+   },
+   "anyDay": {
+    "n": 53456,
+    "avg": 0.48,
+    "win": 44,
+    "vsIdx": -0.25,
+    "days": 14.63,
+    "sd": 8.48,
+    "t": 12.96
+   },
+   "edge": -0.54,
+   "tEdge": -6.2,
+   "byYear": [
+    {
+     "year": "2017",
+     "n": 275,
+     "avg": 1.36,
+     "base": 2.57,
+     "edge": -1.21
+    },
+    {
+     "year": "2018",
+     "n": 809,
+     "avg": -1.14,
+     "base": -0.5,
+     "edge": -0.64
+    },
+    {
+     "year": "2019",
+     "n": 945,
+     "avg": 0.13,
+     "base": 1.21,
+     "edge": -1.08
+    },
+    {
+     "year": "2020",
+     "n": 818,
+     "avg": 0.22,
+     "base": 1.48,
+     "edge": -1.26
+    },
+    {
+     "year": "2021",
+     "n": 1307,
+     "avg": -0.15,
+     "base": 0.66,
+     "edge": -0.81
+    },
+    {
+     "year": "2022",
+     "n": 485,
+     "avg": -1.47,
+     "base": -0.64,
+     "edge": -0.83
+    },
+    {
+     "year": "2023",
+     "n": 770,
+     "avg": 0.28,
+     "base": 0.39,
+     "edge": -0.11
+    },
+    {
+     "year": "2024",
+     "n": 1074,
+     "avg": 0.41,
+     "base": 0.62,
+     "edge": -0.21
+    },
+    {
+     "year": "2025",
+     "n": 894,
+     "avg": 0.08,
+     "base": 0.67,
+     "edge": -0.59
+    },
+    {
+     "year": "2026",
+     "n": 770,
+     "avg": -0.1,
+     "base": 0.15,
+     "edge": -0.25
+    }
+   ],
+   "byMarket": [
+    {
+     "market": "US",
+     "n": 6898,
+     "avg": 0.03,
+     "base": 0.59,
+     "edge": -0.56
+    },
+    {
+     "market": "UK",
+     "n": 1249,
+     "avg": -0.55,
+     "base": -0.08,
+     "edge": -0.47
+    }
+   ],
+   "yearsAhead": 0,
+   "yearsCounted": 10,
+   "checks": {
+    "edge": false,
+    "positive": false,
+    "sample": true,
+    "years": false,
+    "markets": false
+   },
+   "clear": false
+  }
+ ]
+}

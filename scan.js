@@ -16,6 +16,7 @@ import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleCha
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
+import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
@@ -176,6 +177,29 @@ async function main() {
   } else console.log("Paper trades: markets open, not updated.");
   await writeJson("history/paper-trades.json", paper, true);
   await writeJson("history/results-dates.json", resultsHist);
+  // Swing lab: forward test of post-results drift (paper only; research log
+  // 10 Nov). S&P 500 and FTSE 100 only, as tested. Never stops the scan.
+  let drift = await readJson("history/swing-lab.json", []), driftToday_ = [];
+  try {
+    if (marketsClosed()) {
+      const idx = {};
+      for (const [m, sym] of [["US", "^GSPC"], ["UK", "^FTSE"]]) {
+        try { idx[m] = new Map((await fetchDaily(sym, { range: "1y" })).rows.map((r) => [r.date, r.close])); } catch { idx[m] = null; }
+      }
+      drift = drift.map((t) => updateDrift(t, rowsBySymbol[t.symbol], idx[t.market]));
+      for (const i of out) {
+        if (i.index !== "S&P 500" && i.index !== "FTSE 100") continue;
+        const sg = driftToday(rowsBySymbol[i.symbol]);
+        if (!sg) continue;
+        const near = i.lastEarnings && Math.abs(Date.parse(sg.date) - Date.parse(i.lastEarnings)) <= 3 * 86400000;
+        driftToday_.push({ ...sg, symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market, results: !!near });
+      }
+      drift = addDrift(drift, driftToday_);
+      await writeJson("history/swing-lab.json", drift, true);
+    } else console.log("Swing lab: markets open, not updated.");
+  } catch (e) { console.warn(`Swing lab failed: ${e.message}`); }
+  const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
+  console.log(`Swing lab drift: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} +${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open, ${driftSummary.closed} closed.`);
   const paperSummary = summarisePaper(paper);
   console.log(`Paper trades: ${paperSummary.open} open, ${paperSummary.closed} closed${paperSummary.avgR != null ? `, ${paperSummary.avgR}R average` : ""}.`);
 
@@ -192,7 +216,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
