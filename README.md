@@ -24,7 +24,7 @@ GitHub Actions runs `monitor.js` at these times (local market time, daylight sav
 | US close | 16:10 New York | Signals + F&G close capture + research refresh |
 | Weekly digest | Sunday 18:00 London | Digest + research refresh |
 
-GitHub's own cron is unreliable (it was running ~5 hours late), so the workflow uses it only to *wake up*. Each run sleeps until the next slot, runs it, then starts the next run itself. The cron lines restart the chain if it ever breaks. Only one run is active at a time. A separate "Chain watchdog" workflow checks every two hours that each due slot saved data; if not, it restarts the chain (when no run is active) and sends one alert.
+GitHub's own cron is unreliable (it was running ~5 hours late), so the workflow uses it only to *wake up*. Each run sleeps until the next slot, runs it, then starts the next run itself. The cron lines restart the chain if it ever breaks. Only one run is active at a time. A separate "Chain watchdog" workflow checks every two hours that each due slot saved data and that the nightly scan saved; if not, it restarts the chain (when no run is active) and sends one alert.
 
 Alerts between 22:00 and 07:00 London are held until the morning (except "monitor problem" alerts).
 

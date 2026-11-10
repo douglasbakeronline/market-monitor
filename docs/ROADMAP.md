@@ -43,7 +43,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
-- 10 Nov (midday): chain watchdog (every two hours: restarts the monitor chain and alerts once if a slot was missed).
+- 10 Nov (midday): chain watchdog (every two hours: restarts the monitor chain or the nightly scan and alerts once if a slot or night was missed).
 - 10 Nov (morning): swing book round 2: random-choice benchmark, value vs S&P chart, push on orders and closes, why each setup fired.
 - 10 Nov (daily run): results record (beats of last 4, next forecast) and weak-results flag in the tranche check and Monday push.
 - 10 Nov (daily run): Swing lab round 4 (earnings surprise; fails the bar, weak-and-falling pattern shown), nightly "Last results" check for picks, bench and movers; Trading 212 import shows fees as a share of money traded.
@@ -113,4 +113,5 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - Insider buying and short interest signals (needs a free source).
 - Nasdaq 100 follow-up: Strategy (MSTR) is now a "Holding company" (not scored, 9 Nov); add others to `ASSET_HOLDERS` in `src/research.js` if they join an index. SpaceX (SPCX) is newly listed and scored like any company (only 36% data coverage on 9 Nov). Wikipedia moved the component table to "List of NASDAQ-100 companies" (the main page has none); the scan falls back to its cache if it moves again.
 - Core holdings weights (`PLAN.coreHoldings` in `src/plan.js`) are from VWRP's 31 Jul 2026 holdings: refresh each quarter (stockanalysis.com/quote/lon/VWRP/holdings lists them). Checked 10 Nov: the page still shows 31 Jul. TSMC, Samsung and SK hynix dates come from extra quotes in the scan (`extra: true`).
+- Chain watchdog: shipped 10 Nov. If it ever fires, check whether the restart cleared it at the next check; if restarts collide with the relay (two runs queued), consider letting the watchdog only alert during market hours.
 - Price alerts follow-up: log reached levels in the track record if Douglas uses them.
