@@ -251,6 +251,7 @@
   <section class="section" id="pfSection">
     <div class="eyebrow">Your pots and goal <span class="pill plain" style="margin-left:4px">This browser only</span></div>
     <div class="card" id="pfCard"></div>
+    <div class="card" id="isaCard" style="margin-top:12px"></div>
     <p class="cap">Amounts you enter here are saved in this browser and never leave it: nothing is sent to the server or the public repo. Projections assume steady growth after costs; real returns vary a lot from year to year.</p>
   </section>
 
@@ -376,6 +377,7 @@ import { PLAN, dripSchedule } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
+import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
@@ -775,6 +777,31 @@ function renderPf(edit = false) {
   card.querySelectorAll("[data-real]").forEach((b) => { b.onclick = () => { ODDS_REAL = b.dataset.real === "1"; renderPf(); }; });
 }
 
+// --- ISA tracker (browser only; src/isa.js) ----------------------------------------
+const CASH_KEY = "mm-cash", ISA_MANUAL = "mm-isa-manual";
+function loadCash() { try { const a = JSON.parse(localStorage.getItem(CASH_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } }
+function saveCash(a) { try { localStorage.setItem(CASH_KEY, JSON.stringify(a)); } catch {} }
+function renderIsa() {
+  const card = $("isaCard"); if (!card) return;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  const ty = taxYearOf(today);
+  let manual = null; try { const m = JSON.parse(localStorage.getItem(ISA_MANUAL) || "null"); if (m?.taxYear === ty.label) manual = m.amount; } catch {}
+  const cash = loadCash(), s = isaSummary(cash, today);
+  const used = s.deposits || manual || 0, fromLog = s.deposits > 0;
+  const pct = Math.min(100, (used / ISA.allowance) * 100), left = Math.max(0, ISA.allowance - used);
+  const nextLabel = `${fmtDay(s.next)} ${MON[+s.next.slice(5, 7) - 1]} ${s.next.slice(0, 4)}`;
+  const charge = ISA.cashInterestCharge;
+  card.innerHTML = `<div class="plan-head"><div><div class="k">ISA allowance ${esc(s.taxYear)}</div><div class="big">${gbp(used)} <span class="muted" style="font-size:15px;font-weight:500">of ${gbp(ISA.allowance)}</span></div>
+      <div class="small muted">${fromLog ? "Deposits in your Trading 212 import this tax year" : manual ? "Entered by you" : "Nothing recorded yet"}</div></div>
+      <div style="margin-left:auto;text-align:right"><div class="k">Left to pay in</div><div class="v">${gbp(left)}</div><div class="small muted">new allowance in ${s.daysToNext} days (${esc(nextLabel)})</div></div></div>
+    <div class="bar" style="margin-top:10px"><i style="width:${pct}%;background:${s.over ? "var(--sell)" : "var(--accent)"}"></i></div>
+    ${s.over ? `<p class="small t-sell" style="margin:8px 0 0"><b>Over the allowance:</b> deposits exceed ${gbp(ISA.allowance)}. If some were transfers in from another ISA they don't count; otherwise check with Trading 212.</p>` : ""}
+    ${s.count ? `<p class="small" style="margin:8px 0 0">Dividends this tax year: <b>£${s.dividends.toFixed(2)}</b>${s.dividendsBy.length ? ` (${s.dividendsBy.slice(0, 3).map(([t, a]) => `${esc(t)} £${a.toFixed(2)}`).join(", ")})` : ""} · interest: <b>£${s.interest.toFixed(2)}</b>. The rebalancing rule puts dividends into the pot furthest under target before any selling.</p>` : ""}
+    ${!fromLog ? `<form class="pf-form" id="isaForm" style="margin-top:10px"><label>Paid in this tax year (£)<input inputmode="decimal" name="amount" value="${manual ?? ""}"></label></form><div style="margin-top:8px"><button class="btn" id="isaSave" type="button">Save</button> <span class="small muted">or import a Trading 212 export in the trade log to fill this in.</span></div>` : ""}
+    <p class="small muted" style="margin:10px 0 0">Deposits count as new subscriptions; a transfer in from another ISA doesn't use the allowance, so check any large one. Proposed from 6 April 2027 (draft rules, not yet law as far as we know): interest on cash held in a stocks and shares ISA would face a ${charge.rate}% charge. Your dip reserve is cash in the ISA, so this is on the roadmap for a decision before then.</p>`;
+  if ($("isaSave")) $("isaSave").onclick = () => { const n = parseFloat(String(new FormData($("isaForm")).get("amount") || "").replace(/[£,\s]/g, "")); try { localStorage.setItem(ISA_MANUAL, JSON.stringify({ taxYear: ty.label, amount: Number.isFinite(n) ? n : 0 })); } catch {} renderIsa(); };
+}
+
 // --- Trade log (localStorage only) ------------------------------------------------
 const TL_KEY = "mm-trades";
 const POT_NAME = { core: "Core index", reserve: "Dip reserve", picks: "Long-term picks", swing: "Swing" };
@@ -831,7 +858,7 @@ function renderTl(form = false, err = "") {
   card.querySelectorAll("[data-edit]").forEach((b) => { b.onclick = () => { const t = loadTl().find((x) => x.id === b.dataset.edit); if (t) renderTl({ ...t, amount: t.amount ?? "", price: t.price ?? "", shares: t.shares ?? "" }); }; });
   card.querySelectorAll("[data-del]").forEach((b) => { b.onclick = () => { if (confirm("Delete this trade from the log?")) { saveTl(loadTl().filter((t) => t.id !== b.dataset.del)); renderTl(); renderPf(); replan(); } }; });
   if ($("tlExport")) $("tlExport").onclick = () => {
-    const blob = new Blob([JSON.stringify({ exported: today, trades }, null, 1)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ exported: today, trades, cash: loadCash() }, null, 1)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `trade-log-${today}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   $("tlImport").onchange = async (e) => {
@@ -841,12 +868,17 @@ function renderTl(form = false, err = "") {
     if (r.error) { $("tlMsg").textContent = r.error; return; }
     const have = new Set(loadTl().map((t) => t.id)), add = r.trades.filter((t) => !have.has(t.id));
     saveTl([...loadTl(), ...add]); renderTl(); renderPf(); replan();
+    // Cash movements (Trading 212 export, or a backup that includes them) feed the ISA card.
+    let cashIn = r.cash ?? [];
+    if (!t212) { try { const j = JSON.parse(text); if (Array.isArray(j?.cash)) cashIn = j.cash.filter((e) => e?.id && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && e.amount >= 0); } catch {} }
+    if (cashIn.length) { saveCash(mergeCash(loadCash(), cashIn)); renderIsa(); }
     const extra = t212 ? ` from Trading 212 (rules guessed from the ticker: mark any pullback, dip or drip purchases yourself)${r.dividendCount ? `; dividends £${r.dividends.toFixed(2)} from ${r.dividendCount} payment${r.dividendCount === 1 ? "" : "s"}, not logged as trades` : ""}${r.otherCcy ? `; ${r.otherCcy} rows in other currencies skipped` : ""}` : "";
     $("tlMsg").textContent = `Imported ${add.length} trade${add.length === 1 ? "" : "s"}${r.trades.length > add.length ? ` (${r.trades.length - add.length} already in the log)` : ""}${extra}${r.skipped ? `, skipped ${r.skipped} invalid` : ""}.`;
   };
 }
 renderTl();
 renderPf();
+renderIsa();
 
 function renderHero(r) {
   if (!r) return;

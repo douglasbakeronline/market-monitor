@@ -161,14 +161,21 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
   const col = (name) => head.findIndex((h) => h.toLowerCase() === name.toLowerCase());
   const iA = col("Action"), iT = col("Time"), iK = col("Ticker"), iN = col("No. of shares"), iP = col("Price / share"), iTot = col("Total"), iCur = col("Currency (Total)"), iId = col("ID");
   if (iA < 0 || iT < 0 || iK < 0 || iTot < 0) return { error: "This doesn't look like a Trading 212 export (Action, Time, Ticker and Total columns needed)." };
-  const trades = [], skipped = [];
+  const trades = [], skipped = [], cash = [];
   let dividends = 0, divN = 0, otherCcy = 0;
   const num = (x) => { const n = parseFloat(String(x ?? "").replace(/[,\s]/g, "")); return Number.isFinite(n) ? n : null; };
   for (const r of rows.slice(1)) {
     const action = String(r[iA] || "").toLowerCase(), ticker = String(r[iK] || "").trim().toUpperCase();
     const date = String(r[iT] || "").slice(0, 10), total = num(r[iTot]);
     const ccy = iCur >= 0 ? String(r[iCur] || "").trim().toUpperCase() : "GBP";
-    if (/dividend/.test(action)) { if (total != null && ccy === "GBP") { dividends += total; divN++; } continue; }
+    // Cash movements for the ISA tracker (src/isa.js): deposits, withdrawals,
+    // dividends and interest, in pounds.
+    const cashKind = /dividend/.test(action) ? "dividend" : /^deposit/.test(action) ? "deposit" : /withdraw/.test(action) ? "withdrawal" : /interest/.test(action) ? "interest" : null;
+    if (cashKind) {
+      if (total != null && ccy === "GBP" && /^\d{4}-\d{2}-\d{2}$/.test(date)) cash.push({ id: iId >= 0 && r[iId] ? `t212c-${String(r[iId]).trim()}` : `t212c-${date}-${cashKind}-${ticker}-${total}`, date, kind: cashKind, amount: Math.abs(total), ...(ticker ? { ticker } : {}) });
+      if (cashKind === "dividend" && total != null && ccy === "GBP") { dividends += total; divN++; }
+      continue;
+    }
     const side = /\bbuy\b/.test(action) ? "buy" : /\bsell\b/.test(action) ? "sell" : null;
     if (!side) continue; // deposits, interest, fees, currency conversions
     if (ccy && ccy !== "GBP") { otherCcy++; continue; }
@@ -181,5 +188,5 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
     const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", shares: shares ?? "", note: "Trading 212" }, today);
     res.trade ? trades.push(res.trade) : skipped.push(res.error);
   }
-  return { trades, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN };
+  return { trades, cash, skipped: skipped.length, otherCcy, dividends: Math.round(dividends * 100) / 100, dividendCount: divN };
 }
