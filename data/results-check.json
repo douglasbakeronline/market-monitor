@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10T10:19:38.090Z",
+  "updated": "2026-11-10T10:37:57.929Z",
   "items": {
     "NWG.L": {
       "quarter": "2026-09-30",
@@ -49,6 +49,18 @@
       "note": null,
       "tone": "neutral"
     },
+    "HSBA.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-27",
+      "actual": 0.42,
+      "estimate": 0.43695,
+      "surprisePct": -3.9,
+      "reaction": -5.4,
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
+      "tone": "watch"
+    },
     "META": {
       "quarter": "2026-09-30",
       "date": "2026-10-22",
@@ -72,18 +84,6 @@
       "label": "EPS beat the forecast by 13.0%; the price fell 2.6% on the day",
       "note": null,
       "tone": "neutral"
-    },
-    "HSBA.L": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-27",
-      "actual": 0.42,
-      "estimate": 0.43695,
-      "surprisePct": -3.9,
-      "reaction": -5.4,
-      "fifth": "bottom",
-      "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
-      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule).",
-      "tone": "watch"
     },
     "CF": {
       "quarter": "2026-09-30",
