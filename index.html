@@ -695,7 +695,7 @@ function renderMoneyCheck() {
 }
 
 // --- Goal odds: block bootstrap of real monthly returns (src/goalSim.js) ----------
-let RETURNS = null, ODDS_CASE = "history", ODDS_REAL = false;
+let RETURNS = null, ODDS_CASE = "history", ODDS_REAL = false, ODDS_RISE = false;
 const INFL = 0.025; // inflation assumed for "Today's money" (the Bank of England's target is 2%; 2.5% allows for misses)
 fetch("data/returns.json").then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.usd?.r?.length) { RETURNS = j; if (!$("pfForm")) renderPf(); } }).catch(() => {});
 const shortGbp = (v) => (v >= 1e6 ? `£${(v / 1e6).toFixed(v >= 1e7 ? 0 : 1)}m` : v >= 1e3 ? `£${Math.round(v / 1e3)}k` : `£${Math.round(v)}`);
@@ -726,11 +726,13 @@ function fanSvg(sim, goal, horizon) {
 function goalOddsHtml(start, monthly, goal, cashShare) {
   if (!RETURNS) return `<div class="k" style="margin-top:16px">Odds of reaching your goal</div><p class="small muted" style="margin:6px 0 0">Loading return history…</p>`;
   const r = RETURNS.usd.r, cautious = ODDS_CASE === "cautious", infl = ODDS_REAL ? INFL : 0;
+  // In today's money the top-up can rise with prices (a yearly step, as with a pay rise).
+  const rise = ODDS_REAL && ODDS_RISE && monthly > 0, grow = rise ? INFL : 0;
   const cash = Math.min(0.3, Math.max(0, cashShare));
   // The reserve drips into the core in quiet months (10 Nov rule): the 1988-2026
   // backtest held 4.4% in cash on average (research log 6 Nov), so the cash
   // share drifts from today's towards that.
-  const simOpts = { returns: r, start, monthly, goal, years: 30, paths: 2000, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0, inflation: infl, seed: 20261110 };
+  const simOpts = { returns: r, start, monthly, goal, years: 30, paths: 2000, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0, inflation: infl, topupGrowth: grow, seed: 20261110 };
   const sim = simulateGoal(simOpts);
   if (!sim) return "";
   const horizon = Math.min(30, Math.max(10, Math.ceil((sim.slowYears ?? 25) / 5) * 5));
@@ -742,7 +744,7 @@ function goalOddsHtml(start, monthly, goal, cashShare) {
   const hist = (cagr(r) * 100).toFixed(1);
   // Cross-check against real history without resampling, at the middle milestone.
   const mid = marks[Math.floor((marks.length - 1) / 2)] ?? 10;
-  const hc = historyCheck({ returns: r, start, monthly, goal, years: mid, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0, inflation: infl });
+  const hc = historyCheck({ returns: r, start, monthly, goal, years: mid, cashShare: cash, cashLong: Math.min(cash, 0.044), haircut: cautious ? 2 : 0, inflation: infl, topupGrowth: grow });
   const startYears = hc ? `${RETURNS.usd.start.slice(0, 4)} to ${Number(RETURNS.usd.end.slice(0, 4)) - mid}` : "";
   const infl10 = Math.pow(1 + INFL, 10);
   // What moves the odds: £100 more a month, or two more years, at the middle milestone.
@@ -752,14 +754,15 @@ function goalOddsHtml(start, monthly, goal, cashShare) {
   return `<div class="odds">
     <div class="odds-head"><div class="k">Odds of reaching your goal</div>
       <div class="odds-ctl"><div class="seg" role="group" aria-label="Return assumption"><button type="button" data-case="history" aria-pressed="${!cautious}">History</button><button type="button" data-case="cautious" aria-pressed="${cautious}">Cautious</button></div>
-      <div class="seg" role="group" aria-label="Money basis"><button type="button" data-real="0" aria-pressed="${!ODDS_REAL}">Before inflation</button><button type="button" data-real="1" aria-pressed="${ODDS_REAL}">Today's money</button></div></div></div>
+      <div class="seg" role="group" aria-label="Money basis"><button type="button" data-real="0" aria-pressed="${!ODDS_REAL}">Before inflation</button><button type="button" data-real="1" aria-pressed="${ODDS_REAL}">Today's money</button></div>
+      ${ODDS_REAL && monthly > 0 ? `<div class="seg" role="group" aria-label="Monthly top-up"><button type="button" data-rise="0" aria-pressed="${!rise}">Top-up fixed</button><button type="button" data-rise="1" aria-pressed="${rise}">Rises with prices</button></div>` : ""}</div></div>
     <div class="odds-stats">${marks.map((y) => `<div><div class="k">Within ${y} years</div><div class="v">${sim.hitBy[y] > 0 && at(y) === 0 ? "<1" : at(y)}%</div><div class="small muted">by ${yearOf(y)}</div></div>`).join("")}</div>
-    <p class="small" style="margin:10px 0 0">${esc(headline)}${monthly ? ` Assumes ${gbp(monthly)} a month throughout.` : " Add a monthly top-up to include it."}</p>
+    <p class="small" style="margin:10px 0 0">${esc(headline)}${monthly ? (rise ? ` Assumes ${gbp(monthly)} a month, raised by ${(INFL * 100).toFixed(1)}% each year (${gbp(Math.round(monthly * Math.pow(1 + INFL, 10)))} a month by year 11), so it keeps its buying power.` : ` Assumes ${gbp(monthly)} a month throughout.`) : " Add a monthly top-up to include it."}</p>
     ${hc && sim.hitBy[0] < 1 ? `<p class="small" style="margin:6px 0 0"><b>History check:</b> started in each of the ${hc.windows} months from ${startYears} instead, the same plan got there within ${mid} years ${Math.round(hc.share * 100)}% of the time (simulated: ${at(mid)}%).</p>` : ""}
     ${leverLine}
     ${fanSvg(sim, goal, horizon)}
     <div class="fan-key small muted"><span><i class="k90"></i>8 in 10 paths</span><span><i class="k50"></i>middle half</span><span><i class="kmed"></i>middle path</span></div>
-    <p class="small muted" style="margin:8px 0 0">${sim.paths.toLocaleString("en-GB")} paths, each built from random 12-month stretches of real monthly returns: the S&amp;P 500 with dividends, ${esc(RETURNS.usd.start.slice(0, 4))} to ${esc(RETURNS.usd.end.slice(0, 4))} (${hist}% a year), so crashes and recoveries keep their real shape. ${cautious ? "Cautious takes 2 points a year off every path, roughly the gap by which world shares (what VWRP holds) trailed the US over that period. " : "US shares did better than the world over this period, so treat History as the hopeful case and Cautious as the planning case. "}Cash (your dip reserve, at 3% a year) starts at ${Math.round(cash * 100)}% and drifts towards ${Math.min(Math.round(cash * 100), 4.4)}% as it drips into the core, the average in our reserve backtest. ${ODDS_REAL ? `In today's money: values and the goal are shown after ${(INFL * 100).toFixed(1)}% a year inflation, so the goal means what it buys now; the monthly top-up is kept at the same pounds (raising it with prices would lift the odds).` : `Before inflation: at ${(INFL * 100).toFixed(1)}% a year, £100k in 10 years buys what about ${shortGbp(1e5 / infl10)} does today; "Today's money" shows the odds of a goal that keeps its buying power.`} A range from history, not a forecast.</p>
+    <p class="small muted" style="margin:8px 0 0">${sim.paths.toLocaleString("en-GB")} paths, each built from random 12-month stretches of real monthly returns: the S&amp;P 500 with dividends, ${esc(RETURNS.usd.start.slice(0, 4))} to ${esc(RETURNS.usd.end.slice(0, 4))} (${hist}% a year), so crashes and recoveries keep their real shape. ${cautious ? "Cautious takes 2 points a year off every path, roughly the gap by which world shares (what VWRP holds) trailed the US over that period. " : "US shares did better than the world over this period, so treat History as the hopeful case and Cautious as the planning case. "}Cash (your dip reserve, at 3% a year) starts at ${Math.round(cash * 100)}% and drifts towards ${Math.min(Math.round(cash * 100), 4.4)}% as it drips into the core, the average in our reserve backtest. ${ODDS_REAL ? `In today's money: values and the goal are shown after ${(INFL * 100).toFixed(1)}% a year inflation, so the goal means what it buys now; ${rise ? "the monthly top-up rises with prices once a year, which only holds if your pay (or what you can set aside) rises with them; \"Top-up fixed\" is the cautious case." : "the monthly top-up is kept at the same pounds, the cautious case (\"Rises with prices\" shows the odds if you raise it each year)."}` : `Before inflation: at ${(INFL * 100).toFixed(1)}% a year, £100k in 10 years buys what about ${shortGbp(1e5 / infl10)} does today; "Today's money" shows the odds of a goal that keeps its buying power.`} A range from history, not a forecast.</p>
   </div>`;
 }
 
@@ -846,6 +849,7 @@ function renderPf(edit = false) {
   $("pfEdit").onclick = () => renderPf(true);
   card.querySelectorAll("[data-case]").forEach((b) => { b.onclick = () => { ODDS_CASE = b.dataset.case; renderPf(); }; });
   card.querySelectorAll("[data-real]").forEach((b) => { b.onclick = () => { ODDS_REAL = b.dataset.real === "1"; renderPf(); }; });
+  card.querySelectorAll("[data-rise]").forEach((b) => { b.onclick = () => { ODDS_RISE = b.dataset.rise === "1"; renderPf(); }; });
 }
 
 // --- ISA tracker (browser only; src/isa.js) ----------------------------------------

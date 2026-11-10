@@ -84,3 +84,23 @@ test("today's money: inflation lowers values and odds; zero inflation changes no
   assert.equal(lv.base, nom.hitBy[10]);
   assert.equal(levers(o, { years: 14, wait: 2 }), null);
 });
+
+test("a top-up that rises each year: stepped yearly, lifts the odds, counted in paid", async () => {
+  const { topupAt, historyCheck } = await import("../src/goalSim.js");
+  assert.equal(topupAt(100, 1, 0.1), 100);
+  assert.equal(topupAt(100, 12, 0.1), 100);
+  assert.ok(Math.abs(topupAt(100, 13, 0.1) - 110) < 1e-9);
+  assert.ok(Math.abs(topupAt(100, 25, 0.1) - 121) < 1e-9);
+  const r = Array(240).fill(0);
+  const flat = simulateGoal({ returns: r, start: 0, monthly: 100, goal: 2500, years: 2, paths: 5, cashShare: 0 });
+  const rise = simulateGoal({ returns: r, start: 0, monthly: 100, goal: 2500, years: 2, paths: 5, cashShare: 0, topupGrowth: 0.1 });
+  assert.equal(flat.paid, 2400);
+  assert.ok(Math.abs(rise.paid - 2520) < 1e-9);
+  assert.equal(flat.hitBy[2], 0);
+  assert.equal(rise.hitBy[2], 1);
+  // In today's money, a top-up rising at the inflation rate keeps (roughly) its buying power.
+  const real = simulateGoal({ returns: r, start: 0, monthly: 100, years: 1, paths: 3, cashShare: 0, inflation: 0.1, topupGrowth: 0.1 });
+  assert.ok(real.bands[1].p50 < 1200 && real.bands[1].p50 > 1090);
+  const hc = historyCheck({ returns: r, start: 0, monthly: 100, goal: 2500, years: 2, cashShare: 0, topupGrowth: 0.1 });
+  assert.equal(hc.share, 1);
+});

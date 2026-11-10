@@ -35,8 +35,10 @@ const pctile = (sorted, p) => {
 // drifts towards cashLong by a sixth a month, as the reserve drip does.
 // inflation (a year, e.g. 0.025) states values and the goal in today's money:
 // each month's value is divided by prices so far, so the goal is a real one.
-// The monthly top-up stays the same number of pounds (it is not raised with prices).
-export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, years = 30, paths = 2000, block = 12, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0, seed = 1 } = {}) {
+// The monthly top-up stays the same number of pounds unless topupGrowth (a year)
+// raises it: by that rate once every 12 months, as a yearly pay rise would.
+export const topupAt = (monthly, m, growth = 0) => monthly * Math.pow(1 + growth, Math.floor((m - 1) / 12));
+export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, years = 30, paths = 2000, block = 12, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0, topupGrowth = 0, seed = 1 } = {}) {
   const n = returns?.length ?? 0;
   if (n < block * 2 || !(start >= 0) || !(years > 0)) return null;
   const rand = rng(seed);
@@ -45,6 +47,7 @@ export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, yea
   const long = cashLong ?? cashShare;
   const cashAt = Float64Array.from({ length: months + 1 }, (_, m) => long + (cashShare - long) * Math.pow(5 / 6, m));
   const defl = Float64Array.from({ length: months + 1 }, (_, m) => Math.pow(1 + inflation, -m / 12));
+  const top = Float64Array.from({ length: months + 1 }, (_, m) => (m ? topupAt(monthly, m, topupGrowth) : 0));
   const atYear = Array.from({ length: years + 1 }, () => new Float64Array(paths));
   const hitMonth = new Float64Array(paths).fill(Infinity);
   for (let p = 0; p < paths; p++) {
@@ -56,7 +59,7 @@ export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, yea
       const r = (1 + returns[i + pos]) * hf - 1;
       pos++;
       const c = cashAt[m];
-      v = v * (1 + (1 - c) * r + c * cm) + monthly;
+      v = v * (1 + (1 - c) * r + c * cm) + top[m];
       const real = v * defl[m];
       if (goal && hitMonth[p] === Infinity && real >= goal) hitMonth[p] = m;
       if (m % 12 === 0) atYear[m / 12][p] = real;
@@ -74,7 +77,7 @@ export function simulateGoal({ returns, start = 0, monthly = 0, goal = null, yea
     medianYears = med >= 1e9 ? null : med / 12;
     slowYears = slow >= 1e9 ? null : slow / 12;
   }
-  const paid = start + monthly * months;
+  const paid = start + top.reduce((a, x) => a + x, 0);
   return { years, paths, bands, hitBy, medianYears, slowYears, paid };
 }
 
@@ -84,7 +87,7 @@ export const cagr = (r = []) => (r.length ? Math.pow(r.reduce((a, x) => a * (1 +
 // Real history check (no resampling): start the same plan in every month of the
 // record that has `years` of returns after it, and count how often it reached
 // the goal within that time. Same cash and haircut handling as simulateGoal.
-export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0 } = {}) {
+export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10, cashShare = 0.05, cashLong = null, cashRate = 0.03, haircut = 0, inflation = 0, topupGrowth = 0 } = {}) {
   const months = Math.round(years * 12), n = returns?.length ?? 0;
   if (!goal || n < months + 1) return null;
   const hf = Math.pow(1 - haircut / 100, 1 / 12), cm = Math.pow(1 + cashRate, 1 / 12) - 1, long = cashLong ?? cashShare;
@@ -94,7 +97,7 @@ export function historyCheck({ returns, start = 0, monthly = 0, goal, years = 10
     for (let m = 1; m <= months && !ok; m++) {
       const c = long + (cashShare - long) * Math.pow(5 / 6, m);
       const r = (1 + returns[s + m - 1]) * hf - 1;
-      v = v * (1 + (1 - c) * r + c * cm) + monthly;
+      v = v * (1 + (1 - c) * r + c * cm) + topupAt(monthly, m, topupGrowth);
       if (v * Math.pow(1 + inflation, -m / 12) >= goal) ok = true;
     }
     windows++; if (ok) hit++;
