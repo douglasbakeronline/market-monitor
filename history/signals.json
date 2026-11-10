@@ -313,14 +313,14 @@
     "currency": "GBp",
     "label": "Swing setup (76)",
     "perf": {
-      "now": -2.6,
+      "now": -2.7,
       "nowDate": "2026-11-10",
       "sessions": 2,
       "spNow": 2.3,
       "idx": "^FTSE",
       "idxNow": 1.4,
-      "vsSp": -4.9,
-      "vsIdx": -4
+      "vsSp": -5,
+      "vsIdx": -4.1
     }
   },
   {
