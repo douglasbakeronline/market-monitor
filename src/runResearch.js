@@ -25,6 +25,7 @@ export async function runResearch({ regimeKey, state }) {
   // Sector medians from the latest index scan (display-only peer valuation).
   const scanMeta = await readJson("scan.json", null);
   const smart = await readJson("data/smart-money.json", null); // smart-money tags (display only)
+  const rcMoves = (await readJson("data/results-check.json", null))?.items ?? {}; // usual results-day moves (display only)
   const medians = scanMeta?.sectorMedians ?? null, regional = scanMeta?.sectorMediansByRegion ?? null;
   for (const s of stocks) {
     try {
@@ -107,7 +108,7 @@ export async function runResearch({ regimeKey, state }) {
     if (newSetup) lines.push(`${it.ticker}: swing setup (${it.signals.filter((x) => x.tone === "bull").map((x) => x.label.toLowerCase()).slice(0, 2).join(", ")}).${earn}`);
     if (sme.fire) ev("smart", sme.label); // track record only, no push alert (tie-breaker)
     // rr: the pick's results date already announced (null = none yet).
-    const rl = pickResultsLine(it, "rr" in p ? p.rr : undefined);
+    const rl = pickResultsLine(it, "rr" in p ? p.rr : undefined, undefined, rcMoves[it.symbol]?.moves);
     if (rl) lines.push(rl);
     const sl = pickSellLine(it, sellStudy);
     if (sl) lines.push(sl);

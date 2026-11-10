@@ -108,3 +108,26 @@ test("a very large surprise carries a one-off caveat", async () => {
   assert.match(resultsCheck({ surprisePct: 30, reaction: 0.5 }, study).note, /^A surprise this large/);
   assert.doesNotMatch(resultsCheck({ surprisePct: -5, reaction: -4 }, study).note, /one-off/);
 });
+
+test("results-day moves: busiest day after each quarter, typical size", async () => {
+  const { resultsMoves, movesText } = await import("../src/surpriseStudy.js");
+  // Daily rows across a year; spikes 30 days after each quarter end.
+  const rows = [];
+  let px = 100;
+  for (let t = Date.parse("2025-11-03"); t <= Date.parse("2026-11-09"); t += 86400000) {
+    const date = new Date(t).toISOString().slice(0, 10);
+    const dow = new Date(t).getUTCDay();
+    if (dow === 0 || dow === 6) continue;
+    const spike = { "2026-01-30": 1.05, "2026-04-30": 0.94, "2026-07-30": 1.02, "2026-10-30": 0.9 }[date];
+    px = spike ? px * spike : px;
+    rows.push({ date, close: px, volume: spike ? 9e6 : 1e6 });
+  }
+  const hist = ["2025-12-31", "2026-03-31", "2026-06-30", "2026-09-30"].map((quarter) => ({ quarter }));
+  const m = resultsMoves(rows, hist);
+  assert.equal(m.n, 4);
+  assert.deepEqual(m.moves.map((x) => x.pct), [5, -6, 2, -10]);
+  assert.equal(m.typical, 5.5);
+  assert.equal(movesText(m), "Results-day moves: typically ±5.5% (last 4: +5.0%, −6.0%, +2.0%, −10.0%)");
+  assert.equal(resultsMoves(rows, hist.slice(-1)), null);
+  assert.equal(movesText(null), null);
+});

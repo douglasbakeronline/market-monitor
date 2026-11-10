@@ -134,13 +134,15 @@ export function dripSchedule(from, to, tierDates = [], plan = PLAN) {
 // close before to close after): one line for the research alert, once per
 // results date. seen = the results date already announced (undefined on the
 // first run, which records silently).
-export function pickResultsLine(it, seen, plan = PLAN) {
+// moves: the pick's usual results-day moves (resultsMoves in surpriseStudy.js), optional.
+export function pickResultsLine(it, seen, plan = PLAN, moves = null) {
   const lr = it?.lastResults;
   if (!lr || lr.pending || lr.pct == null || !plan.picks.some((p) => p.symbol === it.symbol)) return null;
   if (seen === undefined || seen === lr.date) return null;
   const lt = it.longTerm ?? {};
   const why = lt.verdict !== "Good entry" && lt.gaps?.length ? ` (${lt.gaps[0]})` : "";
-  return `${it.ticker} (a pick) reported ${dayLabel(lr.date)}: ${lr.pct >= 0 ? "+" : ""}${lr.pct.toFixed(1)}% from the close before to the close after. Long-term now ${lt.verdict ?? "n/a"}${lt.score != null ? ` ${lt.score}` : ""}${why}.`;
+  const usual = moves?.typical != null ? ` Its results days usually move it \u00b1${moves.typical.toFixed(1)}% (last ${moves.n}).` : "";
+  return `${it.ticker} (a pick) reported ${dayLabel(lr.date)}: ${lr.pct >= 0 ? "+" : ""}${lr.pct.toFixed(1)}% from the close before to the close after.${usual} Long-term now ${lt.verdict ?? "n/a"}${lt.score != null ? ` ${lt.score}` : ""}${why}.`;
 }
 
 // Weekly digest: each pick's week and where it stands, e.g.

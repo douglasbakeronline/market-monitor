@@ -192,6 +192,7 @@ test("pick results line: once per results date, silent on the first run", async 
   assert.equal(pickResultsLine({ ...it, lastResults: { date: "2027-01-28", pending: true } }, null), null, "reaction not in yet");
   assert.equal(pickResultsLine({ ...it, symbol: "AAPL" }, null), null, "not a pick");
   assert.match(pickResultsLine(it, null), /reported Thu 28 Jan/);
+  assert.match(pickResultsLine(it, null, undefined, { typical: 5.5, n: 4 }), /-4\.2% from the close before to the close after\. Its results days usually move it ±5\.5% \(last 4\)\. Long-term now/);
 });
 
 test("picks week line for the digest", async () => {

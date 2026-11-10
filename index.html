@@ -446,6 +446,7 @@ function resultsHint(rc) {
   if (rc.surprisePct != null) parts.push(`Last results ${rc.surprisePct >= 0 ? "beat" : "missed"} the EPS forecast by ${Math.abs(rc.surprisePct).toFixed(1)}%, ${rc.reaction >= 0 ? "+" : "\u2212"}${Math.abs(rc.reaction).toFixed(1)}% on the day`);
   if (r?.of) parts.push(`beat in ${r.beats} of the last ${r.of} quarters`);
   if (r?.next?.epsEstimate != null) parts.push(`next forecast EPS ${r.next.epsEstimate.toFixed(2)}${r.next.date ? ` (${fmtDM(r.next.date)})` : ""}`);
+  if (rc.moves?.typical != null) parts.push(`results days usually move it \u00b1${rc.moves.typical.toFixed(1)}% (last ${rc.moves.n})`);
   if (!parts.length) return "";
   const oneOff = rc.surprisePct != null && Math.abs(rc.surprisePct) >= 25 ? " A surprise this large is often a one-off item, so check the release." : "";
   const flag = rc.tone === "watch" ? ` <span class="neg">Weak results and a fall: this group trailed the S&amp;P over the next 60 sessions in our one-year test (display only).${oneOff}</span>` : rc.tone === "good" ? ` <span class="pos">Strong results and a rise (display only).${oneOff}</span>` : oneOff ? ` <span class="muted">${oneOff.trim()}</span>` : "";

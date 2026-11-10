@@ -156,3 +156,32 @@ export function resultsRecord(history = [], next = null) {
 
 // One short phrase for a push line or a badge; null unless flagged.
 export const flagText = (rc) => (rc?.tone === "watch" ? "weak results and a fall" : rc?.tone === "good" ? "strong results and a rise" : null);
+
+// How far the price usually moves on results day: the reaction (close before
+// to close on the busiest day after each quarter's end) for each quarter in
+// `history` that the price rows cover. `known` is the latest results date, if
+// known. Display only: so a pick's results-day move can be read against its
+// own normal range rather than as news.
+export function resultsMoves(rows = [], history = [], known = null) {
+  if (!rows?.length) return null;
+  const moves = [];
+  const qs = history.filter((h) => h?.quarter).map((h) => h.quarter);
+  qs.forEach((q, i) => {
+    const d = reportDay(rows, q, i === qs.length - 1 ? known : null);
+    if (d < 1) return;
+    moves.push({ date: rows[d].date, pct: Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10 });
+  });
+  const uniq = [...new Map(moves.map((m) => [m.date, m])).values()];
+  if (uniq.length < 2) return null;
+  const abs = uniq.map((m) => Math.abs(m.pct)).sort((a, b) => a - b);
+  const mid = abs.length / 2;
+  const typical = abs.length % 2 ? abs[Math.floor(mid)] : (abs[mid - 1] + abs[mid]) / 2;
+  return { n: uniq.length, typical: Math.round(typical * 10) / 10, moves: uniq };
+}
+
+// "Results-day moves: typically ±4.1% (last 4: +2.4%, −5.0%, +1.1%, −6.3%)."
+export function movesText(m) {
+  if (!m?.n) return null;
+  const s = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%`;
+  return `Results-day moves: typically ±${m.typical.toFixed(1)}% (last ${m.n}: ${m.moves.map((x) => s(x.pct)).join(", ")})`;
+}
