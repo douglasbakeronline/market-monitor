@@ -201,16 +201,20 @@ export function labVerdict(r) {
   return { key: "weak", label: "Small edge, not reliable", missed };
 }
 
-// --- Live forward test of post-results drift (paper only) ----------------------
-// The 10 Nov backtest found drift the one candidate (research log), short of
-// the bar only on year-to-year consistency, so it is paper-traded from the
-// nightly scan exactly as tested: signal at the close, buy at the next open,
-// sell at the close 20 sessions later, no stop, after costs, and compared with
-// the home index over the same days.
-export const DRIFT = { minRet: 0.04, volX: 3, hold: 20 };
+// --- Live forward test of volume-shock events (paper only) ---------------------
+// Round 1 (10 Nov) found post-results drift the one candidate. Round 2 (same
+// day, src/driftStudy.js) found its edge over random grows with the holding
+// period, but that DOWN days on heavy volume also beat random later, so much
+// of it is a volume or volatility effect (or survivorship in the backtest)
+// rather than drift. The live test therefore tracks both directions from the
+// nightly scan: a 4%+ move either way on 3x normal volume, "bought" at the
+// next open, valued after 20 sessions and closed after 60, after costs and
+// against the home index. Drift proper is up minus down. A forward test has
+// no survivorship bias, which is the point.
+export const DRIFT = { minRet: 0.04, volX: 3, mark: 20, hold: 60 };
 
-// Drift on the last bar of rows: the day's move and volume against the 50
-// sessions before. null when it doesn't fire.
+// A volume-shock move on the last bar of rows (either direction), against the
+// 50 sessions before. null when there is none.
 export function driftToday(rows) {
   const d = (rows?.length ?? 0) - 1;
   if (d < 51) return null;
@@ -218,17 +222,18 @@ export function driftToday(rows) {
   let s = 0;
   for (let k = d - 50; k < d; k++) s += rows[k].volume || 0;
   const avg = s / 50, vx = avg > 0 ? (rows[d].volume || 0) / avg : 0;
-  return ret >= DRIFT.minRet && vx >= DRIFT.volX ? { date: rows[d].date, price: rows[d].close, movePct: Math.round(ret * 1000) / 10, volX: Math.round(vx * 10) / 10 } : null;
+  return Math.abs(ret) >= DRIFT.minRet && vx >= DRIFT.volX
+    ? { date: rows[d].date, price: rows[d].close, kind: ret > 0 ? "up" : "down", movePct: Math.round(ret * 1000) / 10, volX: Math.round(vx * 10) / 10 } : null;
 }
 
-// Add tonight's drift signals (one open trade per symbol).
+// Add tonight's events (one open trade per symbol).
 export function addDrift(log, sigs) {
   const open = new Set(log.filter((t) => t.status !== "closed").map((t) => t.symbol));
   const out = log.slice();
   for (const s of sigs) {
     if (open.has(s.symbol)) continue;
-    out.push({ id: `${s.date}:${s.symbol}`, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, signalDate: s.date, signalPrice: s.price,
-      movePct: s.movePct, volX: s.volX, results: !!s.results, status: "pending" });
+    out.push({ id: `${s.date}:${s.symbol}`, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, kind: s.kind ?? (s.movePct < 0 ? "down" : "up"),
+      signalDate: s.date, signalPrice: s.price, movePct: s.movePct, volX: s.volX, results: !!s.results, status: "pending" });
     open.add(s.symbol);
   }
   return out;
@@ -242,20 +247,31 @@ export function updateDrift(trade, rows, idx = null) {
   const t = { ...trade };
   if (t.status === "pending") { t.status = "open"; t.entryDate = after[0].date; t.entry = after[0].open; }
   const held = after.filter((r) => r.date >= t.entryDate);
-  const last = held[Math.min(held.length, DRIFT.hold) - 1];
-  const gross = (last.close / t.entry - 1) * 100;
-  const i0 = idx?.get(t.signalDate), i1 = idx?.get(last.date);
-  const idxPct = i0 && i1 ? (i1 / i0 - 1) * 100 : null;
-  Object.assign(t, { sessions: Math.min(held.length, DRIFT.hold), lastDate: last.date, lastPrice: r2(last.close), retPct: r2(gross), netPct: r2(gross - (COSTS[t.market] ?? 0) * 100), idxPct: r2(idxPct) });
-  if (held.length >= DRIFT.hold) { t.status = "closed"; t.exitDate = last.date; t.exit = r2(last.close); }
+  const cost = (COSTS[t.market] ?? 0) * 100, i0 = idx?.get(t.signalDate);
+  const at = (k) => {
+    const b = held[k - 1], i1 = idx?.get(b.date);
+    return { net: r2((b.close / t.entry - 1) * 100 - cost), idx: i0 && i1 ? r2((i1 / i0 - 1) * 100) : null };
+  };
+  const k = Math.min(held.length, DRIFT.hold), now = at(k), last = held[k - 1];
+  Object.assign(t, { sessions: k, lastDate: last.date, lastPrice: r2(last.close), netPct: now.net, idxPct: now.idx });
+  if (k >= DRIFT.mark && t.net20 == null) { const m = at(DRIFT.mark); t.net20 = m.net; t.idx20 = m.idx; }
+  if (held.length >= DRIFT.hold) { t.status = "closed"; t.exitDate = last.date; t.exit = r2(last.close); t.net60 = now.net; t.idx60 = now.idx; }
   return t;
 }
 
+// Per direction: trades valued at 20 sessions and closed at 60, net of costs
+// and against the index; drift = up minus down once both have 30+.
 export function summariseDrift(log = []) {
-  const closed = log.filter((t) => t.status === "closed"), open = log.filter((t) => t.status !== "closed");
   const avg = (xs, f) => (xs.length ? r2(xs.reduce((a, t) => a + f(t), 0) / xs.length) : null);
-  const ix = closed.filter((t) => t.idxPct != null);
-  return { since: log.map((t) => t.signalDate).sort()[0] ?? null, total: log.length, open: open.length, closed: closed.length,
-    avgNet: avg(closed, (t) => t.netPct), win: closed.length ? Math.round((closed.filter((t) => t.netPct > 0).length / closed.length) * 100) : null,
-    vsIdx: avg(ix, (t) => t.netPct - t.idxPct) };
+  const side = (kind) => {
+    const xs = log.filter((t) => (t.kind ?? "up") === kind);
+    const m20 = xs.filter((t) => t.net20 != null), m60 = xs.filter((t) => t.net60 != null);
+    const v20 = m20.filter((t) => t.idx20 != null), v60 = m60.filter((t) => t.idx60 != null);
+    return { total: xs.length, open: xs.filter((t) => t.status !== "closed").length, n20: m20.length, avg20: avg(m20, (t) => t.net20), vs20: avg(v20, (t) => t.net20 - t.idx20),
+      n60: m60.length, avg60: avg(m60, (t) => t.net60), vs60: avg(v60, (t) => t.net60 - t.idx60) };
+  };
+  const up = side("up"), down = side("down");
+  const diff = (a, b, n1, n2) => (n1 >= 30 && n2 >= 30 && a != null && b != null ? r2(a - b) : null);
+  return { since: log.map((t) => t.signalDate).sort()[0] ?? null, total: log.length, open: up.open + down.open, up, down,
+    drift20: diff(up.vs20, down.vs20, up.n20, down.n20), drift60: diff(up.vs60, down.vs60, up.n60, down.n60) };
 }

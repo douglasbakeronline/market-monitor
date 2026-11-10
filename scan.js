@@ -181,8 +181,8 @@ async function main() {
   } else console.log("Paper trades: markets open, not updated.");
   await writeJson("history/paper-trades.json", paper, true);
   await writeJson("history/results-dates.json", resultsHist);
-  // Swing lab: forward test of post-results drift (paper only; research log
-  // 10 Nov). S&P 500 and FTSE 100 only, as tested. Never stops the scan.
+  // Swing lab: forward test of volume shocks, up and down (paper only;
+  // research log 10 Nov). S&P 500 and FTSE 100 only, as tested. Never stops the scan.
   let drift = await readJson("history/swing-lab.json", []), driftToday_ = [];
   try {
     if (marketsClosed()) {
@@ -203,7 +203,7 @@ async function main() {
     } else console.log("Swing lab: markets open, not updated.");
   } catch (e) { console.warn(`Swing lab failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
-  console.log(`Swing lab drift: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} +${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open, ${driftSummary.closed} closed.`);
+  console.log(`Swing lab volume shocks: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} ${x.movePct > 0 ? "+" : ""}${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open; up ${driftSummary.up.n60} and down ${driftSummary.down.n60} closed.`);
   const paperSummary = summarisePaper(paper);
   console.log(`Paper trades: ${paperSummary.open} open, ${paperSummary.closed} closed${paperSummary.avgR != null ? `, ${paperSummary.avgR}R average` : ""}.`);
 

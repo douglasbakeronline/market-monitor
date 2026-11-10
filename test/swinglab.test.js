@@ -92,15 +92,19 @@ test("runStock and analyseLab: every strategy and stop setting reported, verdict
   assert.equal(analyseLab(uk).find((r) => r.key === "drift" && !r.stop).checks.markets, false);
 });
 
-test("live drift: fires on the last bar, enters next open, closes after 20 sessions with index comparison", async () => {
+test("live volume shocks: both directions, valued at 20 sessions, closed at 60, drift = up minus down", async () => {
   const { driftToday, addDrift, updateDrift, summariseDrift, labVerdict } = await import("../src/swingLab.js");
-  const rows = bars(120);
+  const rows = bars(200);
   rows[90] = { ...rows[90], close: rows[89].close * 1.06, volume: 4e6 };
   assert.equal(driftToday(rows.slice(0, 90)), null);
   const s = driftToday(rows.slice(0, 91));
   assert.equal(s.date, rows[90].date);
+  assert.equal(s.kind, "up");
   assert.equal(s.movePct, 6);
   assert.ok(s.volX >= 3.9);
+  const dn = rows.slice(0, 91).map((r) => ({ ...r }));
+  dn[90] = { ...dn[90], close: dn[89].close * 0.95, volume: 4e6 };
+  assert.equal(driftToday(dn).kind, "down");
   let log = addDrift([], [{ ...s, symbol: "X", ticker: "X", market: "US" }]);
   log = addDrift(log, [{ ...s, symbol: "X", ticker: "X", market: "US" }]);
   assert.equal(log.length, 1);
@@ -109,14 +113,26 @@ test("live drift: fires on the last bar, enters next open, closes after 20 sessi
   assert.equal(mid.status, "open");
   assert.equal(mid.entry, rows[91].open);
   assert.equal(mid.sessions, 9);
-  const done = updateDrift(mid, rows, idx);
+  assert.equal(mid.net20, undefined);
+  const at20 = updateDrift(mid, rows.slice(0, 115), idx);
+  assert.equal(at20.status, "open");
+  assert.ok(Math.abs(at20.net20 - ((rows[110].close / rows[91].open - 1) * 100 - 0.3)) < 0.01);
+  assert.equal(at20.idx20, 0);
+  const done = updateDrift(at20, rows, idx);
   assert.equal(done.status, "closed");
-  assert.equal(done.exitDate, rows[110].date);
-  assert.equal(done.idxPct, 0);
+  assert.equal(done.exitDate, rows[150].date);
+  assert.equal(done.net20, at20.net20);
+  assert.equal(done.idx60, 0);
   const sum = summariseDrift([done, mid]);
-  assert.equal(sum.closed, 1);
+  assert.equal(sum.up.n60, 1);
+  assert.equal(sum.up.n20, 1);
   assert.equal(sum.open, 1);
-  assert.equal(sum.vsIdx, sum.avgNet);
+  assert.equal(sum.up.vs60, sum.up.avg60);
+  assert.equal(sum.drift60, null);
+  // Drift appears once both sides have 30 trades.
+  const mk = (kind, v) => ({ kind, status: "closed", net20: v, idx20: 0, net60: v, idx60: 0, signalDate: "2026-11-10" });
+  const many = [...Array.from({ length: 30 }, () => mk("up", 2)), ...Array.from({ length: 30 }, () => mk("down", 0.5))];
+  assert.equal(summariseDrift(many).drift60, 1.5);
   // Verdict wording.
   const base = { clear: false, edge: 0.5, checks: { edge: true, positive: true, sample: true, years: false, markets: true } };
   assert.equal(labVerdict(base).key, "promising");
