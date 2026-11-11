@@ -129,8 +129,24 @@ const exitRule = (kind) => (kind === "drift" ? "hold 20 sessions" : "sell at the
 
 // The push (alert kind "short"), once per scan date. st: scan.json shortTerm,
 // with st.pot from src/shortPot.js (the real-money pot, since 11 Nov).
+// What the pot is told to do for one scan date: the same key means the same push.
+export function shortActionKey(st) {
+  if (!st?.date) return null;
+  const k = (xs) => (xs ?? []).map((x) => `${x.kind}:${x.symbol}`).sort().join(",");
+  return `${st.date}|${k(st.pot?.buys)}|${k(st.pot?.sells)}|${k(st.drift)}|${k(st.bounce)}`;
+}
+
+// Evening push (11 Nov): the scan pushes tonight's orders itself when it
+// finishes before quiet hours, so the next-open orders can be placed the
+// evening before (UK names open at 08:00, before the 08:15 run). A later rerun
+// of the scan keeps the "pushed" mark only if the orders are unchanged.
+export function carryPushed(prev, next) {
+  if (!next || !prev?.pushedAt) return next;
+  return shortActionKey(prev) === shortActionKey(next) ? { ...next, pushedAt: prev.pushedAt } : next;
+}
+
 export function shortTermAlert(st, seen = null) {
-  if (!st?.date || st.date === seen) return null;
+  if (!st?.date || st.date === seen || st.pushedAt) return null;
   const { drift = [], bounce = [], pot = null } = st;
   const buys = pot?.buys ?? [], sells = pot?.sells ?? [];
   if (!drift.length && !bounce.length && !sells.length) return null;

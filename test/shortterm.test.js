@@ -95,3 +95,17 @@ test("shortTermAlert with the pot: buys and sells first, missed signals named", 
   const p3 = shortTermAlert({ ...st0, drift: [], bounce: [], pot }, null);
   assert.ok(p3, "a sell alone still alerts");
 });
+
+test("evening push: a pushed list is not pushed again; a rerun keeps the mark only if the orders match", async () => {
+  const { carryPushed, shortActionKey } = await import("../src/shortTerm.js");
+  const st = { date: "2026-11-11", drift: [{ kind: "drift", symbol: "A", ticker: "A", name: "A" }], bounce: [], pot: { buys: [{ kind: "drift", symbol: "A", ticker: "A", name: "A" }], sells: [], open: [], rules: { maxOpen: 5 } } };
+  assert.ok(shortTermAlert(st), "fresh list pushes");
+  const pushed = { ...st, pushedAt: "2026-11-11T21:25:00Z" };
+  assert.equal(shortTermAlert(pushed), null, "08:15 run skips a list the scan already pushed");
+  assert.equal(carryPushed(pushed, { ...st }).pushedAt, pushed.pushedAt, "same orders: mark kept");
+  const changed = { ...st, pot: { ...st.pot, buys: [] , sells: [{ kind: "bounce", symbol: "B" }] } };
+  assert.equal(carryPushed(pushed, changed).pushedAt, undefined, "different orders: pushed again");
+  assert.equal(carryPushed(pushed, { ...st, date: "2026-11-12" }).pushedAt, undefined, "new date: not carried");
+  assert.equal(carryPushed(null, st), st);
+  assert.notEqual(shortActionKey(st), shortActionKey(changed));
+});

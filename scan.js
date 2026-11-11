@@ -32,7 +32,11 @@ import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_T
 import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
-import { shortTermToday, addShort, updateShort, summariseShort, testedRecord } from "./src/shortTerm.js";
+import { shortTermToday, addShort, updateShort, summariseShort, testedRecord, shortTermAlert, carryPushed } from "./src/shortTerm.js";
+import { notify } from "./src/notify.js";
+import { inQuietHours } from "./src/schedule.js";
+import { allowAlert } from "./src/alertProfile.js";
+import { CONFIG } from "./src/config.js";
 import { shortPot } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
@@ -276,8 +280,8 @@ async function main() {
   // Short-term signals (Douglas, 11 Nov: "a signal fired"; src/shortTerm.js):
   // results drift and bounces in an uptrend, ranked, logged and closed under
   // their own exit rules. S&P 500 and FTSE 100 only, as tested. The monitor
-  // pushes tonight's list at 08:15. Never stops the scan.
-  let shortTerm = null;
+  // pushes tonight's list (from here in the evening, else at 08:15). Never stops the scan.
+  let shortTerm = null, shortFresh = false;
   try {
     if (marketsClosed() || process.env.SHORT_FORCE) { // SHORT_FORCE: dry runs only
       const idx = {};
@@ -295,6 +299,7 @@ async function main() {
       await writeJson("history/short-pot.json", { updated: new Date().toISOString(), ...pot }, true);
       shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl),
         pot: { rules: pot.rules, start: pot.start, value: pot.value, returnPct: pot.returnPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct } };
+      shortFresh = true;
       console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}.`);
       console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);
     } else {
@@ -453,6 +458,21 @@ async function main() {
     dataChecks = runDataChecks([...out, ...list], { asOf: today });
     console.log(dataChecksLine(dataChecks), dataChecks.flags.map((f) => `${f.ticker} ${f.key}: ${f.detail}`).join("; "));
   } catch (e) { console.warn(`Data checks failed: ${e.message}`); }
+
+  // Evening push of the short-term pot's orders (11 Nov; src/shortTerm.js).
+  // Only a list computed this run, only outside quiet hours, and only with a
+  // real topic (or DRY_RUN), so a run without one never marks it as sent.
+  // Never stops the scan; if it does not go out, the 08:15 run sends it.
+  try {
+    if (shortFresh) shortTerm = carryPushed((await readJson("scan.json", {}))?.shortTerm ?? null, shortTerm);
+    const canPush = CONFIG.shortEveningPush && shortFresh && (process.env.NTFY_TOPIC || process.env.DRY_RUN) && !inQuietHours(new Date());
+    const sta = canPush ? shortTermAlert(shortTerm) : null;
+    if (sta && allowAlert(sta, CONFIG.alertProfile ?? "all")) {
+      console.log(`ALERT (evening) ${sta.title}`);
+      if (await notify(sta)) shortTerm = { ...shortTerm, pushedAt: new Date().toISOString() };
+    } else if (shortTerm?.pushedAt) console.log(`Short-term push: already sent at ${shortTerm.pushedAt}.`);
+    else console.log("Short-term push: left for the 08:15 run (quiet hours, nothing to send or switched off).");
+  } catch (e) { console.warn(`Short-term evening push failed: ${e.message}`); }
 
   await writeJson("scan.json", {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),

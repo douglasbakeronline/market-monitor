@@ -69,6 +69,16 @@ jobs:
           SLOT: ${{ steps.next.outputs.slot }}
         run: scripts/persist.sh
 
+      # After the US close, start the nightly index scan now rather than wait
+      # for GitHub's late cron (11 Nov): it pushes the short-term pot's orders
+      # for the next open before quiet hours. Never stops the chain.
+      - name: Start the nightly scan
+        if: steps.next.outputs.within == 'true' && steps.next.outputs.slot == 'us-close' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run scan.yml --ref main
+
       # Next slot too far away (overnight / weekend): wait as long as a job may,
       # then hand over to a fresh run, so we never depend on GitHub's late cron.
       - name: Relay towards ${{ steps.next.outputs.slot }}

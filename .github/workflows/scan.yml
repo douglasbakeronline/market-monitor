@@ -1,8 +1,9 @@
 name: Index scan
 
 # Scores every S&P 500 and FTSE 100 company once each weeknight, after the
-# US close. Timing isn't critical (it only has to finish before the UK open),
-# so GitHub's own cron is fine here. Runs separately from the alert chain.
+# US close. Since 11 Nov the monitor chain starts it right after its US-close
+# slot (16:10 New York), so the short-term pot's orders can be pushed the
+# evening before. GitHub's cron (often hours late) stays as the backup run.
 on:
   schedule:
     - cron: "30 21 * * 1-5"
@@ -35,7 +36,15 @@ jobs:
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
         run: |
           if [ "$(date -u +%u)" = "1" ] || [ ! -f data/smart-money.json ]; then node tools/smart-money.mjs; else echo "Not Monday; keeping data/smart-money.json."; fi
+      # Started just after the US close: wait until 16:20 New York so the
+      # day's bars are final (only when started between 15:30 and 16:20).
+      - name: Wait for the US close
+        run: |
+          w=$(node -e 'const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"America/New_York",hour:"2-digit",minute:"2-digit",second:"2-digit",weekday:"short",hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));const s=+p.hour*3600+ +p.minute*60+ +p.second, t=16*3600+20*60;console.log(!["Sat","Sun"].includes(p.weekday)&&s>=15*3600+1800&&s<t?t-s:0)')
+          echo "Waiting ${w}s"; sleep "$w"
       - name: Scan
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: node scan.js
       - name: Trends
         continue-on-error: true
