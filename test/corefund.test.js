@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { coreFundView, coreFundLine, drawdownTag, fmtGbp } from "../src/coreFund.js";
+import { coreFundView, coreFundLine, drawdownTag, fmtGbp, fillCloses } from "../src/coreFund.js";
+import { snapshot } from "../src/signals.js";
 
 const snap = (o) => ({ level: 131.42, currency: "GBP", date: "2026-11-06", drawdownPct: -3.2, peak: 135.8, peakDate: "2026-10-06", dayPct: -0.4, weekPct: -1.1, monthPct: -2.5, ytdPct: 9.1, vs200Pct: 2.0, above200: true, ...o });
 
@@ -38,4 +39,26 @@ test("missing data gives nothing", () => {
 
 test("digest line", () => {
   assert.equal(coreFundLine(coreFundView(snap(), null)), "Core fund (VWRP): £131.42, -3.2% from its high; week -1.1%, month -2.5%.");
+});
+
+test("fillCloses fills a missing previous session from stored closes", () => {
+  // 11 Nov 08:15: Yahoo had no 10 Nov bar, so the day change ran from 9 Nov.
+  const rows = Array.from({ length: 40 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, "0")}`, close: 130 })).slice(0, 30)
+    .concat([{ date: "2026-11-09", close: 139.8 }, { date: "2026-11-11", close: 141.7 }]);
+  const stored = { "2026-11-09": 139.8, "2026-11-10": 140.36, "2026-11-11": 140.0 };
+  const out = fillCloses(rows, stored);
+  assert.equal(out.length, rows.length + 1);
+  assert.deepEqual(out.at(-2), { date: "2026-11-10", close: 140.36, filled: true });
+  assert.equal(out.at(-1).close, 141.7, "downloaded rows win over stored ones");
+  assert.equal(snapshot("VWRP", "VWRP.L", { rows: out }).dayPct, 1);
+  assert.equal(snapshot("VWRP", "VWRP.L", { rows }).dayPct, 1.4);
+});
+
+test("fillCloses stays inside the downloaded window and ignores bad values", () => {
+  const rows = [{ date: "2026-11-02", close: 1 }, { date: "2026-11-04", close: 2 }];
+  assert.equal(fillCloses(rows, { "2026-10-01": 5, "2026-11-05": 5 }), rows);
+  assert.equal(fillCloses(rows, { "2026-11-03": null }), rows);
+  assert.equal(fillCloses(rows, { "2026-11-03": 1.5 }).length, 3);
+  assert.deepEqual(fillCloses([], { "2026-11-03": 1 }), []);
+  assert.equal(fillCloses(rows, null), rows);
 });

@@ -43,3 +43,20 @@ export function coreFundLine(v) {
   const sg = (x) => (x == null ? "n/a" : `${x >= 0 ? "+" : ""}${x.toFixed(1)}%`);
   return `Core fund (${v.name}): ${v.price}, ${v.drawdownPct.toFixed(1)}% from its high; week ${sg(v.weekPct)}, month ${sg(v.monthPct)}.`;
 }
+
+// Yahoo's daily bars for London listings sometimes miss the previous session
+// early in the day (11 Nov 08:15: no 10 Nov bar), so the day change was
+// measured over two sessions (+1.4% for +1.0%). Fill dates missing from the
+// downloaded rows with the stored closes (history/core-fund.json); downloaded
+// rows win where both exist. Only dates inside the downloaded window are
+// filled, so a short download is not stretched with old history.
+export function fillCloses(rows = [], stored = {}) {
+  if (!rows?.length || !stored) return rows ?? [];
+  const have = new Set(rows.map((r) => r.date));
+  const first = rows[0].date, last = rows[rows.length - 1].date;
+  const extra = Object.entries(stored)
+    .filter(([d, c]) => d > first && d < last && !have.has(d) && Number.isFinite(c) && c > 0)
+    .map(([date, close]) => ({ date, close, filled: true }));
+  if (!extra.length) return rows;
+  return [...rows, ...extra].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
