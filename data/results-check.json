@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-11T01:30:54.588Z",
+  "updated": "2026-11-11T06:16:49.327Z",
   "items": {
     "NEM": {
       "quarter": "2026-09-30",
@@ -14,8 +14,8 @@
         "avgSurprise": 19.1,
         "next": {
           "date": null,
-          "epsEstimate": 1.88609,
-          "epsLow": 1.67,
+          "epsEstimate": 1.9293,
+          "epsLow": 1.74,
           "epsHigh": 2.23
         }
       },
@@ -104,8 +104,8 @@
         "avgSurprise": 4.8,
         "next": {
           "date": null,
-          "epsEstimate": 0.02527,
-          "epsLow": 0.02454,
+          "epsEstimate": 0.0255,
+          "epsLow": 0.025,
           "epsHigh": 0.026
         }
       },
@@ -443,9 +443,9 @@
         "avgSurprise": 7.9,
         "next": {
           "date": "2027-02-09",
-          "epsEstimate": 3.96967,
-          "epsLow": 2.4,
-          "epsHigh": 5.3
+          "epsEstimate": 4.10781,
+          "epsLow": 3.43,
+          "epsHigh": 4.85
         }
       },
       "moves": {

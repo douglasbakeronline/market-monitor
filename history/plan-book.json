@@ -63,7 +63,43 @@
       "curve": [],
       "value": 10000,
       "started": null
+    },
+    "buffettPot": {
+      "key": "buffettPot",
+      "core": 0,
+      "coreLast": null,
+      "reserve": 1500,
+      "reserve0": 1500,
+      "picksCash": 1500,
+      "pending": 7000,
+      "picks": {},
+      "potLast": null,
+      "lastTier": 0,
+      "lastTierDate": null,
+      "lastDrip": null,
+      "log": [],
+      "curve": [],
+      "value": 10000,
+      "started": null
+    },
+    "momentumPot": {
+      "key": "momentumPot",
+      "core": 0,
+      "coreLast": null,
+      "reserve": 1500,
+      "reserve0": 1500,
+      "picksCash": 1500,
+      "pending": 7000,
+      "picks": {},
+      "potLast": null,
+      "lastTier": 0,
+      "lastTierDate": null,
+      "lastDrip": null,
+      "log": [],
+      "curve": [],
+      "value": 10000,
+      "started": null
     }
   },
-  "updated": "2026-11-11T01:30:53.865Z"
+  "updated": "2026-11-11T06:16:47.859Z"
 }
