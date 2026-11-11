@@ -26,6 +26,7 @@ import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
 import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { driftBook, randomDriftBooks } from "./src/driftBook.js";
+import { newPlanBook, stepPlanBook, planSummary } from "./src/planBook.js";
 import { newBuffettBook, reviewDue, review, fillOrders, markBuffett } from "./src/buffettBook.js";
 import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES } from "./src/buffett.js";
 import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
@@ -325,6 +326,26 @@ async function main() {
     await writeJson("history/buffett-book.json", bb, true);
     console.log(`Buffett book (paper): ${bb.value}, ${bb.positions.length} held, ${bb.pending.length} orders${bb.lastReview ? "" : " (first review from Dec 2026)"}.`);
   } catch (e) { console.warn(`Buffett book failed: ${e.message}`); }
+  // Plan book (paper, from 16 Nov; src/planBook.js): the agreed plan and the
+  // pending proposals on a notional £10,000, against all-VWRP. Never stops the scan.
+  try {
+    let pb = await readJson("history/plan-book.json", null) ?? newPlanBook();
+    if (process.env.PLAN_START) pb.rules = { ...pb.rules, start: process.env.PLAN_START }; // dry runs only
+    const date = Object.values(latest).sort().at(-1);
+    if (marketsClosed()) {
+      const core = await readJson("history/core-fund.json", {}), mon = await readJson("data.json", {}), stt = await readJson("state.json", {});
+      const ck = Object.keys(core).filter((d) => d <= date).sort().at(-1);
+      const prices = {}, checks = {};
+      for (const p of PLAN.picks) { const r = rowsBySymbol[p.symbol]?.at(-1), it = items.find((x) => x.u.symbol === p.symbol); if (r) prices[p.symbol] = { close: r.close, market: it ? MARKET[it.u.index] ?? "US" : (p.symbol.endsWith(".L") ? "UK" : "US") }; }
+      for (const c of mon?.copilot?.picks ?? []) checks[c.symbol] = { ok: !!c.ok, tone: c.resultsCheck?.tone ?? null, ticker: c.ticker };
+      const tier = Math.min(0, ...Object.values(stt?.buyTier ?? {}).filter(Number.isFinite));
+      if (ck && date.slice(0, 10) >= ck && (Date.parse(date) - Date.parse(ck)) / 86400000 <= 5) pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier });
+      else console.log(`Plan book: no VWRP close near ${date} (latest ${ck ?? "none"}), not stepped.`);
+    }
+    pb.updated = new Date().toISOString();
+    await writeJson("history/plan-book.json", pb, true);
+    console.log(`Plan book (paper): ${planSummary(pb).map((x) => `${x.key} ${x.returnPct ?? "not started"}`).join(", ")}.`);
+  } catch (e) { console.warn(`Plan book failed: ${e.message}`); }
   // Results check (swing lab round 4): the latest EPS surprise and the day's
   // reaction for the picks, the bench and tonight's results-day volume shocks.
   // Display only. Never stops the scan.

@@ -608,7 +608,8 @@ function fundHtml(f) {
     <p class="small" style="margin:6px 0 4px">${esc(f.line)}</p></div>`;
 }
 // Both paper books side by side once the drift book has started.
-const BOOKS = { swing: null, drift: null, mom: null, buff: null };
+const BOOKS = { swing: null, drift: null, mom: null, buff: null, plan: null };
+fetch("history/plan-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then((b) => { if (b) { BOOKS.plan = b; renderScore(); } }).catch(() => {});
 // Paper scoreboard: every paper book against its index and VWRP over the same days.
 function vwrpSince(start) {
   if (!CORE_CLOSES || !start) return null;
@@ -620,19 +621,24 @@ function renderScore() {
   if (!el) return;
   const B = BOOKS, rows = [];
   const add = (name, what, start, ret, bench, extra, soon = "starts 1 Dec") => rows.push({ name, what, start, ret, bench, extra, soon });
+  if (B.plan) {
+    const what = { agreed: "70% VWRP, 15% dip reserve, 15% picks in tranches", weakHold: "The plan, holding tranches after weak results (proposal)", vwrp: "Everything in VWRP on day one" };
+    const nm = { agreed: "Plan as agreed", weakHold: "Plan + weak-results hold", vwrp: "All in VWRP" };
+    for (const k of ["agreed", "weakHold", "vwrp"]) { const v = B.plan.variants[k]; if (v) const base = B.plan.variants.vwrp; add(nm[k], what[k], v.started, v.started ? (v.value / B.plan.rules.equity0 - 1) * 100 : null, base?.started && k !== "vwrp" ? { name: "VWRP", pct: (base.value / B.plan.rules.equity0 - 1) * 100 } : null, k === "vwrp" ? "" : `${Object.keys(v.picks).length} picks bought`, `starts ${fmtDM(B.plan.rules.start)}`); }
+  }
   if (B.buff) add("Buffett book", "Wonderful companies at a margin of safety, held", B.buff.trades?.[0]?.date ?? null, B.buff.trades?.length ? (B.buff.value / B.buff.rules.equity0 - 1) * 100 : null, B.buff.bench, `${B.buff.positions.length} held`);
   if (B.mom) for (const m of ["US", "UK"]) { const k = B.mom.markets[m], st = k.rebalances?.[0]?.date ?? null; add(`Momentum ${m === "US" ? "S&P 500" : "FTSE 100"}`, "Top 10 by 12-1 month return, monthly", st, st ? (k.value / B.mom.rules.equity0 - 1) * 100 : null, k.bench, `${k.positions.length ? `${k.positions.length} held` : st ? "in cash" : ""}`); }
   if (B.swing) add("Swing setups", "Best clean setups, 2R or 20 sessions", B.swing.start, B.swing.start ? B.swing.returnPct : null, B.swing.sp ? { name: "S&P 500", pct: B.swing.sp.pct } : null, `${B.swing.closed} closed`);
   if (B.drift) add("Results drift", "Jumps on heavy volume, 20 sessions", B.drift.start, B.drift.start ? B.drift.returnPct : null, B.drift.sp ? { name: "S&P 500", pct: B.drift.sp.pct } : null, `${B.drift.closed} closed`, B.drift.orders?.length ? "starts next open" : "waits for a signal");
   if (!rows.length) return;
   $("ppSection").hidden = false; el.hidden = false;
-  const cell = (v) => (v == null ? `<span class="muted">n/a</span>` : `<span class="${pnClass(v)}">${signPct(v)}</span>`);
+  const cell = (v) => (v == null ? `<span class="muted">n/a</span>` : Math.abs(v) < 0.05 ? `<span class="muted">0.0%</span>` : `<span class="${pnClass(v)}">${signPct(v)}</span>`);
   el.innerHTML = `<div class="k">Paper scoreboard</div>
     <div class="score">
       <span class="h">Book</span><span class="h num">Return</span><span class="h num">Its index</span><span class="h num hide-s">VWRP</span>
       ${rows.map((r) => `<span class="nm"><b>${esc(r.name)}</b><span class="small muted">${esc(r.what)}${r.start ? ` · since ${fmtDM(r.start)}` : ""}${r.extra ? ` · ${esc(r.extra)}` : ""}</span></span>${r.start ? `<span class="num">${cell(r.ret)}</span><span class="num muted">${r.bench?.pct == null ? "n/a" : signPct(r.bench.pct)}</span><span class="num hide-s muted">${(() => { const v = vwrpSince(r.start); return v == null ? "n/a" : signPct(v); })()}</span>` : `<span class="num muted" style="grid-column: span 3">${esc(r.soon)}</span>`}`).join("")}
     </div>
-    <p class="small muted" style="margin:10px 0 0">Every strategy we are testing, run on paper from a notional £10,000 each, after Trading 212 costs, with rules written down before it started. The question for each is simple: does it beat just holding the index, or VWRP, over the same days? None has earned real money yet; the bar for that is on each card.</p>`;
+    <p class="small muted" style="margin:10px 0 0">Every strategy we are testing, run on paper from a notional £10,000 each, after Trading 212 costs, with rules written down before it started. The plan rows run the agreed rules (and a pending proposal) so the plan itself is judged against just holding VWRP. For each book the question is simple: does it beat its index, or VWRP, over the same days? None has earned real money yet; the bar for that is on each card.</p>`;
 }
 // --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
 let BUFFJ = null;
