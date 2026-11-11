@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 9 November 2026
 
+### Wed 11 Nov (build session, evening)
+- **Short-term pot orders in pounds.** The pot's first real orders go out tonight, but the Dashboard only said "a fifth of the pot", leaving the sum to Douglas. Each buy now shows "about £X", worked out in the browser from the pots panel (private, never in the repo): the saved short-term pot value, scaled by the pot book's move since it was saved (the save now records the book's value as `potAt`), or 10% of the other pots if no pot value is saved. As in the book, a buy is a fifth of the pot's closed-trade value, so an open loss does not shrink the next buy and the cash always covers it. Without saved pots, a line invites setting them up. `potOrderSize()` in `src/shortPot.js`.
+- Tests: `test/potsize.test.js` (saved value, scaling by the book, open losses, the 10% stand-in, missing data). Rendered with real data plus a sample pot at desktop and 390px, light and dark, with and without saved pots: no overflow, no script errors. Display only, so no dry run needed (monitor and scan do not call it).
+
 ### Wed 11 Nov (build session, afternoon)
 - **Short-term pot: drawdown alerts.** The rules pause new trades once the real-money pot is 25% below its high, but a pause only reached the phone inside a signals push, so on a quiet night it could go unnoticed. The monitor now pushes once when the pot is 15% below its high (a heads-up, no action) and once when it pauses (high priority: open trades still follow their exit rules; review with Claude before resuming). Each stage alerts once and re-arms when the pot recovers to within 5% of its high (`shortPauseAlert()` in `src/shortTerm.js`, `state.shortPotStage`, alert kind `short`). The pot now reports `fallPct` (value against its closed-trade high, the pause's yardstick) and the Dashboard card shows it under the holdings.
 - **Short-term pot in the Sunday digest.** One line: return since the first trade, slots held, closed trades (won, average after costs) and the distance to the pause (`shortPotLine()` in `src/shortPot.js`).

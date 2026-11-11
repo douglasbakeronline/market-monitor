@@ -459,6 +459,7 @@ import { fundingCheck } from "./src/swingBook.js";
 import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
 import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
+import { potOrderSize } from "./src/shortPot.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
@@ -675,12 +676,18 @@ function renderShortTerm(st) {
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
   const P = st.pot, kindName = (k) => (k === "drift" ? "Results drift" : "Bounce");
+  // Pound sizes from the private pots panel (this browser only).
+  const SZ = P ? potOrderSize(P, loadPf()) : null;
+  const sizeTxt = SZ ? `about ${gbp(SZ.each)} (a fifth of the pot)` : "a fifth of the pot";
+  const sizeNote = !SZ ? (P && (P.buys ?? []).length ? `<div class="small muted" style="margin-top:4px">Save your pots below to see each order in pounds (kept in this browser only).</div>` : "")
+    : `<div class="small muted" style="margin-top:4px">Sizes from your pots panel: short-term pot about ${gbp(SZ.real)}${SZ.basis === "moved" ? `, following the pot's trades since you saved on ${fmtDM(SZ.saved)}` : SZ.basis === "target" ? " (10% of your pots; save its own value for exact sizes)" : SZ.saved ? `, as saved on ${fmtDM(SZ.saved)}` : ""}. Trading 212 lets you buy by value in pounds; sell the whole holding.</div>`;
   const exitTxt = (k) => (k === "drift" ? "hold 20 sessions" : "out at the first close above the 5-day average, or 10 sessions");
   const potHtml = !P ? "" : `<div class="st-group">
       <div class="st-head"><b>${P.paused ? "Paused: 25% below its high" : "What the pot does at the next open"}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots held${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
-      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)} · a fifth of the pot · ${exitTxt(b.kind)}</span></span><span class="num">${esc(b.market)}</span></div>`).join("")}
+      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)} · ${sizeTxt} · ${exitTxt(b.kind)}</span></span><span class="num">${esc(b.market)}</span></div>`).join("")}
       ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)} · exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
       ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : "Nothing to buy or sell at the next open."}</span><span></span></div>` : ""}
+      ${(P.buys ?? []).length ? sizeNote : ""}
       ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
       ${P.start && P.fallPct != null && !P.paused ? `<div class="small muted" style="margin-top:4px">${Math.abs(P.fallPct) < 0.05 ? "At its high" : `${Math.abs(P.fallPct).toFixed(1)}% below its high`}; new trades pause at ${Math.round((P.rules?.pauseFall ?? 0.25) * 100)}% below (a heads-up push comes at 15%).</div>` : ""}
     </div>`;
@@ -1042,10 +1049,10 @@ function renderPf(edit = false) {
       <label>Goal (£)<input inputmode="decimal" name="goal" value="${v.goal ?? ""}"></label></form>
       ${(() => { const fl = fillFromLog(); return fl.any ? `<p class="small muted" style="margin:10px 0 0"><button class="linkbtn" id="pfFill" type="button">Fill blank pots from the trade log</button> (${esc(fl.basis)})</p>` : ""; })()}
       <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="pfSave" type="button">Save in this browser</button><button class="btn" id="pfCancel" type="button">Cancel</button>${pf ? `<button class="btn" id="pfClear" type="button" style="margin-left:auto">Clear</button>` : ""}</div>`;
-    $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); if (CORE_NOW?.level && CORE_NOW.date) o.vwrpAt = { level: CORE_NOW.level, date: CORE_NOW.date }; savePf(o); renderPf(); };
+    $("pfSave").onclick = () => { const f = new FormData($("pfForm")); const o = {}; for (const [k, x] of f) { const n = parseFloat(String(x).replace(/[£,\s]/g, "")); if (Number.isFinite(n)) o[k] = n; } o.saved = new Date().toISOString().slice(0, 10); if (CORE_NOW?.level && CORE_NOW.date) o.vwrpAt = { level: CORE_NOW.level, date: CORE_NOW.date }; const sp = LAST_DATA?.shortTerm?.pot; if (sp?.value > 0) o.potAt = { value: sp.value, date: o.saved }; savePf(o); renderPf(); if (LAST_DATA) renderShortTerm(LAST_DATA.shortTerm); };
     $("pfCancel").onclick = () => renderPf();
     if ($("pfFill")) $("pfFill").onclick = () => { const fl = fillFromLog(); for (const [k] of POTS) { const el = $("pfForm").elements[k]; if (el && !el.value.trim() && fl[k] > 0) el.value = Math.round(fl[k]); } };
-    if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); }; }
+    if (pf) { $("pfClear").onclick = () => { try { localStorage.removeItem(PF_KEY); } catch {} renderPf(); if (LAST_DATA) renderShortTerm(LAST_DATA.shortTerm); }; }
     return;
   }
   const saved = pf, est = coreEstimate(saved, CORE_NOW);
