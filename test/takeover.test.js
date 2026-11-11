@@ -22,3 +22,14 @@ test("shortTermAlert: a 12%+ jump asks to check for a takeover offer; the order 
   const b = shortTermAlert({ ...st(30), pot: null });
   assert.match(b.body, /- X \(X\): results drift.*takeover/);
 });
+
+test("newerShort: the scan's copy wins when at least as new", async () => {
+  const { newerShort } = await import("../src/shortTerm.js");
+  const a = { date: "2026-11-10" }, b = { date: "2026-11-11", pushedAt: "x" };
+  assert.equal(newerShort(a, b), b);
+  assert.equal(newerShort(b, a), b);
+  assert.equal(newerShort({ date: "2026-11-11" }, b), b, "same date: the scan's copy (it carries pushedAt)");
+  assert.equal(newerShort(null, b), b);
+  assert.equal(newerShort(a, null), a);
+  assert.equal(newerShort(undefined, undefined), null);
+});

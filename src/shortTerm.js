@@ -154,6 +154,14 @@ export const BIG_JUMP = 12;
 export const bigJump = (s) => s?.kind === "drift" && (s.movePct ?? 0) >= BIG_JUMP;
 export const TAKEOVER_NOTE = "a jump this size can be a takeover offer: check the news first (the backtest never saw a bought-out company, and the price usually stays near the offer)";
 
+// The Dashboard's short-term list: the scan's own copy (history/short-term.json)
+// when it is at least as new as the monitor's (data.json), else the monitor's.
+export function newerShort(fromData, fromScan) {
+  if (!fromScan?.date) return fromData ?? null;
+  if (!fromData?.date) return fromScan;
+  return fromScan.date >= fromData.date ? fromScan : fromData;
+}
+
 export function shortTermAlert(st, seen = null) {
   if (!st?.date || st.date === seen || st.pushedAt) return null;
   const { drift = [], bounce = [], pot = null } = st;

@@ -460,7 +460,7 @@ import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
 import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize } from "./src/shortPot.js";
-import { bigJump, BIG_JUMP } from "./src/shortTerm.js";
+import { bigJump, BIG_JUMP, newerShort } from "./src/shortTerm.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
@@ -474,6 +474,7 @@ const $ = (id) => document.getElementById(id);
 
 function render(d) {
   CORE_NOW = d.coreFund ?? null;
+  d.shortTerm = newerShort(d.shortTerm, ST_FILE);
   LAST_DATA = d; renderMoneyCheck();
   PICK_PRICES = Object.fromEntries((d.copilot?.picks ?? []).filter((p) => p.price > 0).map((p) => [p.ticker, p.price]));
   if (!$("tlForm")) renderTl();
@@ -663,6 +664,14 @@ function renderScore() {
     <p class="small muted" style="margin:10px 0 0">Every strategy we are testing, run on paper from a notional £10,000 each, after Trading 212 costs, with rules written down before it started. The plan rows run the agreed rules (and the pending proposals) so the plan itself is judged against just holding VWRP. For each book the question is simple: does it beat its index, or VWRP, over the same days? None has earned real money yet; the bar for that is on each card.</p>`;
 }
 // --- Short-term signals (scan.json shortTerm via data.json; src/shortTerm.js) ---
+// The scan's own copy lands right after the evening push, hours before the
+// next monitor run refreshes data.json, so the newer of the two is shown.
+let ST_FILE = null;
+fetch("history/short-term.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((j) => {
+  if (!j?.date) return;
+  ST_FILE = j;
+  if (LAST_DATA) { LAST_DATA.shortTerm = newerShort(LAST_DATA.shortTerm, j); renderShortTerm(LAST_DATA.shortTerm); }
+});
 function renderShortTerm(st) {
   const el = $("stCard");
   if (!el || !st?.date) return;
