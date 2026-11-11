@@ -10,10 +10,11 @@ test("nothing happens before the start date", () => {
   assert.equal(b.variants.agreed.value, 10000);
 });
 
-test("day one: 70% VWRP, tranches where the check passes; weakHold skips the flagged pick", () => {
+test("day one: 60% VWRP, 10% short pot, tranches where the check passes; weakHold skips the flagged pick", () => {
   const b = stepPlanBook(newPlanBook(), ctx());
   const a = b.variants.agreed, w = b.variants.weakHold, all = b.variants.vwrp;
-  assert.equal(a.core, 7000);
+  assert.equal(a.core, 6000);
+  assert.equal(a.shortPot, 1000);
   assert.equal(a.reserve, 1500);
   assert.deepEqual(Object.keys(a.picks).sort(), ["HSBA.L", "META"]);
   assert.equal(a.picks.META.cost, 100);
@@ -29,7 +30,7 @@ test("one tranche a month, marks to prices, and the summary compares with VWRP",
   b = stepPlanBook(b, ctx({ date: "2026-11-17", vwrp: 110, prices: { META: { close: 660, market: "US" }, "HSBA.L": { close: 1300, market: "UK" } } }));
   const a = b.variants.agreed;
   assert.equal(a.picks.META.tranches, 1, "no second tranche in November");
-  assert.equal(a.core, 7700);
+  assert.equal(a.core, 6600);
   assert.equal(a.picks.META.value, 109.84);
   const s = planSummary(b);
   assert.equal(s.length, 6);
@@ -100,4 +101,16 @@ test("reitValue joins a book that has not started, never one that has", () => {
   assert.ok(stepPlanBook(old, ctx({ date: "2026-11-13" })).variants.reitValue);
   const started = stepPlanBook(newPlanBook(), ctx()); delete started.variants.reitValue;
   assert.equal(stepPlanBook(started, ctx({ date: "2026-11-17" })).variants.reitValue, undefined);
+});
+
+test("short pot follows its own book once it trades; cash before; rules rebuilt before the start", () => {
+  let b = stepPlanBook(newPlanBook(), ctx({ pots: { short: null } }));
+  assert.equal(b.variants.agreed.shortPot, 1000);
+  b = stepPlanBook(b, ctx({ date: "2026-11-17", pots: { short: 1.0 } }));
+  assert.equal(b.variants.agreed.shortPot, 1000, "first value sets the base");
+  b = stepPlanBook(b, ctx({ date: "2026-11-18", pots: { short: 1.1 } }));
+  assert.equal(b.variants.agreed.shortPot, 1100);
+  assert.equal(b.variants.vwrp.shortPot, 0);
+  const old = newPlanBook(); old.rules = { ...old.rules, core: 0.7, short: undefined };
+  assert.equal(stepPlanBook(old, ctx({ date: "2026-11-13" })).rules.core, 0.6, "unstarted book picks up the new rules");
 });

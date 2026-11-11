@@ -4,7 +4,9 @@
 // variants for the proposals still waiting on Douglas, so each proposal
 // gathers evidence instead of waiting.
 // Model of the agreed rules (written down before it first ran):
-//   - Start: 70% into VWRP, 15% dip reserve in cash, 15% picks pot in cash.
+//   - Start: 60% into VWRP, 15% dip reserve in cash, 15% picks pot in cash,
+//     10% short-term pot (since 11 Nov) following the real pot's own book
+//     (src/shortPot.js, history/short-pot.json).
 //   - Picks: each of the five may take a 1% tranche (of the book's value at
 //     the time) once per calendar month, on a night its tranche check passes
 //     (Good entry, no results within 7 days; read from the monitor's
@@ -33,7 +35,7 @@
 //            until that book starts. Same reserve rules as the plan.
 import { r2 } from "./util.js";
 
-export const PBOOK = { start: "2026-11-16", equity0: 10000, core: 0.70, reserve: 0.15, picks: 0.15, tranche: 0.01, maxCost: 0.03, trimAbove: 0.05, trimTo: 0.03, dripFrom: "2026-12-07", dripShare: 1 / 6 };
+export const PBOOK = { start: "2026-11-16", equity0: 10000, core: 0.60, reserve: 0.15, picks: 0.15, short: 0.10, tranche: 0.01, maxCost: 0.03, trimAbove: 0.05, trimTo: 0.03, dripFrom: "2026-12-07", dripShare: 1 / 6 };
 export const VARIANTS = [
   { key: "agreed", label: "The plan as agreed" },
   { key: "weakHold", label: "Plus: hold a tranche after weak results and a fall (proposal, 10 Nov)" },
@@ -48,6 +50,7 @@ const BUY_FEE = { US: 0.0015, UK: 0.005, EU: 0.0015 }, SELL_FEE = { US: 0.0015, 
 export function newPlanVariant(key, o = PBOOK) {
   const all = key === "vwrp";
   return { key, core: 0, coreLast: null, reserve: all ? 0 : o.equity0 * o.reserve, reserve0: all ? 0 : o.equity0 * o.reserve, picksCash: all ? 0 : o.equity0 * o.picks,
+    shortPot: all ? 0 : o.equity0 * (o.short ?? 0), shortLast: null,
     pending: all ? o.equity0 : o.equity0 * o.core, picks: {}, potLast: null, lastTier: 0, lastTierDate: null, lastDrip: null, log: [], curve: [], value: o.equity0, started: null };
 }
 export const newPlanBook = () => ({ rules: PBOOK, variants: Object.fromEntries(VARIANTS.map((v) => [v.key, newPlanVariant(v.key)])) });
@@ -56,7 +59,7 @@ const firstMonday = (ym) => { for (let d = 1; d <= 7; d++) { const s = `${ym}-0$
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 
 export const pickValue = (p) => p.value;
-export const variantValue = (v) => r2(v.core + v.reserve + v.picksCash + v.pending + Object.values(v.picks).reduce((a, p) => a + p.value, 0));
+export const variantValue = (v) => r2(v.core + v.reserve + v.picksCash + (v.shortPot ?? 0) + v.pending + Object.values(v.picks).reduce((a, p) => a + p.value, 0));
 
 // One night. ctx: { date, vwrp (close), prices: {symbol: {close, market}}, checks: {symbol: {ok, tone, ticker}}, tier (deepest confirmed buy tier, e.g. -10 or 0) }.
 export function stepVariant(v0, ctx, o = PBOOK) {
@@ -86,6 +89,9 @@ export function stepVariant(v0, ctx, o = PBOOK) {
       if (quiet && v.reserve > 0) { const amt = v.reserve * o.dripShare; v.reserve -= amt; v.core += amt; log("Reserve drip: a sixth into VWRP"); }
       else if (!quiet) log("Reserve drip skipped: a buy tier in the last 30 days");
     }
+    // Short-term pot (real money since 11 Nov): follows the pot's own book
+    // (ctx.pots.short: value / start); cash until its first trade.
+    { const idx = ctx.pots?.short; if (idx > 0 && v.shortPot > 0) { if (v.shortLast > 0) v.shortPot *= idx / v.shortLast; v.shortLast = idx; } }
     // Pot variants: the picks pot follows another paper book (ctx.pots: value / start, or null before it starts).
     if (POTS[v.key]) {
       const idx = ctx.pots?.[POTS[v.key]];
@@ -117,12 +123,15 @@ export function stepVariant(v0, ctx, o = PBOOK) {
   v.curve = [...v.curve.filter((x) => x.date !== date), { date, value: r2(v.value) }].slice(-1000);
   v.log = v.log.slice(-60);
   v.picks = Object.fromEntries(Object.entries(v.picks).map(([s, p]) => [s, { ...p, value: r2(p.value), cost: r2(p.cost) }]));
-  for (const k of ["core", "reserve", "picksCash"]) v[k] = r2(v[k]);
+  for (const k of ["core", "reserve", "picksCash", "shortPot"]) v[k] = r2(v[k] ?? 0);
   return v;
 }
 
 export function stepPlanBook(b, ctx) {
-  // Variants added later join with a fresh start (only before the book starts, so none is backfilled).
+  // Before the book starts, rebuild it from the current rules (they changed on
+  // 11 Nov: the short-term pot); variants added later join the same way, so
+  // nothing is ever backfilled.
+  if (!Object.values(b.variants ?? {}).some((v) => v.started)) b = newPlanBook();
   const vs = { ...b.variants };
   for (const x of VARIANTS) if (!vs[x.key] && !Object.values(vs).some((v) => v.started)) vs[x.key] = newPlanVariant(x.key, b.rules);
   return { ...b, variants: Object.fromEntries(Object.entries(vs).map(([k, v]) => [k, stepVariant(v, ctx, b.rules)])) };
@@ -134,6 +143,6 @@ export function planSummary(b) {
   return VARIANTS.filter((x) => b.variants[x.key]).map((x) => {
     const v = b.variants[x.key], ret = v.started ? r2((v.value / b.rules.equity0 - 1) * 100) : null;
     return { key: x.key, label: x.label, started: v.started, value: v.value, returnPct: ret, vsVwrp: ret != null && base.started ? r2(ret - (base.value / b.rules.equity0 - 1) * 100) : null,
-      mix: { core: v.core, reserve: v.reserve, picksCash: v.picksCash, picks: Object.values(v.picks).map((p) => ({ ticker: p.ticker, value: p.value, cost: p.cost, tranches: p.tranches })) }, log: v.log.slice(-6).reverse() };
+      mix: { core: v.core, reserve: v.reserve, picksCash: v.picksCash, shortPot: v.shortPot ?? 0, picks: Object.values(v.picks).map((p) => ({ ticker: p.ticker, value: p.value, cost: p.cost, tranches: p.tranches })) }, log: v.log.slice(-6).reverse() };
   });
 }

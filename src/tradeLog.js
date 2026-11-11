@@ -10,7 +10,7 @@ export const RULES = [
   { key: "tranche", label: "Pick tranche", pot: "picks", kinds: ["picks"] },
   { key: "dip", label: "Dip tier (reserve deployed)", pot: "core", kinds: ["dip"] },
   { key: "drip", label: "Reserve drip into core (monthly)", pot: "core", kinds: ["drip"] },
-  { key: "swing", label: "Swing setup", pot: "swing", kinds: [] },
+  { key: "swing", label: "Short-term pot trade", pot: "swing", kinds: [] },
   { key: "reinvest", label: "Dividend or proceeds reinvested", pot: "core", kinds: [] },
   { key: "rebalance", label: "Rebalance to target weights", pot: "core", kinds: [] },
   { key: "other", label: "Other (off-plan)", pot: "core", kinds: [] },

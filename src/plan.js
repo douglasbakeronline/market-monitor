@@ -8,10 +8,11 @@ import { SELL_KINDS } from "./sellSignals.js";
 
 export const PLAN = {
   pots: [
-    { key: "core", name: "Core index (VWRP)", target: 70, note: "Never sold on a signal. Includes the 10% first meant for swing (5 Nov)." },
+    { key: "core", name: "Core index (VWRP)", target: 60, note: "Never sold on a signal. 70% until 11 Nov, when 10% moved to the short-term pot." },
     { key: "reserve", name: "Dip reserve (cash)", target: 15, note: "A third at each confirmed buy tier; a sixth drips into the core each quiet month (10 Nov)." },
     { key: "picks", name: "Long-term picks", target: 15, note: "Five companies, up to 3% each, 1% tranches." },
-    { key: "swing", name: "Swing (paper only)", target: 0, note: "No real trades: the 5 Nov retune found no edge after costs." },
+    // Key stays "swing" so saved pot values and trade-log entries carry over.
+    { key: "swing", name: "Short-term pot", target: 10, note: "Real money since 11 Nov (Douglas's call): results drift and bounces, up to 5 trades of a fifth of the pot each." },
   ],
   picks: [
     { symbol: "HSBA.L", name: "HSBC", sector: "Banks" },
@@ -25,8 +26,8 @@ export const PLAN = {
   schedule: [
     { date: "2026-11-02", kind: "core", title: "First core purchase (VWRP)", detail: "Half of this tax year's core money." },
     { date: "2026-11-02", kind: "picks", title: "First tranche of each pick", detail: "About a third of each position, only where the pick is still a good entry with no results within 7 days." },
-    { date: "2026-11-16", kind: "core", title: "Second core purchase (VWRP)", detail: "The rest of this tax year's core money, plus the 10% first set aside for swing." },
-    { date: "2026-11-16", kind: "swing", title: "Swing stays on paper (no real trades)", detail: "Retune tested 5 Nov: no stricter setup beat random entry after costs. Swing stays paper-traded; its 10% goes into the core." },
+    { date: "2026-11-16", kind: "core", title: "Second core purchase (VWRP)", detail: "The rest of this tax year's core money, less the 10% now kept as cash for the short-term pot (11 Nov)." },
+    { date: "2026-11-12", kind: "short", title: "Short-term pot starts (10% of the portfolio)", detail: "Keep 10% of the portfolio as cash in the ISA for it, taken from the money set aside for the 16 Nov core purchase. Trade only what the 08:15 push or the Dashboard card lists." },
     // Can't come forward: the money can't enter the ISA before the new allowance.
     { date: "2027-04-06", kind: "core", pullback: false, title: "New ISA allowance: pay in savings, resume monthly core", detail: "Move the money held in easy-access savings into the ISA." },
   ],
