@@ -17,7 +17,7 @@ import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines, picksWeekLine, PLAN } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
-import { coreFundView, coreFundLine, drawdownTag } from "./src/coreFund.js";
+import { coreFundView, coreFundLine, drawdownTag, fillCloses } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
 import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
@@ -78,12 +78,16 @@ async function main() {
 
   const world = buildWorld(series, sp);
   // The core fund itself, in pounds (display only; rules use the indices).
-  let coreFund = coreFundView(snapshot(CONFIG.coreFund.name, CONFIG.coreFund.symbol, series[CONFIG.coreFund.symbol]), sp, CONFIG.coreFund);
+  const cfStored = await readJson("history/core-fund.json", {});
+  const cfData = series[CONFIG.coreFund.symbol];
+  const cfRows = cfData?.rows ? fillCloses(cfData.rows, cfStored) : null;
+  if (cfRows && cfData && cfRows.length > cfData.rows.length) console.log(`Core fund: filled ${cfRows.length - cfData.rows.length} missing session(s) from stored closes.`);
+  let coreFund = coreFundView(snapshot(CONFIG.coreFund.name, CONFIG.coreFund.symbol, cfData ? { ...cfData, rows: cfRows } : cfData), sp, CONFIG.coreFund);
   if (coreFund) state.lastGood.coreFund = coreFund;
   else if (state.lastGood.coreFund) { coreFund = state.lastGood.coreFund; console.warn("Core fund: using the last good value."); }
   // VWRP's daily closes, kept so the Dashboard can compare the picks with the
   // same money in the core (display only). Grows by a row a day.
-  if (series[CONFIG.coreFund.symbol]?.rows?.length) await writeJson("history/core-fund.json", mergeCloses(await readJson("history/core-fund.json", {}), series[CONFIG.coreFund.symbol].rows));
+  if (series[CONFIG.coreFund.symbol]?.rows?.length) await writeJson("history/core-fund.json", mergeCloses(cfStored, series[CONFIG.coreFund.symbol].rows));
 
   // --- 3. Watchlist ---------------------------------------------------------------
   const wlData = await fetchMany(CONFIG.watchlist.map((w) => w.symbol), { range: "6mo" });
