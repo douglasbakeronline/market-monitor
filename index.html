@@ -226,6 +226,20 @@
   @media (max-width: 520px) { .tr-h3 { gap: 8px; } .tr-h3 .num { min-width: 54px; } }
   @media (max-width: 520px) { .tr-kind { grid-template-columns: 1fr auto auto; } .tr-kind .vs { display: none; } }
   @media (max-width: 520px) { .tr-row { grid-template-columns: 60px 1fr auto; } .tr-row .vs { display: none; } }
+  .dec { padding: 4px 16px; }
+  .dec details { border-top: 1px solid var(--line-2); }
+  .dec details:first-of-type { border-top: 0; }
+  .dec summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 11px 0; }
+  .dec summary::-webkit-details-marker { display: none; }
+  .dec .t { font-weight: 600; font-size: 14px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
+  .dec .g { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+  .dec .tag { font-size: 11px; color: var(--muted); white-space: nowrap; align-self: start; padding-top: 2px; }
+  .dec .tag b { color: var(--watch); font-weight: 700; }
+  .dec details[open] .g { display: none; }
+  .dec .body { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: -4px 0 12px; overflow-wrap: anywhere; }
+  .dec .body code { font-size: 12px; }
+  .dec-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 10px 0 6px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line-2); }
+  .dec-head + details { border-top: 0; }
 </style>
 </head>
 <body>
@@ -255,6 +269,13 @@
       </div>
     </div>
     <p class="cap">What the agreed plan says is due in the next seven days. A pick tranche passes when the stock is still a long-term <b>good entry</b> with no results due within a week. The pullback rule brings the next core purchase forward if the S&amp;P 500 or FTSE 100 falls 5% or more below its high first. You place every trade; this is a checklist, not advice.</p>
+  </section>
+
+  <!-- 0a. Decisions waiting on Douglas (read from docs/ROADMAP.md) -->
+  <section class="section" id="decSection" hidden>
+    <div class="eyebrow">Waiting on you <a class="more" href="https://github.com/douglasbakeronline/market-monitor/blob/main/docs/ROADMAP.md#waiting-on-douglas" target="_blank" rel="noopener">Roadmap ↗</a></div>
+    <div class="card dec" id="decCard"></div>
+    <p class="cap">Proposals and small jobs that need your say before they go further, straight from the roadmap. Nothing here changes until you agree; tap one for the detail and reply in any session.</p>
   </section>
 
   <!-- 0b. Private portfolio and goal -->
@@ -391,6 +412,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
+import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
@@ -893,6 +915,16 @@ let DIPS = [];
 fetch("history/signals.json?t=" + Date.now()).then((r) => r.json()).then((log) => { DIPS = dipEvents(log); if (DIPS.length) renderTl(); }).catch(() => {});
 // VWRP's daily closes (kept by the monitor) for "Picks vs VWRP so far".
 let CORE_CLOSES = null;
+// Decisions waiting on Douglas, from the roadmap (display only).
+// GitHub Pages turns .md files into pages, so read the raw file (CORS-open), with the local copy as a fallback.
+const getText = (u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.text() : Promise.reject(r.status)));
+getText("https://raw.githubusercontent.com/douglasbakeronline/market-monitor/main/docs/ROADMAP.md").catch(() => getText("docs/ROADMAP.md")).then((md) => {
+  const items = md ? parseDecisions(md) : [];
+  if (!items.length) return;
+  const sorted = [...items.filter((x) => x.kind === "decision"), ...items.filter((x) => x.kind !== "decision")];
+  $("decCard").innerHTML = `<div class="dec-head"><span>${esc(decisionsLine(items))}</span></div>` + sorted.map((x) => `<details><summary><span class="t">${esc(x.title)}</span><span class="tag">${x.kind === "decision" ? "<b>Decision</b>" : "To do"}${x.date ? ` · ${esc(x.date)}` : ""}</span>${x.gist ? `<span class="g">${esc(x.gist)}</span>` : ""}</summary>${x.body ? `<div class="body">${inlineHtml(x.body, esc)}</div>` : ""}</details>`).join("");
+  $("decSection").hidden = false;
+}).catch(() => {});
 fetch("history/core-fund.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && Object.keys(j).length) { CORE_CLOSES = j; if (!$("tlForm")) renderTl(); } }).catch(() => {});
 // Display only: the same pounds in VWRP on the same days as each pick trade.
 function scorecardHtml(trades) {

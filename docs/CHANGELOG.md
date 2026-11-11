@@ -4,6 +4,9 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 9 November 2026
 
+### Wed 11 Nov (build session, just after midnight)
+- **"Waiting on you" card on the Dashboard.** Ten proposals and small jobs were waiting on Douglas, but only in the roadmap file, and the build sessions are moving faster than he reads it. The Dashboard now lists them under the plan: a count ("6 decisions and 4 tasks waiting on you"), then each item's title, date and first sentence, decisions first; tap one for the full text, and a link goes to the roadmap. It reads the roadmap's "Waiting on Douglas" section live (raw file from GitHub, so no second list to keep in step; the local copy as a fallback), so an item disappears as soon as a session moves it. `src/decisions.js` (`parseDecisions`, `decisionsLine`, `inlineHtml`), tests including one that parses the live roadmap. Checked at desktop and 390px, light and dark, no overflow. Display only.
+
 ### Wed 11 Nov (build session, early)
 - **EV/EBITDA now scored against sector peers (rule change agreed by Douglas).** It was the last value measure on fixed bands, which made whole industries look dear (tech, media) or cheap (energy). It is now scored like P/E, against the median of the same sector in the same region, using the nightly peer sample so quick scores have it too (`withEv()` in `src/evSample.js`, scan and research list). `SCORING_VERSION` 2026-11-11, so research rebuilds and the "new" lists re-baseline silently. The display-only EV view from last night is removed; the Peers note keeps the EV/EBITDA comparison. Strategy notes updated. Tests. Dry run on real data matched the preview: no Good entry gained or lost; picks and bench move 2 points at most (VICI 67 to 69, Meta 78 to 77); WPP drops from Fair 65 to Wait 54.
 
