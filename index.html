@@ -253,6 +253,16 @@
   .books-vs .h { font-size: 11px; color: var(--muted); }
   .books-vs .num { text-align: right; font-variant-numeric: tabular-nums; }
   @media (max-width: 520px) { .books-vs { grid-template-columns: 1fr auto auto; } .books-vs .hide-s { display: none; } }
+  .score { display: grid; grid-template-columns: 1fr auto auto auto; gap: 0 16px; margin-top: 8px; font-size: 13px; align-items: baseline; }
+  .score > span { padding: 8px 0; border-top: 1px solid var(--line-2); }
+  .score .h { font-size: 11px; color: var(--muted); border-top: 0; padding: 0 0 4px; }
+  .score .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .score .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (max-width: 520px) { .score { grid-template-columns: 1fr auto auto; gap: 0 10px; } .score .hide-s { display: none; } .score .num[style*="span 3"] { grid-column: span 2 !important; } }
+  .mom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .mom-m { border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; min-width: 0; overflow-wrap: anywhere; }
+  .mom-m .v { font-size: 18px; font-weight: 700; margin-top: 2px; }
+  @media (max-width: 640px) { .mom-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -397,7 +407,10 @@
 
   <!-- Swing paper trading -->
   <section class="section" id="ppSection" hidden>
-    <div class="eyebrow">Swing paper trading</div>
+    <div class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span></div>
+    <div class="card" id="scoreCard" style="margin-bottom:12px" hidden></div>
+    <div class="card book" id="buffCard" style="margin-bottom:12px" hidden></div>
+    <div class="card book" id="momCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="bookCard" hidden></div>
     <div class="card book" id="driftCard" style="margin-top:12px" hidden></div>
     <div class="card" style="margin-top:12px">
@@ -423,11 +436,12 @@ import { PLAN, dripSchedule } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
-import { picksVsCore, scorecardLine } from "./src/scorecard.js";
+import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
+import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
@@ -563,7 +577,7 @@ function bookChart(b, label = "Swing book") {
 }
 function renderBook(b) {
   if (!b?.start) return;
-  BOOKS.swing = b; renderBooksVs();
+  BOOKS.swing = b; renderScore();
   $("ppSection").hidden = false;
   const el = $("bookCard"); el.hidden = false;
   const money2 = (v) => `${Math.round(v) < 0 ? "\u2212" : ""}£${Math.abs(Math.round(v)).toLocaleString("en-GB")}`;
@@ -594,14 +608,86 @@ function fundHtml(f) {
     <p class="small" style="margin:6px 0 4px">${esc(f.line)}</p></div>`;
 }
 // Both paper books side by side once the drift book has started.
-const BOOKS = { swing: null, drift: null };
-function renderBooksVs() {
-  const { swing: a, drift: d } = BOOKS;
-  if (!a?.start || !d?.start || !$("booksVs")) return;
-  const row = (name, b, avg) => `<span>${name}<span class="small muted"> since ${fmtDM(b.start)}</span></span><span class="num ${pnClass(b.returnPct)}">${signPct(b.returnPct)}</span><span class="num muted">${b.sp?.pct == null ? "n/a" : signPct(b.sp.pct)}</span><span class="num hide-s">${b.closed} · ${avg}</span>`;
-  $("booksVs").innerHTML = `<span class="h">Paper book</span><span class="h num">Return</span><span class="h num">S&amp;P same days</span><span class="h num hide-s">Closed · average</span>`
-    + row("Swing setups", a, a.avgNetR == null ? "n/a" : minus(`${a.avgNetR > 0 ? "+" : ""}${a.avgNetR}R`))
-    + row("Results drift", d, d.avgNetPct == null ? "n/a" : signPct(d.avgNetPct));
+const BOOKS = { swing: null, drift: null, mom: null, buff: null };
+// Paper scoreboard: every paper book against its index and VWRP over the same days.
+function vwrpSince(start) {
+  if (!CORE_CLOSES || !start) return null;
+  const keys = Object.keys(CORE_CLOSES).sort(), prev = keys.filter((d) => d < start).at(-1), c0 = prev ? CORE_CLOSES[prev] : closeOn(CORE_CLOSES, start), c1 = CORE_CLOSES[keys.at(-1)];
+  return c0 && c1 ? ((c1 / c0) - 1) * 100 : null;
+}
+function renderScore() {
+  const el = $("scoreCard");
+  if (!el) return;
+  const B = BOOKS, rows = [];
+  const add = (name, what, start, ret, bench, extra, soon = "starts 1 Dec") => rows.push({ name, what, start, ret, bench, extra, soon });
+  if (B.buff) add("Buffett book", "Wonderful companies at a margin of safety, held", B.buff.trades?.[0]?.date ?? null, B.buff.trades?.length ? (B.buff.value / B.buff.rules.equity0 - 1) * 100 : null, B.buff.bench, `${B.buff.positions.length} held`);
+  if (B.mom) for (const m of ["US", "UK"]) { const k = B.mom.markets[m], st = k.rebalances?.[0]?.date ?? null; add(`Momentum ${m === "US" ? "S&P 500" : "FTSE 100"}`, "Top 10 by 12-1 month return, monthly", st, st ? (k.value / B.mom.rules.equity0 - 1) * 100 : null, k.bench, `${k.positions.length ? `${k.positions.length} held` : st ? "in cash" : ""}`); }
+  if (B.swing) add("Swing setups", "Best clean setups, 2R or 20 sessions", B.swing.start, B.swing.start ? B.swing.returnPct : null, B.swing.sp ? { name: "S&P 500", pct: B.swing.sp.pct } : null, `${B.swing.closed} closed`);
+  if (B.drift) add("Results drift", "Jumps on heavy volume, 20 sessions", B.drift.start, B.drift.start ? B.drift.returnPct : null, B.drift.sp ? { name: "S&P 500", pct: B.drift.sp.pct } : null, `${B.drift.closed} closed`, B.drift.orders?.length ? "starts next open" : "waits for a signal");
+  if (!rows.length) return;
+  $("ppSection").hidden = false; el.hidden = false;
+  const cell = (v) => (v == null ? `<span class="muted">n/a</span>` : `<span class="${pnClass(v)}">${signPct(v)}</span>`);
+  el.innerHTML = `<div class="k">Paper scoreboard</div>
+    <div class="score">
+      <span class="h">Book</span><span class="h num">Return</span><span class="h num">Its index</span><span class="h num hide-s">VWRP</span>
+      ${rows.map((r) => `<span class="nm"><b>${esc(r.name)}</b><span class="small muted">${esc(r.what)}${r.start ? ` · since ${fmtDM(r.start)}` : ""}${r.extra ? ` · ${esc(r.extra)}` : ""}</span></span>${r.start ? `<span class="num">${cell(r.ret)}</span><span class="num muted">${r.bench?.pct == null ? "n/a" : signPct(r.bench.pct)}</span><span class="num hide-s muted">${(() => { const v = vwrpSince(r.start); return v == null ? "n/a" : signPct(v); })()}</span>` : `<span class="num muted" style="grid-column: span 3">${esc(r.soon)}</span>`}`).join("")}
+    </div>
+    <p class="small muted" style="margin:10px 0 0">Every strategy we are testing, run on paper from a notional £10,000 each, after Trading 212 costs, with rules written down before it started. The question for each is simple: does it beat just holding the index, or VWRP, over the same days? None has earned real money yet; the bar for that is on each card.</p>`;
+}
+// --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
+let BUFFJ = null;
+Promise.all([
+  fetch("history/buffett-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  fetch("data/buffett.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+]).then(([b, j]) => { BUFFJ = j; if (b) { BOOKS.buff = b; renderScore(); } renderBuff(b, j); });
+function renderBuff(b, j) {
+  if (!b && !j) return;
+  $("ppSection").hidden = false;
+  const el = $("buffCard"); el.hidden = false;
+  const money2 = (v) => `${Math.round(v) < 0 ? "\u2212" : ""}£${Math.abs(Math.round(v)).toLocaleString("en-GB")}`;
+  const started = !!b?.trades?.length;
+  const ret = started ? (b.value / b.rules.equity0 - 1) * 100 : null;
+  const zone = j ? Object.values(j.items).filter((x) => x.verdict === "Buffett buy zone").length : 0;
+  const qual = j ? Object.values(j.items).filter((x) => x.quality).length : 0;
+  const preview = !started && j ? buffReview(newBuffettBook(), j.items, new Date().toISOString().slice(0, 10)).pending : [];
+  const mosTxt = (m) => (m == null ? "" : `${Math.round(m * 100)}% below value`);
+  const row = (when, tk, sub, right) => `<div class="tr-row"><span class="when">${when}</span><span class="what"><b>${esc(tk)}</b> <span class="muted">${sub}</span></span><span class="num">${right}</span></div>`;
+  el.innerHTML = `<div class="book-head"><div><div class="k">Buffett book <span class="pill plain" style="margin-left:4px">Paper</span> <span class="pill plain" style="margin-left:2px">New 11 Nov</span></div>
+      ${started ? `<div class="big">${money2(b.value)} <span class="${pnClass(ret)}" style="font-size:16px">${signPct(ret)}</span></div><div class="small muted">from a notional £10,000 on ${fmtDM(b.trades[0].date)}${b.bench ? `; S&amp;P 500 ${signPct(b.bench.pct)} over the same days` : ""} · ${money2(b.cash)} in cash</div>`
+      : `<div class="small muted" style="margin-top:4px">First review on the first session of December; it buys at the next open.</div>`}</div></div>
+    ${j ? `<p class="small" style="margin:10px 0 0">Tonight's lens: <b>${j.assessed}</b> of ${j.universe} companies assessed so far${j.assessed < j.universe * 0.9 ? " (the accounts are fetched a few hundred a night, so this fills in over the week)" : ""}; <b>${qual}</b> pass every quality test; <b>${zone}</b> also trade 25%+ below a cautious intrinsic value.</p>` : ""}
+    ${b?.positions?.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.positions.map((p) => row(fmtDM(p.entryDate), p.ticker, `${esc(p.market)} · ${esc(p.sector ?? "")}${p.mos != null ? ` · bought ${mosTxt(p.mos)}` : ""}`, `<span class="${pnClass(p.last / p.entry - 1)}">${signPct((p.amount * p.last / p.entry / p.cost - 1) * 100)}</span>`)).join("")}` : ""}
+    ${b?.pending?.length ? `<div class="book-orders"><b>Next session:</b> ${b.pending.map((o) => o.side === "buy" ? `buy <b>${esc(o.ticker)}</b> (${mosTxt(o.mos)})` : `sell <b>${esc(o.ticker)}</b> (${esc(o.why)})`).join("; ")}.</div>` : ""}
+    ${preview.length ? `<div class="k" style="margin-top:12px">If the first review were tonight</div>${preview.map((o) => row("", o.ticker, `${esc(o.name ?? "")} · ${esc(o.market)} · ${esc(o.sector ?? "")}`, `<span class="pos">${mosTxt(o.mos)}</span>`)).join("")}` : ""}
+    ${b?.trades?.some((t) => t.side === "sell") ? `<div class="k" style="margin-top:12px">Sold</div>${b.trades.filter((t) => t.side === "sell").slice(-6).reverse().map((t) => row(fmtDM(t.date), t.ticker, esc(t.why), `<span class="${pnClass(t.pct)}">${signPct(t.pct)}</span>`)).join("")}` : ""}
+    <p class="small muted" style="margin:10px 0 0">Warren Buffett's way, as a paper test. Each month it buys only companies that pass every quality test (high and steady returns on capital, pricing power, steady earnings, little debt, real cash earnings, no dilution) <b>and</b> trade 25%+ below a cautious value of their owner earnings; biggest discount first, 10% of the book each, at most 10 holdings and 3 per sector. It sells only if the business fails a test or the price runs 50% above value, never because the price fell. The tests can't be backtested (only four years of accounts are free), so this is how we find out. Each company's tests are on the Research page.</p>`;
+}
+// --- Momentum book (paper; history/momentum-book.json) ---
+Promise.all([
+  fetch("history/momentum-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  fetch("data/momentum-study.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+]).then(([b, j]) => { if (b) { BOOKS.mom = b; renderScore(); } renderMom(b, j); });
+function renderMom(b, j) {
+  if (!b && !j) return;
+  $("ppSection").hidden = false;
+  const el = $("momCard"); el.hidden = false;
+  const money2 = (v) => `£${Math.round(v).toLocaleString("en-GB")}`;
+  const NM = { US: "S&P 500", UK: "FTSE 100" };
+  const part = (m) => {
+    const k = b?.markets?.[m], st = k?.rebalances?.[0]?.date;
+    if (st) {
+      const ret = (k.value / b.rules.equity0 - 1) * 100, last = k.rebalances.at(-1);
+      return `<div class="mom-m"><div class="k">${NM[m]}</div><div class="v">${money2(k.value)} <span class="${pnClass(ret)}">${signPct(ret)}</span></div><div class="small muted">since ${fmtDM(st)}${k.bench ? `; index ${signPct(k.bench.pct)}` : ""}</div>
+        <div class="small" style="margin-top:6px">${k.positions.length ? `Holding: ${k.positions.map((p) => `<b>${esc(p.ticker.replace(/\.L$/, ""))}</b> <span class="${pnClass(p.last / p.entry - 1)}">${signPct((p.last / p.entry - 1) * 100, 0)}</span>`).join(", ")}` : "In cash: the index is below its 10-month average."}</div>
+        <div class="small muted" style="margin-top:4px">Last rebalance ${fmtDM(last.date)}: ${last.bought.length ? `bought ${esc(last.bought.join(", "))}` : "no buys"}${last.sold.length ? `; sold ${esc(last.sold.map((x) => x.ticker).join(", "))}` : ""}; costs ${money2(last.fees)}.</div></div>`;
+    }
+    const now = j?.now?.[m];
+    return `<div class="mom-m"><div class="k">${NM[m]}</div><div class="small muted">Starts on the first session of December.</div>${now ? `<div class="small" style="margin-top:6px">At the ${esc(now.month)} month end it would hold: ${now.top.map((x) => `<b>${esc(x.ticker)}</b>`).join(", ")}${now.trendUp ? "" : " (but the index is below its 10-month average, so cash)"}.</div>` : ""}</div>`;
+  };
+  const pr = (m) => j?.markets?.find((x) => x.market === m)?.results?.find((r) => r.key === "primary");
+  el.innerHTML = `<div class="k">Momentum book <span class="pill plain" style="margin-left:4px">Paper</span> <span class="pill plain" style="margin-left:2px">New 11 Nov</span></div>
+    <div class="mom-grid">${part("US")}${part("UK")}</div>
+    <p class="small muted" style="margin:10px 0 0">Swing lab round 5 as a live test. On the first session of each month it holds the 10 members with the best return from 12 months ago to 1 month ago, equal weight, bought at the open; cash when the index is below its 10-month average; Trading 212 costs. ${pr("US") ? `The 20-year backtest beat holding every member by ${pr("US").excess.toFixed(1)} points a year in the S&amp;P 500 and ${pr("UK")?.excess.toFixed(1)} in the FTSE 100, but a real momentum fund managed ${j.reality ? `${j.reality.excess.toFixed(1)}` : "far less"}: the backtest is flattered by testing today's members. Live trades settle it.` : ""}</p>`;
 }
 fetch("history/drift-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then(renderDrift).catch(() => {});
 function renderDrift(b) {
@@ -622,10 +708,9 @@ function renderDrift(b) {
     ${b.orders.length ? `<div class="book-orders"><b>Next session:</b> ${b.orders.map((o) => `buy <b>${esc(o.ticker)}</b> at the open (${esc(sig(o))})`).join("; ")}. A quarter of the book each, held 20 sessions.</div>` : started ? `<div class="book-orders small muted">${b.open.length >= b.rules.maxOpen ? `All ${b.rules.maxOpen} slots full${b.waiting ? `; ${b.waiting} signal${b.waiting === 1 ? "" : "s"} waiting` : ""}.` : "No new signals tonight."}</div>` : ""}
     ${b.open.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.open.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.entryDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.market)} · ${esc(sig(x))} · day ${x.sessions} of 20</span></span><span class="num">${pc(x.openPct)}<span class="sub">${money2(x.openPnl)}</span></span></div>`).join("")}` : ""}
     ${b.recent.length ? `<div class="k" style="margin-top:12px">Closed</div>${b.recent.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.exitDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">20 sessions${x.idxPct != null ? ` · index ${signPct(x.idxPct)}` : ""}</span></span><span class="num">${pc(x.netPct)}<span class="sub">${x.pnl >= 0 ? "+" : ""}${money2(x.pnl)}</span></span></div>`).join("")}` : ""}
-    <div class="books-vs" id="booksVs"></div>
     ${started ? fundHtml(fundingCheck(b, { avg: b.avgNetPct, minAvg: 1.5, unit: "%" })) : ""}
     <p class="small muted" style="margin:10px 0 0">A second paper book on a different signal: the swing lab's post-results drift, the one published effect that came close in the backtest. Rules written down before it started: a stock that rises 4%+ on 3× normal volume is bought at the next open and held 20 sessions, no stop; at most ${b.rules?.maxOpen ?? 4} open, a quarter of the book each; results days first, then the bigger volume. Costs included. Built from the live log, so nothing here was fitted to past data. Paper only.</p>`;
-  renderBooksVs();
+  renderScore();
 }
 async function renderPaper(s) {
   if (!s || !s.total) return;
@@ -984,7 +1069,7 @@ getText("https://raw.githubusercontent.com/douglasbakeronline/market-monitor/mai
   $("decCard").innerHTML = `<div class="dec-head"><span>${esc(decisionsLine(items))}</span></div>` + sorted.map((x) => `<details><summary><span class="t">${esc(x.title)}</span><span class="tag">${x.kind === "decision" ? "<b>Decision</b>" : "To do"}${x.date ? ` · ${esc(x.date)}` : ""}</span>${x.gist ? `<span class="g">${esc(x.gist)}</span>` : ""}</summary>${x.body ? `<div class="body">${inlineHtml(x.body, esc)}</div>` : ""}</details>`).join("");
   $("decSection").hidden = false;
 }).catch(() => {});
-fetch("history/core-fund.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && Object.keys(j).length) { CORE_CLOSES = j; if (!$("tlForm")) renderTl(); } }).catch(() => {});
+fetch("history/core-fund.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && Object.keys(j).length) { CORE_CLOSES = j; if (!$("tlForm")) renderTl(); renderScore(); } }).catch(() => {});
 // Display only: the same pounds in VWRP on the same days as each pick trade.
 function scorecardHtml(trades) {
   if (!CORE_CLOSES || !trades.some((t) => t.pot === "picks")) return "";

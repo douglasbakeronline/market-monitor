@@ -159,3 +159,12 @@ export function parseEarningsHistory(h = []) {
     return { quarter: q ? new Date(q * 1000).toISOString().slice(0, 10) : null, actual, estimate, surprisePct: sp == null ? null : Math.round(sp * 1000) / 10 };
   }).filter((x) => x.quarter && x.actual != null && x.estimate != null).sort((a, b) => (a.quarter < b.quarter ? -1 : 1));
 }
+
+// Annual accounts, the last four fiscal years (Yahoo fundamentals-timeseries;
+// for the Buffett lens, src/buffett.js). Returns the raw JSON.
+export async function fetchTimeseries(symbol, types) {
+  const { cookie, crumb } = await yahooSession();
+  const now = Math.floor(Date.now() / 1000), p1 = now - 6 * 366 * 86400;
+  const t = types.map((x) => "annual" + x).join(",");
+  return fetchJson(`https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/${encodeURIComponent(symbol)}?symbol=${encodeURIComponent(symbol)}&type=${t}&period1=${p1}&period2=${now}&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+}

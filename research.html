@@ -104,6 +104,9 @@
   .lab-live { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
   @media (max-width: 520px) { .lab-row { grid-template-columns: 1fr 56px 56px; } .lab-row .hide-s { display: none; } .lab-row.r2 { grid-template-columns: 1fr 54px 54px 54px; gap: 6px; } }
   @media (max-width: 520px) { .pp-head { grid-template-columns: repeat(2, 1fr); } .pp-row { grid-template-columns: 52px 1fr auto; } .pp-row .hide-s { display: none; } }
+  .bf-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 2px 14px; margin-top: 6px; }
+  .bf-c { font-size: 12px; color: var(--ink-2); }
+  .bf-c.ok { color: var(--pos); } .bf-c.no { color: var(--neg); } .bf-c.na { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -202,7 +205,7 @@ const REGIME_TONE = { capitulation: "buy", correction: "watch", overheated: "sel
 const FILTERS = [
   ["all", "All"], ["plan", "Picks & bench"], ["good", "Good entry"], ["near", "Near good entry"], ["sell", "Sell signals"], ["setup", "Swing setups"], ["earn", "Earnings ≤ 7d"], ["US", "US"], ["UK", "UK"], ["EU", "Europe"], ["NDX", "Nasdaq 100"],
 ];
-const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["new", "New today"]];
+const EXTRAS = [["full", "Full scores only"], ["oversold", "RSI < 30"], ["above200", "Above 200-day"], ["pe20", "P/E ≤ 20"], ["div3", "Dividend ≥ 3%"], ["smart", "Smart money"], ["buffett", "Buffett quality"], ["bzone", "Buffett buy zone"], ["new", "New today"]];
 const st = { source: "list", lens: "lt", filter: "all", q: "", sort: null, dir: -1, data: null, open: new Set(), extras: new Set(), sector: "", limit: 100, cache: {}, dash: null };
 try { const s = JSON.parse(localStorage.getItem("mm-research") || "{}"); Object.assign(st, { lens: s.lens || "lt", filter: s.filter || "all", source: s.source || "list" }); } catch {}
 const save = () => { try { localStorage.setItem("mm-research", JSON.stringify({ lens: st.lens, filter: st.filter, source: st.source })); } catch {} };
@@ -266,6 +269,8 @@ function visible() {
       if (x.has("pe20") && !(pe > 0 && pe <= 20)) return false;
       if (x.has("div3") && !(it.dividendYield >= 0.03)) return false;
       if (x.has("smart") && !it.smartMoney?.tag) return false;
+      if (x.has("buffett") && !(it.buffett?.quality)) return false;
+      if (x.has("bzone") && it.buffett?.verdict !== "Buffett buy zone") return false;
       if (x.has("new") && !isNew(it)) return false;
     }
     if (st.filter === "good") return it.longTerm.verdict === "Good entry";
@@ -343,6 +348,8 @@ function detailHtml(it) {
   };
   const exn = it.exit?.kinds?.length ? `<div class="note bad"><b>Sell signal today</b> (display only): ${it.exit.kinds.map((k) => `${esc(SELL_KINDS[k]?.label ?? k)}. ${esc(SELL_KINDS[k]?.why ?? "")}${sellVerdict(k)}`).join(" ")}</div>` : "";
   const stopn = it.exit?.stop ? `<div class="note">Trailing stop for a holder (highest close of 60 sessions minus 3 ATR): ${money(it.exit.stop, it.currency)}${it.exit.stop >= it.price ? (it.exit.kinds.includes("trailStop") ? "; the price closed below it today" : "; the price is already below it, so it fired on an earlier day") : `, ${signPct(((it.exit.stop / it.price) - 1) * 100)} from today`}. Our test found no edge in acting on it.</div>` : "";
+  const bf = BUFF[it.symbol];
+  const bfn = bf ? `<div class="note ${bf.tone === "good" ? "good" : "peer"}"><b>Buffett lens</b> (display only, not in the score): ${esc(bf.note)}${bf.checks?.length ? `<span class="bf-checks">${bf.checks.map((c) => `<span class="bf-c ${c.ok === true ? "ok" : c.ok === false ? "no" : "na"}">${c.ok === true ? "\u2713" : c.ok === false ? "\u2717" : "\u2013"} ${esc(c.label)}: ${esc(c.value)}</span>`).join("")}</span>` : ""}</div>` : "";
   const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
@@ -353,7 +360,7 @@ function detailHtml(it) {
   const rsn = rc?.label ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}${esc(recTxt)}</div>` : recTxt ? `<div class="note peer"><b>Results record</b>:${esc(recTxt)}</div>` : "";
   const dcf = (st.cache["scan.json"]?.dataChecks?.flags ?? []).filter((f) => f.symbol === it.symbol);
   const dcn = dcf.length ? `<div class="note bad"><b>Data check</b>: ${dcf.map((f) => `${esc(f.label)}: ${esc(f.detail)}`).join("; ")}. Check the figure on Trading 212 or Yahoo before acting on it.</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${dcn}${quick}${eu}${results}${rsn}${notes}${exn}${peer}${rcn}${smn}${stopn}
+  return `<p class="summary">${esc(it.summary)}</p>${dcn}${quick}${eu}${results}${rsn}${notes}${exn}${peer}${bfn}${rcn}${smn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -451,7 +458,8 @@ async function load() {
 load();
 
 // Results check (latest EPS surprise and reaction) for picks, bench and results-day movers.
-let RC = {};
+let RC = {}, BUFF = {};
+fetch(`data/buffett.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.items) { BUFF = j.items; if (typeof render === "function") try { render(); } catch {} } }).catch(() => {});
 fetch(`data/results-check.json?t=${Date.now()}`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.items) { RC = j.items; if (typeof render === "function") try { render(); } catch {} } }).catch(() => {});
 // --- Swing lab: published short-term effects tested against random entry ------------
 const lab = { bt: null, live: null, d2: null, rot: null, sur: null };

@@ -10,7 +10,7 @@
 import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
-import { fetchFundamentals, fetchEvToEbitda } from "./src/data/fundamentals.js";
+import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
@@ -26,6 +26,9 @@ import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
 import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { driftBook, randomDriftBooks } from "./src/driftBook.js";
+import { newBuffettBook, reviewDue, review, fillOrders, markBuffett } from "./src/buffettBook.js";
+import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES } from "./src/buffett.js";
+import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
@@ -117,6 +120,25 @@ async function main() {
   await writeJson("data/ev-sample.json", evCache);
   console.log(`EV/EBITDA sample: ${evFetched} fetched, ${evFailed} failed, ${evMed.coverage}% of the universe fresh${evMed.ready ? "" : " (medians wait for 60%)"} (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
+  // Buffett lens (display and paper only, 11 Nov): four years of annual
+  // accounts per company, refreshed on a rotation (src/buffett.js).
+  const bCache = prune(await readJson("data/buffett-sample.json", {}), items.map((it) => it.u.symbol));
+  let bFetched = 0, bFailed = 0;
+  for (const sym of pickBuffett(items.filter((it) => !notScored(it.f)).map((it) => it.u.symbol), bCache, today, undefined, [...PLAN.picks.map((p) => p.symbol), ...PLAN.bench])) {
+    const it = items.find((x) => x.u.symbol === sym);
+    try {
+      const q = buffettQuality(parseTimeseries(await fetchTimeseries(sym, TS_TYPES)), { sector: it.u.sector || it.f.sector, industry: it.f.industry });
+      bCache[sym] = { date: today, q }; bFetched++;
+    } catch { bFailed++; }
+    await sleep(250);
+  }
+  await writeJson("data/buffett-sample.json", bCache);
+  for (const it of items) { const q = freshQ(bCache, it.u.symbol, today); if (q) it.buffett = buffettLens(q, it.f.trailingPE); }
+  { const lens = {}; for (const it of items) if (it.buffett) lens[it.u.symbol] = { ticker: it.u.symbol.replace(/\.L$/, ""), name: it.f.name || it.u.name, market: MARKET[it.u.index] ?? "US", sector: it.u.sector || it.f.sector, ...it.buffett };
+    const counts = Object.groupBy(Object.values(lens), (x) => x.verdict);
+    await writeJson("data/buffett.json", { updated: new Date().toISOString(), assessed: Object.keys(lens).length, universe: items.length, counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v.length])), items: lens }); }
+  console.log(`Buffett lens: ${bFetched} fetched, ${bFailed} failed, ${items.filter((it) => it.buffett).length} of ${items.length} assessed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
+
   // Final scores with medians that include the deepened data. The old rule
   // (before 10 Nov) is kept only for the "what changed" note.
   const peerRows = peerRowsOf();
@@ -145,7 +167,7 @@ async function main() {
   // refreshed weekly by tools/smart-money.mjs in this workflow.
   const smart = await readJson("data/smart-money.json", null);
 
-  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, rc }) => {
+  const out = items.map(({ u, t, f, signals, earningsDays, lt, swing, deep: isDeep, sv, rc, buffett }) => {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
@@ -156,6 +178,7 @@ async function main() {
       ...earningsFields(f.nextEarnings, f.lastEarnings, today),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, gaps: lt.gaps, near: lt.near, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
       swing, signals, deep: isDeep, sectorValue: sv, ruleChange: rc,
+      ...(buffett ? { buffett: { verdict: buffett.verdict, tone: buffett.tone, mos: buffett.mos, quality: buffett.quality ?? false } } : {}),
       // Rank: missing quality data (e.g. investment trusts) shouldn't float to the top.
       rank: lt.score == null ? null : Math.round(lt.score * (lt.pillars.find((p) => p.key === "quality")?.score == null && isDeep ? 0.85 : 1)),
       series: isDeep ? t.series : [],
@@ -247,6 +270,61 @@ async function main() {
     await writeJson("history/drift-book.json", { updated: new Date().toISOString(), ...db, sp, spSeries, random }, true);
     console.log(`Drift book (paper): ${db.returnPct}% since ${db.start ?? "n/a"}, ${db.open.length} open, ${db.orders.length} orders, ${db.closed} closed.`);
   } catch (e) { console.warn(`Drift book failed: ${e.message}`); }
+  // Momentum book (paper, from Dec 2026; research log 11 Nov). Monthly
+  // rebalance at the first session's open; marked nightly. Never stops the scan.
+  try {
+    let mb = await readJson("history/momentum-book.json", null) ?? newMomentumBook();
+    for (const [market, idxName, idxSym] of [["US", "S&P 500", "^GSPC"], ["UK", "FTSE 100", "^FTSE"]]) {
+      const idxRows = (await fetchDaily(idxSym, { range: "2y" })).rows, date = idxRows.at(-1)?.date;
+      let mk = mb.markets[market];
+      if (marketsClosed() && rebalanceDue(mk, date, process.env.PAPER_START || undefined)) {
+        const month = date.slice(0, 7), members = out.filter((i) => i.index === idxName);
+        const cands = [], opens = {};
+        for (const i of members) {
+          try {
+            const { ends, open } = monthView((await fetchDaily(i.symbol, { range: "2y" })).rows, month);
+            if (open) opens[i.symbol] = open;
+            cands.push({ symbol: i.symbol, ticker: i.ticker, name: i.name, ends, open });
+          } catch { /* skip */ }
+          await sleep(60);
+        }
+        for (const p of mk.positions) if (opens[p.symbol] == null) { try { const v = monthView((await fetchDaily(p.symbol, { range: "1mo" })).rows, month); if (v.open) opens[p.symbol] = v.open; } catch {} }
+        const up = trendUp(monthView(idxRows, month).ends);
+        const picks = up === false ? [] : rankMomentum(cands);
+        mk = rebalance(mk, { month, date, picks, opens, cost: momCost(market), trend: up });
+        console.log(`Momentum book ${market}: rebalanced ${month} (${cands.length} ranked, trend ${up ? "up" : "down"}): ${mk.rebalances.at(-1).held.join(", ") || "cash"}.`);
+      }
+      const closes = {};
+      for (const p of mk.positions) { const r = rowsBySymbol[p.symbol]?.at(-1); if (r) closes[p.symbol] = { date: r.date, close: r.close }; }
+      mk = markBook(mk, closes, date);
+      const st = mk.rebalances[0]?.date;
+      if (st) { const b0 = [...idxRows].reverse().find((r) => r.date < st), b1 = idxRows.at(-1); if (b0 && b1) mk.bench = { name: idxName, from: b0.date, pct: r2((b1.close / b0.close - 1) * 100) }; }
+      mb.markets[market] = mk;
+    }
+    mb.updated = new Date().toISOString();
+    await writeJson("history/momentum-book.json", mb, true);
+    console.log(`Momentum book (paper): US ${mb.markets.US.value}, UK ${mb.markets.UK.value}${mb.markets.US.lastRebalance ? "" : " (first rebalance from Dec 2026)"}.`);
+  } catch (e) { console.warn(`Momentum book failed: ${e.message}`); }
+  // Buffett book (paper, from Dec 2026; src/buffettBook.js). Never stops the scan.
+  try {
+    let bb = await readJson("history/buffett-book.json", null) ?? newBuffettBook();
+    const date = Object.values(latest).sort().at(-1);
+    if (marketsClosed()) {
+      bb = fillOrders(bb, rowsBySymbol);
+      if (reviewDue(bb, date, process.env.PAPER_START || undefined)) {
+        const lens = {};
+        for (const it of items) if (it.buffett) lens[it.u.symbol] = { ...it.buffett, ticker: it.u.symbol.replace(/\.L$/, ""), name: it.f.name || it.u.name, sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US" };
+        bb = review(bb, lens, date);
+        console.log(`Buffett book: review ${bb.lastReview}: ${bb.pending.map((o) => `${o.side} ${o.ticker}`).join(", ") || "no changes"}.`);
+      }
+    }
+    bb = markBuffett(bb, rowsBySymbol, date);
+    const bst = bb.trades[0]?.date;
+    if (bst) { const sp = (await fetchDaily("^GSPC", { range: "2y" })).rows, b0 = [...sp].reverse().find((r) => r.date < bst), b1 = sp.at(-1); if (b0 && b1) bb.bench = { name: "S&P 500", from: b0.date, pct: r2((b1.close / b0.close - 1) * 100) }; }
+    bb.updated = new Date().toISOString();
+    await writeJson("history/buffett-book.json", bb, true);
+    console.log(`Buffett book (paper): ${bb.value}, ${bb.positions.length} held, ${bb.pending.length} orders${bb.lastReview ? "" : " (first review from Dec 2026)"}.`);
+  } catch (e) { console.warn(`Buffett book failed: ${e.message}`); }
   // Results check (swing lab round 4): the latest EPS surprise and the day's
   // reaction for the picks, the bench and tonight's results-day volume shocks.
   // Display only. Never stops the scan.

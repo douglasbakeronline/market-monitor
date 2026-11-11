@@ -43,7 +43,7 @@ jobs:
       - name: Save
         env:
           COMMIT_MSG: Update index scan
-        run: scripts/persist.sh scan.json data/constituents.json trends.json history/paper-trades.json history/results-dates.json history/swing-lab.json history/swing-book.json history/drift-book.json data/results-check.json data/ev-sample.json
+        run: scripts/persist.sh scan.json data/constituents.json trends.json history/paper-trades.json history/results-dates.json history/swing-lab.json history/swing-book.json history/drift-book.json history/momentum-book.json history/buffett-book.json data/buffett.json data/buffett-sample.json data/results-check.json data/ev-sample.json
       # Separate so a missing smart-money file can never block the scan commit.
       - name: Save smart money
         if: always()
