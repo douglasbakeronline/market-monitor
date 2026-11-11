@@ -118,7 +118,15 @@ export function adherence(schedule, trades, today, dips = []) {
 // exit close. A logged buy or sell of the same ticker in these windows (days)
 // is that pot trade: the evening push lets an order go in the night before.
 export const POT_MATCH = { buyBefore: 1, buyAfter: 4, sellAfter: 7, onTime: 1, sellOnTime: 3 };
-const bare = (t) => String(t ?? "").toUpperCase().replace(/\.L$/, "");
+// One key for a ticker however it is written: the scan uses Yahoo's form
+// (BT-A.L, BRK-B), a Trading 212 export its own (BT.A, BRK.B), and its
+// instrument codes add a suffix (VODl_EQ, AAPL_US_EQ).
+export function tickerKey(t) {
+  let s = String(t ?? "").trim();
+  if (/_EQ$/i.test(s)) s = s.replace(/_US_EQ$/i, "").replace(/l_EQ$/, "").replace(/_EQ$/i, "");
+  return s.toUpperCase().replace(/\.L$/, "").replace(/-/g, ".");
+}
+const bare = tickerKey;
 
 // The pot trade a Trading 212 row belongs to, or null.
 export function potTradeFor(potTrades = [], ticker, date, side) {
@@ -231,8 +239,8 @@ export function parseT212(text, { core = ["VWRP"], picks = [], short = [], today
       const fee = (i) => (i >= 0 ? Math.abs(num(r[i]) ?? 0) : 0);
       costs.fx += fee(iFx); costs.stamp += fee(iStamp); costs.other += fee(iFee);
     }
-    const pick = picks.includes(ticker.replace(/\.L$/, ""));
-    const isCore = core.includes(ticker);
+    const pick = picks.some((p) => tickerKey(p) === tickerKey(ticker));
+    const isCore = core.some((c) => tickerKey(c) === tickerKey(ticker));
     const stp = !isCore && !pick && /^\d{4}-\d{2}-\d{2}$/.test(date) ? potTradeFor(short, ticker, date, side) : null;
     const rule = isCore ? "core" : pick ? "tranche" : stp ? "swing" : "other";
     const pot = isCore ? "core" : pick ? "picks" : stp ? "swing" : "core";
