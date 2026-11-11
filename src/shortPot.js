@@ -56,18 +56,34 @@ export function shortPot(log = [], opts = {}) {
   const open = held.map((h) => ({ ...h.rec, sessions: h.t.sessions ?? 0, openPct: h.t.netPct ?? 0, openPnl: r2(h.pos * ((h.t.netPct ?? 0) / 100)) }));
   const value = equity + open.reduce((a, x) => a + x.openPnl, 0);
   if (value <= peak * (1 - o.pauseFall)) paused = true;
+  // How far the pot is below its high (closed-trade peak, the pause's yardstick).
+  const fallPct = r2(Math.min(0, (value / peak - 1) * 100));
   const pending = inRange.filter((t) => t.status === "pending").sort(rank);
   const free = paused ? 0 : Math.max(0, o.maxOpen - open.length);
   const buys = pending.slice(0, free).map((t) => ({ kind: t.kind, symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, signalDate: t.signalDate, signalPrice: t.signalPrice }));
   const closed = taken.filter((x) => x.pnl != null);
   const lastExit = o.today ?? closed.map((x) => x.exitDate).sort().at(-1) ?? null;
   return {
-    rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), paused,
+    rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), fallPct, paused,
     open, buys, skipped: Math.max(0, pending.length - buys.length), free,
     // Trades whose exit came at the latest close: sell at the next open.
     sells: closed.filter((x) => x.exitDate === lastExit).map((x) => ({ kind: x.kind, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, netPct: x.netPct })),
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
     avgNetPct: closed.length ? r2(closed.reduce((a, x) => a + x.netPct, 0) / closed.length) : null,
     recent: closed.slice(-8).reverse(), curve,
+    // Every trade the pot took (newest 200), so the trade log can match them.
+    trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null })),
   };
+}
+
+// One line for the Sunday digest. p: history/short-pot.json (shortPot()).
+export function shortPotLine(p) {
+  if (!p?.rules) return null;
+  const sg = (x) => `${x > 0 ? "+" : ""}${Number(x).toFixed(1)}%`;
+  const pause = Math.round((p.rules.pauseFall ?? SPOT.pauseFall) * 100);
+  if (!p.start) return `Short-term pot (real money): no trades yet${p.buys?.length ? `; ${p.buys.length} to buy at the next open` : ""}.`;
+  const parts = [`${sg(p.returnPct)} since ${p.start}`, `${p.open?.length ?? 0} of ${p.rules.maxOpen} slots held`];
+  parts.push(p.closed ? `${p.closed} closed, ${p.winRate}% won, avg ${sg(p.avgNetPct)} after costs` : "none closed yet");
+  parts.push(p.paused ? `PAUSED (${pause}% below its high): review before new buys` : `${Math.abs(p.fallPct ?? 0).toFixed(1)}% below its high (pauses at ${pause}%)`);
+  return `Short-term pot (real money): ${parts.join("; ")}.`;
 }

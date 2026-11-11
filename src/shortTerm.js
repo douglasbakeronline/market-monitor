@@ -179,3 +179,26 @@ export function shortTermAlert(st, seen = null) {
     title: act.length ? `Short-term pot: ${act.join(" · ")}` : `Short-term signals: ${names.slice(0, 6).join(", ")}${names.length > 6 ? ` +${names.length - 6}` : ""}${pot ? ` (pot ${pot.paused ? "paused" : "full"})` : ""}`,
     body: lines.join("\n") };
 }
+
+// Drawdown alerts for the real-money pot (kind "short"), once per stage:
+// a heads-up at WARN_FALL below its high, then the pause itself (25%).
+// pot: scan.json shortTerm.pot; seen: state.shortPotStage ("warn" | "paused" | null).
+// Returns { alert, stage }; the stage resets once the pot recovers to within 5%.
+export const WARN_FALL = 15;
+export function shortPauseAlert(pot, seen = null) {
+  if (!pot?.rules || (pot.fallPct == null && !pot.paused)) return { alert: null, stage: seen };
+  const fall = Math.abs(pot.fallPct ?? 0), pause = Math.round((pot.rules.pauseFall ?? 0.25) * 100);
+  const stage = pot.paused ? "paused" : fall >= WARN_FALL ? "warn" : fall < 5 ? null : seen === "paused" ? "warn" : seen;
+  const rank = { null: 0, warn: 1, paused: 2 };
+  if (rank[stage] <= rank[seen]) return { alert: null, stage };
+  const held = (pot.open ?? []).map((o) => `${o.ticker} ${o.openPct > 0 ? "+" : ""}${o.openPct}%`).join(", ");
+  const alert = stage === "paused"
+    ? { kind: "short", priority: "high", tags: "warning", title: `Short-term pot paused: ${fall.toFixed(1)}% below its high`,
+      body: [`The real-money short-term pot is ${pause}% or more below its high, so the rules stop new trades. Trades already open still follow their exit rules; nothing is sold early.`,
+        held ? `Held: ${held}.` : null, `Since its start: ${pot.returnPct > 0 ? "+" : ""}${pot.returnPct}%${pot.closed ? `; ${pot.closed} closed, ${pot.winRate}% won` : ""}.`,
+        "Next: review the pot with Claude before resuming (strategy notes)."].filter(Boolean).join("\n") }
+    : { kind: "short", priority: "default", tags: "chart_with_downwards_trend", title: `Short-term pot ${fall.toFixed(1)}% below its high`,
+      body: [`Heads-up: the real-money short-term pot is ${fall.toFixed(1)}% below its high. It pauses new trades at ${pause}%. No action needed; trades follow their rules.`,
+        held ? `Held: ${held}.` : null].filter(Boolean).join("\n") };
+  return { alert, stage };
+}

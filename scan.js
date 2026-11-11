@@ -298,7 +298,7 @@ async function main() {
       const pot = shortPot(sl, { today: date, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
       await writeJson("history/short-pot.json", { updated: new Date().toISOString(), ...pot }, true);
       shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl),
-        pot: { rules: pot.rules, start: pot.start, value: pot.value, returnPct: pot.returnPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct } };
+        pot: { rules: pot.rules, start: pot.start, value: pot.value, returnPct: pot.returnPct, peak: pot.peak, fallPct: pot.fallPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct, trades: pot.trades } };
       shortFresh = true;
       console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}.`);
       console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);

@@ -23,7 +23,8 @@ import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { bookLine, bookNews, swingTradeAlerts } from "./src/swingBook.js";
 import { paperDigestLine } from "./src/paperScore.js";
-import { shortTermAlert } from "./src/shortTerm.js";
+import { shortTermAlert, shortPauseAlert } from "./src/shortTerm.js";
+import { shortPotLine } from "./src/shortPot.js";
 import { allowAlert, summaryAllowed } from "./src/alertProfile.js";
 import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
@@ -179,6 +180,8 @@ async function main() {
   const sta = shortTermAlert(stScan, state.shortSeen ?? null);
   if (stScan?.date) state.shortSeen = stScan.date;
   if (sta) alerts.push(sta);
+  // The pot's drawdown: a heads-up at 15% below its high, then the 25% pause.
+  if (stScan?.pot) { const pa = shortPauseAlert(stScan.pot, state.shortPotStage ?? null); state.shortPotStage = pa.stage; if (pa.alert) alerts.push(pa.alert); }
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;
@@ -240,7 +243,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems, book: await readJson("history/swing-book.json", null), paper: { plan: await readJson("history/plan-book.json", null), buffett: await readJson("history/buffett-book.json", null), momentum: await readJson("history/momentum-book.json", null), swing: await readJson("history/swing-book.json", null), drift: await readJson("history/drift-book.json", null), lensEvents: await readJson("history/buffett-events.json", null) } }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems, book: await readJson("history/swing-book.json", null), paper: { shortPot: await readJson("history/short-pot.json", null), plan: await readJson("history/plan-book.json", null), buffett: await readJson("history/buffett-book.json", null), momentum: await readJson("history/momentum-book.json", null), swing: await readJson("history/swing-book.json", null), drift: await readJson("history/drift-book.json", null), lensEvents: await readJson("history/buffett-events.json", null) } }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }
@@ -366,6 +369,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   const pal = alertDigestLine(priceAlerts ?? []);
   if (pal) L.push(pal);
   L.push(rebalanceDigestLine());
+  const spl = shortPotLine(paper?.shortPot);
+  if (spl) L.push(spl);
   const bl = bookLine(book);
   if (bl) L.push(bl);
   const pdl = paperDigestLine(paper ?? {});
