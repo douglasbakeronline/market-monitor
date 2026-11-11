@@ -666,7 +666,7 @@ function renderShortTerm(st) {
   if (!el || !st?.date) return;
   const T = st.tested ?? {}, L = st.live ?? {}, sg = (x) => (x == null ? "n/a" : signPct(x));
   const live = (l) => (l?.closed ? `live: ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}${l.vsIdx != null ? ` (${sg(l.vsIdx)} vs index)` : ""}` : `live: none closed yet${l?.open ? `, ${l.open} open` : ""}`);
-  const short = (n) => String(n ?? "").replace(/,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company|Co\.)$/g, "").replace(/,?\s+(Inc\.?|Corporation|Holdings|plc)$/g, "");
+  const SUF = /,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company|Co\.)$/, short = (n) => { let x = String(n ?? ""); for (let k = 0; k < 3 && SUF.test(x); k++) x = x.replace(SUF, ""); return x; };
   const group = (name, tag, rule, t, l, list, row, fired) => `<div class="st-group">
       <div class="st-head"><b>${esc(name)}</b><span class="st-rec">${esc(tag)}</span></div>
       <div class="small muted">${esc(rule)}</div>
@@ -675,15 +675,15 @@ function renderShortTerm(st) {
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
   const P = st.pot, kindName = (k) => (k === "drift" ? "Results drift" : "Bounce");
-  const exitTxt = (k) => (k === "drift" ? "hold 20 sessions" : "sell at the first close above the 5-day average, or after 10 sessions");
+  const exitTxt = (k) => (k === "drift" ? "hold 20 sessions" : "out at the first close above the 5-day average, or 10 sessions");
   const potHtml = !P ? "" : `<div class="st-group">
-      <div class="st-head"><b>${P.paused ? "Paused: 25% below its high" : "What the pot does at the next open"}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
-      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)}: a fifth of the pot (about 2% of the portfolio), then ${exitTxt(b.kind)}</span></span><span class="num">${esc(b.market)}</span></div>`).join("")}
-      ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)}: exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
+      <div class="st-head"><b>${P.paused ? "Paused: 25% below its high" : "What the pot does at the next open"}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots held${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
+      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)} · a fifth of the pot · ${exitTxt(b.kind)}</span></span><span class="num">${esc(b.market)}</span></div>`).join("")}
+      ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)} · exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
       ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : "Nothing to buy or sell at the next open."}</span><span></span></div>` : ""}
       ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
     </div>`;
-  el.innerHTML = `<div class="k">Short-term signals · ${esc(fmtDM(st.date))}</div>
+  el.innerHTML = `<div class="k">From the ${esc(fmtDM(st.date))} close</div>
     ${potHtml}
     ${group("Results drift", "Some edge, inconsistent", "A 4%+ jump on 3× normal volume. Buy the next open, hold 20 sessions.", T.drift, L.drift, st.drift ?? [],
       (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? "Results day" : "No results date nearby"}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}

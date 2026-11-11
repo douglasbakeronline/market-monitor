@@ -123,7 +123,8 @@ export function summariseShort(log = []) {
 const sg = (x) => (x == null ? "n/a" : `${x > 0 ? "+" : ""}${x}%`);
 const liveTxt = (l) => (l?.closed ? `live ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}` : "live: none closed yet");
 
-const short = (n) => String(n ?? "").replace(/,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company)$/g, "");
+const SUFFIX = /,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company)$/;
+const short = (n) => { let x = String(n ?? ""); for (let k = 0; k < 3 && SUFFIX.test(x); k++) x = x.replace(SUFFIX, ""); return x; };
 const exitRule = (kind) => (kind === "drift" ? "hold 20 sessions" : "sell at the first close above its 5-day average, or after 10 sessions");
 
 // The push (alert kind "short"), once per scan date. st: scan.json shortTerm,
@@ -147,7 +148,7 @@ export function shortTermAlert(st, seen = null) {
       lines.push("Sell at the next open (exit rule met at the last close):");
       for (const x of sells) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.`);
     }
-    lines.push(`Pot: ${pot.open?.length ?? 0} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
+    lines.push(`Pot: ${(pot.open?.length ?? 0) + buys.length - sells.length} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
     const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));
     if (missed.length) lines.push(`Not taken (${pot.paused ? "paused" : "no free slot or already held"}): ${missed.map((x) => x.ticker).join(", ")}.`);
   } else {
