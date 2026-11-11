@@ -28,7 +28,7 @@ import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { driftBook, randomDriftBooks } from "./src/driftBook.js";
 import { newPlanBook, stepPlanBook, planSummary } from "./src/planBook.js";
 import { newBuffettBook, reviewDue, review, fillOrders, markBuffett } from "./src/buffettBook.js";
-import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES } from "./src/buffett.js";
+import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES, updateLensEvents, summariseLensEvents } from "./src/buffett.js";
 import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
@@ -138,6 +138,19 @@ async function main() {
   { const lens = {}; for (const it of items) if (it.buffett) lens[it.u.symbol] = { ticker: it.u.symbol.replace(/\.L$/, ""), name: it.f.name || it.u.name, market: MARKET[it.u.index] ?? "US", sector: it.u.sector || it.f.sector, ...it.buffett };
     const counts = Object.groupBy(Object.values(lens), (x) => x.verdict);
     await writeJson("data/buffett.json", { updated: new Date().toISOString(), assessed: Object.keys(lens).length, universe: items.length, counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v.length])), items: lens }); }
+  // Lens track record (history/buffett-events.json). Never stops the scan.
+  try {
+    if (marketsClosed()) {
+      const idxRows = {};
+      for (const [m, sym] of [["US", "^GSPC"], ["UK", "^FTSE"], ["EU", "^STOXX50E"]]) { try { idxRows[m] = (await fetchDaily(sym, { range: "2y" })).rows; } catch { idxRows[m] = []; } }
+      const lensNow = {};
+      for (const it of items) if (it.buffett) lensNow[it.u.symbol] = { ...it.buffett, ticker: it.u.symbol.replace(/\.L$/, ""), market: MARKET[it.u.index] ?? "US" };
+      const ev = updateLensEvents(await readJson("history/buffett-events.json", []), lensNow, rowsBySymbol, idxRows, Object.values(latest).sort().at(-1));
+      await writeJson("history/buffett-events.json", ev, true);
+      const sm = summariseLensEvents(ev);
+      console.log(`Buffett lens track record: ${sm.zone.total} buy-zone and ${sm.quality.total} quality events (${sm.zone.open} and ${sm.quality.open} still listed).`);
+    }
+  } catch (e) { console.warn(`Buffett lens events failed: ${e.message}`); }
   console.log(`Buffett lens: ${bFetched} fetched, ${bFailed} failed, ${items.filter((it) => it.buffett).length} of ${items.length} assessed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
   // Final scores with medians that include the deepened data. The old rule
@@ -339,7 +352,13 @@ async function main() {
       for (const p of PLAN.picks) { const r = rowsBySymbol[p.symbol]?.at(-1), it = items.find((x) => x.u.symbol === p.symbol); if (r) prices[p.symbol] = { close: r.close, market: it ? MARKET[it.u.index] ?? "US" : (p.symbol.endsWith(".L") ? "UK" : "US") }; }
       for (const c of mon?.copilot?.picks ?? []) checks[c.symbol] = { ok: !!c.ok, tone: c.resultsCheck?.tone ?? null, ticker: c.ticker };
       const tier = Math.min(0, ...Object.values(stt?.buyTier ?? {}).filter(Number.isFinite));
-      if (ck && date.slice(0, 10) >= ck && (Date.parse(date) - Date.parse(ck)) / 86400000 <= 5) pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier });
+      if (ck && date.slice(0, 10) >= ck && (Date.parse(date) - Date.parse(ck)) / 86400000 <= 5) {
+        const bbk = await readJson("history/buffett-book.json", null), mbk = await readJson("history/momentum-book.json", null);
+        const mUS = mbk?.markets?.US, mUK = mbk?.markets?.UK;
+        const pots = { buffett: bbk?.trades?.length ? bbk.value / bbk.rules.equity0 : null,
+          momentum: mUS?.lastRebalance && mUK?.lastRebalance ? (mUS.value + mUK.value) / (2 * mbk.rules.equity0) : null };
+        pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier, pots });
+      }
       else console.log(`Plan book: no VWRP close near ${date} (latest ${ck ?? "none"}), not stepped.`);
     }
     pb.updated = new Date().toISOString();

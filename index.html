@@ -442,6 +442,7 @@ import { fileWith } from "./src/priceAlerts.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
 import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
+import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
@@ -624,7 +625,9 @@ function renderScore() {
   if (B.plan) {
     const what = { agreed: "70% VWRP, 15% dip reserve, 15% picks in tranches", weakHold: "The plan, holding tranches after weak results (proposal)", vwrp: "Everything in VWRP on day one" };
     const nm = { agreed: "Plan as agreed", weakHold: "Plan + weak-results hold", vwrp: "All in VWRP" };
-    for (const k of ["agreed", "weakHold", "vwrp"]) { const v = B.plan.variants[k]; if (v) const base = B.plan.variants.vwrp; add(nm[k], what[k], v.started, v.started ? (v.value / B.plan.rules.equity0 - 1) * 100 : null, base?.started && k !== "vwrp" ? { name: "VWRP", pct: (base.value / B.plan.rules.equity0 - 1) * 100 } : null, k === "vwrp" ? "" : `${Object.keys(v.picks).length} picks bought`, `starts ${fmtDM(B.plan.rules.start)}`); }
+    what.buffettPot = "The plan, with the picks pot in the Buffett book"; what.momentumPot = "The plan, with the picks pot in the momentum books";
+    nm.buffettPot = "Plan, Buffett picks"; nm.momentumPot = "Plan, momentum picks";
+    for (const k of ["agreed", "weakHold", "buffettPot", "momentumPot", "vwrp"]) { const v = B.plan.variants[k]; if (!v) continue; const base = B.plan.variants.vwrp; add(nm[k], what[k], v.started, v.started ? (v.value / B.plan.rules.equity0 - 1) * 100 : null, base?.started && k !== "vwrp" ? { name: "VWRP", pct: (base.value / B.plan.rules.equity0 - 1) * 100 } : null, k === "vwrp" ? "" : k.endsWith("Pot") ? (v.potLast ? "pot invested" : "pot in cash until that book starts") : `${Object.keys(v.picks).length} picks bought`, `starts ${fmtDM(B.plan.rules.start)}`); }
   }
   if (B.buff) add("Buffett book", "Wonderful companies at a margin of safety, held", B.buff.trades?.[0]?.date ?? null, B.buff.trades?.length ? (B.buff.value / B.buff.rules.equity0 - 1) * 100 : null, B.buff.bench, `${B.buff.positions.length} held`);
   if (B.mom) for (const m of ["US", "UK"]) { const k = B.mom.markets[m], st = k.rebalances?.[0]?.date ?? null; add(`Momentum ${m === "US" ? "S&P 500" : "FTSE 100"}`, "Top 10 by 12-1 month return, monthly", st, st ? (k.value / B.mom.rules.equity0 - 1) * 100 : null, k.bench, `${k.positions.length ? `${k.positions.length} held` : st ? "in cash" : ""}`); }
@@ -645,8 +648,15 @@ let BUFFJ = null;
 Promise.all([
   fetch("history/buffett-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
   fetch("data/buffett.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-]).then(([b, j]) => { BUFFJ = j; if (b) { BOOKS.buff = b; renderScore(); } renderBuff(b, j); });
-function renderBuff(b, j) {
+  fetch("history/buffett-events.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+]).then(([b, j, ev]) => { BUFFJ = j; if (b) { BOOKS.buff = b; renderScore(); } renderBuff(b, j, ev); });
+function lensRecordHtml(ev) {
+  if (!Array.isArray(ev) || !ev.length) return "";
+  const s = summariseLensEvents(ev), lab = { 21: "1 month", 63: "3 months", 126: "6 months", 252: "a year" };
+  const side = (k, name) => { const x = s[k], hs = Object.entries(x.h).filter(([, v]) => v.n); return `<b>${name}</b>: ${x.total} logged since ${fmtDM(x.since)} (${x.open} still listed)${hs.length ? `; ${hs.map(([n, v]) => `after ${lab[n]} ${signPct(v.vsIdx)} vs their index on average, ${v.beat}% beat it (${v.n})`).join("; ")}` : "; first results a month after joining"}.`; };
+  return `<p class="small" style="margin:8px 0 0">Lens track record, every company as it joins the list, measured against its home index: ${side("zone", "buy zone")} ${side("quality", "quality list")}</p>`;
+}
+function renderBuff(b, j, ev) {
   if (!b && !j) return;
   $("ppSection").hidden = false;
   const el = $("buffCard"); el.hidden = false;
@@ -662,6 +672,7 @@ function renderBuff(b, j) {
       ${started ? `<div class="big">${money2(b.value)} <span class="${pnClass(ret)}" style="font-size:16px">${signPct(ret)}</span></div><div class="small muted">from a notional £10,000 on ${fmtDM(b.trades[0].date)}${b.bench ? `; S&amp;P 500 ${signPct(b.bench.pct)} over the same days` : ""} · ${money2(b.cash)} in cash</div>`
       : `<div class="small muted" style="margin-top:4px">First review on the first session of December; it buys at the next open.</div>`}</div></div>
     ${j ? `<p class="small" style="margin:10px 0 0">Tonight's lens: <b>${j.assessed}</b> of ${j.universe} companies assessed so far${j.assessed < j.universe * 0.9 ? " (the accounts are fetched a few hundred a night, so this fills in over the week)" : ""}; <b>${qual}</b> pass every quality test; <b>${zone}</b> also trade 25%+ below a cautious intrinsic value.</p>` : ""}
+    ${lensRecordHtml(ev)}
     ${b?.positions?.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.positions.map((p) => row(fmtDM(p.entryDate), p.ticker, `${esc(p.market)} · ${esc(p.sector ?? "")}${p.mos != null ? ` · bought ${mosTxt(p.mos)}` : ""}`, `<span class="${pnClass(p.last / p.entry - 1)}">${signPct((p.amount * p.last / p.entry / p.cost - 1) * 100)}</span>`)).join("")}` : ""}
     ${b?.pending?.length ? `<div class="book-orders"><b>Next session:</b> ${b.pending.map((o) => o.side === "buy" ? `buy <b>${esc(o.ticker)}</b> (${mosTxt(o.mos)})` : `sell <b>${esc(o.ticker)}</b> (${esc(o.why)})`).join("; ")}.</div>` : ""}
     ${preview.length ? `<div class="k" style="margin-top:12px">If the first review were tonight</div>${preview.map((o) => row("", o.ticker, `${esc(o.name ?? "")} · ${esc(o.market)} · ${esc(o.sector ?? "")}`, `<span class="pos">${mosTxt(o.mos)}</span>`)).join("")}` : ""}

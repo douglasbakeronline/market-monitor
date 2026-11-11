@@ -142,3 +142,28 @@ test("momentum book: rebalances once a month at the open, with costs, then marks
   const s = bookSummary(mk);
   assert.equal(s.start, "2026-12-01");
 });
+
+import { updateLensEvents, summariseLensEvents } from "../src/buffett.js";
+test("lens events: joiners, leavers and horizons against the index", () => {
+  const days = Array.from({ length: 30 }, (_, i) => new Date(Date.UTC(2026, 10, 2 + i)).toISOString().slice(0, 10));
+  const rows = { A: days.map((d, i) => ({ date: d, close: 100 + i })), B: days.map((d) => ({ date: d, close: 50 })) };
+  const idx = { US: days.map((d, i) => ({ date: d, close: 1000 + i * 5 })) };
+  const cut = (n) => ({ A: rows.A.slice(0, n), B: rows.B.slice(0, n) }), icut = (n) => ({ US: idx.US.slice(0, n) });
+  const lens = { A: { verdict: "Buffett buy zone", quality: true, ticker: "A", market: "US", mos: 0.3 }, B: { verdict: "Wonderful, not cheap", quality: true, ticker: "B", market: "US" } };
+  let log = updateLensEvents([], lens, cut(1), icut(1), days[0]);
+  assert.deepEqual(log.map((e) => e.id).sort(), [`${days[0]}:quality:A`, `${days[0]}:quality:B`, `${days[0]}:zone:A`]);
+  log = updateLensEvents(log, lens, cut(2), icut(2), days[1]);
+  assert.equal(log.length, 3, "no duplicates while still listed");
+  log = updateLensEvents(log, { ...lens, A: { ...lens.A, verdict: "Wonderful, not cheap" } }, cut(3), icut(3), days[2]);
+  assert.equal(log.find((e) => e.kind === "zone").left, days[2]);
+  log = updateLensEvents(log, lens, cut(23), icut(23), days[22]);
+  const z = log.filter((e) => e.kind === "zone");
+  assert.equal(z.length, 2, "re-entry is a new event");
+  assert.equal(z[0].h[21].ret, 21);
+  assert.equal(z[0].h[21].idx, 10.5);
+  const s = summariseLensEvents(log);
+  assert.equal(s.zone.total, 2);
+  assert.equal(s.zone.h[21].n, 1);
+  assert.equal(s.zone.h[21].vsIdx, 10.5);
+  assert.equal(s.quality.h[21].beat, 50);
+});

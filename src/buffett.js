@@ -164,3 +164,55 @@ export function pickBuffett(symbols, cache, today, n = B_PER_NIGHT, priority = [
   return symbols.filter((s) => age(s) >= B_MAX_AGE).sort((a, b) => (pr.has(b) ? 1 : 0) - (pr.has(a) ? 1 : 0) || age(b) - age(a) || a.localeCompare(b)).slice(0, n);
 }
 export const freshQ = (cache, s, today) => (cache[s]?.date && days(cache[s].date, today) <= B_MAX_AGE * 2 ? cache[s].q : null);
+
+// Lens track record (11 Nov; Douglas: "track everything"). Every company
+// in the buy zone ("zone") or passing every quality test ("quality") is
+// logged once when it first appears there, with its price and home index,
+// then measured 21, 63, 126 and 252 sessions later against that index
+// (price returns; dividends left out on both sides). Leaving the list is
+// noted but does not stop the clock, so nothing is cherry-picked.
+export const LENS_H = [21, 63, 126, 252];
+
+// log: [], lens: {symbol: {verdict, quality, mos, ticker, market}}, rows: {symbol: [{date, close}]},
+// idx: {market: [{date, close}]}, date: tonight's session.
+export function updateLensEvents(log = [], lens = {}, rows = {}, idx = {}, date) {
+  const out = log.map((e) => ({ ...e, h: { ...(e.h ?? {}) } }));
+  const openKey = new Set(out.filter((e) => !e.left).map((e) => `${e.kind}:${e.symbol}`));
+  const inList = { zone: (l) => l.verdict === "Buffett buy zone", quality: (l) => !!l.quality };
+  // Leavers.
+  for (const e of out) if (!e.left && !(lens[e.symbol] && inList[e.kind](lens[e.symbol]))) e.left = date;
+  // Joiners.
+  for (const [s, l] of Object.entries(lens)) {
+    for (const kind of ["zone", "quality"]) {
+      if (!inList[kind](l) || openKey.has(`${kind}:${s}`)) continue;
+      const px = rows[s]?.at(-1), ix = idx[l.market]?.at(-1);
+      if (!(px?.close > 0) || px.date !== date) continue;
+      out.push({ id: `${date}:${kind}:${s}`, symbol: s, ticker: l.ticker, market: l.market, kind, date, price: px.close, idx: ix?.date <= date ? ix.close : null, mos: l.mos ?? null, left: null, h: {} });
+    }
+  }
+  // Horizons.
+  for (const e of out) {
+    const r = rows[e.symbol], ir = idx[e.market];
+    if (!r?.length) continue;
+    const after = r.filter((x) => x.date > e.date);
+    for (const n of LENS_H) {
+      if (e.h[n] || after.length < n) continue;
+      const b = after[n - 1], ib = ir?.filter((x) => x.date <= b.date).at(-1);
+      e.h[n] = { date: b.date, ret: r2((b.close / e.price - 1) * 100), idx: e.idx && ib ? r2((ib.close / e.idx - 1) * 100) : null };
+    }
+  }
+  return out;
+}
+
+export function summariseLensEvents(log = []) {
+  const out = {};
+  for (const kind of ["zone", "quality"]) {
+    const xs = log.filter((e) => e.kind === kind);
+    out[kind] = { total: xs.length, open: xs.filter((e) => !e.left).length, since: xs.map((e) => e.date).sort()[0] ?? null,
+      h: Object.fromEntries(LENS_H.map((n) => {
+        const m = xs.filter((e) => e.h?.[n] && e.h[n].idx != null);
+        return [n, { n: m.length, vsIdx: m.length ? r2(m.reduce((a, e) => a + e.h[n].ret - e.h[n].idx, 0) / m.length) : null, beat: m.length ? Math.round((m.filter((e) => e.h[n].ret > e.h[n].idx).length / m.length) * 100) : null }];
+      })) };
+  }
+  return out;
+}

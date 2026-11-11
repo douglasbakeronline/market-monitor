@@ -32,7 +32,7 @@ test("one tranche a month, marks to prices, and the summary compares with VWRP",
   assert.equal(a.core, 7700);
   assert.equal(a.picks.META.value, 109.84);
   const s = planSummary(b);
-  assert.equal(s.length, 3);
+  assert.equal(s.length, 5);
   assert.equal(s.find((x) => x.key === "vwrp").returnPct, 10);
   assert.ok(s.find((x) => x.key === "agreed").vsVwrp < 0, "cash drags in a rising month");
   b = stepPlanBook(b, ctx({ date: "2026-12-01", vwrp: 110, prices: { META: { close: 660, market: "US" }, "HSBA.L": { close: 1300, market: "UK" } } }));
@@ -59,4 +59,26 @@ test("a pick over 5% is trimmed back to 3%", () => {
   const book = variantValue(v);
   assert.ok(v.picks.META.value <= book * 0.031);
   assert.match(v.log.map((x) => x.what).join(), /Trimmed META/);
+});
+
+test("pot variants follow another book once it starts, cash before", () => {
+  let b = stepPlanBook(newPlanBook(), ctx());
+  assert.ok(b.variants.buffettPot && b.variants.momentumPot);
+  assert.equal(b.variants.buffettPot.picksCash, 1500);
+  assert.deepEqual(b.variants.buffettPot.picks, {}, "no single-stock tranches");
+  b = stepPlanBook(b, ctx({ date: "2026-12-01", pots: { buffett: 1, momentum: null } }));
+  b = stepPlanBook(b, ctx({ date: "2026-12-02", pots: { buffett: 1.1, momentum: 1.02 } }));
+  assert.equal(b.variants.buffettPot.picksCash, 1650);
+  assert.equal(b.variants.momentumPot.picksCash, 1500, "first value only sets the base");
+  b = stepPlanBook(b, ctx({ date: "2026-12-03", pots: { buffett: 1.1, momentum: 1.0 } }));
+  assert.ok(Math.abs(b.variants.momentumPot.picksCash - 1500 / 1.02) < 0.01);
+  assert.equal(planSummary(b).length, 5);
+});
+
+test("an old book file gains the new variants only before it starts", () => {
+  const old = newPlanBook(); delete old.variants.buffettPot; delete old.variants.momentumPot;
+  assert.ok(stepPlanBook(old, ctx({ date: "2026-11-13" })).variants.buffettPot);
+  const started = stepPlanBook(old, ctx());
+  const later = { ...started, variants: { agreed: started.variants.agreed } };
+  assert.equal(stepPlanBook(later, ctx({ date: "2026-11-17" })).variants.buffettPot, undefined);
 });
