@@ -113,6 +113,46 @@ export function adherence(schedule, trades, today, dips = []) {
   return { items, onTime, counted: counted.length, offPlan, headline };
 }
 
+// --- Short-term pot trades (history/short-pot.json `trades`) ---------------
+// The pot buys at the open on its entry date and sells at the open after its
+// exit close. A logged buy or sell of the same ticker in these windows (days)
+// is that pot trade: the evening push lets an order go in the night before.
+export const POT_MATCH = { buyBefore: 1, buyAfter: 4, sellAfter: 7, onTime: 1, sellOnTime: 3 };
+const bare = (t) => String(t ?? "").toUpperCase().replace(/\.L$/, "");
+
+// The pot trade a Trading 212 row belongs to, or null.
+export function potTradeFor(potTrades = [], ticker, date, side) {
+  const k = bare(ticker);
+  return potTrades.find((p) => bare(p.ticker) === k && (side === "buy"
+    ? days(p.entryDate, date) >= -POT_MATCH.buyBefore && days(p.entryDate, date) <= POT_MATCH.buyAfter
+    : date >= p.entryDate && (p.exitDate == null || days(p.exitDate, date) <= POT_MATCH.sellAfter))) ?? null;
+}
+
+// Each pot buy and sell due by `today`, matched to a logged trade citing the
+// short-term pot rule. Buys are on time within a day of the entry open; sells
+// within 3 days of the exit close (the next open, allowing a weekend).
+export function potAdherence(potTrades = [], trades = [], today) {
+  const used = new Set(), items = [];
+  const due = [];
+  for (const p of potTrades) {
+    if (p.entryDate && p.entryDate <= today) due.push({ side: "buy", date: p.entryDate, p });
+    if (p.exitDate && p.exitDate < today) due.push({ side: "sell", date: p.exitDate, p });
+  }
+  due.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  for (const d of due) {
+    const lo = d.side === "buy" ? -POT_MATCH.buyBefore : 0, hi = d.side === "buy" ? POT_MATCH.buyAfter : POT_MATCH.sellAfter;
+    const t = trades.filter((x) => x.rule === "swing" && x.action === d.side && bare(x.ticker) === bare(d.p.ticker) && !used.has(x.id))
+      .map((x) => ({ x, gap: days(d.date, x.date) })).filter(({ gap }) => gap >= lo && gap <= hi).sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap))[0];
+    if (t) used.add(t.x.id);
+    const status = t ? (t.gap <= (d.side === "buy" ? POT_MATCH.onTime : POT_MATCH.sellOnTime) ? "on-time" : "late") : days(d.date, today) <= hi ? "pending" : "missed";
+    items.push({ side: d.side, date: d.date, ticker: d.p.ticker, kind: d.p.kind, status, trade: t?.x.id ?? null });
+  }
+  const counted = items.filter((i) => i.status !== "pending"), onTime = counted.filter((i) => i.status === "on-time").length;
+  const headline = !items.length ? null : !counted.length ? `Short-term pot: ${items.length} order${items.length > 1 ? "s" : ""} not yet logged`
+    : `Short-term pot: ${onTime} of ${counted.length} order${counted.length > 1 ? "s" : ""} logged on time`;
+  return { items, onTime, counted: counted.length, headline };
+}
+
 // Parse an imported backup: an array of trades, or { trades: [...] }.
 export function parseImport(text, today = null) {
   let data;
@@ -154,7 +194,9 @@ export function parseCsv(text) {
 export const isT212Csv = (text) => /^﻿?"?Action"?,/.test(String(text || ""));
 
 // core: the core fund's ticker(s); picks: pick tickers without ".L".
-export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = {}) {
+// short: the pot's trades (history/short-pot.json `trades`), so its buys and
+// sells land in the short-term pot instead of "other".
+export function parseT212(text, { core = ["VWRP"], picks = [], short = [], today = null } = {}) {
   const rows = parseCsv(text);
   if (!rows.length) return { error: "The file is empty." };
   const head = rows[0].map((h) => h.trim());
@@ -191,8 +233,9 @@ export function parseT212(text, { core = ["VWRP"], picks = [], today = null } = 
     }
     const pick = picks.includes(ticker.replace(/\.L$/, ""));
     const isCore = core.includes(ticker);
-    const rule = isCore ? "core" : pick ? "tranche" : "other";
-    const pot = isCore ? "core" : pick ? "picks" : "core";
+    const stp = !isCore && !pick && /^\d{4}-\d{2}-\d{2}$/.test(date) ? potTradeFor(short, ticker, date, side) : null;
+    const rule = isCore ? "core" : pick ? "tranche" : stp ? "swing" : "other";
+    const pot = isCore ? "core" : pick ? "picks" : stp ? "swing" : "core";
     const shares = iN >= 0 ? num(r[iN]) : null, price = iP >= 0 ? num(r[iP]) : null;
     const id = iId >= 0 && r[iId] ? `t212-${String(r[iId]).trim()}` : `t212-${date}-${ticker}-${total}`;
     const res = normaliseTrade({ id, date, action: side, pot, rule, ticker, amount: total == null ? "" : Math.abs(total), price: price ?? "", shares: shares ?? "", note: "Trading 212" }, today);

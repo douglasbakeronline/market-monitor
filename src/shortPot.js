@@ -71,6 +71,8 @@ export function shortPot(log = [], opts = {}) {
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
     avgNetPct: closed.length ? r2(closed.reduce((a, x) => a + x.netPct, 0) / closed.length) : null,
     recent: closed.slice(-8).reverse(), curve,
+    // Every trade the pot took (newest 200), so the trade log can match them.
+    trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null })),
   };
 }
 
