@@ -94,6 +94,11 @@ export const CONFIG = {
   // Which pushes reach the phone (src/alertProfile.js). "plan-swing" (Douglas,
   // 10 Nov): plan alerts and swing trades (paper) only; "all" sends everything.
   alertProfile: "plan-swing",
+  // Short-term pot (11 Nov): the nightly scan, started by the chain after the
+  // US close, pushes the next open's orders itself before quiet hours, so they
+  // can be placed the evening before (London opens at 08:00, before the 08:15
+  // run). The 08:15 run still sends them if the scan did not. false = 08:15 only.
+  shortEveningPush: true,
 
   historyPoints: 400,
 };
