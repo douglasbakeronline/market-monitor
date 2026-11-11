@@ -25,6 +25,7 @@ import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
 import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
+import { driftBook, randomDriftBooks } from "./src/driftBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
@@ -231,6 +232,21 @@ async function main() {
       await writeJson("history/swing-lab.json", drift, true);
     } else console.log("Swing lab: markets open, not updated.");
   } catch (e) { console.warn(`Swing lab failed: ${e.message}`); }
+  // Drift book (paper, 11 Nov): a second book on the lab's drift signal,
+  // built from the live log above. Never stops the scan.
+  try {
+    const db = driftBook(drift);
+    let sp = null, spSeries = [];
+    if (db.start) {
+      const { rows } = await fetchDaily("^GSPC", { range: "1y" });
+      const before = [...rows].reverse().find((r) => r.date < db.start), last = rows.at(-1);
+      if (before && last) sp = { from: before.date, to: last.date, pct: r2(((last.close / before.close) - 1) * 100) };
+      spSeries = benchSeries(rows, db.start);
+    }
+    const random = randomDriftBooks(drift, { runs: 200, seed: 11 });
+    await writeJson("history/drift-book.json", { updated: new Date().toISOString(), ...db, sp, spSeries, random }, true);
+    console.log(`Drift book (paper): ${db.returnPct}% since ${db.start ?? "n/a"}, ${db.open.length} open, ${db.orders.length} orders, ${db.closed} closed.`);
+  } catch (e) { console.warn(`Drift book failed: ${e.message}`); }
   // Results check (swing lab round 4): the latest EPS surprise and the day's
   // reaction for the picks, the bench and tonight's results-day volume shocks.
   // Display only. Never stops the scan.

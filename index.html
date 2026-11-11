@@ -240,6 +240,19 @@
   .dec .body code { font-size: 12px; }
   .dec-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 10px 0 6px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line-2); }
   .dec-head + details { border-top: 0; }
+  .fund { margin-top: 12px; border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px 6px; }
+  .fund-h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 13px; }
+  .fund-h .n { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+  .fund-row { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: baseline; padding: 5px 0; border-top: 1px solid var(--line-2); font-size: 12.5px; }
+  .fund-row:first-of-type { border-top: 0; }
+  .fund-row .m { font-weight: 700; text-align: center; }
+  .fund-row .m.ok { color: var(--pos); } .fund-row .m.no { color: var(--faint); }
+  .fund-row .now { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+  .fund .small { margin: 6px 0 4px; }
+  .books-vs { display: grid; grid-template-columns: 1fr auto auto auto; gap: 4px 14px; font-size: 13px; margin-top: 12px; align-items: baseline; }
+  .books-vs .h { font-size: 11px; color: var(--muted); }
+  .books-vs .num { text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 520px) { .books-vs { grid-template-columns: 1fr auto auto; } .books-vs .hide-s { display: none; } }
 </style>
 </head>
 <body>
@@ -386,6 +399,7 @@
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Swing paper trading</div>
     <div class="card book" id="bookCard" hidden></div>
+    <div class="card book" id="driftCard" style="margin-top:12px" hidden></div>
     <div class="card" style="margin-top:12px">
       <div class="tr-head" id="ppHead"></div>
       <div id="ppList"></div>
@@ -413,6 +427,7 @@ import { picksVsCore, scorecardLine } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
+import { fundingCheck } from "./src/swingBook.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
@@ -523,7 +538,7 @@ function renderCore(c) {
 // --- Claude's swing book (paper; history/swing-book.json from the nightly scan) ---
 fetch("history/swing-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then(renderBook).catch(() => {});
 // Book value (steps at each close, then today's value) against the S&P 500.
-function bookChart(b) {
+function bookChart(b, label = "Swing book") {
   const sp = b.spSeries ?? [];
   const last = sp.at(-1)?.date ?? b.curve.at(-1)?.date ?? b.start;
   const book = [{ date: b.start, pct: 0 }, ...b.curve.map((c) => ({ date: c.date, pct: ((c.equity / b.equity0) - 1) * 100 })), { date: last, pct: b.returnPct }];
@@ -544,10 +559,11 @@ function bookChart(b) {
     ${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" class="${t === 0 ? "zero" : "grid"}"/><text x="${L - 5}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${t > 0.05 ? "+" : t < -0.05 ? "\u2212" : ""}${Math.abs(t).toFixed(1)}%</text>`).join("")}
     <text x="${L}" y="${H - 4}">${fmtDM(dates[0])}</text><text x="${W - R}" y="${H - 4}" text-anchor="end">${fmtDM(dates.at(-1))}</text>
     ${spPath ? `<path d="${spPath}" class="sp"/>` : ""}<path d="${path}" class="bk"/>
-  </svg><div class="fan-key small muted"><span><i class="kbk"></i>Swing book</span>${spPath ? `<span><i class="ksp"></i>S&amp;P 500</span>` : ""}</div>`;
+  </svg><div class="fan-key small muted"><span><i class="kbk"></i>${label}</span>${spPath ? `<span><i class="ksp"></i>S&amp;P 500</span>` : ""}</div>`;
 }
 function renderBook(b) {
   if (!b?.start) return;
+  BOOKS.swing = b; renderBooksVs();
   $("ppSection").hidden = false;
   const el = $("bookCard"); el.hidden = false;
   const money2 = (v) => `${Math.round(v) < 0 ? "\u2212" : ""}£${Math.abs(Math.round(v)).toLocaleString("en-GB")}`;
@@ -565,9 +581,52 @@ function renderBook(b) {
     ${b.orders.length ? `<div class="book-orders"><b>Next session:</b> ${b.orders.map((o) => `buy <b>${esc(o.ticker)}</b> at the open (setup ${o.score}${o.why?.length ? `: ${esc(o.why.join(", ").toLowerCase())}` : ""}; stop ${px(o.stop, o.currency)}, ${o.stopPct}% below; target 2R)`).join("; ")}.</div>` : `<div class="book-orders small muted">${b.paused ? "Paused: no new trades until reviewed." : `All ${b.rules.maxOpen} slots full${b.waiting ? `; ${b.waiting} new setup${b.waiting === 1 ? "" : "s"} waiting` : ""}.`}</div>`}
     ${b.open.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.open.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.entryDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.market)} · in at ${px(x.entry, x.currency)}, stop ${px(x.stop, x.currency)}, target ${px(x.target, x.currency)} · ${Math.round((x.posValue / b.value) * 100)}% of the book${x.why?.length ? ` · ${esc(x.why.join(", ").toLowerCase())}` : ""}</span></span><span class="num">${rCell(x.openR)}<span class="sub">${money2(x.openPnl)}</span></span></div>`).join("")}` : ""}
     ${b.recent.length ? `<div class="k" style="margin-top:12px">Closed</div>${b.recent.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.exitDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${{ stop: "stopped", target: "target hit", time: "20-session exit" }[x.reason] ?? esc(x.reason)}</span></span><span class="num">${rCell(x.netR)}<span class="sub">${x.pnl >= 0 ? "+" : ""}${money2(x.pnl)}</span></span></div>`).join("")}` : ""}
+    ${fundHtml(fundingCheck(b))}
     <p class="small muted" style="margin:10px 0 0">What a swing pot would hold under the agreed funded-swing rules: at most ${b.rules.maxOpen} trades, the best-scoring clean setups first, ${b.rules.riskPct}% of the book at risk on each (no position over ${b.rules.maxPosPct}%), stop set at entry, out at 2R or after 20 sessions, costs included, paused if the book falls ${b.rules.pausePct}%. Paper only: swing stays at 0% real money (agreed 5 Nov) because setups have not beaten random entry after costs. Updated each night after the US close.</p>`;
 }
 
+// Proposed bar for real money (display only; the bar itself needs Douglas's OK).
+function fundHtml(f) {
+  if (!f) return "";
+  return `<div class="fund"><div class="fund-h"><b>Bar for real money</b><span class="n">${f.passed} of ${f.total} met</span></div>
+    <p class="small muted">Proposed 11 Nov, needs your OK. All five, on live paper trades after costs, before funding a swing pot is worth discussing.</p>
+    ${f.checks.map((c) => `<div class="fund-row"><span class="m ${c.ok ? "ok" : "no"}" aria-label="${c.ok ? "met" : "not met"}">${c.ok ? "\u2713" : "\u2013"}</span><span>${esc(c.label)}</span><span class="now">${esc(minus(c.now))}</span></div>`).join("")}
+    <p class="small" style="margin:6px 0 4px">${esc(f.line)}</p></div>`;
+}
+// Both paper books side by side once the drift book has started.
+const BOOKS = { swing: null, drift: null };
+function renderBooksVs() {
+  const { swing: a, drift: d } = BOOKS;
+  if (!a?.start || !d?.start || !$("booksVs")) return;
+  const row = (name, b, avg) => `<span>${name}<span class="small muted"> since ${fmtDM(b.start)}</span></span><span class="num ${pnClass(b.returnPct)}">${signPct(b.returnPct)}</span><span class="num muted">${b.sp?.pct == null ? "n/a" : signPct(b.sp.pct)}</span><span class="num hide-s">${b.closed} · ${avg}</span>`;
+  $("booksVs").innerHTML = `<span class="h">Paper book</span><span class="h num">Return</span><span class="h num">S&amp;P same days</span><span class="h num hide-s">Closed · average</span>`
+    + row("Swing setups", a, a.avgNetR == null ? "n/a" : minus(`${a.avgNetR > 0 ? "+" : ""}${a.avgNetR}R`))
+    + row("Results drift", d, d.avgNetPct == null ? "n/a" : signPct(d.avgNetPct));
+}
+fetch("history/drift-book.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).then(renderDrift).catch(() => {});
+function renderDrift(b) {
+  if (!b?.start && !b?.orders?.length) return;
+  BOOKS.drift = b;
+  $("ppSection").hidden = false;
+  const el = $("driftCard"); el.hidden = false;
+  const money2 = (v) => `${Math.round(v) < 0 ? "\u2212" : ""}£${Math.abs(Math.round(v)).toLocaleString("en-GB")}`;
+  const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
+  const pc = (v) => `<span class="${pnClass(v)}">${signPct(v)}</span>`;
+  const sig = (x) => `${x.movePct > 0 ? "+" : ""}${x.movePct}% on ${x.volX}× volume${x.results ? ", results" : ""}`;
+  const started = !!b.start;
+  el.innerHTML = `<div class="book-head"><div><div class="k">Drift book <span class="pill plain" style="margin-left:4px">Paper</span> <span class="pill plain" style="margin-left:2px">New 11 Nov</span></div>
+      ${started ? `<div class="big">${money2(b.value)} <span class="${pnClass(b.returnPct)}" style="font-size:16px">${signPct(b.returnPct)}</span></div>
+      <div class="small muted">from a notional ${money2(b.equity0)} on ${fmtDM(b.start)}${b.sp?.pct != null ? `; S&amp;P 500 ${signPct(b.sp.pct)} over the same days` : ""}</div>` : `<div class="small muted" style="margin-top:4px">Starts with its first trade at the next open.</div>`}</div></div>
+    ${started && b.curve.length ? bookChart(b, "Drift book") : ""}
+    ${started ? `<div class="tr-head book-stats" style="margin-top:12px">${stat("Open", `${b.open.length} of ${b.rules.maxOpen}`, b.open.length ? `${money2(b.open.reduce((a, x) => a + x.openPnl, 0))} open` : "")}${stat("Closed", b.closed, b.winRate == null ? "" : `${b.winRate}% won`)}${stat("Average", b.avgNetPct == null ? "Too early" : pc(b.avgNetPct), "per trade after costs")}${stat("Against luck", b.random?.beatShare == null || b.closed < 10 ? "Too early" : `${b.random.beatShare}%`, "of random books beaten")}</div>` : ""}
+    ${b.orders.length ? `<div class="book-orders"><b>Next session:</b> ${b.orders.map((o) => `buy <b>${esc(o.ticker)}</b> at the open (${esc(sig(o))})`).join("; ")}. A quarter of the book each, held 20 sessions.</div>` : started ? `<div class="book-orders small muted">${b.open.length >= b.rules.maxOpen ? `All ${b.rules.maxOpen} slots full${b.waiting ? `; ${b.waiting} signal${b.waiting === 1 ? "" : "s"} waiting` : ""}.` : "No new signals tonight."}</div>` : ""}
+    ${b.open.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.open.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.entryDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.market)} · ${esc(sig(x))} · day ${x.sessions} of 20</span></span><span class="num">${pc(x.openPct)}<span class="sub">${money2(x.openPnl)}</span></span></div>`).join("")}` : ""}
+    ${b.recent.length ? `<div class="k" style="margin-top:12px">Closed</div>${b.recent.map((x) => `<div class="tr-row"><span class="when">${fmtDM(x.exitDate)}</span><span class="what"><b>${esc(x.ticker)}</b> <span class="muted">20 sessions${x.idxPct != null ? ` · index ${signPct(x.idxPct)}` : ""}</span></span><span class="num">${pc(x.netPct)}<span class="sub">${x.pnl >= 0 ? "+" : ""}${money2(x.pnl)}</span></span></div>`).join("")}` : ""}
+    <div class="books-vs" id="booksVs"></div>
+    ${started ? fundHtml(fundingCheck(b, { avg: b.avgNetPct, minAvg: 1.5, unit: "%" })) : ""}
+    <p class="small muted" style="margin:10px 0 0">A second paper book on a different signal: the swing lab's post-results drift, the one published effect that came close in the backtest. Rules written down before it started: a stock that rises 4%+ on 3× normal volume is bought at the next open and held 20 sessions, no stop; at most ${b.rules?.maxOpen ?? 4} open, a quarter of the book each; results days first, then the bigger volume. Costs included. Built from the live log, so nothing here was fitted to past data. Paper only.</p>`;
+  renderBooksVs();
+}
 async function renderPaper(s) {
   if (!s || !s.total) return;
   $("ppSection").hidden = false;

@@ -1,0 +1,591 @@
+{
+ "ran": "2026-11-11",
+ "fetched": 599,
+ "failed": 0,
+ "split": "2016-01",
+ "markets": [
+  {
+   "market": "US",
+   "members": 499,
+   "from": "2007-12",
+   "to": "2026-10",
+   "bench": {
+    "months": 227,
+    "cagr": 15.89,
+    "vol": 17.27,
+    "maxDd": -45.17,
+    "turnover": 0
+   },
+   "results": [
+    {
+     "key": "primary",
+     "label": "Top 10 by 12-1 month return, trend filter (primary)",
+     "strat": {
+      "months": 227,
+      "cagr": 28.89,
+      "vol": 26.71,
+      "maxDd": -28.09,
+      "turnover": 704.8
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 15.89,
+      "vol": 17.27,
+      "maxDd": -45.17,
+      "turnover": 0
+     },
+     "excess": 13,
+     "ddGap": -17.08,
+     "rollShare": 0.93,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 23.52,
+       "bench": 13.45,
+       "excess": 10.07
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 33.04,
+       "bench": 17.74,
+       "excess": 15.3
+      }
+     ],
+     "monthsAhead": 0.59,
+     "checks": {
+      "excess": true,
+      "drawdown": true,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": true,
+     "cashShare": 0.23
+    },
+    {
+     "key": "noTrend",
+     "label": "Top 10, no trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 35.95,
+      "vol": 33.54,
+      "maxDd": -58.83,
+      "turnover": 793.38
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 15.89,
+      "vol": 17.27,
+      "maxDd": -45.17,
+      "turnover": 0
+     },
+     "excess": 20.06,
+     "ddGap": 13.66,
+     "rollShare": 0.92,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 16.89,
+       "bench": 13.45,
+       "excess": 3.44
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 52.16,
+       "bench": 17.74,
+       "excess": 34.42
+      }
+     ],
+     "monthsAhead": 0.62,
+     "checks": {
+      "excess": true,
+      "drawdown": false,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": false,
+     "cashShare": 0
+    },
+    {
+     "key": "top20",
+     "label": "Top 20, trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 21.37,
+      "vol": 21.23,
+      "maxDd": -30.32,
+      "turnover": 696.52
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 15.89,
+      "vol": 17.27,
+      "maxDd": -45.17,
+      "turnover": 0
+     },
+     "excess": 5.48,
+     "ddGap": -14.85,
+     "rollShare": 0.72,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 22.22,
+       "bench": 13.45,
+       "excess": 8.77
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 20.74,
+       "bench": 17.74,
+       "excess": 3
+      }
+     ],
+     "monthsAhead": 0.55,
+     "checks": {
+      "excess": true,
+      "drawdown": true,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": true,
+     "cashShare": 0.23
+    },
+    {
+     "key": "m6",
+     "label": "Top 10 by 6-1 month return, trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 31.26,
+      "vol": 26.24,
+      "maxDd": -33.05,
+      "turnover": 993.67
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 15.89,
+      "vol": 17.27,
+      "maxDd": -45.17,
+      "turnover": 0
+     },
+     "excess": 15.37,
+     "ddGap": -12.12,
+     "rollShare": 0.92,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 24.15,
+       "bench": 13.45,
+       "excess": 10.7
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 36.84,
+       "bench": 17.74,
+       "excess": 19.1
+      }
+     ],
+     "monthsAhead": 0.6,
+     "checks": {
+      "excess": true,
+      "drawdown": true,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": true,
+     "cashShare": 0.23
+    }
+   ],
+   "lastHeld": [
+    "SNDK",
+    "MU",
+    "LITE",
+    "MRNA",
+    "WDC",
+    "STX",
+    "DELL",
+    "AMD",
+    "INTC",
+    "CIEN"
+   ],
+   "lastCash": false
+  },
+  {
+   "market": "UK",
+   "members": 100,
+   "from": "2007-12",
+   "to": "2026-10",
+   "bench": {
+    "months": 227,
+    "cagr": 9.27,
+    "vol": 14.92,
+    "maxDd": -37.3,
+    "turnover": 0
+   },
+   "results": [
+    {
+     "key": "primary",
+     "label": "Top 10 by 12-1 month return, trend filter (primary)",
+     "strat": {
+      "months": 227,
+      "cagr": 11.63,
+      "vol": 12.94,
+      "maxDd": -17.57,
+      "turnover": 604.66
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 9.27,
+      "vol": 14.92,
+      "maxDd": -37.3,
+      "turnover": 0
+     },
+     "excess": 2.36,
+     "ddGap": -19.73,
+     "rollShare": 0.63,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 14.26,
+       "bench": 9.19,
+       "excess": 5.07
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 9.7,
+       "bench": 9.32,
+       "excess": 0.38
+      }
+     ],
+     "monthsAhead": 0.55,
+     "checks": {
+      "excess": true,
+      "drawdown": true,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": true,
+     "cashShare": 0.34
+    },
+    {
+     "key": "noTrend",
+     "label": "Top 10, no trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 13.9,
+      "vol": 17.94,
+      "maxDd": -47.36,
+      "turnover": 707.79
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 9.27,
+      "vol": 14.92,
+      "maxDd": -37.3,
+      "turnover": 0
+     },
+     "excess": 4.63,
+     "ddGap": 10.06,
+     "rollShare": 0.76,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 13.13,
+       "bench": 9.19,
+       "excess": 3.94
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 14.47,
+       "bench": 9.32,
+       "excess": 5.15
+      }
+     ],
+     "monthsAhead": 0.59,
+     "checks": {
+      "excess": true,
+      "drawdown": false,
+      "rolling": true,
+      "halves": true
+     },
+     "pass": false,
+     "cashShare": 0
+    },
+    {
+     "key": "top20",
+     "label": "Top 20, trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 9.35,
+      "vol": 10.58,
+      "maxDd": -17.57,
+      "turnover": 528.05
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 9.27,
+      "vol": 14.92,
+      "maxDd": -37.3,
+      "turnover": 0
+     },
+     "excess": 0.08,
+     "ddGap": -19.73,
+     "rollShare": 0.42,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 11.17,
+       "bench": 9.19,
+       "excess": 1.98
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 8.02,
+       "bench": 9.32,
+       "excess": -1.3
+      }
+     ],
+     "monthsAhead": 0.56,
+     "checks": {
+      "excess": false,
+      "drawdown": true,
+      "rolling": false,
+      "halves": false
+     },
+     "pass": false,
+     "cashShare": 0.34
+    },
+    {
+     "key": "m6",
+     "label": "Top 10 by 6-1 month return, trend filter",
+     "strat": {
+      "months": 227,
+      "cagr": 7.77,
+      "vol": 12.47,
+      "maxDd": -16.4,
+      "turnover": 808.33
+     },
+     "bench": {
+      "months": 227,
+      "cagr": 9.27,
+      "vol": 14.92,
+      "maxDd": -37.3,
+      "turnover": 0
+     },
+     "excess": -1.5,
+     "ddGap": -20.9,
+     "rollShare": 0.32,
+     "halves": [
+      {
+       "from": "2007-12",
+       "to": "2015-12",
+       "cagr": 6.48,
+       "bench": 9.19,
+       "excess": -2.71
+      },
+      {
+       "from": "2016-01",
+       "to": "2026-10",
+       "cagr": 8.75,
+       "bench": 9.32,
+       "excess": -0.57
+      }
+     ],
+     "monthsAhead": 0.51,
+     "checks": {
+      "excess": false,
+      "drawdown": true,
+      "rolling": false,
+      "halves": false
+     },
+     "pass": false,
+     "cashShare": 0.34
+    }
+   ],
+   "lastHeld": [
+    "CCC.L",
+    "BGEO.L",
+    "GLEN.L",
+    "RIO.L",
+    "AAL.L",
+    "EDV.L",
+    "STAN.L",
+    "PCT.L",
+    "ANTO.L",
+    "SGRO.L"
+   ],
+   "lastCash": false
+  }
+ ],
+ "verdict": {
+  "pass": true,
+  "byMarket": {
+   "US": true,
+   "UK": true
+  }
+ },
+ "reality": {
+  "fund": "MTUM",
+  "bench": "SPY",
+  "from": "2013-06",
+  "to": "2026-10",
+  "mtum": {
+   "months": 161,
+   "cagr": 14.83,
+   "vol": 16.92,
+   "maxDd": -30.17,
+   "turnover": 0
+  },
+  "spy": {
+   "months": 161,
+   "cagr": 14.01,
+   "vol": 14.3,
+   "maxDd": -23.93,
+   "turnover": 0
+  },
+  "excess": 0.82,
+  "rollShare": 0.6,
+  "halves": [
+   {
+    "from": "2013-06",
+    "to": "2015-12",
+    "cagr": 15.69,
+    "bench": 11.29,
+    "excess": 4.4
+   },
+   {
+    "from": "2016-01",
+    "to": "2026-10",
+    "cagr": 14.63,
+    "bench": 14.67,
+    "excess": -0.04
+   }
+  ]
+ },
+ "now": {
+  "US": {
+   "month": "2026-10",
+   "top": [
+    {
+     "s": "SNDK",
+     "mom": 772.87,
+     "ticker": "SNDK"
+    },
+    {
+     "s": "MRNA",
+     "mom": 609.02,
+     "ticker": "MRNA"
+    },
+    {
+     "s": "LITE",
+     "mom": 381.87,
+     "ticker": "LITE"
+    },
+    {
+     "s": "MU",
+     "mom": 376.45,
+     "ticker": "MU"
+    },
+    {
+     "s": "STX",
+     "mom": 262.58,
+     "ticker": "STX"
+    },
+    {
+     "s": "DELL",
+     "mom": 235.08,
+     "ticker": "DELL"
+    },
+    {
+     "s": "WDC",
+     "mom": 203.11,
+     "ticker": "WDC"
+    },
+    {
+     "s": "INTC",
+     "mom": 200.65,
+     "ticker": "INTC"
+    },
+    {
+     "s": "MRVL",
+     "mom": 182.27,
+     "ticker": "MRVL"
+    },
+    {
+     "s": "HPE",
+     "mom": 166.35,
+     "ticker": "HPE"
+    }
+   ],
+   "trendUp": true
+  },
+  "UK": {
+   "month": "2026-10",
+   "top": [
+    {
+     "s": "CCC.L",
+     "mom": 88.62,
+     "ticker": "CCC"
+    },
+    {
+     "s": "BGEO.L",
+     "mom": 79.57,
+     "ticker": "BGEO"
+    },
+    {
+     "s": "GLEN.L",
+     "mom": 52.37,
+     "ticker": "GLEN"
+    },
+    {
+     "s": "STAN.L",
+     "mom": 47.41,
+     "ticker": "STAN"
+    },
+    {
+     "s": "PCT.L",
+     "mom": 46.69,
+     "ticker": "PCT"
+    },
+    {
+     "s": "AAL.L",
+     "mom": 41.23,
+     "ticker": "AAL"
+    },
+    {
+     "s": "HSBA.L",
+     "mom": 40.89,
+     "ticker": "HSBA"
+    },
+    {
+     "s": "EZJ.L",
+     "mom": 39.89,
+     "ticker": "EZJ"
+    },
+    {
+     "s": "EDV.L",
+     "mom": 38.15,
+     "ticker": "EDV"
+    },
+    {
+     "s": "DPLM.L",
+     "mom": 37.72,
+     "ticker": "DPLM"
+    }
+   ],
+   "trendUp": true
+  }
+ }
+}

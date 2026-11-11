@@ -156,3 +156,39 @@ export function swingTradeAlerts(news, b) {
   }
   return out;
 }
+
+// Proposed bar for real money (11 Nov, Douglas asked to develop swing; the bar
+// itself needs his OK, as funding swing is a rule change). A paper book
+// qualifies only when ALL hold, judged on live trades, after costs:
+//   - at least 30 closed trades (fewer is mostly luck);
+//   - average at least +0.2R per trade (0.2R a trade at 2% risk is about
+//     +0.4% of the book a trade, enough to survive real slippage);
+//   - better than 80% of the random-choice books (the ranking adds something);
+//   - ahead of the S&P 500 over the same days (else the core does it better);
+//   - worst fall from a peak under 15% (well clear of the 25% pause).
+export const FUND_BAR = { minClosed: 30, minAvgR: 0.2, minBeat: 80, maxFall: 15 };
+
+// Worst peak-to-trough fall of a book in %, from its curve and today's value.
+export function maxFallPct(b) {
+  const pts = [b.equity0, ...(b.curve ?? []).map((c) => c.equity), b.value].filter((x) => x > 0);
+  let peak = 0, worst = 0;
+  for (const v of pts) { peak = Math.max(peak, v); worst = Math.min(worst, v / peak - 1); }
+  return r2(-worst * 100);
+}
+
+// Checklist against FUND_BAR. avgKey/avgUnit let the drift book (returns in
+// %) use the same bar with its own average: { avg, minAvg, unit }.
+export function fundingCheck(b, { bar = FUND_BAR, avg = b?.avgNetR, minAvg = bar.minAvgR, unit = "R" } = {}) {
+  if (!b?.start) return null;
+  const fall = maxFallPct(b), fmtAvg = (x) => `${x > 0 ? "+" : ""}${x}${unit === "R" ? "R" : "%"}`;
+  const checks = [
+    { key: "closed", label: `${bar.minClosed}+ closed trades`, now: `${b.closed}`, ok: b.closed >= bar.minClosed },
+    { key: "avg", label: `Average ${fmtAvg(minAvg)} or better after costs`, now: avg == null ? "none yet" : fmtAvg(avg), ok: avg != null && avg >= minAvg },
+    { key: "luck", label: `Beats ${bar.minBeat}% of random-choice books`, now: b.random?.beatShare == null ? "n/a" : `${b.random.beatShare}%`, ok: (b.random?.beatShare ?? -1) >= bar.minBeat },
+    { key: "sp", label: "Ahead of the S&P 500 over the same days", now: b.sp?.pct == null ? "n/a" : `${b.returnPct > 0 ? "+" : ""}${b.returnPct}% vs ${b.sp.pct > 0 ? "+" : ""}${b.sp.pct}%`, ok: b.sp?.pct != null && b.returnPct > b.sp.pct },
+    { key: "fall", label: `Worst fall under ${bar.maxFall}%`, now: `${fall}%`, ok: fall < bar.maxFall && !b.paused },
+  ];
+  const passed = checks.filter((c) => c.ok).length;
+  return { checks, passed, total: checks.length, met: passed === checks.length,
+    line: passed === checks.length ? "Meets the proposed bar for real money: worth a decision." : `${passed} of ${checks.length} checks met${b.closed < bar.minClosed ? `; needs ${bar.minClosed - b.closed} more closed trades before it can be judged` : ""}.` };
+}

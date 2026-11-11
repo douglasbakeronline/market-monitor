@@ -254,7 +254,7 @@ export function updateDrift(trade, rows, idx = null) {
   };
   const k = Math.min(held.length, DRIFT.hold), now = at(k), last = held[k - 1];
   Object.assign(t, { sessions: k, lastDate: last.date, lastPrice: r2(last.close), netPct: now.net, idxPct: now.idx });
-  if (k >= DRIFT.mark && t.net20 == null) { const m = at(DRIFT.mark); t.net20 = m.net; t.idx20 = m.idx; }
+  if (k >= DRIFT.mark && t.net20 == null) { const m = at(DRIFT.mark); t.net20 = m.net; t.idx20 = m.idx; t.date20 = held[DRIFT.mark - 1].date; }
   if (held.length >= DRIFT.hold) { t.status = "closed"; t.exitDate = last.date; t.exit = r2(last.close); t.net60 = now.net; t.idx60 = now.idx; }
   return t;
 }
