@@ -1,0 +1,34 @@
+Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
+Quotes: 663
+Stage 1: 662 scored, 1 failed (3.2 min)
+Stage 2: 110 deepened (3.9 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.9 min)
+Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.9 min)
+Paper trades: markets open, not updated.
+Swing book (paper): -2.41% since 2026-11-02 (S&P 0.06%), 4 open, 0 orders for the next session.
+Swing lab: markets open, not updated.
+Short-term pot: 0 open, 3 to buy, 0 to sell, 0% since n/a.
+Short-term signals: 0 drift (0 fired), 3 bounce (3 fired); log 3.
+Drift book (paper): 0% since n/a, 0 open, 2 orders, 0 closed.
+Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
+Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
+Plan book (paper): agreed not started, weakHold not started, vwrp not started, buffettPot not started, momentumPot not started.
+Results check: 9 of 11 with a recent EPS surprise; 0 live events tagged.
+Swing lab volume shocks: 0 new (none); 3 open; up 0 and down 0 closed.
+Paper trades: 139 open, 33 closed, -0.49R average.
+Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
+Data checks: all 662 items passed. 
+ALERT (evening) Short-term pot: buy IT, KHC, OTIS
+
+[dry run] Short-term pot: buy IT, KHC, OTIS
+Short-term pot (real money, 10% of the portfolio).
+Buy at the next open, a fifth of the pot each (about 2% of the portfolio):
+- IT (Gartner): bounce, 2-day RSI 7.6, -1.6% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- KHC (The Kraft Heinz): bounce, 2-day RSI 8, -2.2% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- OTIS (Otis Worldwide): bounce, 2-day RSI 8.9, -2% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+Pot: 3 of 5 slots used after these, no trades yet.
+Evidence. Drift: tested avg +1.36% a trade after costs vs +0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet. Bounce: tested 61% won but avg -0.08% a trade after costs; live: none closed yet.
+
+Scoring (live since 10 Nov): 25 of 109 full-score verdicts differ from the old rule; Good entry lost: COF, CRM, EXPE, PRX.AS, DVN, NWG.L, ADM, SMCI; gained: SNDK, STX, ADI.
+Done: 662 scored, 1 new good entries, 15 new setups, 4.0 min.
+exit=0

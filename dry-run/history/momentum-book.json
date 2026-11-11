@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "start": "2026-12",
+    "top": 10,
+    "equity0": 10000
+  },
+  "markets": {
+    "US": {
+      "cash": 10000,
+      "positions": [],
+      "lastRebalance": null,
+      "value": 10000,
+      "rebalances": [],
+      "curve": []
+    },
+    "UK": {
+      "cash": 10000,
+      "positions": [],
+      "lastRebalance": null,
+      "value": 10000,
+      "rebalances": [],
+      "curve": []
+    }
+  },
+  "updated": "2026-11-11T14:51:45.885Z"
+}

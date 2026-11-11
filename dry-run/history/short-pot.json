@@ -1,0 +1,55 @@
+{
+  "updated": "2026-11-11T14:51:45.629Z",
+  "rules": {
+    "start": "2026-10-20",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-11"
+  },
+  "start": null,
+  "value": 10000,
+  "returnPct": 0,
+  "peak": 10000,
+  "fallPct": 0,
+  "paused": false,
+  "open": [],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "IT",
+      "ticker": "IT",
+      "name": "Gartner, Inc.",
+      "market": "US",
+      "signalDate": "2026-11-11",
+      "signalPrice": 187.13
+    },
+    {
+      "kind": "bounce",
+      "symbol": "KHC",
+      "ticker": "KHC",
+      "name": "The Kraft Heinz Company",
+      "market": "US",
+      "signalDate": "2026-11-11",
+      "signalPrice": 24.075
+    },
+    {
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "signalDate": "2026-11-11",
+      "signalPrice": 77.365
+    }
+  ],
+  "skipped": 0,
+  "free": 5,
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": []
+}
