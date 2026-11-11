@@ -5,8 +5,9 @@ export const PROFILES = {
   // Every alert (the behaviour before 10 Nov).
   all: null,
   // Plan: monitor problems, buy tiers, crash watch, the pullback rule, your own
-  // price alerts, news on your five picks; plus swing-trade orders and closes.
-  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "swing"],
+  // price alerts, news on your five picks; plus swing-trade orders and closes,
+  // and the ranked short-term signals (Douglas, 11 Nov).
+  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "swing", "short"],
 };
 
 export function allowAlert(a, profile = "all") {

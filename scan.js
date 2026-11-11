@@ -32,6 +32,7 @@ import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_T
 import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
+import { shortTermToday, addShort, updateShort, summariseShort, testedRecord } from "./src/shortTerm.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
@@ -271,6 +272,30 @@ async function main() {
       await writeJson("history/swing-lab.json", drift, true);
     } else console.log("Swing lab: markets open, not updated.");
   } catch (e) { console.warn(`Swing lab failed: ${e.message}`); }
+  // Short-term signals (Douglas, 11 Nov: "a signal fired"; src/shortTerm.js):
+  // results drift and bounces in an uptrend, ranked, logged and closed under
+  // their own exit rules. S&P 500 and FTSE 100 only, as tested. The monitor
+  // pushes tonight's list at 08:15. Never stops the scan.
+  let shortTerm = null;
+  try {
+    if (marketsClosed() || process.env.SHORT_FORCE) { // SHORT_FORCE: dry runs only
+      const idx = {};
+      for (const [m, sym] of [["US", "^GSPC"], ["UK", "^FTSE"]]) {
+        try { idx[m] = new Map((await fetchDaily(sym, { range: "1y" })).rows.map((r) => [r.date, r.close])); } catch { idx[m] = null; }
+      }
+      let sl = await readJson("history/short-signals.json", []);
+      sl = sl.map((t) => updateShort(t, rowsBySymbol[t.symbol], idx[t.market]));
+      const today = shortTermToday(out.filter((i) => i.index === "S&P 500" || i.index === "FTSE 100"), rowsBySymbol);
+      sl = addShort(sl, [...today.drift, ...today.bounce]).slice(-2000);
+      await writeJson("history/short-signals.json", sl, true);
+      const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;
+      shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl) };
+      console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);
+    } else {
+      shortTerm = (await readJson("scan.json", {}))?.shortTerm ?? null;
+      console.log("Short-term signals: markets open, kept the last list.");
+    }
+  } catch (e) { console.warn(`Short-term signals failed: ${e.message}`); }
   // Drift book (paper, 11 Nov): a second book on the lab's drift signal,
   // built from the live log above. Never stops the scan.
   try {
@@ -426,7 +451,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, shortTerm, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);

@@ -233,6 +233,15 @@
   .dec summary::-webkit-details-marker { display: none; }
   .dec .t { font-weight: 600; font-size: 14px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
   .dec .g { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+  .st-group { margin-top: 12px; }
+  .st-group:first-of-type { margin-top: 8px; }
+  .st-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .st-rec { font-size: 12px; color: var(--muted); }
+  .st-group > .small + .small + .st-row, .st-group > .small + .st-row { margin-top: 6px; }
+  .st-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .st-row:first-of-type { border-top: 0; }
+  .st-row .sub { display: block; font-size: 12px; color: var(--muted); }
+  .st-row .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
   .dec .tag { font-size: 11px; color: var(--muted); white-space: nowrap; align-self: start; padding-top: 2px; }
   .dec .tag b { color: var(--watch); font-weight: 700; }
   .dec details[open] .g { display: none; }
@@ -408,6 +417,7 @@
   <!-- Swing paper trading -->
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span></div>
+    <div class="card" id="stCard" style="margin-bottom:12px" hidden></div>
     <div class="card" id="scoreCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="buffCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="momCard" style="margin-bottom:12px" hidden></div>
@@ -468,6 +478,7 @@ function render(d) {
   if (d.health && !d.health.ok) b.push(`<div class="banner bad"><b>Signals paused.</b> ${esc(d.health.problems.join("; "))}. Showing the last good values.</div>`);
   else if (Date.now() - Date.parse(d.updated) > 30 * 3600e3) b.push(`<div class="banner warn">This page hasn't refreshed for ${ago(d.updated).replace(" ago", "")}. The scheduler may be paused.</div>`);
   $("banners").innerHTML = b.join("");
+  renderShortTerm(d.shortTerm);
 
   renderHero(d.regime);
   renderFG(d);
@@ -643,6 +654,28 @@ function renderScore() {
       ${rows.map((r) => `<span class="nm"><b>${esc(r.name)}</b><span class="small muted">${esc(r.what)}${r.start ? ` · since ${fmtDM(r.start)}` : ""}${r.extra ? ` · ${esc(r.extra)}` : ""}</span></span>${r.start ? `<span class="num">${cell(r.ret)}</span><span class="num muted">${r.bench?.pct == null ? "n/a" : signPct(r.bench.pct)}</span><span class="num hide-s muted">${(() => { const v = vwrpSince(r.start); return v == null ? "n/a" : signPct(v); })()}</span>` : `<span class="num muted" style="grid-column: span 3">${esc(r.soon)}</span>`}`).join("")}
     </div>
     <p class="small muted" style="margin:10px 0 0">Every strategy we are testing, run on paper from a notional £10,000 each, after Trading 212 costs, with rules written down before it started. The plan rows run the agreed rules (and the pending proposals) so the plan itself is judged against just holding VWRP. For each book the question is simple: does it beat its index, or VWRP, over the same days? None has earned real money yet; the bar for that is on each card.</p>`;
+}
+// --- Short-term signals (scan.json shortTerm via data.json; src/shortTerm.js) ---
+function renderShortTerm(st) {
+  const el = $("stCard");
+  if (!el || !st?.date) return;
+  const T = st.tested ?? {}, L = st.live ?? {}, sg = (x) => (x == null ? "n/a" : signPct(x));
+  const live = (l) => (l?.closed ? `live: ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}${l.vsIdx != null ? ` (${sg(l.vsIdx)} vs index)` : ""}` : `live: none closed yet${l?.open ? `, ${l.open} open` : ""}`);
+  const short = (n) => String(n ?? "").replace(/,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company|Co\.)$/g, "").replace(/,?\s+(Inc\.?|Corporation|Holdings|plc)$/g, "");
+  const group = (name, tag, rule, t, l, list, row, fired) => `<div class="st-group">
+      <div class="st-head"><b>${esc(name)}</b><span class="st-rec">${esc(tag)}</span></div>
+      <div class="small muted">${esc(rule)}</div>
+      <div class="small muted" style="margin-top:2px">${t ? `Backtest: ${t.win}% won, avg ${sg(t.avg)} a trade after costs (random entry ${sg(t.random)})` : "Backtest: n/a"} · ${esc(live(l))}</div>
+      ${list.length ? list.map(row).join("") : `<div class="st-row"><span class="muted">None last night.</span><span></span></div>`}
+      ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
+    </div>`;
+  el.innerHTML = `<div class="k">Short-term signals · ${esc(fmtDM(st.date))}</div>
+    ${group("Results drift", "Some edge, inconsistent", "A 4%+ jump on 3× normal volume. Buy the next open, hold 20 sessions.", T.drift, L.drift, st.drift ?? [],
+      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? "Results day" : "No results date nearby"}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
+    ${group("Bounce in an uptrend", "No edge after costs", "A sharp dip (2-day RSI under 10) above the 200-day average. Buy the next open, sell at the first close above the 5-day average or after 10 sessions.", T.bounce, L.bounce, st.bounce ?? [],
+      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
+    <p class="small muted" style="margin:12px 0 0">Ranked by evidence: drift first, as it beat random entry after costs in the backtest (though only in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years). Bounces win more often than not, but in the backtest the average gain was smaller than the costs. Neither cleared the bar for real money; each signal is tracked live under its own exit rule. A push goes to your phone at 08:15 when either list has names.</p>`;
+  el.hidden = false; $("ppSection").hidden = false;
 }
 // --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
 let BUFFJ = null;

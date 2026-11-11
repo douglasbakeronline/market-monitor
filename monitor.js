@@ -23,6 +23,7 @@ import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { bookLine, bookNews, swingTradeAlerts } from "./src/swingBook.js";
 import { paperDigestLine } from "./src/paperScore.js";
+import { shortTermAlert } from "./src/shortTerm.js";
 import { allowAlert, summaryAllowed } from "./src/alertProfile.js";
 import { SCORING_VERSION } from "./src/research.js";
 import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
@@ -172,6 +173,12 @@ async function main() {
   state.bookSeen = bn.seen;
   // Swing-trade alerts (paper): the book's new orders and closed trades.
   alerts.push(...swingTradeAlerts(bn, await readJson("history/swing-book.json", null)));
+  // Short-term signals (Douglas, 11 Nov): last night's ranked drift and bounce
+  // list from the scan, pushed once per scan date (paper; src/shortTerm.js).
+  const stScan = (await readJson("scan.json", null))?.shortTerm ?? null;
+  const sta = shortTermAlert(stScan, state.shortSeen ?? null);
+  if (stScan?.date) state.shortSeen = stScan.date;
+  if (sta) alerts.push(sta);
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;
@@ -248,6 +255,7 @@ async function main() {
     regime: reg, status, markets: { sp, ftse, vix }, context: ctx, fearSessions, world, coreFund, watchlist,
     researchTop: researchHighlights(research), trackRecord, copilot: cp,
     paper: scan?.paper ?? null,
+    shortTerm: stScan,
     priceAlerts: { items: pa.view, invalid: pa.invalid },
   });
   await writeJson("history/fear-greed.json", fgHistory);

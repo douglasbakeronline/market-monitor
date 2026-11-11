@@ -43,4 +43,5 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 
 ## Things Douglas raised (for research)
 - Presidential cycle: claim seen that the months before midterms are best. Evidence says the opposite: midterm years average ~4.6% vs 11.2% other years; the 12 months after midterms average ~13.9% (Oppenheimer, since 1948). Midterm election 3 Nov 2026. Context only, not a timing rule (small sample, ~19 cycles).
+- Short-term opportunities (11 Nov): Douglas wants a signal when a short-term trade appears. Pushed nightly as paper signals (results drift first, bounces second) with their tested and live records; swing stays at 0% real money.
 - Copy-trading apps (Autopilot): reference point for a "smart money" signal (Congress disclosures, 13F filings) tracked like any other signal; not a strategy on its own.
