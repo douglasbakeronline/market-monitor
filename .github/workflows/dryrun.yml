@@ -20,7 +20,7 @@ jobs:
           mkdir -p dry-run
           DRY_RUN=1 SHORT_FORCE=1 SHORT_POT_START=2026-11-10 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           cp dry-run/scan.json scan.json
-          node -e 'const s=require("./scan.json").shortTerm;console.log(JSON.stringify({date:s?.date,pushedAt:s?.pushedAt,buys:s?.pot?.buys?.map(b=>b.ticker),sells:s?.pot?.sells?.map(b=>b.ticker)}))' > dry-run/short.json
+          node -e 'const s=require("./scan.json").shortTerm;console.log(JSON.stringify(s))' > dry-run/short.json
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           DRY_RUN=1 SHORT_FORCE=1 SHORT_POT_START=2026-11-10 node scan.js > dry-run/scan2.log 2>&1; echo "exit=$?" >> dry-run/scan2.log
           rm -f dry-run/scan.json dry-run/data.json
