@@ -1,0 +1,54 @@
+[
+  {
+    "id": "2026-11-10:drift:TTWO",
+    "kind": "drift",
+    "symbol": "TTWO",
+    "ticker": "TTWO",
+    "name": "Take-Two Interactive Software, Inc.",
+    "market": "US",
+    "signalDate": "2026-11-10",
+    "signalPrice": 224.64,
+    "movePct": 8.3,
+    "volX": 3.1,
+    "results": true,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-10:drift:AKAM",
+    "kind": "drift",
+    "symbol": "AKAM",
+    "ticker": "AKAM",
+    "name": "Akamai Technologies, Inc.",
+    "market": "US",
+    "signalDate": "2026-11-10",
+    "signalPrice": 83.71,
+    "movePct": 4.3,
+    "volX": 4.3,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-10:bounce:WDAY",
+    "kind": "bounce",
+    "symbol": "WDAY",
+    "ticker": "WDAY",
+    "name": "Workday, Inc.",
+    "market": "US",
+    "signalDate": "2026-11-10",
+    "signalPrice": 188.89,
+    "rsi2": 5.4,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-10:bounce:XOM",
+    "kind": "bounce",
+    "symbol": "XOM",
+    "ticker": "XOM",
+    "name": "ExxonMobil Holdings Corporation",
+    "market": "US",
+    "signalDate": "2026-11-10",
+    "signalPrice": 164.47,
+    "rsi2": 8.3,
+    "status": "pending"
+  }
+]

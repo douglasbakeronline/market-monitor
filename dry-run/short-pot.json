@@ -1,0 +1,62 @@
+{
+  "updated": "2026-11-11T09:28:07.649Z",
+  "rules": {
+    "start": "2026-11-10",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-10"
+  },
+  "start": null,
+  "value": 10000,
+  "returnPct": 0,
+  "peak": 10000,
+  "paused": false,
+  "open": [],
+  "buys": [
+    {
+      "kind": "drift",
+      "symbol": "TTWO",
+      "ticker": "TTWO",
+      "name": "Take-Two Interactive Software, Inc.",
+      "market": "US",
+      "signalDate": "2026-11-10",
+      "signalPrice": 224.64
+    },
+    {
+      "kind": "drift",
+      "symbol": "AKAM",
+      "ticker": "AKAM",
+      "name": "Akamai Technologies, Inc.",
+      "market": "US",
+      "signalDate": "2026-11-10",
+      "signalPrice": 83.71
+    },
+    {
+      "kind": "bounce",
+      "symbol": "WDAY",
+      "ticker": "WDAY",
+      "name": "Workday, Inc.",
+      "market": "US",
+      "signalDate": "2026-11-10",
+      "signalPrice": 188.89
+    },
+    {
+      "kind": "bounce",
+      "symbol": "XOM",
+      "ticker": "XOM",
+      "name": "ExxonMobil Holdings Corporation",
+      "market": "US",
+      "signalDate": "2026-11-10",
+      "signalPrice": 164.47
+    }
+  ],
+  "skipped": 0,
+  "free": 5,
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": []
+}
