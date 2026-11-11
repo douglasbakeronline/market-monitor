@@ -18,6 +18,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - **Picks pot scorecard (10 Nov research log):** (a) a yearly picks-vs-VWRP scorecard at the Sunday review from Nov 2027; (b) if the pot has trailed VWRP after three years (Nov 2029), fold it into the core. OK to add both to the strategy notes? (A running display-only "Picks vs VWRP so far" is already in the trade log card; the Sunday review could read it once Douglas exports his log.)
 - **REITs on cash flow, not P/E (10 Nov):** a display-only "REIT view" now shows price / operating cash flow against fully scored REITs (a stand-in for P/FFO). OK to use it in place of P/E in REITs' Value pillar? It would affect VICI (a pick): on 11 Nov it would score 65 rather than 69 (both Fair). Tracked on paper in the plan book from 16 Nov; nothing changes until agreed.
 - **Dip reserve and the proposed 2027 cash-interest charge (research log 10 Nov):** if the 22% charge on interest from cash in a stocks and shares ISA goes ahead from 6 Apr 2027, should the reserve sit in a money market fund inside the ISA instead of cash? Check the final rules and Trading 212's options first (Claude can research this in early 2027).
+- **Skip takeover targets in the short-term pot? (11 Nov)** A results-drift signal can be a takeover bid (a 4%+ jump on heavy volume), which the backtest never saw because bought-out companies leave the index; the price then sits near the offer. Since 11 Nov evening, drift jumps of 12%+ carry a "check the news" note. Proposal: the pot skips a drift signal when an agreed or recommended cash offer was announced that day (Claude cannot see news from the runners, so Douglas would decide on the note). OK?
 - Delete leftover branch `probe` (`dryrun` is reused for testing; keep it).
 
 ## Next up (in priority order)
@@ -51,6 +52,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 11 Nov (evening): takeover check note on 12%+ drift jumps (push and Dashboard, display only).
 - 11 Nov (evening): short-term pot orders shown in pounds on the Dashboard (from the private pots panel, browser only).
 - 11 Nov (afternoon): short-term pot drawdown alerts (15% heads-up, 25% pause), digest line, and pot orders matched in the trade log and Trading 212 import.
 - 11 Nov (midday): short-term pot orders pushed the evening before (scan started by the chain after the US close; 08:15 is the fallback).

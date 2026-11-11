@@ -145,6 +145,15 @@ export function carryPushed(prev, next) {
   return shortActionKey(prev) === shortActionKey(next) ? { ...next, pushedAt: prev.pushedAt } : next;
 }
 
+// Takeover check (display only, 11 Nov evening): a drift signal with a jump of
+// 12%+ may be a takeover offer. The backtest never saw one (it used today's
+// index members, and bought-out companies have left the index), and a target's
+// price usually sits near the offer for months, so there is no drift to catch.
+// The pot's rules are unchanged; the push and Dashboard ask Douglas to check.
+export const BIG_JUMP = 12;
+export const bigJump = (s) => s?.kind === "drift" && (s.movePct ?? 0) >= BIG_JUMP;
+export const TAKEOVER_NOTE = "a jump this size can be a takeover offer: check the news first (the backtest never saw a bought-out company, and the price usually stays near the offer)";
+
 export function shortTermAlert(st, seen = null) {
   if (!st?.date || st.date === seen || st.pushedAt) return null;
   const { drift = [], bounce = [], pot = null } = st;
@@ -158,7 +167,7 @@ export function shortTermAlert(st, seen = null) {
     lines.push(`Short-term pot (real money, 10% of the portfolio)${pot.paused ? ": PAUSED, 25% below its high. No new buys; review the pot before resuming." : "."}`);
     if (buys.length) {
       lines.push("Buy at the next open, a fifth of the pot each (about 2% of the portfolio):");
-      for (const b of buys) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.`);
+      for (const b of buys) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.${bigJump(sig[`${b.kind}:${b.symbol}`]) ? ` Note: ${TAKEOVER_NOTE}.` : ""}`);
     }
     if (sells.length) {
       lines.push("Sell at the next open (exit rule met at the last close):");
@@ -168,7 +177,7 @@ export function shortTermAlert(st, seen = null) {
     const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));
     if (missed.length) lines.push(`Not taken (${pot.paused ? "paused" : "no free slot or already held"}): ${missed.map((x) => x.ticker).join(", ")}.`);
   } else {
-    for (const x of drift) lines.push(`- ${x.ticker} (${short(x.name)}): ${what(x)}.`);
+    for (const x of drift) lines.push(`- ${x.ticker} (${short(x.name)}): ${what(x)}.${bigJump(x) ? ` Note: ${TAKEOVER_NOTE}.` : ""}`);
     for (const x of bounce) lines.push(`- ${x.ticker} (${short(x.name)}): ${what(x)}.`);
   }
   const td = T.drift, tb = T.bounce;
