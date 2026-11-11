@@ -33,6 +33,7 @@ import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebala
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
 import { shortTermToday, addShort, updateShort, summariseShort, testedRecord } from "./src/shortTerm.js";
+import { shortPot } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
@@ -289,7 +290,12 @@ async function main() {
       sl = addShort(sl, [...today.drift, ...today.bounce]).slice(-2000);
       await writeJson("history/short-signals.json", sl, true);
       const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;
-      shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl) };
+      // The real-money pot (11 Nov): what to buy and sell at the next open.
+      const pot = shortPot(sl, { today: date, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
+      await writeJson("history/short-pot.json", { updated: new Date().toISOString(), ...pot }, true);
+      shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl),
+        pot: { rules: pot.rules, start: pot.start, value: pot.value, returnPct: pot.returnPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct } };
+      console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}.`);
       console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);
     } else {
       shortTerm = (await readJson("scan.json", {}))?.shortTerm ?? null;
@@ -383,7 +389,8 @@ async function main() {
         const bbk = await readJson("history/buffett-book.json", null), mbk = await readJson("history/momentum-book.json", null);
         const mUS = mbk?.markets?.US, mUK = mbk?.markets?.UK;
         const pots = { buffett: bbk?.trades?.length ? bbk.value / bbk.rules.equity0 : null,
-          momentum: mUS?.lastRebalance && mUK?.lastRebalance ? (mUS.value + mUK.value) / (2 * mbk.rules.equity0) : null };
+          momentum: mUS?.lastRebalance && mUK?.lastRebalance ? (mUS.value + mUK.value) / (2 * mbk.rules.equity0) : null,
+          short: await readJson("history/short-pot.json", null).then((sp) => (sp?.start ? sp.value / sp.rules.equity0 : null)) };
         pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier, pots });
       }
       else console.log(`Plan book: no VWRP close near ${date} (latest ${ck ?? "none"}), not stepped.`);

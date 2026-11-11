@@ -414,10 +414,15 @@
     <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against its home index over the same period (FTSE 100 for London shares, Euro Stoxx 50 for European ones, else the S&amp;P 500). For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
   </section>
 
+  <!-- Short-term pot (real money since 11 Nov) -->
+  <section class="section" id="stSection" hidden>
+    <div class="eyebrow">Short-term pot <span class="pill plain" style="margin-left:4px">Real money · 10%</span></div>
+    <div class="card" id="stCard"></div>
+  </section>
+
   <!-- Swing paper trading -->
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span></div>
-    <div class="card" id="stCard" style="margin-bottom:12px" hidden></div>
     <div class="card" id="scoreCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="buffCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="momCard" style="margin-bottom:12px" hidden></div>
@@ -634,7 +639,7 @@ function renderScore() {
   const B = BOOKS, rows = [];
   const add = (name, what, start, ret, bench, extra, soon = "starts 1 Dec") => rows.push({ name, what, start, ret, bench, extra, soon });
   if (B.plan) {
-    const what = { agreed: "70% VWRP, 15% dip reserve, 15% picks in tranches", weakHold: "The plan, holding tranches after weak results (proposal)", vwrp: "Everything in VWRP on day one" };
+    const what = { agreed: "60% VWRP, 15% dip reserve, 15% picks, 10% short-term pot", weakHold: "The plan, holding tranches after weak results (proposal)", vwrp: "Everything in VWRP on day one" };
     const nm = { agreed: "Plan as agreed", weakHold: "Plan + weak-results hold", vwrp: "All in VWRP" };
     what.buffettPot = "The plan, with the picks pot in the Buffett book"; what.momentumPot = "The plan, with the picks pot in the momentum books";
     nm.buffettPot = "Plan, Buffett picks"; nm.momentumPot = "Plan, momentum picks";
@@ -669,13 +674,23 @@ function renderShortTerm(st) {
       ${list.length ? list.map(row).join("") : `<div class="st-row"><span class="muted">None last night.</span><span></span></div>`}
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
+  const P = st.pot, kindName = (k) => (k === "drift" ? "Results drift" : "Bounce");
+  const exitTxt = (k) => (k === "drift" ? "hold 20 sessions" : "sell at the first close above the 5-day average, or after 10 sessions");
+  const potHtml = !P ? "" : `<div class="st-group">
+      <div class="st-head"><b>${P.paused ? "Paused: 25% below its high" : "What the pot does at the next open"}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
+      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)}: a fifth of the pot (about 2% of the portfolio), then ${exitTxt(b.kind)}</span></span><span class="num">${esc(b.market)}</span></div>`).join("")}
+      ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)}: exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
+      ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : "Nothing to buy or sell at the next open."}</span><span></span></div>` : ""}
+      ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
+    </div>`;
   el.innerHTML = `<div class="k">Short-term signals · ${esc(fmtDM(st.date))}</div>
+    ${potHtml}
     ${group("Results drift", "Some edge, inconsistent", "A 4%+ jump on 3× normal volume. Buy the next open, hold 20 sessions.", T.drift, L.drift, st.drift ?? [],
       (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? "Results day" : "No results date nearby"}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
     ${group("Bounce in an uptrend", "No edge after costs", "A sharp dip (2-day RSI under 10) above the 200-day average. Buy the next open, sell at the first close above the 5-day average or after 10 sessions.", T.bounce, L.bounce, st.bounce ?? [],
       (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
-    <p class="small muted" style="margin:12px 0 0">Ranked by evidence: drift first, as it beat random entry after costs in the backtest (though only in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years). Bounces win more often than not, but in the backtest the average gain was smaller than the costs. Neither cleared the bar for real money; each signal is tracked live under its own exit rule. A push goes to your phone at 08:15 when either list has names.</p>`;
-  el.hidden = false; $("ppSection").hidden = false;
+    <p class="small muted" style="margin:12px 0 0">Your call on 11 Nov: 10% of the portfolio, both setups, from the core. Up to 5 trades, a fifth of the pot each; drift takes free slots first, then the most oversold bounces. No stop orders (the backtest's stop cut drift's edge); the pot pauses if it falls 25% from its high. In the backtest drift beat random entry after costs in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years, while bounces won often but lost a little on average after costs. A push goes to your phone at 08:15 when there is anything to buy or sell.</p>`;
+  el.hidden = false; $("stSection").hidden = false;
 }
 // --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
 let BUFFJ = null;
@@ -785,7 +800,7 @@ async function renderPaper(s) {
 const PF_KEY = "mm-portfolio";
 let CORE_NOW = null; // data.json coreFund (VWRP), set once the data loads
 let PICK_PRICES = {}; // today's pick prices (quote units) from data.json's tranche check
-const POTS = [["core", "Core index", 70, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Swing (paper only)", 0, "var(--caution)"]];
+const POTS = [["core", "Core index", 60, "var(--accent)"], ["reserve", "Dip reserve", 15, "var(--buylite)"], ["picks", "Long-term picks", 15, "var(--watch)"], ["swing", "Short-term pot", 10, "var(--caution)"]];
 const gbp = (v) => "£" + Math.round(v).toLocaleString("en-GB");
 function loadPf() { try { return JSON.parse(localStorage.getItem(PF_KEY) || "null"); } catch { return null; } }
 function savePf(v) { try { localStorage.setItem(PF_KEY, JSON.stringify(v)); } catch {} }
@@ -795,8 +810,8 @@ const potsFor = (v) => POTS.filter(([k, , t]) => t > 0 || (v?.[k] || 0) > 0);
 
 // Rebalancing view: the rule agreed on 10 Nov (src/rebalance.js).
 // Since 10 Nov unused reserve drips into the core, so the reserve runs below
-// 15% between dips by design: weights are judged on core + reserve (85%) and picks.
-const POT_TARGETS = { core: 85, picks: 15, swing: 0 };
+// 15% between dips by design: weights are judged on core + reserve (75% since 11 Nov), picks and the short-term pot.
+const POT_TARGETS = { core: 75, picks: 15, swing: 10 }; // 11 Nov: 10% from the core to the short-term pot
 const merged = (v) => ({ ...v, core: (v.core || 0) + (v.reserve || 0), reserve: 0 });
 const POT_LABEL = Object.fromEntries(POTS.map(([k, n]) => [k, n.toLowerCase()]));
 function rebalanceHtml(pf, total) {
@@ -1011,7 +1026,7 @@ function renderPf(edit = false) {
   let pf = loadPf();
   const card = $("pfCard");
   if (!pf && !edit) {
-    card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (70/15/15; swing is paper only) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
+    card.innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div class="k">Track your pots against the plan</div><div class="small muted" style="margin-top:3px">Enter what each pot is worth to see weights vs targets (60/15/15/10, with the short-term pot) and time to your goal.</div></div><button class="btn primary" id="pfStart" type="button">Set up</button></div>`;
     card.insertAdjacentHTML("beforeend", quickGoalHtml(null, 0));
     $("pfStart").onclick = () => renderPf(true);
     wireQuickGoal(null);
@@ -1040,12 +1055,12 @@ function renderPf(edit = false) {
   const rows = potsFor(pf).map(([k, n, t, c]) => { const w = total ? ((pf[k] || 0) / total) * 100 : 0; return { k, n, t, c, w, gap: w - t }; });
   const wOf = (k) => (total ? ((pf[k] || 0) / total) * 100 : 0);
   const trows = [
-    { k: "core", n: "Core index + dip reserve", c: "var(--accent)", w: wOf("core") + wOf("reserve"), t: 85, gap: wOf("core") + wOf("reserve") - 85 },
+    { k: "core", n: "Core index + dip reserve", c: "var(--accent)", w: wOf("core") + wOf("reserve"), t: 75, gap: wOf("core") + wOf("reserve") - 75 },
     { k: "reserve", n: "of which dip reserve", c: "var(--buylite)", w: wOf("reserve"), tLabel: "\u2264 15%", sub: true },
     ...rows.filter((r) => r.k !== "core" && r.k !== "reserve"),
   ];
   const drift = trows.filter((r) => r.gap != null && Math.abs(r.gap) >= 5);
-  const swingLeft = rows.find((r) => r.k === "swing" && r.t === 0 && r.w > 0);
+  const swingLeft = null; // swing (now the short-term pot) has a 10% target since 11 Nov
   const hint = swingLeft ? "Swing is paper only now (5 Nov): the plan moves its money into the core index." : !total ? "Add pot values to compare with the targets." : drift.length ? `Off target by 5 points or more: ${drift.map((r) => `${r.n.toLowerCase()} ${r.gap > 0 ? "over" : "under"}`).join(", ")}. Rule of thumb: point new money at the pot furthest under target rather than selling.` : "Every pot is within 5 points of its target weight.";
   const monthly = pf.monthly || 0, goal = pf.goal;
   const prog = goal ? Math.min(100, (all / goal) * 100) : null;
@@ -1099,7 +1114,7 @@ function renderIsa() {
 
 // --- Trade log (localStorage only) ------------------------------------------------
 const TL_KEY = "mm-trades";
-const POT_NAME = { core: "Core index", reserve: "Dip reserve", picks: "Long-term picks", swing: "Swing" };
+const POT_NAME = { core: "Core index", reserve: "Dip reserve", picks: "Long-term picks", swing: "Short-term pot" };
 const RULE_LABEL = Object.fromEntries(RULES.map((r) => [r.key, r.label]));
 const ADH = { "on-time": ["On time", "bg-buy"], late: ["Late", "bg-watch"], missed: ["Not logged", "bg-sell"], pending: ["Open", "bg-neutral"] };
 const londonToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });

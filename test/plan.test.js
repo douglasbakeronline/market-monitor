@@ -57,7 +57,8 @@ test("pick with no next date but recent results passes with a clear reason", () 
 });
 
 test("headline keeps fund tickers in capitals", () => {
-  const cp = copilot({ today: "2026-11-03", sp: sp(-3), ftse: ftse(-2), items: {} });
+  const plan = { ...PLAN, schedule: PLAN.schedule.filter((x) => x.kind !== "short") };
+  const cp = copilot({ today: "2026-11-03", sp: sp(-3), ftse: ftse(-2), items: {}, plan });
   assert.match(cp.headline, /second core purchase \(VWRP\)/);
 });
 
@@ -71,10 +72,10 @@ test("results dated yesterday read as reported, not 'in -1 days'", () => {
   assert.doesNotMatch(p.reason, /-1/);
 });
 
-test("pot targets add up to 100% and swing holds no real money (5 Nov)", () => {
+test("pot targets add up to 100%; the short-term pot is 10%, from the core (11 Nov)", () => {
   assert.equal(PLAN.pots.reduce((a, p) => a + p.target, 0), 100);
-  assert.equal(PLAN.pots.find((p) => p.key === "swing").target, 0);
-  assert.equal(PLAN.pots.find((p) => p.key === "core").target, 70);
+  assert.equal(PLAN.pots.find((p) => p.key === "swing").target, 10);
+  assert.equal(PLAN.pots.find((p) => p.key === "core").target, 60);
 });
 
 test("resultsEstimate: cadence by market, history gaps, stale dates roll forward", async () => {
@@ -177,8 +178,8 @@ test("bench status: good entries first, then near ones; one line for the push", 
 test("notes and paused drips are shown but not counted as actions", async () => {
   const { copilot } = await import("../src/plan.js");
   const c = copilot({ today: "2026-11-10", sp: null, ftse: null });
-  assert.deepEqual(c.actions.map((a) => a.status), ["due", "info"]);
-  assert.equal(c.headline, "1 plan action this week");
+  assert.deepEqual(c.actions.map((a) => a.status), ["due", "due"]);
+  assert.equal(c.headline, "2 plan actions this week");
   const p = copilot({ today: "2027-01-29", sp: null, ftse: null, tiers: ["2027-01-20"] });
   assert.match(p.headline, /^Nothing due this week/);
 });

@@ -1,7 +1,8 @@
 // Short-term signals (Douglas, 11 Nov 2026: "a signal fired" for short-term
 // opportunities, "on a bounce or whatever"; chose "both, ranked").
 // Two setups, exactly as backtested in the swing lab (research log 10 Nov),
-// ranked by their evidence. Paper only: the plan keeps swing at 0%.
+// ranked by their evidence. Since 11 Nov (Douglas: "Create the pot") they
+// feed a real-money short-term pot, 10% of the portfolio (src/shortPot.js).
 //   drift  a +4% day on 3x the previous 50 sessions' volume (usually results);
 //          buy the next open, hold 20 sessions. The one setup with an edge
 //          over random entry after costs (+0.58 points a trade), but only in
@@ -72,7 +73,8 @@ export function addShort(log = [], sigs = []) {
   for (const s of sigs) {
     const k = `${s.kind}:${s.symbol}`;
     if (open.has(k)) continue;
-    out.push({ id: `${s.date}:${s.kind}:${s.symbol}`, kind: s.kind, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, signalDate: s.date, signalPrice: s.price, status: "pending" });
+    out.push({ id: `${s.date}:${s.kind}:${s.symbol}`, kind: s.kind, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, signalDate: s.date, signalPrice: s.price,
+      ...(s.kind === "drift" ? { movePct: s.movePct ?? null, volX: s.volX ?? null, results: !!s.results } : { rsi2: s.rsi2 ?? null }), status: "pending" });
     open.add(k);
   }
   return out;
@@ -121,25 +123,42 @@ export function summariseShort(log = []) {
 const sg = (x) => (x == null ? "n/a" : `${x > 0 ? "+" : ""}${x}%`);
 const liveTxt = (l) => (l?.closed ? `live ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}` : "live: none closed yet");
 
-// The push (alert kind "short"), once per scan date. st: scan.json shortTerm.
+const short = (n) => String(n ?? "").replace(/,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company)$/g, "");
+const exitRule = (kind) => (kind === "drift" ? "hold 20 sessions" : "sell at the first close above its 5-day average, or after 10 sessions");
+
+// The push (alert kind "short"), once per scan date. st: scan.json shortTerm,
+// with st.pot from src/shortPot.js (the real-money pot, since 11 Nov).
 export function shortTermAlert(st, seen = null) {
   if (!st?.date || st.date === seen) return null;
-  const { drift = [], bounce = [] } = st;
-  if (!drift.length && !bounce.length) return null;
+  const { drift = [], bounce = [], pot = null } = st;
+  const buys = pot?.buys ?? [], sells = pot?.sells ?? [];
+  if (!drift.length && !bounce.length && !sells.length) return null;
   const T = st.tested ?? {}, L = st.live ?? {};
+  const sig = Object.fromEntries([...drift, ...bounce].map((x) => [`${x.kind}:${x.symbol}`, x]));
+  const what = (x) => { const s = sig[`${x.kind}:${x.symbol}`]; return x.kind === "drift" ? `results drift${s ? `, ${sg(s.movePct)} on ${s.volX}x volume${s.results ? " (results)" : ""}` : ""}` : `bounce${s ? `, 2-day RSI ${s.rsi2}, ${sg(s.fall3)} over 3 days` : ""}`; };
   const lines = [];
-  if (drift.length) {
-    const t = T.drift;
-    lines.push(`Results drift (buy next open, hold 20 sessions). Tested: ${t ? `avg ${sg(t.avg)} a trade after costs vs ${sg(t.random)} random, ${t.win}% won, ahead in ${t.yearsAhead} of ${t.years} years` : "n/a"}; ${liveTxt(L.drift)}.`);
-    for (const s of drift) lines.push(`- ${s.ticker} (${s.name}): ${sg(s.movePct)} on ${s.volX}x volume${s.results ? ", results" : ""}.`);
+  if (pot) {
+    lines.push(`Short-term pot (real money, 10% of the portfolio)${pot.paused ? ": PAUSED, 25% below its high. No new buys; review the pot before resuming." : "."}`);
+    if (buys.length) {
+      lines.push("Buy at the next open, a fifth of the pot each (about 2% of the portfolio):");
+      for (const b of buys) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.`);
+    }
+    if (sells.length) {
+      lines.push("Sell at the next open (exit rule met at the last close):");
+      for (const x of sells) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.`);
+    }
+    lines.push(`Pot: ${pot.open?.length ?? 0} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
+    const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));
+    if (missed.length) lines.push(`Not taken (${pot.paused ? "paused" : "no free slot or already held"}): ${missed.map((x) => x.ticker).join(", ")}.`);
+  } else {
+    for (const x of drift) lines.push(`- ${x.ticker} (${short(x.name)}): ${what(x)}.`);
+    for (const x of bounce) lines.push(`- ${x.ticker} (${short(x.name)}): ${what(x)}.`);
   }
-  if (bounce.length) {
-    const t = T.bounce;
-    lines.push(`Bounce in an uptrend (buy next open, sell at the first close above the 5-day average or after 10 sessions). Tested: ${t ? `${t.win}% won but avg ${sg(t.avg)} a trade after costs` : "n/a"}, so expect small wins eaten by costs; ${liveTxt(L.bounce)}.`);
-    for (const s of bounce) lines.push(`- ${s.ticker} (${s.name}): 2-day RSI ${s.rsi2}, ${sg(s.fall3)} over 3 days, ${sg(s.vs200)} above its 200-day.`);
-  }
-  lines.push("Paper only: neither setup cleared the bar for real money. Every signal is tracked live under its own exit rule.");
-  const names = [...drift, ...bounce].map((s) => s.ticker);
-  return { kind: "short", priority: drift.length ? "high" : "default", tags: "zap",
-    title: `Short-term signals: ${names.slice(0, 6).join(", ")}${names.length > 6 ? ` +${names.length - 6}` : ""}`, body: lines.join("\n") };
+  const td = T.drift, tb = T.bounce;
+  lines.push(`Evidence. Drift: tested ${td ? `avg ${sg(td.avg)} a trade after costs vs ${sg(td.random)} random, ${td.win}% won, ahead in ${td.yearsAhead} of ${td.years} years` : "n/a"}; ${liveTxt(L.drift)}. Bounce: tested ${tb ? `${tb.win}% won but avg ${sg(tb.avg)} a trade after costs` : "n/a"}; ${liveTxt(L.bounce)}.`);
+  const act = [buys.length ? `buy ${buys.map((b) => b.ticker).join(", ")}` : null, sells.length ? `sell ${sells.map((x) => x.ticker).join(", ")}` : null].filter(Boolean);
+  const names = [...drift, ...bounce].map((x) => x.ticker);
+  return { kind: "short", priority: act.length ? "high" : "default", tags: "zap",
+    title: act.length ? `Short-term pot: ${act.join(" · ")}` : `Short-term signals: ${names.slice(0, 6).join(", ")}${names.length > 6 ? ` +${names.length - 6}` : ""}${pot ? ` (pot ${pot.paused ? "paused" : "full"})` : ""}`,
+    body: lines.join("\n") };
 }

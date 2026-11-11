@@ -61,20 +61,37 @@ test("addShort keeps one open trade per symbol and kind; summary counts closed",
   assert.equal(s.drift.open, 1);
 });
 
-test("shortTermAlert: once per date, ranked, with the tested and live record; allowed under plan-swing", () => {
-  const lab = { results: [
-    { key: "drift", stop: false, signal: { n: 2453, avg: 1.36, win: 54, vsIdx: 0.52 }, baseline: { avg: 0.78 }, edge: 0.58, yearsAhead: 6, yearsCounted: 9 },
-    { key: "dip", stop: false, signal: { n: 33793, avg: -0.08, win: 61, vsIdx: -0.31 }, baseline: { avg: -0.24 }, edge: 0.16, yearsAhead: 7, yearsCounted: 10 } ] };
-  const st = { date: "2026-11-11", drift: [{ ticker: "C", name: "Cee", movePct: 6, volX: 5, results: true }], bounce: [{ ticker: "A", name: "Ay", rsi2: 4.2, fall3: -8.7, vs200: 6 }],
-    tested: testedRecord(lab), live: { drift: { closed: 0 }, bounce: { closed: 3, win: 67, avg: 0.4 } } };
-  const a = shortTermAlert(st, null);
+const lab = { results: [
+  { key: "drift", stop: false, signal: { n: 2453, avg: 1.36, win: 54, vsIdx: 0.52 }, baseline: { avg: 0.78 }, edge: 0.58, yearsAhead: 6, yearsCounted: 9 },
+  { key: "dip", stop: false, signal: { n: 33793, avg: -0.08, win: 61, vsIdx: -0.31 }, baseline: { avg: -0.24 }, edge: 0.16, yearsAhead: 7, yearsCounted: 10 } ] };
+const st0 = { date: "2026-11-11", drift: [{ kind: "drift", symbol: "C", ticker: "C", name: "Cee plc", movePct: 6, volX: 5, results: true }], bounce: [{ kind: "bounce", symbol: "A", ticker: "A", name: "Ay Inc.", rsi2: 4.2, fall3: -8.7, vs200: 6 }],
+  tested: testedRecord(lab), live: { drift: { closed: 0 }, bounce: { closed: 3, win: 67, avg: 0.4 } } };
+
+test("shortTermAlert without a pot: signals, evidence, once per date; allowed under plan-swing", () => {
+  const a = shortTermAlert(st0, null);
   assert.equal(a.kind, "short");
   assert.equal(a.title, "Short-term signals: C, A");
-  assert.match(a.body, /avg \+1.36% a trade after costs vs \+0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet/);
-  assert.match(a.body, /61% won but avg -0.08% a trade after costs/);
+  assert.match(a.body, /Drift: tested avg \+1.36% a trade after costs vs \+0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet/);
+  assert.match(a.body, /Bounce: tested 61% won but avg -0.08% a trade after costs; live 3 closed, 67% won/);
   assert.ok(a.body.indexOf("C (Cee)") < a.body.indexOf("A (Ay)"));
-  assert.match(a.body, /Paper only/);
-  assert.equal(shortTermAlert(st, "2026-11-11"), null, "already sent");
-  assert.equal(shortTermAlert({ ...st, drift: [], bounce: [] }, null), null);
+  assert.equal(shortTermAlert(st0, "2026-11-11"), null, "already sent");
+  assert.equal(shortTermAlert({ ...st0, drift: [], bounce: [] }, null), null);
   assert.equal(allowAlert(a, "plan-swing"), true);
+});
+
+test("shortTermAlert with the pot: buys and sells first, missed signals named", () => {
+  const pot = { rules: { maxOpen: 5 }, start: "2026-11-12", returnPct: 1.2, paused: false, open: [{}, {}, {}, {}, {}],
+    buys: [{ kind: "drift", symbol: "C", ticker: "C", name: "Cee plc" }], sells: [{ kind: "bounce", ticker: "Z", name: "Zed", netPct: 2.1 }] };
+  const a = shortTermAlert({ ...st0, pot }, null);
+  assert.equal(a.title, "Short-term pot: buy C · sell Z");
+  assert.equal(a.priority, "high");
+  assert.match(a.body, /real money, 10% of the portfolio/);
+  assert.match(a.body, /- C \(Cee\): results drift, \+6% on 5x volume \(results\)\. Then hold 20 sessions\./);
+  assert.match(a.body, /- Z \(Zed\): back above its 5-day average or 10 sessions up, \+2.1% after costs/);
+  assert.match(a.body, /Not taken \(no free slot or already held\): A\./);
+  const p2 = shortTermAlert({ ...st0, pot: { ...pot, buys: [], sells: [], paused: true } }, null);
+  assert.equal(p2.title, "Short-term signals: C, A (pot paused)");
+  assert.match(p2.body, /PAUSED/);
+  const p3 = shortTermAlert({ ...st0, drift: [], bounce: [], pot }, null);
+  assert.ok(p3, "a sell alone still alerts");
 });
