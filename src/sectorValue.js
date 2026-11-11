@@ -104,6 +104,15 @@ export function peerFor(f, medians, regional = null, market = null) {
 // Value pillar cap for cyclicals: a P/E alone can't make a cyclical cheap.
 export const CYCLICAL_VALUE_CAP = 60;
 
+// Attach the REIT view's would-be score (research.js reitLongTerm) to a
+// sectorValueNote() summary, with one sentence for the note. Mutates sv.
+export function withReitScore(sv, rs) {
+  if (!sv || !rs) return sv;
+  sv.reit = rs;
+  sv.note = `${sv.note} On cash flow instead of P/E: Value ${rs.value ?? "n/a"}, score ${rs.score} (${rs.verdict}); tracked on paper in the plan book.`.trim();
+  return sv;
+}
+
 // Summary attached to each stock: what peers say, and what would change.
 // now = the old-rule longTerm(f, t); alt = the live longTermLive(f, t, peer).
 export function sectorValueNote(f, peer, now, alt, reit = null) {

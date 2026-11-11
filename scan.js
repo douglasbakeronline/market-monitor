@@ -12,8 +12,8 @@ import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
-import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
+import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
@@ -164,7 +164,9 @@ async function main() {
     const { f: fs, peer } = withEv(it.f, peerOf(it, medians, regional), ep);
     it.lt = longTermLive(fs, it.t, peer);
     const old = longTerm(it.f, it.t);
-    it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
+    const rv = it.deep ? reitView(it.f, reitMed) : null;
+    it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, rv) : null;
+    if (it.sv && rv) withReitScore(it.sv, reitLongTerm(fs, it.t, peer, rv));
     it.rc = ruleChangeNote(old, it.lt);
     if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }
@@ -350,7 +352,7 @@ async function main() {
       const ck = Object.keys(core).filter((d) => d <= date).sort().at(-1);
       const prices = {}, checks = {};
       for (const p of PLAN.picks) { const r = rowsBySymbol[p.symbol]?.at(-1), it = items.find((x) => x.u.symbol === p.symbol); if (r) prices[p.symbol] = { close: r.close, market: it ? MARKET[it.u.index] ?? "US" : (p.symbol.endsWith(".L") ? "UK" : "US") }; }
-      for (const c of mon?.copilot?.picks ?? []) checks[c.symbol] = { ok: !!c.ok, tone: c.resultsCheck?.tone ?? null, ticker: c.ticker };
+      for (const c of mon?.copilot?.picks ?? []) checks[c.symbol] = { ok: !!c.ok, tone: c.resultsCheck?.tone ?? null, ticker: c.ticker, reitOk: c.reitOk ?? null };
       const tier = Math.min(0, ...Object.values(stt?.buyTier ?? {}).filter(Number.isFinite));
       if (ck && date.slice(0, 10) >= ck && (Date.parse(date) - Date.parse(ck)) / 86400000 <= 5) {
         const bbk = await readJson("history/buffett-book.json", null), mbk = await readJson("history/momentum-book.json", null);

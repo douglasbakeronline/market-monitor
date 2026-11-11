@@ -22,6 +22,10 @@
 //   agreed   the rules above.
 //   weakHold proposal of 10 Nov: no tranche while a pick shows "weak results
 //            and a falling price" (resultsCheck.tone "watch").
+//   reitValue proposal of 10 Nov: REITs (VICI) take their tranche on the REIT
+//            view's cash-flow score instead of the P/E one (checks.reitOk,
+//            from the monitor's tranche check); other picks as agreed.
+//            Added 11 Nov, before the book starts.
 //   vwrp     everything in VWRP on day one (the benchmark).
 //   buffettPot, momentumPot (added 11 Nov): the plan with the 15% picks pot
 //            following the Buffett book or the momentum books (average of
@@ -33,6 +37,7 @@ export const PBOOK = { start: "2026-11-16", equity0: 10000, core: 0.70, reserve:
 export const VARIANTS = [
   { key: "agreed", label: "The plan as agreed" },
   { key: "weakHold", label: "Plus: hold a tranche after weak results and a fall (proposal, 10 Nov)" },
+  { key: "reitValue", label: "Plus: REITs valued on cash flow, not P/E (proposal, 10 Nov)" },
   { key: "vwrp", label: "Everything in VWRP" },
   { key: "buffettPot", label: "The plan, picks pot in the Buffett book" },
   { key: "momentumPot", label: "The plan, picks pot in the momentum books" },
@@ -95,7 +100,8 @@ export function stepVariant(v0, ctx, o = PBOOK) {
     }
     for (const [s, ch] of Object.entries(ctx.checks ?? {})) {
       const px = ctx.prices[s];
-      if (!ch?.ok || !(px?.close > 0)) continue;
+      const ok = v.key === "reitValue" && ch?.reitOk != null ? ch.reitOk : ch?.ok;
+      if (!ok || !(px?.close > 0)) continue;
       if (v.key === "weakHold" && ch.tone === "watch") continue;
       const p = v.picks[s] ?? { ticker: ch.ticker ?? s, market: px.market, value: 0, cost: 0, last: px.close, lastTranche: null, tranches: 0 };
       if (p.lastTranche === ym || p.cost >= book * o.maxCost - 1) continue;

@@ -94,6 +94,10 @@ export function pickStatus(pick, item, today = null) {
   const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";
   const ok = good && !resultsSoon;
+  // REIT view (proposal of 10 Nov; paper only): the same check on the would-be
+  // cash-flow score. null for anything that is not a REIT with that view.
+  const reit = item.sectorValue?.reit ?? null;
+  const reitOk = reit ? reit.verdict === "Good entry" && !resultsSoon : null;
   // Nothing published and not reported recently: estimate from the cadence
   // (display only; `ok` is unchanged).
   const est = ed == null && !recentlyReported && today ? item.resultsEstimate ?? resultsEstimate(last, today, { uk: /\.L$/.test(pick.symbol) }) : null;
@@ -105,7 +109,7 @@ export function pickStatus(pick, item, today = null) {
     : ed != null ? `Next results in ${ed} days.`
     : recentlyReported ? `Reported ${dayLabel(last)}; next results not due for weeks.`
     : estNote ?? "No results date known; check before buying.";
-  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], exit: item.exit ?? null, resultsCheck: item.resultsCheck ?? null, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reason };
+  return { ...pick, resultsEstimate: est, ticker: item.ticker ?? pick.symbol.replace(/\.L$/, ""), verdict, score, change: item.change?.lt ?? null, gaps: item.longTerm?.gaps ?? [], exit: item.exit ?? null, resultsCheck: item.resultsCheck ?? null, earningsDays: ed, lastEarnings: last, price: item.price ?? null, currency: item.currency ?? null, ok, reitVerdict: reit?.verdict ?? null, reitScore: reit?.score ?? null, reitOk, reason };
 }
 
 // Reserve drip dates (first Monday of each month from plan.reserveDrip.start)

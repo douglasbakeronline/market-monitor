@@ -2,12 +2,12 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, reitLongTerm, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
 import { pickResultsLine, pickSellLine } from "./plan.js";
 import { latestSellSignals } from "./sellSignals.js";
 import { readJson, writeJson } from "./state.js";
-import { peerFor, sectorValueNote, marketOf, reitView } from "./sectorValue.js";
+import { peerFor, sectorValueNote, marketOf, reitView, withReitScore } from "./sectorValue.js";
 import { evPeer, withEv } from "./evSample.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
@@ -44,7 +44,9 @@ export async function runResearch({ regimeKey, state }) {
       const ep = peer0 ? evPeer(f?.evToEbitda, f?.sector, marketOf(s.symbol), scanMeta?.evSample ?? null) : null;
       const { f: fs, peer } = withEv(f, peer0, ep);
       const lt = longTermLive(fs, t, peer), old = longTerm(f, t);
-      const sectorValue = peer ? sectorValueNote(fs, peer, old, lt, reitView(f, scanMeta?.reitPocf ?? null)) : null;
+      const rv = reitView(f, scanMeta?.reitPocf ?? null);
+      const sectorValue = peer ? sectorValueNote(fs, peer, old, lt, rv) : null;
+      if (sectorValue && rv) withReitScore(sectorValue, reitLongTerm(fs, t, peer, rv));
       if (sectorValue && ep) Object.assign(sectorValue, { ev: ep, note: `${sectorValue.note} ${ep.note}`.trim() });
       const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);

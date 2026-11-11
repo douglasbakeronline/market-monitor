@@ -4,6 +4,11 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 9 November 2026
 
+### Wed 11 Nov (daily run)
+- **Plan book: a REIT-view version.** The 10 Nov proposal (judge REITs on price / operating cash flow, a stand-in for P/FFO, instead of P/E) now runs on paper as its own plan version from 16 Nov, so it gathers evidence like the weak-results proposal. It had to land before the book starts, as versions cannot join later without a backfill. The would-be score swaps both P/E slots in the Value pillar for P/OCF against the REIT median and drops PEG (`reitLongTerm()` in `src/research.js`); the tranche check carries `reitOk` (`src/plan.js`), and the "reitValue" version uses it for VICI (`src/planBook.js`). The Research note adds one sentence with the cash-flow score. Live score unchanged. *Real-data dry run:* VICI scores 65 Fair on cash flow (Value 81) against 69 Fair on P/E (Value 93), so the REIT view is the stricter of the two and neither buys VICI today (Entry 56 is the binding gap). Tests added (`test/reitscore.test.js`, plan book).
+- Paper scoreboard footnote now reads "pending proposals" (there are two).
+- Research log: US mega-cap concentration and future returns (no rule change).
+
 ### Wed 11 Nov (build session with Douglas, night 4)
 Douglas: "develop more".
 - **Fix: the Dashboard stopped rendering** after the plan book release (a syntax slip in the scoreboard code, live from about 01:20 to 06:10 on 11 Nov). Fixed, and a new test now syntax-checks every page's inline scripts (`test/pages.test.js`), which the unit tests could not see; it fails on the broken version.

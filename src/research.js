@@ -312,6 +312,20 @@ export function freshSignal(isOn, wasOn, lastSeen, today, quiet = SIGNAL_QUIET_D
 export const SCORING_VERSION = "2026-11-11"; // 11 Nov: EV/EBITDA against sector peers (src/evSample.js withEv)
 export const longTermLive = (f, t, peer = null) => longTerm(f, t, peer, { entryAlt: true });
 
+// REIT view as a would-be score (proposal of 10 Nov, waiting on Douglas; the
+// plan book's "reitValue" variant uses it on paper). The Value pillar judges
+// price / operating cash flow against the REIT median in place of P/E (both
+// P/E slots), and drops PEG (P/E-based, so distorted the same way). Display
+// and paper only: the live score is unchanged. rv: reitView() output.
+export function reitLongTerm(f, t, peer, rv) {
+  if (!peer || !(rv?.pocf > 0) || !(rv?.median > 0)) return null;
+  const f2 = { ...f, forwardPE: rv.pocf, trailingPE: rv.pocf, peg: null };
+  const p2 = { ...peer, pe: rv.median, forwardPE: rv.median, trailingPE: rv.median };
+  const lt = longTermLive(f2, t, p2);
+  if (lt.score == null) return null;
+  return { score: lt.score, verdict: lt.verdict, value: lt.pillars.find((p) => p.key === "value")?.score ?? null, gaps: lt.gaps ?? [] };
+}
+
 // What the 10 Nov rule change did to this stock's verdict (null when nothing
 // changed). old = longTerm(f, t) (rule before 10 Nov); live = longTermLive().
 export function ruleChangeNote(old, live) {

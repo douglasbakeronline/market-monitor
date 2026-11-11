@@ -12,7 +12,7 @@ export function paperDigestLine({ plan, buffett, momentum, swing, drift, lensEve
   const pv = plan?.variants;
   if (pv?.agreed?.started && pv?.vwrp?.started) {
     const r = (v) => (v.value / plan.rules.equity0 - 1) * 100;
-    const extra = ["weakHold", "buffettPot", "momentumPot"].filter((k) => pv[k]?.started).map((k) => `${{ weakHold: "with the weak-results hold", buffettPot: "with Buffett picks", momentumPot: "with momentum picks" }[k]} ${pct(r(pv[k]))}`);
+    const extra = ["weakHold", "reitValue", "buffettPot", "momentumPot"].filter((k) => pv[k]?.started).map((k) => `${{ weakHold: "with the weak-results hold", reitValue: "with the REIT view", buffettPot: "with Buffett picks", momentumPot: "with momentum picks" }[k]} ${pct(r(pv[k]))}`);
     parts.push(`plan ${pct(r(pv.agreed))} vs all-VWRP ${pct(r(pv.vwrp))}${extra.length ? ` (${extra.join(", ")})` : ""}`);
   }
   if (buffett?.trades?.length) parts.push(`Buffett ${pct((buffett.value / buffett.rules.equity0 - 1) * 100)}${buffett.bench ? ` (S&P ${pct(buffett.bench.pct)})` : ""}`);

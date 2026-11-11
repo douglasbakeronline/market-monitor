@@ -32,7 +32,7 @@ test("one tranche a month, marks to prices, and the summary compares with VWRP",
   assert.equal(a.core, 7700);
   assert.equal(a.picks.META.value, 109.84);
   const s = planSummary(b);
-  assert.equal(s.length, 5);
+  assert.equal(s.length, 6);
   assert.equal(s.find((x) => x.key === "vwrp").returnPct, 10);
   assert.ok(s.find((x) => x.key === "agreed").vsVwrp < 0, "cash drags in a rising month");
   b = stepPlanBook(b, ctx({ date: "2026-12-01", vwrp: 110, prices: { META: { close: 660, market: "US" }, "HSBA.L": { close: 1300, market: "UK" } } }));
@@ -72,7 +72,7 @@ test("pot variants follow another book once it starts, cash before", () => {
   assert.equal(b.variants.momentumPot.picksCash, 1500, "first value only sets the base");
   b = stepPlanBook(b, ctx({ date: "2026-12-03", pots: { buffett: 1.1, momentum: 1.0 } }));
   assert.ok(Math.abs(b.variants.momentumPot.picksCash - 1500 / 1.02) < 0.01);
-  assert.equal(planSummary(b).length, 5);
+  assert.equal(planSummary(b).length, 6);
 });
 
 test("an old book file gains the new variants only before it starts", () => {
@@ -81,4 +81,23 @@ test("an old book file gains the new variants only before it starts", () => {
   const started = stepPlanBook(old, ctx());
   const later = { ...started, variants: { agreed: started.variants.agreed } };
   assert.equal(stepPlanBook(later, ctx({ date: "2026-11-17" })).variants.buffettPot, undefined);
+});
+
+test("reitValue: a REIT takes its tranche on the cash-flow check; others as agreed", () => {
+  const c = ctx({ prices: { META: { close: 600, market: "US" }, VICI: { close: 30, market: "US" } },
+    checks: { META: { ok: true, ticker: "META", reitOk: null }, VICI: { ok: false, ticker: "VICI", reitOk: true } } });
+  const b = stepPlanBook(newPlanBook(), c);
+  assert.deepEqual(Object.keys(b.variants.agreed.picks), ["META"]);
+  assert.deepEqual(Object.keys(b.variants.reitValue.picks).sort(), ["META", "VICI"]);
+  const c2 = ctx({ prices: { VICI: { close: 30, market: "US" } }, checks: { VICI: { ok: true, ticker: "VICI", reitOk: false } } });
+  const b2 = stepPlanBook(newPlanBook(), c2);
+  assert.deepEqual(Object.keys(b2.variants.agreed.picks), ["VICI"]);
+  assert.deepEqual(Object.keys(b2.variants.reitValue.picks), [], "cash-flow view says no");
+});
+
+test("reitValue joins a book that has not started, never one that has", () => {
+  const old = newPlanBook(); delete old.variants.reitValue;
+  assert.ok(stepPlanBook(old, ctx({ date: "2026-11-13" })).variants.reitValue);
+  const started = stepPlanBook(newPlanBook(), ctx()); delete started.variants.reitValue;
+  assert.equal(stepPlanBook(started, ctx({ date: "2026-11-17" })).variants.reitValue, undefined);
 });
