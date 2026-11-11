@@ -11,7 +11,14 @@
     "movePct": -5.5,
     "volX": 3.5,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-11",
+    "entry": 172.8000030517578,
+    "sessions": 1,
+    "lastDate": "2026-11-11",
+    "lastPrice": 173.73,
+    "netPct": 0.24,
+    "idxPct": 1.31
   },
   {
     "id": "2026-11-10:AKAM",
@@ -25,7 +32,14 @@
     "movePct": 4.3,
     "volX": 4.2,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-11",
+    "entry": 85.0999984741211,
+    "sessions": 1,
+    "lastDate": "2026-11-11",
+    "lastPrice": 86.68,
+    "netPct": 1.56,
+    "idxPct": 1.31
   },
   {
     "id": "2026-11-10:TTWO",
@@ -39,7 +53,14 @@
     "movePct": 8.3,
     "volX": 3.1,
     "results": true,
-    "status": "pending",
-    "surprisePct": 66.4
+    "status": "open",
+    "surprisePct": 66.4,
+    "entryDate": "2026-11-11",
+    "entry": 227.49000549316406,
+    "sessions": 1,
+    "lastDate": "2026-11-11",
+    "lastPrice": 231.31,
+    "netPct": 1.38,
+    "idxPct": 1.31
   }
 ]

@@ -87,3 +87,27 @@ export function shortPotLine(p) {
   parts.push(p.paused ? `PAUSED (${pause}% below its high): review before new buys` : `${Math.abs(p.fallPct ?? 0).toFixed(1)}% below its high (pauses at ${pause}%)`);
   return `Short-term pot (real money): ${parts.join("; ")}.`;
 }
+
+// Order sizes in pounds for the Dashboard (browser only: the pot's real value
+// is private, saved in this browser's pots panel, never in the repo).
+// p: the pot book (shortPot()); pf: the saved pots ({ swing, core, ..., potAt }).
+// The real pot is estimated from its saved value scaled by the book's move
+// since it was saved (pf.potAt.value), else taken as saved; with no short-term
+// value saved, 10% of the saved pots stands in. Each buy is a fifth of the
+// pot's closed-trade value (cash plus closed results), as in the book, so a
+// losing open trade does not shrink the next buy and the cash always covers it.
+export function potOrderSize(p, pf) {
+  if (!p?.rules || !pf) return null;
+  const others = ["core", "reserve", "picks"].reduce((a, k) => a + (Number(pf[k]) || 0), 0);
+  let real = null, basis;
+  if (Number(pf.swing) > 0) {
+    const moved = pf.potAt?.value > 0 && p.value > 0 ? p.value / pf.potAt.value : null;
+    real = moved ? pf.swing * moved : pf.swing;
+    basis = moved ? (Math.abs(moved - 1) < 0.0005 ? "saved" : "moved") : "saved";
+  } else if (others > 0) { real = others * (10 / 90); basis = "target"; }
+  if (!(real > 0)) return null;
+  const notional = p.value > 0 ? p.value : p.rules.equity0;
+  const equity = notional - (p.open ?? []).reduce((a, x) => a + (x.openPnl ?? 0), 0);
+  const each = (equity / p.rules.maxOpen) * (real / notional);
+  return { real: Math.round(real), each: Math.round(each), basis, saved: pf.saved ?? null };
+}

@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-11T12:03:01.667Z",
+  "updated": "2026-11-11T21:31:20.276Z",
   "start": "2026-11-02",
   "equity0": 10000,
   "realised": 9691.66,
-  "value": 9759.12,
-  "returnPct": -2.41,
+  "value": 9776.62,
+  "returnPct": -2.23,
   "paused": false,
   "open": [
     {
@@ -21,10 +21,10 @@
       "target": 2022.16,
       "riskAmt": 92.38,
       "posValue": 2500,
-      "lastPrice": 1926,
-      "lastDate": "2026-11-10",
-      "openR": 0.62,
-      "openPnl": 57.28
+      "lastPrice": 1941,
+      "lastDate": "2026-11-11",
+      "openR": 0.83,
+      "openPnl": 76.67
     },
     {
       "id": "2026-10-30:DE",
@@ -40,10 +40,10 @@
       "target": 731.84,
       "riskAmt": 116.72,
       "posValue": 2500,
-      "lastPrice": 687.64,
-      "lastDate": "2026-11-10",
-      "openR": 0.59,
-      "openPnl": 68.86
+      "lastPrice": 691.75,
+      "lastDate": "2026-11-11",
+      "openR": 0.72,
+      "openPnl": 84.04
     },
     {
       "id": "2026-10-30:MRK",
@@ -59,10 +59,10 @@
       "target": 165.84,
       "riskAmt": 142.96,
       "posValue": 2500,
-      "lastPrice": 148.05,
-      "lastDate": "2026-11-10",
-      "openR": -0.09,
-      "openPnl": -12.87
+      "lastPrice": 147.18,
+      "lastDate": "2026-11-11",
+      "openR": -0.19,
+      "openPnl": -27.16
     },
     {
       "id": "2026-11-04:CL",
@@ -78,15 +78,15 @@
       "target": 111.46,
       "riskAmt": 138.83,
       "posValue": 2422.92,
-      "lastPrice": 98.09,
-      "lastDate": "2026-11-10",
-      "openR": -0.33,
-      "openPnl": -45.81
+      "lastPrice": 98,
+      "lastDate": "2026-11-11",
+      "openR": -0.35,
+      "openPnl": -48.59
     }
   ],
   "orders": [],
-  "waiting": 15,
-  "skipped": 151,
+  "waiting": 13,
+  "skipped": 166,
   "closed": 2,
   "winRate": 0,
   "avgNetR": -1.05,
@@ -151,8 +151,8 @@
   },
   "sp": {
     "from": "2026-10-30",
-    "to": "2026-11-10",
-    "pct": -0.78
+    "to": "2026-11-11",
+    "pct": 0.52
   },
   "spSeries": [
     {
@@ -182,18 +182,22 @@
     {
       "date": "2026-11-10",
       "pct": -0.78
+    },
+    {
+      "date": "2026-11-11",
+      "pct": 0.52
     }
   ],
   "random": {
     "runs": 200,
-    "mine": -2.41,
-    "median": 0.43,
-    "p10": -3,
-    "p90": 2.88,
-    "beatShare": 15
+    "mine": -2.23,
+    "median": 0.71,
+    "p10": -2.2,
+    "p90": 3.3,
+    "beatShare": 10
   },
   "everySetup": {
-    "closed": 33,
-    "avgNetR": -0.6
+    "closed": 34,
+    "avgNetR": -0.62
   }
 }

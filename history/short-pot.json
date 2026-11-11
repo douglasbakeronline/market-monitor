@@ -1,0 +1,37 @@
+{
+  "updated": "2026-11-11T21:31:20.419Z",
+  "rules": {
+    "start": "2026-11-11",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-11"
+  },
+  "start": null,
+  "value": 10000,
+  "returnPct": 0,
+  "peak": 10000,
+  "fallPct": 0,
+  "paused": false,
+  "open": [],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "signalDate": "2026-11-11",
+      "signalPrice": 77.5
+    }
+  ],
+  "skipped": 0,
+  "free": 5,
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": []
+}

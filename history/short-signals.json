@@ -1,0 +1,14 @@
+[
+  {
+    "id": "2026-11-11:bounce:OTIS",
+    "kind": "bounce",
+    "symbol": "OTIS",
+    "ticker": "OTIS",
+    "name": "Otis Worldwide Corporation",
+    "market": "US",
+    "signalDate": "2026-11-11",
+    "signalPrice": 77.5,
+    "rsi2": 9.9,
+    "status": "pending"
+  }
+]
