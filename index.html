@@ -682,6 +682,7 @@ function renderShortTerm(st) {
       ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)} · exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
       ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : "Nothing to buy or sell at the next open."}</span><span></span></div>` : ""}
       ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
+      ${P.start && P.fallPct != null && !P.paused ? `<div class="small muted" style="margin-top:4px">${Math.abs(P.fallPct) < 0.05 ? "At its high" : `${Math.abs(P.fallPct).toFixed(1)}% below its high`}; new trades pause at ${Math.round((P.rules?.pauseFall ?? 0.25) * 100)}% below (a heads-up push comes at 15%).</div>` : ""}
     </div>`;
   el.innerHTML = `<div class="k">From the ${esc(fmtDM(st.date))} close</div>
     ${potHtml}
