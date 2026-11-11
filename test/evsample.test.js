@@ -61,7 +61,7 @@ test("sector medians by region with a pooled fallback; Financials and trusts lef
 
   const usPeer = evPeer(10.9, "Industrials", "US", m);
   assert.equal(usPeer.region, "US");
-  assert.match(usPeer.note, /EV\/EBITDA 10\.9 vs the US Industrials median of 14\.5 \(10 stocks\): 25% below \(not in the score yet\)\./);
+  assert.match(usPeer.note, /EV\/EBITDA 10\.9 vs the US Industrials median of 14\.5 \(10 stocks\): 25% below\./);
   const ukPeer = evPeer(12.3, "Industrial Engineering", "UK", m);
   assert.equal(ukPeer.region, null, "falls back to the pooled median");
   assert.match(ukPeer.note, /vs the Industrials median of 12\.0 \(15 stocks\): in line with peers/);
@@ -76,8 +76,8 @@ test("stale values count neither for coverage nor medians", () => {
   assert.equal(m.ready, false);
 });
 
-// --- EV view (display only) ---
-import { evView, evViewSummary } from "../src/evSample.js";
+// --- EV/EBITDA in the score (since 11 Nov) ---
+import { withEv } from "../src/evSample.js";
 import { longTermLive } from "../src/research.js";
 import { peerFor } from "../src/sectorValue.js";
 
@@ -86,45 +86,37 @@ const fBase = { sector: "Industrials", industry: "Specialty Industrial Machinery
 const tBase = { last: 100, offHigh: -8, vs200: 2, rsi: 48, mom12_1: 20, sma50: 98, sma200: 95 };
 const med = { forwardPE: 20, trailingPE: 22, pe: 20, n: 40 };
 const peerOf = (f) => peerFor(f, { Industrials: med }, null, "US");
+const evItem = (r) => r.pillars.find((p) => p.key === "value").items.find((i) => i.key === "evToEbitda");
+const value = (r) => r.pillars.find((p) => p.key === "value").score;
 
-test("EV view: a high EV/EBITDA in a richly valued sector scores better against peers than on the fixed bands", () => {
-  const peer = peerOf(fBase), live = longTermLive(fBase, tBase, peer);
-  const ep = { ev: 30, median: 28 };
-  const v = evView(fBase, tBase, peer, ep, live);
-  const evItem = (r) => r.pillars.find((p) => p.key === "value").items.find((i) => i.key === "evToEbitda");
-  assert.ok(evItem(live).score < 30, "30x is poor on the fixed bands");
-  assert.ok(v.value > v.valueNow, "near its sector median, value improves");
-  assert.ok(v.score >= v.scoreNow);
-  assert.equal(v.scoreNow, live.score);
-  assert.match(v.note, /Scoring EV\/EBITDA against peers would/);
+test("EV/EBITDA is scored against its sector median: 30x near a median of 28 is fair, not poor", () => {
+  const peer = peerOf(fBase);
+  const fixed = longTermLive(fBase, tBase, peer);
+  const { f, peer: p2 } = withEv(fBase, peer, { ev: 30, median: 28 });
+  const rel = longTermLive(f, tBase, p2);
+  assert.ok(evItem(fixed).score < 30, "poor on the fixed bands");
+  assert.ok(evItem(rel).score >= 50, "about par against peers");
+  assert.match(evItem(rel).display, /sector 28\.0/);
+  assert.ok(value(rel) > value(fixed));
 });
 
-test("EV view: quick-scored stocks gain the sample EV/EBITDA; nothing for missing peers or unscored", () => {
+test("quick scores gain the sample EV/EBITDA; no peer value leaves the score unchanged", () => {
   const quick = { ...fBase, evToEbitda: null };
-  const peer = peerOf(quick), live = longTermLive(quick, tBase, peer);
-  assert.ok(!live.pillars.find((p) => p.key === "value").items.some((i) => i.key === "evToEbitda" && i.score != null));
-  const v = evView(quick, tBase, peer, { ev: 8, median: 16 }, live);
-  assert.ok(v.value > v.valueNow, "a cheap sample multiple lifts value");
-  assert.equal(evView(fBase, tBase, null, { ev: 8, median: 16 }, live), null);
-  assert.equal(evView(fBase, tBase, peer, null, live), null);
-  assert.equal(evView(fBase, tBase, peer, { ev: 8, median: 16 }, { score: null }), null);
+  const peer = peerOf(quick);
+  const before = longTermLive(quick, tBase, peer);
+  assert.equal(evItem(before).score, null);
+  const { f, peer: p2 } = withEv(quick, peer, { ev: 8, median: 16 });
+  const after = longTermLive(f, tBase, p2);
+  assert.ok(evItem(after).score > 80, "half the sector median is cheap");
+  assert.ok(value(after) > value(before));
+  assert.deepEqual(withEv(quick, peer, null), { f: quick, peer });
+  assert.deepEqual(withEv(quick, null, { ev: 8, median: 16 }), { f: quick, peer: null });
 });
 
-test("EV view summary counts changed verdicts and lists moves into and out of Good entry", () => {
-  const view = (now, to, s0, s1) => ({ verdictNow: now, verdict: to, scoreNow: s0, score: s1, changed: now !== to });
-  const s = evViewSummary([
-    { symbol: "A", view: view("Fair", "Good entry", 71, 73), deep: true },
-    { symbol: "B", view: view("Good entry", "Fair", 73, 70) },
-    { symbol: "C", view: view("Fair", "Fair", 60, 60) },
-    { symbol: "D", view: null },
-  ]);
-  assert.equal(s.n, 3);
-  assert.equal(s.changed, 2);
-  assert.deepEqual(s.toGood, ["A"]);
-  assert.deepEqual(s.fromGood, ["B"]);
-  assert.equal(s.up, 1);
-  assert.equal(s.down, 1);
-  assert.equal(s.moves["Fair → Good entry"], 1);
-  assert.equal(s.full, 1);
-  assert.equal(s.changedFull, 1);
+test("cyclicals keep the value cap with EV/EBITDA in", () => {
+  const f0 = { ...fBase, sector: "Information Technology", industry: "Semiconductors", forwardPE: 6, trailingPE: 7 };
+  const peer = peerFor(f0, { "Information Technology": med }, null, "US");
+  const { f, peer: p2 } = withEv(f0, peer, { ev: 5, median: 20 });
+  const r = longTermLive(f, tBase, p2);
+  assert.equal(value(r), 60);
 });

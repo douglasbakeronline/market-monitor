@@ -26,6 +26,7 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 
 ## Long-term scoring (agreed 10 Nov 2026; research log 2, 4 and 5 Nov)
 - Value is scored against the sector's median in the same region (US, or UK plus Euro Stoxx), with cyclicals' value capped at 60.
+- EV/EBITDA is scored the same way (agreed 11 Nov 2026), using a rotating nightly sample so quick scores have it too. Banks and insurers are left out.
 - Entry gives no extra credit for a fall of more than 3% from the 52-week high, and adds 12-1 month momentum.
 - The pick tranche check uses this score ("Good entry" with no results within 7 days).
 

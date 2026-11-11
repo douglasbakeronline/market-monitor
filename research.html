@@ -220,15 +220,7 @@ function dataChecksHtml(D) {
 function proposalLine(D) {
   const r = D.ruleChanges;
   if (!r?.compared) return "";
-  return ` <b>Scoring changed 10 Nov</b> (value against sector peers, new Entry rule with momentum): ${r.changed} of ${r.compared} full-score verdicts differ from the old rule. Open a stock to see its note.`;
-}
-
-// EV view (display only): what scoring EV/EBITDA against sector peers would change.
-function evViewLine(D) {
-  const v = D.evView;
-  if (!v?.n) return "";
-  const names = (xs) => xs.slice(0, 6).map(esc).join(", ") + (xs.length > 6 ? ` and ${xs.length - 6} more` : "");
-  return ` <b>Proposal, not live:</b> scoring EV/EBITDA against sector peers would change ${v.changed} of ${v.n} verdicts${v.full != null ? ` (${v.changedFull} of ${v.full} full scores)` : ""}${!v.toGood.length && !v.fromGood.length ? ", no Good entry gained or lost" : ""}${v.toGood.length ? `; new good entries: ${names(v.toGood)}` : ""}${v.fromGood.length ? `; no longer good entries: ${names(v.fromGood)}` : ""}.`;
+  return ` <b>Scoring changed 10 and 11 Nov</b> (value against sector peers, with EV/EBITDA included from 11 Nov; new Entry rule with momentum): ${r.changed} of ${r.compared} full-score verdicts differ from the old rule. Open a stock to see its note.`;
 }
 
 // A quick-scored scan item that also sits on the research list, which has its full score.
@@ -443,7 +435,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${evViewLine(D)}${dataChecksHtml(D)}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${dataChecksHtml(D)}</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();

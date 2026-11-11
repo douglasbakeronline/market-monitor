@@ -3,11 +3,10 @@
 // ~100 highest scorers, so a median from those alone is biased low. Instead the
 // scan refreshes a rotating sample of every company (missing first, then
 // oldest), keeps each value for MAX_AGE days in data/ev-sample.json, and only
-// publishes a sector median once most of the universe is covered. Not in the
-// score: using it there is a rule change for Douglas to agree.
+// publishes a sector median once most of the universe is covered. In the
+// score since 11 Nov 2026 (withEv below; agreed by Douglas).
 import { median, r1 } from "./util.js";
 import { gicsSector, regionOf } from "./sectorValue.js";
-import { longTermLive } from "./research.js";
 
 export const MAX_AGE = 45, PER_NIGHT = 120, MIN_EV_PEERS = 8, MIN_COVERAGE = 0.6;
 
@@ -79,41 +78,14 @@ export function evPeer(ev, sector, market, med) {
   const d = Math.round((ev / m.ev - 1) * 100);
   const where = med[region]?.[s] ? (region === "US" ? "US " : "European ") : "";
   return { ev: r1(ev), median: m.ev, n: m.n, region: med[region]?.[s] ? region : null,
-    note: `EV/EBITDA ${r1(ev).toFixed(1)} vs the ${where}${s} median of ${m.ev.toFixed(1)} (${m.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`} (not in the score yet).` };
+    note: `EV/EBITDA ${r1(ev).toFixed(1)} vs the ${where}${s} median of ${m.ev.toFixed(1)} (${m.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.` };
 }
 
-// EV view (display only, step 2 of "Scoring follow-ups" b): what the live
-// score and verdict would be if EV/EBITDA were scored against the region's
-// sector median, like P/E, using the sample value where the quick scan has
-// none. Not in the score: a rule change for Douglas to agree.
-// f, t: the stock's data; peer: from peerFor(); ep: from evPeer(); live: the
-// live longTermLive() result.
-export function evView(f, t, peer, ep, live) {
-  if (!peer || !ep || !live || live.score == null || live.trust) return null;
-  const alt = longTermLive({ ...f, evToEbitda: ep.ev }, t, { ...peer, evToEbitda: ep.median });
-  if (alt.score == null) return null;
-  const val = (r) => r.pillars.find((p) => p.key === "value")?.score ?? null;
-  const changed = alt.verdict !== live.verdict;
-  const note = alt.score === live.score && !changed
-    ? `Scoring EV/EBITDA against peers would leave the score at ${live.score}.`
-    : `Scoring EV/EBITDA against peers would give ${alt.score}, ${changed ? alt.verdict : `still ${alt.verdict}`} (now ${live.score}${changed ? `, ${live.verdict}` : ""}).`;
-  return { score: alt.score, verdict: alt.verdict, value: val(alt), scoreNow: live.score, verdictNow: live.verdict, valueNow: val(live), changed, note };
-}
-
-// Scan-wide summary of the EV view: how many verdicts would change, and which.
-// rows: [{ symbol, view, deep }] (view from evView, or null; deep: a full score).
-export function evViewSummary(rows) {
-  const xs = rows.filter((r) => r.view);
-  const ch = xs.filter((r) => r.view.changed);
-  const diffs = xs.map((r) => r.view.score - r.view.scoreNow);
-  const moves = {};
-  for (const r of ch) { const k = `${r.view.verdictNow} → ${r.view.verdict}`; moves[k] = (moves[k] ?? 0) + 1; }
-  return {
-    n: xs.length, changed: ch.length, full: xs.filter((r) => r.deep).length, changedFull: ch.filter((r) => r.deep).length,
-    up: diffs.filter((d) => d > 0).length, down: diffs.filter((d) => d < 0).length,
-    avgShift: diffs.length ? r1(diffs.reduce((a, d) => a + d, 0) / diffs.length) : null,
-    toGood: ch.filter((r) => r.view.verdict === "Good entry").map((r) => r.symbol),
-    fromGood: ch.filter((r) => r.view.verdictNow === "Good entry").map((r) => r.symbol),
-    moves,
-  };
+// EV/EBITDA in the score (agreed by Douglas 11 Nov 2026): scored against the
+// region's sector median, like P/E, using the sample value where the quick scan
+// has none. Returns the fundamentals and peer to score with; unchanged when
+// there is no peer value (banks and insurers, thin sectors, sample not ready).
+export function withEv(f, peer, ep) {
+  if (!peer || !ep) return { f, peer };
+  return { f: { ...f, evToEbitda: ep.ev }, peer: { ...peer, evToEbitda: ep.median } };
 }

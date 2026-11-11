@@ -11,7 +11,7 @@ import { fetchConstituents } from "./src/data/constituents.js";
 import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda } from "./src/data/fundamentals.js";
-import { pickRefresh, record, prune, evMedians, evPeer, freshEv, evView, evViewSummary } from "./src/evSample.js";
+import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
@@ -103,7 +103,7 @@ async function main() {
   }
   console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
-  // EV/EBITDA peer sample (display only, src/evSample.js): deepened stocks
+  // EV/EBITDA peer sample (src/evSample.js; in the score since 11 Nov): deepened stocks
   // record theirs, and a rotating batch of the rest is refreshed each night.
   const evCache = prune(await readJson("data/ev-sample.json", {}), items.map((it) => it.u.symbol));
   for (const it of items) if (it.deep) record(evCache, it.u.symbol, it.f.evToEbitda, today);
@@ -122,19 +122,14 @@ async function main() {
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
   const reitMed = reitMedian(items.filter((it) => it.deep).map((it) => it.f));
   for (const it of items) {
-    const peer = peerOf(it, medians, regional);
-    it.lt = longTermLive(it.f, it.t, peer);
-    const old = longTerm(it.f, it.t);
-    it.sv = peer ? sectorValueNote(it.f, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
-    it.rc = ruleChangeNote(old, it.lt);
+    // EV/EBITDA against the region's sector median (sample value for quick scores; live since 11 Nov).
     const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
-    if (it.sv && ep) {
-      it.sv.ev = ep;
-      // EV view: the would-be score with EV/EBITDA against peers (display only).
-      const view = evView(it.f, it.t, peer, ep, it.lt);
-      if (view) it.sv.evView = view;
-      it.sv.note = `${it.sv.note} ${ep.note}${view ? ` ${view.note}` : ""}`.trim();
-    }
+    const { f: fs, peer } = withEv(it.f, peerOf(it, medians, regional), ep);
+    it.lt = longTermLive(fs, it.t, peer);
+    const old = longTerm(it.f, it.t);
+    it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, it.deep ? reitView(it.f, reitMed) : null) : null;
+    it.rc = ruleChangeNote(old, it.lt);
+    if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }
 
   // Results dates seen so far, so estimates learn each company's reporting gap.
@@ -295,7 +290,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, evView: evViewSummary(out.map((i) => ({ symbol: i.symbol, view: i.sectorValue?.evView ?? null, deep: !!i.deep }))), ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, items: out,
   });
   const rcs = ruleChanges(out);
   console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
