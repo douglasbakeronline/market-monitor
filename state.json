@@ -1634,23 +1634,23 @@
         }
       ]
     },
-    "fgAt": "2026-11-11T19:30:00.157Z",
+    "fgAt": "2026-11-11T19:30:23.652Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
-        "level": 7626.11,
+        "level": 7624.72,
         "date": "2026-11-11",
-        "asOf": "2026-11-11T19:29:59.000Z",
+        "asOf": "2026-11-11T19:30:22.000Z",
         "currency": "USD",
         "drawdownPct": -2.5,
         "peak": 7818.93,
         "peakDate": "2026-10-06",
-        "sma50": 7672.8,
-        "sma200": 7334.32,
+        "sma50": 7672.77,
+        "sma200": 7334.31,
         "vs200Pct": 4,
         "above200": true,
-        "rsi14": 50.1,
+        "rsi14": 50,
         "dayPct": 1.4,
         "weekPct": -0.8,
         "monthPct": -2.3,
@@ -1674,7 +1674,7 @@
           },
           {
             "date": "2026-11-11",
-            "pct": 1.4
+            "pct": 1.38
           }
         ],
         "series": [
@@ -1707,7 +1707,7 @@
           -3.78,
           -1.52,
           -1.9,
-          -0.53
+          -0.54
         ]
       },
       "ftse": {
@@ -1785,11 +1785,11 @@
         ]
       },
       "vix": {
-        "level": 17.62,
-        "dayPct": -9.5,
+        "level": 17.63,
+        "dayPct": -9.4,
         "date": "2026-11-11"
       },
-      "at": "2026-11-11T19:30:00.157Z"
+      "at": "2026-11-11T19:30:23.652Z"
     },
     "watchlist": [
       {
@@ -1797,13 +1797,13 @@
         "yahoo": "SPCX",
         "name": "SpaceX",
         "currency": "USD",
-        "price": 141.69,
+        "price": 141.52,
         "date": "2026-11-11",
-        "dropFromHigh": -2.4,
-        "lastChange": -1,
+        "dropFromHigh": -2.6,
+        "lastChange": -1.1,
         "previous": 0.7,
-        "week": 4.2,
-        "month": -9.5,
+        "week": 4.1,
+        "month": -9.6,
         "series": [
           0,
           7.35,
@@ -1834,7 +1834,7 @@
           -9.32,
           -4.05,
           -3.36,
-          -4.31
+          -4.42
         ],
         "rebound": false
       },
@@ -1843,10 +1843,10 @@
         "yahoo": "MSFT",
         "name": "Microsoft",
         "currency": "USD",
-        "price": 520.73,
+        "price": 520.6,
         "date": "2026-11-11",
         "dropFromHigh": -6.3,
-        "lastChange": -2.3,
+        "lastChange": -2.4,
         "previous": -2.2,
         "week": -6.3,
         "month": -4.2,
@@ -1880,7 +1880,7 @@
           3.47,
           6.31,
           3.97,
-          1.55
+          1.52
         ],
         "rebound": false
       },
@@ -1889,7 +1889,7 @@
         "yahoo": "GOOGL",
         "name": "Alphabet",
         "currency": "USD",
-        "price": 293.91,
+        "price": 293.93,
         "date": "2026-11-11",
         "dropFromHigh": -9.5,
         "lastChange": 2.3,
@@ -1926,7 +1926,7 @@
           -15.81,
           -14.81,
           -15.04,
-          -13.11
+          -13.1
         ],
         "rebound": true
       },
@@ -1935,7 +1935,7 @@
         "yahoo": "AAPL",
         "name": "Apple",
         "currency": "USD",
-        "price": 354.84,
+        "price": 354.85,
         "date": "2026-11-11",
         "dropFromHigh": 0,
         "lastChange": 1.8,
@@ -1972,7 +1972,7 @@
           3.65,
           6.17,
           5.51,
-          7.42
+          7.43
         ],
         "rebound": false
       },
@@ -1981,7 +1981,7 @@
         "yahoo": "AMZN",
         "name": "Amazon",
         "currency": "USD",
-        "price": 266.58,
+        "price": 266.62,
         "date": "2026-11-11",
         "dropFromHigh": -1.6,
         "lastChange": -1.6,
@@ -2018,7 +2018,7 @@
           4.46,
           7.53,
           9.12,
-          7.39
+          7.41
         ],
         "rebound": false
       },
@@ -2027,7 +2027,7 @@
         "yahoo": "NVDA",
         "name": "Nvidia",
         "currency": "USD",
-        "price": 175.37,
+        "price": 175.32,
         "date": "2026-11-11",
         "dropFromHigh": -18.6,
         "lastChange": 3.8,
@@ -2064,7 +2064,7 @@
           -19.15,
           -22.61,
           -26.84,
-          -24.04
+          -24.06
         ],
         "rebound": true
       },
@@ -2073,7 +2073,7 @@
         "yahoo": "META",
         "name": "Meta",
         "currency": "USD",
-        "price": 635.24,
+        "price": 635.21,
         "date": "2026-11-11",
         "dropFromHigh": -1,
         "lastChange": -1,
@@ -2110,7 +2110,7 @@
           -15.95,
           -11.65,
           -11.65,
-          -12.49
+          -12.5
         ],
         "rebound": false
       },
@@ -2119,10 +2119,10 @@
         "yahoo": "TSLA",
         "name": "Tesla",
         "currency": "USD",
-        "price": 392.64,
+        "price": 392.47,
         "date": "2026-11-11",
         "dropFromHigh": -2.9,
-        "lastChange": 3.4,
+        "lastChange": 3.3,
         "previous": 0.5,
         "week": 1.9,
         "month": 4.6,
@@ -2156,7 +2156,7 @@
           1.16,
           6.76,
           7.25,
-          10.88
+          10.83
         ],
         "rebound": false
       },
@@ -2165,13 +2165,13 @@
         "yahoo": "AVGO",
         "name": "Broadcom",
         "currency": "USD",
-        "price": 349.1,
+        "price": 348.9,
         "date": "2026-11-11",
         "dropFromHigh": -0.8,
-        "lastChange": 5.2,
+        "lastChange": 5.1,
         "previous": 3.9,
-        "week": 7.3,
-        "month": -2.3,
+        "week": 7.2,
+        "month": -2.4,
         "series": [
           0,
           3.35,
@@ -2202,7 +2202,7 @@
           -14.54,
           -7.03,
           -3.39,
-          1.59
+          1.53
         ],
         "rebound": false
       },
@@ -2211,10 +2211,10 @@
         "yahoo": "AMD",
         "name": "AMD",
         "currency": "USD",
-        "price": 561.34,
+        "price": 561.22,
         "date": "2026-11-11",
         "dropFromHigh": -3,
-        "lastChange": 9,
+        "lastChange": 8.9,
         "previous": 1.3,
         "week": 14.8,
         "month": -7.3,
@@ -2248,7 +2248,7 @@
           -27.07,
           -17.4,
           -16.33,
-          -8.83
+          -8.85
         ],
         "rebound": false
       },
@@ -2257,7 +2257,7 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 424.25,
+        "price": 424.29,
         "date": "2026-11-11",
         "dropFromHigh": -2.8,
         "lastChange": 0.3,
@@ -2294,7 +2294,7 @@
           17.45,
           17.32,
           17.55,
-          17.9
+          17.91
         ],
         "rebound": false
       },
@@ -2303,7 +2303,7 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 344.44,
+        "price": 344.41,
         "date": "2026-11-11",
         "dropFromHigh": -2.2,
         "lastChange": 0.7,
@@ -2340,7 +2340,7 @@
           0.39,
           2.67,
           2.67,
-          3.38
+          3.37
         ],
         "rebound": false
       },
