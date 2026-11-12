@@ -94,6 +94,20 @@ export function runupEvents(rows, market, { idx = null, seed = 1, symbol = null,
   return out;
 }
 
+// Reaction-day indices from timed results dates ([{ date, after }], see
+// fetchReportedDates): after the close -> the next session (so the run-up
+// exits at that day's close, before the news); before the close or unknown ->
+// that session (the run-up exits the close before). Run 2 (12 Nov), after D1
+// showed the volume-found dates were unreliable.
+export function daysFromDates(rows, events = []) {
+  const out = new Set();
+  for (const e of events) {
+    const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date));
+    if (i > 0) out.add(i);
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
 // D1: share of real results dates the volume method finds. known: real dates
 // (YYYY-MM-DD) inside the rows' span; a match is the same session or the next.
 export function matchRate(rows, known = []) {

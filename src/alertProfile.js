@@ -7,7 +7,9 @@ export const PROFILES = {
   // Plan: monitor problems, buy tiers, crash watch, the pullback rule, your own
   // price alerts, news on your five picks; plus swing-trade orders and closes,
   // and the ranked short-term signals (Douglas, 11 Nov).
-  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "swing", "short"],
+  // Results ahead for the research list (Douglas, 12 Nov: "a better signal on
+  // upcoming results").
+  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "swing", "short", "results"],
 };
 
 export function allowAlert(a, profile = "all") {
