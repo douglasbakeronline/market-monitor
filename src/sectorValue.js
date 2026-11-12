@@ -104,12 +104,17 @@ export function peerFor(f, medians, regional = null, market = null) {
 // Value pillar cap for cyclicals: a P/E alone can't make a cyclical cheap.
 export const CYCLICAL_VALUE_CAP = 60;
 
-// Attach the REIT view's would-be score (research.js reitLongTerm) to a
-// sectorValueNote() summary, with one sentence for the note. Mutates sv.
-export function withReitScore(sv, rs) {
+// Attach a REIT's cash-flow score summary (research.js reitLongTerm; the live
+// score since 12 Nov) to a sectorValueNote() summary, with one sentence on what
+// the P/E-based score would have been (pe: { score, verdict, value }). Mutates sv.
+export function withReitScore(sv, rs, pe = null) {
   if (!sv || !rs) return sv;
   sv.reit = rs;
-  sv.note = `${sv.note} On cash flow instead of P/E: Value ${rs.value ?? "n/a"}, score ${rs.score} (${rs.verdict}); tracked on paper in the plan book.`.trim();
+  if (pe?.score != null) {
+    const v = pe.value ?? pe.pillars?.find((p) => p.key === "value")?.score ?? null;
+    sv.reitPe = { score: pe.score, verdict: pe.verdict, value: v };
+    sv.note = `${sv.note} On P/E instead it would be Value ${v ?? "n/a"}, score ${pe.score} (${pe.verdict}).`.trim();
+  }
   return sv;
 }
 
@@ -123,11 +128,11 @@ export function sectorValueNote(f, peer, now, alt, reit = null) {
   const parts = [];
   if (ratio != null) {
     const d = Math.round((ratio - 1) * 100);
-    parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.region ? (peer.region === "US" ? "US " : "European ") : ""}${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}.`);
+    parts.push(`P/E ${pe.toFixed(1)} vs the ${peer.region ? (peer.region === "US" ? "US " : "European ") : ""}${peer.sector} median of ${peer.pe.toFixed(1)} (${peer.n} stocks): ${Math.abs(d) < 5 ? "in line with peers" : `${Math.abs(d)}% ${d < 0 ? "below" : "above"}`}${alt.reit ? " (not used for REITs)" : ""}.`);
   }
   if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
   if (peer.sector === "Real Estate" && !reit) parts.push("REITs are better judged on funds from operations than P/E.");
-  if (reit?.note) parts.push(reit.note);
+  if (reit?.note) parts.push(alt.reit ? `Scored on cash flow (since 12 Nov): ${reit.note}` : `REIT view (not in the score yet: too few fully scored REITs for a median): ${reit.note}`);
   if (vAlt != null && vNow != null) parts.push(`Value scored against peers: ${vAlt}${vAlt !== vNow ? ` (${vNow} on the old fixed bands)` : ""}.`);
   return {
     sector: peer.sector, region: peer.region ?? null, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
@@ -136,7 +141,7 @@ export function sectorValueNote(f, peer, now, alt, reit = null) {
   };
 }
 
-// REITs (display only, not in the score): property depreciation cuts reported
+// REITs (in the score since 12 Nov, research.js longTermScored): property depreciation cuts reported
 // earnings, so P/E overstates their price. Price / operating cash flow is a
 // rough stand-in for P/FFO, the measure REITs are usually judged on.
 // REITs only: property services firms (CBRE) are Real Estate but not REITs.
@@ -156,5 +161,5 @@ export function reitView(f, med) {
   if (x == null) return null;
   const vs = med ? (Math.abs(x / med.median - 1) < 0.05 ? "in line with" : x < med.median ? `${Math.round((1 - x / med.median) * 100)}% below` : `${Math.round((x / med.median - 1) * 100)}% above`) : null;
   return { pocf: x, median: med?.median ?? null, n: med?.n ?? null,
-    note: `REIT view (not in the score): price / operating cash flow ${x}×, a rough stand-in for P/FFO${vs ? `, ${vs} the median of ${med.n} fully scored REITs (${med.median}×)` : ""}.` };
+    note: `Price / operating cash flow ${x}×, a rough stand-in for P/FFO${vs ? `, ${vs} the median of ${med.n} fully scored REITs (${med.median}×)` : ""}.` };
 }

@@ -12,7 +12,7 @@ import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -172,11 +172,13 @@ async function main() {
     // EV/EBITDA against the region's sector median (sample value for quick scores; live since 11 Nov).
     const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
     const { f: fs, peer } = withEv(it.f, peerOf(it, medians, regional), ep);
-    it.lt = longTermLive(fs, it.t, peer);
-    const old = longTerm(it.f, it.t);
+    // REITs score on cash flow, not P/E (since 12 Nov; full scores only, as the
+    // REIT median comes from them). The P/E score stays for the note.
     const rv = it.deep ? reitView(it.f, reitMed) : null;
+    it.lt = longTermScored(fs, it.t, peer, rv);
+    const old = longTerm(it.f, it.t);
     it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, rv) : null;
-    if (it.sv && rv) withReitScore(it.sv, reitLongTerm(fs, it.t, peer, rv));
+    if (it.sv && it.lt.reit) withReitScore(it.sv, reitLongTerm(fs, it.t, peer, rv), longTermLive(fs, it.t, peer));
     it.rc = ruleChangeNote(old, it.lt);
     if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }

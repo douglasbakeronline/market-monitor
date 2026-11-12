@@ -309,19 +309,44 @@ export function freshSignal(isOn, wasOn, lastSeen, today, quiet = SIGNAL_QUIET_D
 }
 
 // The live long-term score (agreed by Douglas 10 Nov 2026).
-export const SCORING_VERSION = "2026-11-11"; // 11 Nov: EV/EBITDA against sector peers (src/evSample.js withEv)
+export const SCORING_VERSION = "2026-11-12"; // 12 Nov: REITs on cash flow (longTermScored); 11 Nov: EV/EBITDA against sector peers (src/evSample.js withEv)
 export const longTermLive = (f, t, peer = null) => longTerm(f, t, peer, { entryAlt: true });
 
-// REIT view as a would-be score (proposal of 10 Nov, waiting on Douglas; the
-// plan book's "reitValue" variant uses it on paper). The Value pillar judges
-// price / operating cash flow against the REIT median in place of P/E (both
-// P/E slots), and drops PEG (P/E-based, so distorted the same way). Display
-// and paper only: the live score is unchanged. rv: reitView() output.
-export function reitLongTerm(f, t, peer, rv) {
+// REITs score on cash flow (decided 12 Nov 2026, STRATEGY-NOTES): property
+// depreciation cuts reported earnings, so P/E overstates a REIT's price. The
+// Value pillar judges price / operating cash flow against the median of fully
+// scored REITs in place of P/E (both P/E slots), and drops PEG (P/E-based, so
+// distorted the same way). rv: reitView() output (src/sectorValue.js).
+function reitInputs(f, peer, rv) {
   if (!peer || !(rv?.pocf > 0) || !(rv?.median > 0)) return null;
-  const f2 = { ...f, forwardPE: rv.pocf, trailingPE: rv.pocf, peg: null };
-  const p2 = { ...peer, pe: rv.median, forwardPE: rv.median, trailingPE: rv.median };
-  const lt = longTermLive(f2, t, p2);
+  return { f: { ...f, forwardPE: rv.pocf, trailingPE: rv.pocf, peg: null }, peer: { ...peer, pe: rv.median, forwardPE: rv.median, trailingPE: rv.median } };
+}
+
+// The live score for any stock: longTermLive(), or for a REIT with a cash-flow
+// view, the same score with Value on price / operating cash flow. The Value
+// items are relabelled so the page says what was measured.
+export function longTermScored(f, t, peer, rv = null) {
+  const r = reitInputs(f, peer, rv);
+  if (!r) return longTermLive(f, t, peer);
+  const lt = longTermLive(r.f, t, r.peer);
+  if (lt.score == null) return longTermLive(f, t, peer);
+  const vp = lt.pillars.find((p) => p.key === "value");
+  const why = `Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of ${rv.n ?? "the"} fully scored REITs.`;
+  for (const it of vp?.items ?? []) {
+    if (it.key === "forwardPE" || it.key === "trailingPE") Object.assign(it, { key: it.key === "forwardPE" ? "pocf" : "pocf2", label: `Price / cash flow (in place of ${it.key === "forwardPE" ? "forward" : "trailing"} P/E)`, display: `${rv.pocf}× (REITs ${rv.median}×)`, why });
+    if (it.key === "peg") Object.assign(it, { display: "n/a", why: "Not used for REITs: it is built on P/E." });
+  }
+  lt.reit = { pocf: rv.pocf, median: rv.median, n: rv.n ?? null };
+  return lt;
+}
+
+// The P/E-based score a REIT would have had (for the "what changed" line), and
+// the cash-flow score as a compact summary (sectorValue.reit; the plan book's
+// "reitValue" variant reads it, now the same as the agreed plan).
+export function reitLongTerm(f, t, peer, rv) {
+  const r = reitInputs(f, peer, rv);
+  if (!r) return null;
+  const lt = longTermLive(r.f, t, r.peer);
   if (lt.score == null) return null;
   return { score: lt.score, verdict: lt.verdict, value: lt.pillars.find((p) => p.key === "value")?.score ?? null, gaps: lt.gaps ?? [] };
 }
@@ -330,7 +355,7 @@ export function reitLongTerm(f, t, peer, rv) {
 // changed). old = longTerm(f, t) (rule before 10 Nov); live = longTermLive().
 export function ruleChangeNote(old, live) {
   if (!old || !live || old.score == null || live.score == null || live.trust || old.verdict === live.verdict) return null;
-  return { verdict: old.verdict, score: old.score, note: `Scoring changed on 10 and 11 Nov (value against sector peers, EV/EBITDA included from 11 Nov; new Entry rule with momentum): ${live.verdict} now, ${old.verdict} (${old.score}) under the old rule.` };
+  return { verdict: old.verdict, score: old.score, note: `Scoring changed on 10 and 11 Nov (value against sector peers, EV/EBITDA included from 11 Nov; new Entry rule with momentum)${live.reit ? "; REITs are valued on cash flow, not P/E, from 12 Nov" : ""}: ${live.verdict} now, ${old.verdict} (${old.score}) under the old rule.` };
 }
 
 // Adjust the long-term verdict note for the market regime.

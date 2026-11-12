@@ -39,7 +39,7 @@ export const PBOOK = { start: "2026-11-16", equity0: 10000, core: 0.60, reserve:
 export const VARIANTS = [
   { key: "agreed", label: "The plan as agreed" },
   { key: "weakHold", label: "Plus: hold a tranche after weak results and a fall (proposal, 10 Nov)" },
-  { key: "reitValue", label: "Plus: REITs valued on cash flow, not P/E (proposal, 10 Nov)" },
+  { key: "reitValue", label: "Plus: REITs valued on cash flow, not P/E (proposed 10 Nov; live since 12 Nov, so now the same as the agreed plan)" },
   { key: "vwrp", label: "Everything in VWRP" },
   { key: "buffettPot", label: "The plan, picks pot in the Buffett book" },
   { key: "momentumPot", label: "The plan, picks pot in the momentum books" },

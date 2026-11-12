@@ -680,7 +680,7 @@ function renderScore() {
     const nm = { agreed: "Plan as agreed", weakHold: "Plan + weak-results hold", vwrp: "All in VWRP" };
     what.buffettPot = "The plan, with the picks pot in the Buffett book"; what.momentumPot = "The plan, with the picks pot in the momentum books";
     nm.buffettPot = "Plan, Buffett picks"; nm.momentumPot = "Plan, momentum picks";
-    what.reitValue = "The plan, with REITs (VICI) judged on cash flow, not P/E (proposal)"; nm.reitValue = "Plan + REIT view";
+    what.reitValue = "The plan, with REITs (VICI) judged on cash flow, not P/E (live since 12 Nov, so it now follows the agreed plan)"; nm.reitValue = "Plan + REIT view";
     for (const k of ["agreed", "weakHold", "reitValue", "buffettPot", "momentumPot", "vwrp"]) { const v = B.plan.variants[k]; if (!v) continue; const base = B.plan.variants.vwrp; add(nm[k], what[k], v.started, v.started ? (v.value / B.plan.rules.equity0 - 1) * 100 : null, base?.started && k !== "vwrp" ? { name: "VWRP", pct: (base.value / B.plan.rules.equity0 - 1) * 100 } : null, k === "vwrp" ? "" : k.endsWith("Pot") ? (v.potLast ? "pot invested" : "pot in cash until that book starts") : `${Object.keys(v.picks).length} picks bought`, `starts ${fmtDM(B.plan.rules.start)}`); }
   }
   if (B.buff) add("Buffett book", "Wonderful companies at a margin of safety, held", B.buff.trades?.[0]?.date ?? null, B.buff.trades?.length ? (B.buff.value / B.buff.rules.equity0 - 1) * 100 : null, B.buff.bench, `${B.buff.positions.length} held`);

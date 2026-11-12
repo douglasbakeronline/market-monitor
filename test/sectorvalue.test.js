@@ -125,7 +125,7 @@ test("per-region medians: US vs Europe (UK and Euro Stoxx pooled), with a pooled
   assert.equal(note.region, "Europe");
 });
 
-test("REIT view: price / operating cash flow against fully scored REITs (display only)", async () => {
+test("REIT view: price / operating cash flow against fully scored REITs", async () => {
   const { pocf, reitMedian, reitView } = await import("../src/sectorValue.js");
   const reit = (cap, ocf) => ({ sector: "Real Estate", industry: "REIT - Specialty", marketCap: cap, operatingCashflow: ocf });
   assert.equal(pocf(reit(30e9, 2.5e9)), 12);
@@ -136,6 +136,6 @@ test("REIT view: price / operating cash flow against fully scored REITs (display
   const med = reitMedian([10, 12, 14, 16, 18].map((x) => reit(x * 1e9, 1e9)));
   assert.deepEqual(med, { median: 14, n: 5 });
   const v = reitView(reit(30e9, 2.5e9), med);
-  assert.match(v.note, /12×, a rough stand-in for P\/FFO, 14% below the median of 5 fully scored REITs \(14×\)\.$/);
+  assert.match(v.note, /^Price \/ operating cash flow 12×, a rough stand-in for P\/FFO, 14% below the median of 5 fully scored REITs \(14×\)\.$/);
   assert.match(reitView(reit(30e9, 2.5e9), null).note, /12×, a rough stand-in for P\/FFO\.$/);
 });
