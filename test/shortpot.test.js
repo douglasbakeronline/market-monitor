@@ -32,3 +32,16 @@ test("shortPot: full slots skip signals; a 25% fall pauses new buys", () => {
   assert.equal(q.paused, true);
   assert.equal(q.buys.length, 0);
 });
+
+test("shortPot: scarce slots go to results days, then the bigger EPS beat, then volume (12 Nov)", () => {
+  const open = Array.from({ length: 3 }, (_, k) => tr({ kind: "drift", symbol: `O${k}`, signalDate: "2026-11-11", status: "open", entryDate: "2026-11-12", entry: 10, netPct: 0 }));
+  const pend = [
+    tr({ kind: "drift", symbol: "VOL", signalDate: "2026-11-13", status: "pending", results: false, volX: 9 }),
+    tr({ kind: "drift", symbol: "SMALL", signalDate: "2026-11-13", status: "pending", results: true, surprisePct: 2, volX: 8 }),
+    tr({ kind: "drift", symbol: "NONE", signalDate: "2026-11-13", status: "pending", results: true, surprisePct: null, volX: 7 }),
+    tr({ kind: "drift", symbol: "BIG", signalDate: "2026-11-13", status: "pending", results: true, surprisePct: 15, volX: 3 }),
+  ];
+  const p = shortPot([...open, ...pend], { today: "2026-11-13" });
+  assert.deepEqual(p.buys.map((x) => x.ticker), ["BIG", "SMALL"]);
+  assert.equal(p.skipped, 2);
+});

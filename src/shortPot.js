@@ -7,7 +7,9 @@
 //   - Up to 5 open trades, each a fifth of the pot's value at entry (about
 //     2% of the portfolio).
 //   - When there are more signals than free slots: results drift first
-//     (results days, then the bigger volume multiple), then bounces (most
+//     (results days, then the bigger EPS beat, then the bigger volume
+//     multiple; the beat step added 12 Nov, Douglas: "you decide", after swing
+//     lab round 6), then bounces (most
 //     oversold first). Signals that miss a slot are not carried over.
 //   - Buy at the next open; exits as tested: drift after 20 sessions, a
 //     bounce at the first close above its 5-day average or after 10 sessions.
@@ -22,7 +24,7 @@ import { r2 } from "./util.js";
 export const SPOT = { start: "2026-11-11", equity0: 10000, maxOpen: 5, pauseFall: 0.25 };
 
 const rank = (a, b) => (a.kind === b.kind ? 0 : a.kind === "drift" ? -1 : 1)
-  || (b.results ? 1 : 0) - (a.results ? 1 : 0) || (b.volX ?? 0) - (a.volX ?? 0) || (a.rsi2 ?? 100) - (b.rsi2 ?? 100) || (a.symbol < b.symbol ? -1 : 1);
+  || (b.results ? 1 : 0) - (a.results ? 1 : 0) || (b.surprisePct ?? -Infinity) - (a.surprisePct ?? -Infinity) || (b.volX ?? 0) - (a.volX ?? 0) || (a.rsi2 ?? 100) - (b.rsi2 ?? 100) || (a.symbol < b.symbol ? -1 : 1);
 
 // log: history/short-signals.json. opts.today: the latest bar's date (sells are
 // the trades whose exit came at that close).
