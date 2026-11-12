@@ -1,0 +1,231 @@
+{
+ "ran": "2026-11-12",
+ "mode": "yahoo",
+ "universe": 603,
+ "fetched": 598,
+ "withDates": 594,
+ "resultsDays": 19401,
+ "range": "10y",
+ "from": "2017-02-09",
+ "to": "2026-11-10",
+ "verdict": "fails",
+ "D1": {
+  "n": 44,
+  "hit": 40,
+  "rate": 0.91,
+  "pass": true
+ },
+ "H6": {
+  "K": 5,
+  "n": 18946,
+  "avg": 0.1,
+  "base": -0.08,
+  "edge": 0.17,
+  "win": 52,
+  "monthEdge": 0,
+  "byYear": [
+   {
+    "year": "2017",
+    "n": 1534,
+    "avg": 0.08,
+    "base": -0.05,
+    "edge": 0.14,
+    "win": 52
+   },
+   {
+    "year": "2018",
+    "n": 1887,
+    "avg": -0.72,
+    "base": -0.47,
+    "edge": -0.26,
+    "win": 45
+   },
+   {
+    "year": "2019",
+    "n": 1916,
+    "avg": 0.18,
+    "base": 0.2,
+    "edge": -0.02,
+    "win": 55
+   },
+   {
+    "year": "2020",
+    "n": 1943,
+    "avg": 0.39,
+    "base": 0.02,
+    "edge": 0.38,
+    "win": 54
+   },
+   {
+    "year": "2021",
+    "n": 1962,
+    "avg": 0.1,
+    "base": 0,
+    "edge": 0.1,
+    "win": 54
+   },
+   {
+    "year": "2022",
+    "n": 1961,
+    "avg": 0.08,
+    "base": -0.47,
+    "edge": 0.55,
+    "win": 53
+   },
+   {
+    "year": "2023",
+    "n": 1977,
+    "avg": -0.23,
+    "base": 0.04,
+    "edge": -0.28,
+    "win": 44
+   },
+   {
+    "year": "2024",
+    "n": 2075,
+    "avg": 0.29,
+    "base": -0.03,
+    "edge": 0.32,
+    "win": 54
+   },
+   {
+    "year": "2025",
+    "n": 1724,
+    "avg": 0.56,
+    "base": 0.01,
+    "edge": 0.55,
+    "win": 56
+   },
+   {
+    "year": "2026",
+    "n": 1967,
+    "avg": 0.25,
+    "base": -0.01,
+    "edge": 0.27,
+    "win": 53
+   }
+  ],
+  "byMarket": [
+   {
+    "market": "US",
+    "n": 18209,
+    "avg": 0.1,
+    "base": -0.03,
+    "edge": 0.13,
+    "win": 52
+   },
+   {
+    "market": "UK",
+    "n": 737,
+    "avg": 0.01,
+    "base": -0.32,
+    "edge": 0.32,
+    "win": 51
+   }
+  ],
+  "halves": [
+   {
+    "label": "2017-2021",
+    "n": 9242,
+    "avg": 0.01,
+    "base": -0.06,
+    "edge": 0.07,
+    "win": 52
+   },
+   {
+    "label": "2022-2026",
+    "n": 9704,
+    "avg": 0.18,
+    "base": -0.09,
+    "edge": 0.27,
+    "win": 52
+   }
+  ],
+  "years": {
+   "ahead": 7,
+   "counted": 10
+  },
+  "checks": {
+   "edge": false,
+   "positive": true,
+   "sample": true,
+   "years": false,
+   "markets": true,
+   "halves": true,
+   "month": false
+  },
+  "pass": false
+ },
+ "explore": [
+  {
+   "K": 3,
+   "market": "US",
+   "n": 18242,
+   "avg": -0.04,
+   "base": -0.14,
+   "edge": 0.1,
+   "win": 49,
+   "gross": 0.26,
+   "vsIdx": -0.24
+  },
+  {
+   "K": 3,
+   "market": "UK",
+   "n": 737,
+   "avg": -0.27,
+   "base": -0.43,
+   "edge": 0.16,
+   "win": 48,
+   "gross": 0.23,
+   "vsIdx": -0.46
+  },
+  {
+   "K": 5,
+   "market": "US",
+   "n": 18209,
+   "avg": 0.1,
+   "base": -0.03,
+   "edge": 0.13,
+   "win": 52,
+   "gross": 0.4,
+   "vsIdx": -0.18
+  },
+  {
+   "K": 5,
+   "market": "UK",
+   "n": 737,
+   "avg": 0.01,
+   "base": -0.32,
+   "edge": 0.32,
+   "win": 51,
+   "gross": 0.51,
+   "vsIdx": -0.34
+  },
+  {
+   "K": 10,
+   "market": "US",
+   "n": 18150,
+   "avg": 0.66,
+   "base": 0.28,
+   "edge": 0.38,
+   "win": 56,
+   "gross": 0.96,
+   "vsIdx": -0.04
+  },
+  {
+   "K": 10,
+   "market": "UK",
+   "n": 734,
+   "avg": 0.54,
+   "base": -0.11,
+   "edge": 0.65,
+   "win": 53,
+   "gross": 1.04,
+   "vsIdx": -0.23
+  }
+ ],
+ "counts": {
+  "runup": 18946,
+  "random": 143803
+ }
+}
