@@ -1,0 +1,23 @@
+name: Lab (run-up into results)
+# Swing lab round 5, 12 Nov 2026. Runs only on the lab-runup branch.
+on:
+  push:
+    branches: [lab-runup]
+permissions:
+  contents: write
+jobs:
+  lab:
+    if: "!contains(github.event.head_commit.message, 'dry-run output')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "24" }
+      - run: |
+          set +e
+          mkdir -p dry-run
+          node tools/runup-study.mjs > dry-run/runup-study.json 2> dry-run/runup.log; echo "exit=$?" >> dry-run/runup.log
+      - run: |
+          git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
+          git add -f dry-run && git commit -qm "dry-run output" && git push -q
