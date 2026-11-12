@@ -220,6 +220,24 @@ export function reactionDays(rows = [], dates = [], afterClose = false) {
   return out;
 }
 
+// Yahoo's timed results dates ({ date, after }, fetchReportedDates) to the
+// session that reacted: after the close -> the next session, before the open
+// -> that session. Unknown times are skipped unless `assume` says which (London
+// results come out by RNS before the open, so the scan passes false there).
+// Feeds resultsMoves() as exact days, so the picks' "Last results" line no
+// longer leans on the busiest-day guess (right only 36 to 43% of the time,
+// research log 12 Nov).
+export function timedReactionDays(rows = [], events = [], assume = null) {
+  const out = [];
+  for (const e of events || []) {
+    const after = e?.after ?? assume;
+    if (!e?.date || after == null) continue;
+    const i = rows.findIndex((r) => (after ? r.date > e.date : r.date >= e.date));
+    if (i > 0 && !out.includes(rows[i].date)) out.push(rows[i].date);
+  }
+  return out.sort();
+}
+
 // "Results-day moves: typically ±4.1% (last 4: +2.4%, −5.0%, +1.1%, −6.3%)."
 export function movesText(m) {
   if (!m?.n) return null;

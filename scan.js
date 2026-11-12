@@ -17,7 +17,7 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
-import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays } from "./src/surpriseStudy.js";
+import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays, timedReactionDays } from "./src/surpriseStudy.js";
 import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -417,6 +417,8 @@ async function main() {
     await writeJson("history/plan-book.json", pb, true);
     console.log(`Plan book (paper): ${planSummary(pb).map((x) => `${x.key} ${x.returnPct ?? "not started"}`).join(", ")}.`);
   } catch (e) { console.warn(`Plan book failed: ${e.message}`); }
+  // Timed results history per symbol, fetched once for the results check and the preview.
+  const timedHist = new Map();
   // Research list, picks and bench: the results preview's focus names.
   const focusSet = new Set([...((await readJson("research-list.json", {}))?.stocks ?? []).map((x) => x.symbol), ...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
   // Results check (swing lab round 4): the latest EPS surprise and the day's
@@ -427,14 +429,23 @@ async function main() {
     // Plus research-list names reporting in the next week (results preview, 12 Nov).
     const soon = out.filter((i) => focusSet.has(i.symbol) && i.earnings?.days != null && i.earnings.days >= 0 && i.earnings.days <= 7).map((i) => i.symbol);
     const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol), ...soon]);
-    let n = 0, tagged = 0;
+    let n = 0, tagged = 0, timedUsed = 0;
     for (const it of out) {
       if (!want.has(it.symbol)) continue;
       try {
         const rd = await fetchResultsData(it.symbol), h = rd.history.at(-1), rows = rowsBySymbol[it.symbol];
         if (!h || !rows?.length) continue;
         // How far results days usually move it (all names, REITs included).
-        const exact = reactionDays(rows, knownDates?.dates?.[it.symbol], (knownDates?.afterClose ?? []).includes(it.symbol));
+        // Hand-kept days first, then Yahoo's timed dates (12 Nov: in place of
+        // the busiest-day guess, which was right only 36 to 43% of the time).
+        if (!timedHist.has(it.symbol)) {
+          try { timedHist.set(it.symbol, await fetchResultsHistory(it.symbol, { size: 12 })); } catch { timedHist.set(it.symbol, []); }
+          await sleep(150);
+        }
+        const hand = reactionDays(rows, knownDates?.dates?.[it.symbol], (knownDates?.afterClose ?? []).includes(it.symbol));
+        const timed = timedReactionDays(rows, timedHist.get(it.symbol), /\.L$/.test(it.symbol) ? false : null);
+        const exact = [...hand, ...timed.filter((d) => !hand.includes(d))];
+        if (timed.length) timedUsed++;
         const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
@@ -451,7 +462,7 @@ async function main() {
     }
     if (tagged && marketsClosed()) await writeJson("history/swing-lab.json", drift, true);
     await writeJson("data/results-check.json", { updated: new Date().toISOString(), items: Object.fromEntries(out.filter((i) => i.resultsCheck).map((i) => [i.symbol, i.resultsCheck])) }, true);
-    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged.`);
+    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged; ${timedUsed} with Yahoo's timed results dates.`);
   } catch (e) { console.warn(`Results check failed: ${e.message}`); }
   // Results preview (12 Nov; src/resultsPreview.js): who reports in the next
   // week and how far results days usually move them. Display and heads-up only.
@@ -465,7 +476,8 @@ async function main() {
     for (const it of recentCandidates(out, { today, focus: focusSet, dates: resultsHist })) toFetch.set(it.symbol, it);
     const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
     for (const sym of toFetch.keys()) {
-      try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
+      if (timedHist.has(sym)) reported[sym] = [...timedHist.get(sym)];
+      else try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
       // Yahoo's history lags a day or two: add the quote's own results time.
       const at = quoteAt.get(sym);
       const extra = at ? reportedSessions([at], sym) : [];

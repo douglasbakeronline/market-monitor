@@ -185,3 +185,19 @@ test("hand-kept dates: exact reaction days beat the busier-day rule both ways", 
   // Without the exact day the old rule takes 2 May.
   assert.equal(resultsMoves(rows, [{ quarter: "2026-03-31" }, { quarter: "2026-06-30" }], null, ["2026-05-01"]).moves[0].date, "2026-05-02");
 });
+
+test("timed Yahoo dates: reaction sessions for the picks' results-day moves", async () => {
+  const { resultsMoves, timedReactionDays } = await import("../src/surpriseStudy.js");
+  const rows = bars(200, (i) => 100 + (i >= 181 ? 6 : 0) + (i >= 120 ? 2 : 0), (i) => (i === 180 ? 9e6 : i === 121 ? 9e6 : 1e6));
+  const ev = [{ date: "2026-06-30", after: true }, { date: "2026-05-01", after: false }, { date: "2026-03-02", after: null }];
+  // After the close -> next session; before the open -> same session; unknown time skipped.
+  assert.deepEqual(timedReactionDays(rows, ev), ["2026-05-01", "2026-07-01"]);
+  // London: unknown times read as before the open when assumed.
+  assert.deepEqual(timedReactionDays(rows, [{ date: "2026-05-01", after: null }], false), ["2026-05-01"]);
+  // A date past the last bar or before the first gives nothing; duplicates collapse.
+  assert.deepEqual(timedReactionDays(rows, [{ date: "2030-01-01", after: false }, { date: "2026-05-01", after: false }, { date: "2026-05-01", after: false }]), ["2026-05-01"]);
+  assert.deepEqual(timedReactionDays(rows, []), []);
+  // Fed to resultsMoves as exact days, the busier wrong day (2 May) is not taken.
+  const m = resultsMoves(rows, [{ quarter: "2026-03-31" }, { quarter: "2026-05-31" }], null, [], timedReactionDays(rows, ev));
+  assert.deepEqual(m.moves.map((x) => [x.date, x.pct]), [["2026-05-01", 2], ["2026-07-01", 5.9]]);
+});
