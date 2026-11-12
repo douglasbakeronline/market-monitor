@@ -309,7 +309,7 @@ export function freshSignal(isOn, wasOn, lastSeen, today, quiet = SIGNAL_QUIET_D
 }
 
 // The live long-term score (agreed by Douglas 10 Nov 2026).
-export const SCORING_VERSION = "2026-11-12"; // 12 Nov: REITs on cash flow (longTermScored); 11 Nov: EV/EBITDA against sector peers (src/evSample.js withEv)
+export const SCORING_VERSION = "2026-11-13"; // 13 Nov: every scanned REIT on cash flow (all Real Estate names deepened); 12 Nov: REITs on cash flow (longTermScored); 11 Nov: EV/EBITDA against sector peers (src/evSample.js withEv)
 export const longTermLive = (f, t, peer = null) => longTerm(f, t, peer, { entryAlt: true });
 
 // REITs score on cash flow (decided 12 Nov 2026, STRATEGY-NOTES): property

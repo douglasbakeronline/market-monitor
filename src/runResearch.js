@@ -7,7 +7,7 @@ import { smartFor, smartEvent } from "./smartMoney.js";
 import { pickResultsLine, pickSellLine } from "./plan.js";
 import { latestSellSignals } from "./sellSignals.js";
 import { readJson, writeJson } from "./state.js";
-import { peerFor, sectorValueNote, marketOf, reitView, withReitScore } from "./sectorValue.js";
+import { peerFor, sectorValueNote, marketOf, reitView, withReitScore, reitPeNote } from "./sectorValue.js";
 import { evPeer, withEv } from "./evSample.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
@@ -48,6 +48,7 @@ export async function runResearch({ regimeKey, state }) {
       const lt = longTermScored(fs, t, peer, rv), old = longTerm(f, t);
       const sectorValue = peer ? sectorValueNote(fs, peer, old, lt, rv) : null;
       if (sectorValue && lt.reit) withReitScore(sectorValue, reitLongTerm(fs, t, peer, rv), longTermLive(fs, t, peer));
+      { const pn = sectorValue && !lt.reit ? reitPeNote(f, rv, scanMeta?.reitPocf ?? null) : null; if (pn) sectorValue.note = `${sectorValue.note} ${pn}`.trim(); }
       if (sectorValue && ep) Object.assign(sectorValue, { ev: ep, note: `${sectorValue.note} ${ep.note}`.trim() });
       const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);

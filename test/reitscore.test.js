@@ -45,7 +45,7 @@ test("longTermScored: a REIT with a cash-flow view is scored on it (live since 1
   assert.ok(items.some((i) => i.key === "pocf" && /Price \/ cash flow/.test(i.label) && i.display === "10.2× (REITs 14.3×)"));
   assert.ok(!items.some((i) => /P\/E$/.test(i.label)), "no item still labelled as a P/E");
   assert.notEqual(lt.score, longTermLive(f, t, peer).score, "differs from the P/E score here");
-  assert.equal(SCORING_VERSION, "2026-11-12");
+  assert.equal(SCORING_VERSION, "2026-11-13");
 });
 
 test("longTermScored: falls back to the P/E score without a view, a median or peers", () => {
@@ -95,4 +95,22 @@ test("withReitHint: a UK REIT with no industry from Yahoo is recognised by its l
   const named = { sector: "Real Estate", industry: "Real Estate Services" };
   assert.equal(withReitHint(named, "Real Estate Investment Trusts"), named, "an industry from Yahoo wins");
   assert.equal(withReitHint(null, "Real Estate Investment Trusts"), null);
+});
+
+test("isRealEstate: every listed Real Estate name is deepened for the REIT median (13 Nov)", async () => {
+  const { isRealEstate } = await import("../src/sectorValue.js");
+  assert.equal(isRealEstate({ sector: null }, "Real Estate"), true, "US index list (GICS)");
+  assert.equal(isRealEstate({}, "Real Estate Investment Trusts"), true, "FTSE sector name");
+  assert.equal(isRealEstate({ sector: "Real Estate" }, null), true, "Yahoo sector when the list has none");
+  assert.equal(isRealEstate({ sector: "Technology" }, "Information Technology"), false);
+  assert.equal(isRealEstate(null, null), false);
+});
+
+test("reitPeNote: a REIT left on P/E says why (Tritax Big Box, 13 Nov)", async () => {
+  const { reitPeNote } = await import("../src/sectorValue.js");
+  const bbox = { sector: "Real Estate", industry: "REIT", marketCap: 4.3e9, operatingCashflow: null };
+  assert.match(reitPeNote(bbox, null, { median: 14, n: 25 }), /still scored on P\/E: Yahoo gives no operating cash flow/);
+  assert.match(reitPeNote({ ...bbox, operatingCashflow: 2e8 }, null, null), /too few fully scored REITs/);
+  assert.equal(reitPeNote(bbox, { pocf: 10, median: 14 }, { median: 14, n: 25 }), null, "on cash flow: no note");
+  assert.equal(reitPeNote({ sector: "Real Estate", industry: "Real Estate Services" }, null, null), null, "not a REIT");
 });
