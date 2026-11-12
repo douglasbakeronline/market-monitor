@@ -116,7 +116,9 @@ export function previewLine(r, today) {
 export function resultsAlert(preview, sent = {}, today) {
   const next = Object.fromEntries(Object.entries(sent ?? {}).filter(([k]) => k.split("|")[1] >= today));
   if (!preview?.focus?.length) return { alert: null, sent: next };
-  const live = preview.focus.map((r) => ({ ...r, days: dayDiff(r.date, today) })).filter((r) => r.days >= 0 && r.days <= (preview.days ?? PREVIEW.days));
+  // From tomorrow on: by the morning of results day the push is too late to
+  // be useful (most UK and many US names report before the open).
+  const live = preview.focus.map((r) => ({ ...r, days: dayDiff(r.date, today) })).filter((r) => r.days >= 1 && r.days <= (preview.days ?? PREVIEW.days));
   const fresh = [];
   for (const r of live) {
     const key = `${r.symbol}|${r.date}`, have = next[key] ?? [];
