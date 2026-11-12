@@ -1,0 +1,134 @@
+{
+ "scoringVersion": "2026-11-12",
+ "items": [
+  {
+   "symbol": "VICI",
+   "score": 62,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 10.1,
+    "median": 11.5,
+    "n": 7
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 10.1,
+      "display": "10.1× (REITs 11.5×)",
+      "score": 67,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 7 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 10.1,
+      "display": "10.1× (REITs 11.5×)",
+      "score": 67,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 7 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 14.1,
+      "display": "14.1 (sector 19.3)",
+      "score": 78,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 71
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 8.4,
+    "medianPE": 35.9,
+    "ratio": 0.23,
+    "cyclical": false,
+    "value": 71,
+    "valueNow": 83,
+    "score": 62,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 8.4 vs the US Real Estate median of 35.9 (29 stocks): 77% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 10.1×, a rough stand-in for P/FFO, 12% below the median of 7 fully scored REITs (11.5×). Value on cash flow against REITs: 71 (83 on the old fixed P/E bands). On P/E instead it would be Value 93, score 69 (Fair). EV/EBITDA 14.1 vs the US Real Estate median of 19.3 (30 stocks): 27% below.",
+    "reit": {
+     "score": 62,
+     "verdict": "Fair",
+     "value": 71,
+     "gaps": [
+      "score 62, needs 72",
+      "Entry 56, needs 70"
+     ]
+    },
+    "reitPe": {
+     "score": 69,
+     "verdict": "Fair",
+     "value": 93
+    },
+    "ev": {
+     "ev": 14.1,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 14.1 vs the US Real Estate median of 19.3 (30 stocks): 27% below."
+    }
+   },
+   "rc": null
+  }
+ ],
+ "picks": [
+  {
+   "symbol": "HSBA.L",
+   "verdict": "Good entry",
+   "score": 72,
+   "ok": true,
+   "reitVerdict": null,
+   "reitOk": null
+  },
+  {
+   "symbol": "META",
+   "verdict": "Good entry",
+   "score": 78,
+   "ok": true,
+   "reitVerdict": null,
+   "reitOk": null
+  },
+  {
+   "symbol": "NEM",
+   "verdict": "Good entry",
+   "score": 75,
+   "ok": true,
+   "reitVerdict": null,
+   "reitOk": null
+  },
+  {
+   "symbol": "STZ",
+   "verdict": "Fair",
+   "score": 66,
+   "ok": false,
+   "reitVerdict": null,
+   "reitOk": null
+  },
+  {
+   "symbol": "VICI",
+   "verdict": "Fair",
+   "score": 62,
+   "ok": false,
+   "reitVerdict": "Fair",
+   "reitOk": false
+  }
+ ]
+}

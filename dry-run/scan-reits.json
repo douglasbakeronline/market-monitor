@@ -1,0 +1,1648 @@
+{
+ "scoringVersion": "2026-11-12",
+ "reitPocf": {
+  "median": 11.5,
+  "n": 6
+ },
+ "count": 662,
+ "good": 9,
+ "items": [
+  {
+   "symbol": "CBRE",
+   "deep": true,
+   "industry": "Real Estate Services",
+   "score": 69,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "forwardPE",
+      "label": "Forward P/E",
+      "value": 14.967431,
+      "display": "15.0 (sector 35.8)",
+      "score": 99,
+      "why": "Price vs next year's expected earnings. Lower is cheaper. Scored against the sector median."
+     },
+     {
+      "key": "trailingPE",
+      "label": "Trailing P/E",
+      "value": 28.46895,
+      "display": "28.5 (sector 30.3)",
+      "score": 62,
+      "why": "Price vs the last 12 months' earnings. Scored against the sector median."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": 0.79,
+      "display": "0.79",
+      "score": 91,
+      "why": "P/E divided by growth. Around 1 or below is good value for the growth."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 22.1,
+      "display": "22.1 (sector 19.3)",
+      "score": 50,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 76
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 15,
+    "medianPE": 35.8,
+    "ratio": 0.42,
+    "cyclical": false,
+    "value": 76,
+    "valueNow": 61,
+    "score": 69,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 15.0 vs the US Real Estate median of 35.8 (29 stocks): 58% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 76 (61 on the old fixed P/E bands). EV/EBITDA 22.1 vs the US Real Estate median of 19.3 (30 stocks): 14% above.",
+    "ev": {
+     "ev": 22.1,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 22.1 vs the US Real Estate median of 19.3 (30 stocks): 14% above."
+    }
+   }
+  },
+  {
+   "symbol": "BBOX.L",
+   "deep": true,
+   "industry": null,
+   "score": 81,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "forwardPE",
+      "label": "Forward P/E",
+      "value": 15.975821,
+      "display": "16.0 (sector 34.9)",
+      "score": 97,
+      "why": "Price vs next year's expected earnings. Lower is cheaper. Scored against the sector median."
+     },
+     {
+      "key": "trailingPE",
+      "label": "Trailing P/E",
+      "value": 14.8,
+      "display": "14.8 (sector 28.4)",
+      "score": 93,
+      "why": "Price vs the last 12 months' earnings. Scored against the sector median."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "P/E divided by growth. Around 1 or below is good value for the growth."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Whole-company value vs operating earnings."
+     }
+    ],
+    "score": 95
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": null,
+    "n": 34,
+    "pe": 16,
+    "medianPE": 34.9,
+    "ratio": 0.46,
+    "cyclical": false,
+    "value": 95,
+    "valueNow": 74,
+    "score": 81,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 16.0 vs the Real Estate median of 34.9 (34 stocks): 54% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 95 (74 on the old fixed P/E bands)."
+   }
+  },
+  {
+   "symbol": "SBAC",
+   "deep": false,
+   "industry": null,
+   "score": 67,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 75,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 23.6,
+    "medianPE": 35.8,
+    "ratio": 0.66,
+    "cyclical": false,
+    "value": 75,
+    "valueNow": 53,
+    "score": 67,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 23.6 vs the US Real Estate median of 35.8 (29 stocks): 34% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 75 (53 on the old fixed P/E bands). EV/EBITDA 19.1 vs the US Real Estate median of 19.3 (30 stocks): in line with peers.",
+    "ev": {
+     "ev": 19.1,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 19.1 vs the US Real Estate median of 19.3 (30 stocks): in line with peers."
+    }
+   }
+  },
+  {
+   "symbol": "FRT",
+   "deep": false,
+   "industry": null,
+   "score": 66,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 67,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 35.2,
+    "medianPE": 35.8,
+    "ratio": 0.98,
+    "cyclical": false,
+    "value": 67,
+    "valueNow": 38,
+    "score": 66,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 35.2 vs the US Real Estate median of 35.8 (29 stocks): in line with peers. REITs are better judged on funds from operations than P/E. Value scored against peers: 67 (38 on the old fixed P/E bands). EV/EBITDA 17.7 vs the US Real Estate median of 19.3 (30 stocks): 8% below.",
+    "ev": {
+     "ev": 17.7,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 17.7 vs the US Real Estate median of 19.3 (30 stocks): 8% below."
+    }
+   }
+  },
+  {
+   "symbol": "LAND.L",
+   "deep": false,
+   "industry": null,
+   "score": 65,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 81,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": null,
+    "n": 34,
+    "pe": 12.6,
+    "medianPE": 34.9,
+    "ratio": 0.36,
+    "cyclical": false,
+    "value": 81,
+    "valueNow": 80,
+    "score": 65,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 12.6 vs the Real Estate median of 34.9 (34 stocks): 64% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 81 (80 on the old fixed P/E bands). EV/EBITDA 21.8 vs the Real Estate median of 19.3 (34 stocks): 13% above.",
+    "ev": {
+     "ev": 21.8,
+     "median": 19.3,
+     "n": 34,
+     "region": null,
+     "note": "EV/EBITDA 21.8 vs the Real Estate median of 19.3 (34 stocks): 13% above."
+    }
+   }
+  },
+  {
+   "symbol": "INVH",
+   "deep": false,
+   "industry": null,
+   "score": 64,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 66,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 38,
+    "medianPE": 35.8,
+    "ratio": 1.06,
+    "cyclical": false,
+    "value": 66,
+    "valueNow": 36,
+    "score": 64,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 38.0 vs the US Real Estate median of 35.8 (29 stocks): 6% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 66 (36 on the old fixed P/E bands). EV/EBITDA 16.4 vs the US Real Estate median of 19.3 (30 stocks): 15% below.",
+    "ev": {
+     "ev": 16.4,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 16.4 vs the US Real Estate median of 19.3 (30 stocks): 15% below."
+    }
+   }
+  },
+  {
+   "symbol": "REG",
+   "deep": false,
+   "industry": null,
+   "score": 64,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 66,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 30,
+    "medianPE": 35.8,
+    "ratio": 0.84,
+    "cyclical": false,
+    "value": 66,
+    "valueNow": 39,
+    "score": 64,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 30.0 vs the US Real Estate median of 35.8 (29 stocks): 16% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 66 (39 on the old fixed P/E bands). EV/EBITDA 17.7 vs the US Real Estate median of 19.3 (30 stocks): 8% below.",
+    "ev": {
+     "ev": 17.7,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 17.7 vs the US Real Estate median of 19.3 (30 stocks): 8% below."
+    }
+   }
+  },
+  {
+   "symbol": "AMT",
+   "deep": false,
+   "industry": null,
+   "score": 63,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 66,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 27.2,
+    "medianPE": 35.8,
+    "ratio": 0.76,
+    "cyclical": false,
+    "value": 66,
+    "valueNow": 42,
+    "score": 63,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 27.2 vs the US Real Estate median of 35.8 (29 stocks): 24% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 66 (42 on the old fixed P/E bands). EV/EBITDA 19.5 vs the US Real Estate median of 19.3 (30 stocks): in line with peers.",
+    "ev": {
+     "ev": 19.5,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 19.5 vs the US Real Estate median of 19.3 (30 stocks): in line with peers."
+    }
+   }
+  },
+  {
+   "symbol": "ARE",
+   "deep": false,
+   "industry": null,
+   "score": 62,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 77,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": null,
+    "medianPE": 35.8,
+    "ratio": null,
+    "cyclical": false,
+    "value": 77,
+    "valueNow": null,
+    "score": 62,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "REITs are better judged on funds from operations than P/E. EV/EBITDA 14.3 vs the US Real Estate median of 19.3 (30 stocks): 26% below.",
+    "ev": {
+     "ev": 14.3,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 14.3 vs the US Real Estate median of 19.3 (30 stocks): 26% below."
+    }
+   }
+  },
+  {
+   "symbol": "PLD",
+   "deep": false,
+   "industry": null,
+   "score": 62,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 55,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 35.8,
+    "medianPE": 35.8,
+    "ratio": 1,
+    "cyclical": false,
+    "value": 55,
+    "valueNow": 32,
+    "score": 62,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 35.8 vs the US Real Estate median of 35.8 (29 stocks): in line with peers. REITs are better judged on funds from operations than P/E. Value scored against peers: 55 (32 on the old fixed P/E bands). EV/EBITDA 23.7 vs the US Real Estate median of 19.3 (30 stocks): 23% above.",
+    "ev": {
+     "ev": 23.7,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 23.7 vs the US Real Estate median of 19.3 (30 stocks): 23% above."
+    }
+   }
+  },
+  {
+   "symbol": "VICI",
+   "deep": true,
+   "industry": "REIT - Diversified",
+   "score": 62,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 10.1,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 10.1,
+      "display": "10.1× (REITs 11.5×)",
+      "score": 67,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 10.1,
+      "display": "10.1× (REITs 11.5×)",
+      "score": 67,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 14.1,
+      "display": "14.1 (sector 19.3)",
+      "score": 78,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 71
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 8.4,
+    "medianPE": 35.8,
+    "ratio": 0.23,
+    "cyclical": false,
+    "value": 71,
+    "valueNow": 83,
+    "score": 62,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 8.4 vs the US Real Estate median of 35.8 (29 stocks): 77% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 10.1×, a rough stand-in for P/FFO, 12% below the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 71 (83 on the old fixed P/E bands). On P/E instead it would be Value 93, score 69 (Fair). EV/EBITDA 14.1 vs the US Real Estate median of 19.3 (30 stocks): 27% below.",
+    "reit": {
+     "score": 62,
+     "verdict": "Fair",
+     "value": 71,
+     "gaps": [
+      "score 62, needs 72",
+      "Entry 56, needs 70"
+     ]
+    },
+    "reitPe": {
+     "score": 69,
+     "verdict": "Fair",
+     "value": 93
+    },
+    "ev": {
+     "ev": 14.1,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 14.1 vs the US Real Estate median of 19.3 (30 stocks): 27% below."
+    }
+   }
+  },
+  {
+   "symbol": "BXP",
+   "deep": true,
+   "industry": "REIT - Office",
+   "score": 59,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 8.5,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 8.5,
+      "display": "8.5× (REITs 11.5×)",
+      "score": 77,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 8.5,
+      "display": "8.5× (REITs 11.5×)",
+      "score": 77,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 17.2,
+      "display": "17.2 (sector 19.3)",
+      "score": 66,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 73
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 30.3,
+    "medianPE": 35.8,
+    "ratio": 0.85,
+    "cyclical": false,
+    "value": 73,
+    "valueNow": 45,
+    "score": 59,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 30.3 vs the US Real Estate median of 35.8 (29 stocks): 15% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 8.5×, a rough stand-in for P/FFO, 26% below the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 73 (45 on the old fixed P/E bands). On P/E instead it would be Value 64, score 57 (Fair). EV/EBITDA 17.2 vs the US Real Estate median of 19.3 (30 stocks): 11% below.",
+    "reit": {
+     "score": 59,
+     "verdict": "Fair",
+     "value": 73,
+     "gaps": [
+      "score 59, needs 72",
+      "Entry 56, needs 70",
+      "Quality 48, needs 55"
+     ]
+    },
+    "reitPe": {
+     "score": 57,
+     "verdict": "Fair",
+     "value": 64
+    },
+    "ev": {
+     "ev": 17.2,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 17.2 vs the US Real Estate median of 19.3 (30 stocks): 11% below."
+    }
+   }
+  },
+  {
+   "symbol": "HST",
+   "deep": true,
+   "industry": "REIT - Hotel & Motel",
+   "score": 59,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 10.2,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 10.2,
+      "display": "10.2× (REITs 11.5×)",
+      "score": 66,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 10.2,
+      "display": "10.2× (REITs 11.5×)",
+      "score": 66,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 12.9,
+      "display": "12.9 (sector 19.3)",
+      "score": 83,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 72
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 22,
+    "medianPE": 35.8,
+    "ratio": 0.61,
+    "cyclical": false,
+    "value": 72,
+    "valueNow": 46,
+    "score": 59,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 22.0 vs the US Real Estate median of 35.8 (29 stocks): 39% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 10.2×, a rough stand-in for P/FFO, 11% below the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 72 (46 on the old fixed P/E bands). On P/E instead it would be Value 64, score 56 (Fair). EV/EBITDA 12.9 vs the US Real Estate median of 19.3 (30 stocks): 33% below.",
+    "reit": {
+     "score": 59,
+     "verdict": "Fair",
+     "value": 72,
+     "gaps": [
+      "score 59, needs 72",
+      "Entry 59, needs 70",
+      "Quality 47, needs 55"
+     ]
+    },
+    "reitPe": {
+     "score": 56,
+     "verdict": "Fair",
+     "value": 64
+    },
+    "ev": {
+     "ev": 12.9,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 12.9 vs the US Real Estate median of 19.3 (30 stocks): 33% below."
+    }
+   }
+  },
+  {
+   "symbol": "KIM",
+   "deep": false,
+   "industry": null,
+   "score": 59,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 68,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 28.8,
+    "medianPE": 35.8,
+    "ratio": 0.8,
+    "cyclical": false,
+    "value": 68,
+    "valueNow": 43,
+    "score": 59,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 28.8 vs the US Real Estate median of 35.8 (29 stocks): 20% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 68 (43 on the old fixed P/E bands). EV/EBITDA 18.8 vs the US Real Estate median of 19.3 (30 stocks): in line with peers.",
+    "ev": {
+     "ev": 18.8,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 18.8 vs the US Real Estate median of 19.3 (30 stocks): in line with peers."
+    }
+   }
+  },
+  {
+   "symbol": "CPT",
+   "deep": false,
+   "industry": null,
+   "score": 58,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 57,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 214.9,
+    "medianPE": 35.8,
+    "ratio": 6,
+    "cyclical": false,
+    "value": 57,
+    "valueNow": 48,
+    "score": 58,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 214.9 vs the US Real Estate median of 35.8 (29 stocks): 500% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 57 (48 on the old fixed P/E bands). EV/EBITDA 16.0 vs the US Real Estate median of 19.3 (30 stocks): 17% below.",
+    "ev": {
+     "ev": 16,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 16.0 vs the US Real Estate median of 19.3 (30 stocks): 17% below."
+    }
+   }
+  },
+  {
+   "symbol": "MAA",
+   "deep": false,
+   "industry": null,
+   "score": 58,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 59,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 35.7,
+    "medianPE": 35.8,
+    "ratio": 1,
+    "cyclical": false,
+    "value": 59,
+    "valueNow": 26,
+    "score": 58,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 35.7 vs the US Real Estate median of 35.8 (29 stocks): in line with peers. REITs are better judged on funds from operations than P/E. Value scored against peers: 59 (26 on the old fixed P/E bands). EV/EBITDA 16.0 vs the US Real Estate median of 19.3 (30 stocks): 17% below.",
+    "ev": {
+     "ev": 16,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 16.0 vs the US Real Estate median of 19.3 (30 stocks): 17% below."
+    }
+   }
+  },
+  {
+   "symbol": "LMP.L",
+   "deep": true,
+   "industry": "REIT - Industrial",
+   "score": 58,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 12.7,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 12.7,
+      "display": "12.7× (REITs 11.5×)",
+      "score": 53,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 12.7,
+      "display": "12.7× (REITs 11.5×)",
+      "score": 53,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 17.3,
+      "display": "17.3 (sector 19.3)",
+      "score": 65,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 57
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": null,
+    "n": 34,
+    "pe": 13,
+    "medianPE": 34.9,
+    "ratio": 0.37,
+    "cyclical": false,
+    "value": 57,
+    "valueNow": 53,
+    "score": 58,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 13.0 vs the Real Estate median of 34.9 (34 stocks): 63% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 12.7×, a rough stand-in for P/FFO, 10% above the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 57 (53 on the old fixed P/E bands). On P/E instead it would be Value 65, score 61 (Fair). EV/EBITDA 17.3 vs the Real Estate median of 19.3 (34 stocks): 11% below.",
+    "reit": {
+     "score": 58,
+     "verdict": "Fair",
+     "value": 57,
+     "gaps": [
+      "score 58, needs 72",
+      "Entry 54, needs 70"
+     ]
+    },
+    "reitPe": {
+     "score": 61,
+     "verdict": "Fair",
+     "value": 65
+    },
+    "ev": {
+     "ev": 17.3,
+     "median": 19.3,
+     "n": 34,
+     "region": null,
+     "note": "EV/EBITDA 17.3 vs the Real Estate median of 19.3 (34 stocks): 11% below."
+    }
+   }
+  },
+  {
+   "symbol": "UDR",
+   "deep": false,
+   "industry": null,
+   "score": 57,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 59,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 65,
+    "medianPE": 35.8,
+    "ratio": 1.82,
+    "cyclical": false,
+    "value": 59,
+    "valueNow": 34,
+    "score": 57,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 65.0 vs the US Real Estate median of 35.8 (29 stocks): 82% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 59 (34 on the old fixed P/E bands). EV/EBITDA 18.0 vs the US Real Estate median of 19.3 (30 stocks): 7% below.",
+    "ev": {
+     "ev": 18,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 18.0 vs the US Real Estate median of 19.3 (30 stocks): 7% below."
+    }
+   }
+  },
+  {
+   "symbol": "SPG",
+   "deep": false,
+   "industry": null,
+   "score": 56,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 69,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 34.5,
+    "medianPE": 35.8,
+    "ratio": 0.96,
+    "cyclical": false,
+    "value": 69,
+    "valueNow": 47,
+    "score": 56,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 34.5 vs the US Real Estate median of 35.8 (29 stocks): in line with peers. REITs are better judged on funds from operations than P/E. Value scored against peers: 69 (47 on the old fixed P/E bands). EV/EBITDA 19.9 vs the US Real Estate median of 19.3 (30 stocks): in line with peers.",
+    "ev": {
+     "ev": 19.9,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 19.9 vs the US Real Estate median of 19.3 (30 stocks): in line with peers."
+    }
+   }
+  },
+  {
+   "symbol": "IRM",
+   "deep": false,
+   "industry": null,
+   "score": 55,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 38,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 42,
+    "medianPE": 35.8,
+    "ratio": 1.17,
+    "cyclical": false,
+    "value": 38,
+    "valueNow": 10,
+    "score": 55,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 42.0 vs the US Real Estate median of 35.8 (29 stocks): 17% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 38 (10 on the old fixed P/E bands). EV/EBITDA 20.3 vs the US Real Estate median of 19.3 (30 stocks): 5% above.",
+    "ev": {
+     "ev": 20.3,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 20.3 vs the US Real Estate median of 19.3 (30 stocks): 5% above."
+    }
+   }
+  },
+  {
+   "symbol": "WY",
+   "deep": false,
+   "industry": null,
+   "score": 55,
+   "verdict": "Fair",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 45,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 47.8,
+    "medianPE": 35.8,
+    "ratio": 1.33,
+    "cyclical": false,
+    "value": 45,
+    "valueNow": 22,
+    "score": 55,
+    "verdict": "Fair",
+    "changed": true,
+    "note": "P/E 47.8 vs the US Real Estate median of 35.8 (29 stocks): 33% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 45 (22 on the old fixed P/E bands). EV/EBITDA 27.6 vs the US Real Estate median of 19.3 (30 stocks): 43% above.",
+    "ev": {
+     "ev": 27.6,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 27.6 vs the US Real Estate median of 19.3 (30 stocks): 43% above."
+    }
+   }
+  },
+  {
+   "symbol": "BLND.L",
+   "deep": true,
+   "industry": "REIT - Diversified",
+   "score": 55,
+   "verdict": "Fair",
+   "reit": {
+    "pocf": 14.4,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 14.4,
+      "display": "14.4× (REITs 11.5×)",
+      "score": 45,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 14.4,
+      "display": "14.4× (REITs 11.5×)",
+      "score": 45,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 18.2,
+      "display": "18.2 (sector 19.3)",
+      "score": 62,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 51
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": null,
+    "n": 34,
+    "pe": 13.4,
+    "medianPE": 34.9,
+    "ratio": 0.38,
+    "cyclical": false,
+    "value": 51,
+    "valueNow": 57,
+    "score": 55,
+    "verdict": "Fair",
+    "changed": false,
+    "note": "P/E 13.4 vs the Real Estate median of 34.9 (34 stocks): 62% below (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 14.4×, a rough stand-in for P/FFO, 25% above the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 51 (57 on the old fixed P/E bands). On P/E instead it would be Value 66, score 60 (Fair). EV/EBITDA 18.2 vs the Real Estate median of 19.3 (34 stocks): 6% below.",
+    "reit": {
+     "score": 55,
+     "verdict": "Fair",
+     "value": 51,
+     "gaps": [
+      "score 55, needs 72",
+      "Entry 54, needs 70"
+     ]
+    },
+    "reitPe": {
+     "score": 60,
+     "verdict": "Fair",
+     "value": 66
+    },
+    "ev": {
+     "ev": 18.2,
+     "median": 19.3,
+     "n": 34,
+     "region": null,
+     "note": "EV/EBITDA 18.2 vs the Real Estate median of 19.3 (34 stocks): 6% below."
+    }
+   }
+  },
+  {
+   "symbol": "CSGP",
+   "deep": false,
+   "industry": null,
+   "score": 54,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 51,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 17.1,
+    "medianPE": 35.8,
+    "ratio": 0.48,
+    "cyclical": false,
+    "value": 51,
+    "valueNow": 36,
+    "score": 54,
+    "verdict": "Wait",
+    "changed": false,
+    "note": "P/E 17.1 vs the US Real Estate median of 35.8 (29 stocks): 52% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 51 (36 on the old fixed P/E bands). EV/EBITDA 23.8 vs the US Real Estate median of 19.3 (30 stocks): 23% above.",
+    "ev": {
+     "ev": 23.8,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 23.8 vs the US Real Estate median of 19.3 (30 stocks): 23% above."
+    }
+   }
+  },
+  {
+   "symbol": "O",
+   "deep": false,
+   "industry": null,
+   "score": 54,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 54,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 38.2,
+    "medianPE": 35.8,
+    "ratio": 1.07,
+    "cyclical": false,
+    "value": 54,
+    "valueNow": 21,
+    "score": 54,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 38.2 vs the US Real Estate median of 35.8 (29 stocks): 7% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 54 (21 on the old fixed P/E bands). EV/EBITDA 16.6 vs the US Real Estate median of 19.3 (30 stocks): 14% below.",
+    "ev": {
+     "ev": 16.6,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 16.6 vs the US Real Estate median of 19.3 (30 stocks): 14% below."
+    }
+   }
+  },
+  {
+   "symbol": "EXR",
+   "deep": false,
+   "industry": null,
+   "score": 53,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 58,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 32.7,
+    "medianPE": 35.8,
+    "ratio": 0.91,
+    "cyclical": false,
+    "value": 58,
+    "valueNow": 32,
+    "score": 53,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 32.7 vs the US Real Estate median of 35.8 (29 stocks): 9% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 58 (32 on the old fixed P/E bands). EV/EBITDA 20.9 vs the US Real Estate median of 19.3 (30 stocks): 8% above.",
+    "ev": {
+     "ev": 20.9,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 20.9 vs the US Real Estate median of 19.3 (30 stocks): 8% above."
+    }
+   }
+  },
+  {
+   "symbol": "SGRO.L",
+   "deep": false,
+   "industry": null,
+   "score": 52,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 49,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": null,
+    "n": 34,
+    "pe": 22.7,
+    "medianPE": 34.9,
+    "ratio": 0.65,
+    "cyclical": false,
+    "value": 49,
+    "valueNow": 35,
+    "score": 52,
+    "verdict": "Wait",
+    "changed": false,
+    "note": "P/E 22.7 vs the Real Estate median of 34.9 (34 stocks): 35% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 49 (35 on the old fixed P/E bands). EV/EBITDA 32.9 vs the Real Estate median of 19.3 (34 stocks): 70% above.",
+    "ev": {
+     "ev": 32.9,
+     "median": 19.3,
+     "n": 34,
+     "region": null,
+     "note": "EV/EBITDA 32.9 vs the Real Estate median of 19.3 (34 stocks): 70% above."
+    }
+   }
+  },
+  {
+   "symbol": "CCI",
+   "deep": false,
+   "industry": null,
+   "score": 51,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 55,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 30.6,
+    "medianPE": 35.8,
+    "ratio": 0.85,
+    "cyclical": false,
+    "value": 55,
+    "valueNow": 31,
+    "score": 51,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 30.6 vs the US Real Estate median of 35.8 (29 stocks): 15% below. REITs are better judged on funds from operations than P/E. Value scored against peers: 55 (31 on the old fixed P/E bands). EV/EBITDA 22.7 vs the US Real Estate median of 19.3 (30 stocks): 18% above.",
+    "ev": {
+     "ev": 22.7,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 22.7 vs the US Real Estate median of 19.3 (30 stocks): 18% above."
+    }
+   }
+  },
+  {
+   "symbol": "EQIX",
+   "deep": false,
+   "industry": null,
+   "score": 50,
+   "verdict": "Expensive",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 30,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 52,
+    "medianPE": 35.8,
+    "ratio": 1.45,
+    "cyclical": false,
+    "value": 30,
+    "valueNow": 6,
+    "score": 50,
+    "verdict": "Expensive",
+    "changed": false,
+    "note": "P/E 52.0 vs the US Real Estate median of 35.8 (29 stocks): 45% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 30 (6 on the old fixed P/E bands). EV/EBITDA 27.4 vs the US Real Estate median of 19.3 (30 stocks): 42% above.",
+    "ev": {
+     "ev": 27.4,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 27.4 vs the US Real Estate median of 19.3 (30 stocks): 42% above."
+    }
+   }
+  },
+  {
+   "symbol": "PSA",
+   "deep": false,
+   "industry": null,
+   "score": 50,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 52,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 36.1,
+    "medianPE": 35.8,
+    "ratio": 1.01,
+    "cyclical": false,
+    "value": 52,
+    "valueNow": 26,
+    "score": 50,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 36.1 vs the US Real Estate median of 35.8 (29 stocks): in line with peers. REITs are better judged on funds from operations than P/E. Value scored against peers: 52 (26 on the old fixed P/E bands). EV/EBITDA 22.8 vs the US Real Estate median of 19.3 (30 stocks): 18% above.",
+    "ev": {
+     "ev": 22.8,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 22.8 vs the US Real Estate median of 19.3 (30 stocks): 18% above."
+    }
+   }
+  },
+  {
+   "symbol": "ESS",
+   "deep": true,
+   "industry": "REIT - Residential",
+   "score": 48,
+   "verdict": "Wait",
+   "reit": {
+    "pocf": 17,
+    "median": 11.5,
+    "n": 6
+   },
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "weight": 0.32,
+    "items": [
+     {
+      "key": "pocf",
+      "label": "Price / cash flow (in place of forward P/E)",
+      "value": 17,
+      "display": "17× (REITs 11.5×)",
+      "score": 36,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "pocf2",
+      "label": "Price / cash flow (in place of trailing P/E)",
+      "value": 17,
+      "display": "17× (REITs 11.5×)",
+      "score": 36,
+      "why": "Price vs operating cash flow, a rough stand-in for price / funds from operations (how REITs are usually valued; depreciation makes P/E overstate them). Scored against the median of 6 fully scored REITs."
+     },
+     {
+      "key": "peg",
+      "label": "PEG",
+      "value": null,
+      "display": "n/a",
+      "score": null,
+      "why": "Not used for REITs: it is built on P/E."
+     },
+     {
+      "key": "evToEbitda",
+      "label": "EV / EBITDA",
+      "value": 19,
+      "display": "19.0 (sector 19.3)",
+      "score": 59,
+      "why": "Whole-company value vs operating earnings. Scored against the sector median."
+     }
+    ],
+    "score": 44
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 43.5,
+    "medianPE": 35.8,
+    "ratio": 1.21,
+    "cyclical": false,
+    "value": 44,
+    "valueNow": 19,
+    "score": 48,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 43.5 vs the US Real Estate median of 35.8 (29 stocks): 21% above (not used for REITs). Scored on cash flow (since 12 Nov): Price / operating cash flow 17×, a rough stand-in for P/FFO, 48% above the median of 6 fully scored REITs (11.5×). Value on cash flow against REITs: 44 (19 on the old fixed P/E bands). On P/E instead it would be Value 34, score 45 (Expensive). EV/EBITDA 19.0 vs the US Real Estate median of 19.3 (30 stocks): in line with peers.",
+    "reit": {
+     "score": 48,
+     "verdict": "Wait",
+     "value": 44,
+     "gaps": [
+      "score 48, needs 72",
+      "Entry 63, needs 70",
+      "Quality 41, needs 55",
+      "Value 44, needs 45"
+     ]
+    },
+    "reitPe": {
+     "score": 45,
+     "verdict": "Expensive",
+     "value": 34
+    },
+    "ev": {
+     "ev": 19,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 19.0 vs the US Real Estate median of 19.3 (30 stocks): in line with peers."
+    }
+   }
+  },
+  {
+   "symbol": "DLR",
+   "deep": false,
+   "industry": null,
+   "score": 47,
+   "verdict": "Expensive",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 23,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 63.8,
+    "medianPE": 35.8,
+    "ratio": 1.78,
+    "cyclical": false,
+    "value": 23,
+    "valueNow": 2,
+    "score": 47,
+    "verdict": "Expensive",
+    "changed": false,
+    "note": "P/E 63.8 vs the US Real Estate median of 35.8 (29 stocks): 78% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 23 (2 on the old fixed P/E bands). EV/EBITDA 27.0 vs the US Real Estate median of 19.3 (30 stocks): 40% above.",
+    "ev": {
+     "ev": 27,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 27.0 vs the US Real Estate median of 19.3 (30 stocks): 40% above."
+    }
+   }
+  },
+  {
+   "symbol": "DOC",
+   "deep": false,
+   "industry": null,
+   "score": 47,
+   "verdict": "Wait",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 38,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 144.5,
+    "medianPE": 35.8,
+    "ratio": 4.04,
+    "cyclical": false,
+    "value": 38,
+    "valueNow": 12,
+    "score": 47,
+    "verdict": "Wait",
+    "changed": true,
+    "note": "P/E 144.5 vs the US Real Estate median of 35.8 (29 stocks): 304% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 38 (12 on the old fixed P/E bands). EV/EBITDA 16.4 vs the US Real Estate median of 19.3 (30 stocks): 15% below.",
+    "ev": {
+     "ev": 16.4,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 16.4 vs the US Real Estate median of 19.3 (30 stocks): 15% below."
+    }
+   }
+  },
+  {
+   "symbol": "VMRK",
+   "deep": false,
+   "industry": null,
+   "score": 44,
+   "verdict": "Expensive",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 28,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 41.7,
+    "medianPE": 35.8,
+    "ratio": 1.16,
+    "cyclical": false,
+    "value": 28,
+    "valueNow": 17,
+    "score": 44,
+    "verdict": "Expensive",
+    "changed": false,
+    "note": "P/E 41.7 vs the US Real Estate median of 35.8 (29 stocks): 16% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 28 (17 on the old fixed P/E bands). EV/EBITDA 52.2 vs the US Real Estate median of 19.3 (30 stocks): 170% above.",
+    "ev": {
+     "ev": 52.2,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 52.2 vs the US Real Estate median of 19.3 (30 stocks): 170% above."
+    }
+   }
+  },
+  {
+   "symbol": "VTR",
+   "deep": false,
+   "industry": null,
+   "score": 41,
+   "verdict": "Expensive",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 15,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 129.4,
+    "medianPE": 35.8,
+    "ratio": 3.61,
+    "cyclical": false,
+    "value": 15,
+    "valueNow": 0,
+    "score": 41,
+    "verdict": "Expensive",
+    "changed": false,
+    "note": "P/E 129.4 vs the US Real Estate median of 35.8 (29 stocks): 261% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 15 (0 on the old fixed P/E bands). EV/EBITDA 24.5 vs the US Real Estate median of 19.3 (30 stocks): 27% above.",
+    "ev": {
+     "ev": 24.5,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 24.5 vs the US Real Estate median of 19.3 (30 stocks): 27% above."
+    }
+   }
+  },
+  {
+   "symbol": "WELL",
+   "deep": false,
+   "industry": null,
+   "score": 37,
+   "verdict": "Expensive",
+   "reit": null,
+   "value": {
+    "key": "value",
+    "label": "Value",
+    "score": 7,
+    "items": []
+   },
+   "sv": {
+    "sector": "Real Estate",
+    "region": "US",
+    "n": 29,
+    "pe": 78.6,
+    "medianPE": 35.8,
+    "ratio": 2.2,
+    "cyclical": false,
+    "value": 7,
+    "valueNow": 0,
+    "score": 37,
+    "verdict": "Expensive",
+    "changed": false,
+    "note": "P/E 78.6 vs the US Real Estate median of 35.8 (29 stocks): 120% above. REITs are better judged on funds from operations than P/E. Value scored against peers: 7 (0 on the old fixed P/E bands). EV/EBITDA 54.6 vs the US Real Estate median of 19.3 (30 stocks): 183% above.",
+    "ev": {
+     "ev": 54.6,
+     "median": 19.3,
+     "n": 30,
+     "region": "US",
+     "note": "EV/EBITDA 54.6 vs the US Real Estate median of 19.3 (30 stocks): 183% above."
+    }
+   }
+  }
+ ]
+}
