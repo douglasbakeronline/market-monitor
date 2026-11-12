@@ -326,7 +326,7 @@
     "fg": {
       "score": 37,
       "rating": "fear",
-      "asOf": "2026-11-11T20:59:59+00:00",
+      "asOf": "2026-11-11T23:59:59+00:00",
       "comparisons": {
         "close": 33,
         "week": 34,
@@ -355,7 +355,7 @@
         {
           "key": "put_call_options",
           "label": "Put/call options",
-          "score": 20,
+          "score": 19,
           "rating": "extreme fear"
         },
         {
@@ -378,11 +378,6 @@
         }
       ],
       "history": [
-        {
-          "date": "2025-11-11",
-          "t": 1762819200000,
-          "y": 30
-        },
         {
           "date": "2025-11-12",
           "t": 1762905600000,
@@ -1630,19 +1625,19 @@
         },
         {
           "date": "2026-11-11",
-          "t": 1794430799000,
+          "t": 1794441599000,
           "y": 37
         }
       ]
     },
-    "fgAt": "2026-11-11T21:10:40.618Z",
+    "fgAt": "2026-11-12T02:35:09.767Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7619.38,
         "date": "2026-11-11",
-        "asOf": "2026-11-11T21:10:40.000Z",
+        "asOf": "2026-11-11T21:42:03.000Z",
         "currency": "USD",
         "drawdownPct": -2.6,
         "peak": 7818.93,
@@ -1786,11 +1781,11 @@
         ]
       },
       "vix": {
-        "level": 17.65,
-        "dayPct": -9.3,
+        "level": 17.49,
+        "dayPct": -10.1,
         "date": "2026-11-11"
       },
-      "at": "2026-11-11T21:10:40.618Z"
+      "at": "2026-11-12T02:35:09.767Z"
     },
     "watchlist": [
       {
@@ -2120,7 +2115,7 @@
         "yahoo": "TSLA",
         "name": "Tesla",
         "currency": "USD",
-        "price": 390.82,
+        "price": 390.84,
         "date": "2026-11-11",
         "dropFromHigh": -3.3,
         "lastChange": 2.9,
@@ -2258,13 +2253,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 425.7,
+        "price": 425.55,
         "date": "2026-11-11",
         "dropFromHigh": -2.5,
         "lastChange": 0.6,
         "previous": 0.2,
         "week": -2.5,
-        "month": 7.5,
+        "month": 7.4,
         "series": [
           0,
           0.23,
@@ -2295,7 +2290,7 @@
           17.45,
           17.32,
           17.55,
-          18.3
+          18.26
         ],
         "rebound": false
       },
@@ -2304,7 +2299,7 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 343.37,
+        "price": 343.39,
         "date": "2026-11-11",
         "dropFromHigh": -2.5,
         "lastChange": 0.4,
@@ -2585,5 +2580,7 @@
       "2026-11-04:DASH",
       "2026-10-30:IEX"
     ]
-  }
+  },
+  "shortSeen": "2026-11-11",
+  "shortPotStage": null
 }
