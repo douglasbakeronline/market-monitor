@@ -17,7 +17,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          node tools/runup-study.mjs 0 10y yahoo > dry-run/runup-study-2.json 2> dry-run/runup-2.log; echo "exit=$?" >> dry-run/runup-2.log
+          node tools/surprise-drift.mjs > dry-run/surprise-drift.json 2> dry-run/surprise-drift.log; echo "exit=$?" >> dry-run/surprise-drift.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
           git add -f dry-run && git commit -qm "dry-run output" && git push -q
