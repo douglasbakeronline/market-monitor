@@ -39,6 +39,7 @@ import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
 import { shortPot } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
+import { resultsPreview } from "./src/resultsPreview.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
@@ -404,12 +405,16 @@ async function main() {
     await writeJson("history/plan-book.json", pb, true);
     console.log(`Plan book (paper): ${planSummary(pb).map((x) => `${x.key} ${x.returnPct ?? "not started"}`).join(", ")}.`);
   } catch (e) { console.warn(`Plan book failed: ${e.message}`); }
+  // Research list, picks and bench: the results preview's focus names.
+  const focusSet = new Set([...((await readJson("research-list.json", {}))?.stocks ?? []).map((x) => x.symbol), ...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
   // Results check (swing lab round 4): the latest EPS surprise and the day's
   // reaction for the picks, the bench and tonight's results-day volume shocks.
   // Display only. Never stops the scan.
   try {
     const study = await readJson("data/surprise-study.json", null);
-    const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol)]);
+    // Plus research-list names reporting in the next week (results preview, 12 Nov).
+    const soon = out.filter((i) => focusSet.has(i.symbol) && i.earnings?.days != null && i.earnings.days >= 0 && i.earnings.days <= 7).map((i) => i.symbol);
+    const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol), ...soon]);
     let n = 0, tagged = 0;
     for (const it of out) {
       if (!want.has(it.symbol)) continue;
@@ -436,6 +441,13 @@ async function main() {
     await writeJson("data/results-check.json", { updated: new Date().toISOString(), items: Object.fromEntries(out.filter((i) => i.resultsCheck).map((i) => [i.symbol, i.resultsCheck])) }, true);
     console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged.`);
   } catch (e) { console.warn(`Results check failed: ${e.message}`); }
+  // Results preview (12 Nov; src/resultsPreview.js): who reports in the next
+  // week and how far results days usually move them. Display and heads-up only.
+  let resultsAhead = null;
+  try {
+    resultsAhead = resultsPreview(out, { today, focus: focusSet, rowsBySymbol, dates: resultsHist });
+    console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names.`);
+  } catch (e) { console.warn(`Results preview failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
   console.log(`Swing lab volume shocks: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} ${x.movePct > 0 ? "+" : ""}${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open; up ${driftSummary.up.n60} and down ${driftSummary.down.n60} closed.`);
   const paperSummary = summarisePaper(paper);
@@ -478,7 +490,7 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, shortTerm, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, shortTerm, resultsPreview: resultsAhead, items: out,
   });
   // A small copy for the Dashboard (11 Nov evening), so tonight's orders show
   // right after the evening push rather than after the 08:15 monitor run.
