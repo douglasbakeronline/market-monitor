@@ -158,7 +158,18 @@ export function withReitHint(f, listedSector) {
   if (!f || f.industry || !/Real Estate Investment Trusts/i.test(listedSector || "")) return f;
   return gicsSector(f.sector || "Real Estate") === "Real Estate" ? { ...f, industry: "REIT" } : f;
 }
+// Every Real Estate name in the scan gets full data (13 Nov 2026), so the REIT
+// median rests on all scanned REITs, not the 5 to 7 that happened to rank
+// among the best long-term candidates, and quick-scored REITs are valued on
+// cash flow too. Property services firms (CBRE) are fetched but drop out in pocf().
+export const isRealEstate = (f, listedSector) => gicsSector(listedSector || f?.sector) === "Real Estate";
 export const MIN_REITS = 5;
+// Why a REIT is still valued on P/E (display only): no usable cash flow, or no median.
+export function reitPeNote(f, rv, med) {
+  if (!isReit(f) || (rv?.pocf != null && rv?.median != null)) return null;
+  if (pocf(f) == null) return "This REIT is still scored on P/E: Yahoo gives no operating cash flow for it, so treat its Value score with care.";
+  return med ? null : "This REIT is still scored on P/E: too few fully scored REITs for a cash-flow median tonight.";
+}
 export function reitMedian(fs = []) {
   const xs = fs.map(pocf).filter((x) => x != null);
   return xs.length >= MIN_REITS ? { median: r1(median(xs)), n: xs.length } : null;

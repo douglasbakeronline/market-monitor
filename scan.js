@@ -13,7 +13,7 @@ import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
-import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore, withReitHint } from "./src/sectorValue.js";
+import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore, withReitHint, isRealEstate, reitPeNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
@@ -103,7 +103,9 @@ async function main() {
   // Stage 2: deepen the best long-term candidates and the swing setups.
   const byLong = items.filter((i) => i.lt.score != null).sort((a, b) => b.lt.score - a.lt.score).slice(0, DEEP_LONG);
   const bySwing = items.filter((i) => i.swing?.verdict?.startsWith("Setup")).sort((a, b) => b.swing.score - a.swing.score).slice(0, DEEP_SWING);
-  const deep = [...new Set([...byLong, ...bySwing])];
+  // Real Estate names too (13 Nov): the REIT cash-flow median needs their operating cash flow.
+  const byReit = items.filter((i) => isRealEstate(i.f, i.u.sector));
+  const deep = [...new Set([...byLong, ...bySwing, ...byReit])];
   for (const it of deep) {
     const full = await fetchFundamentals(it.u.symbol).catch(() => null);
     if (full) {
@@ -116,7 +118,7 @@ async function main() {
     }
     await sleep(300);
   }
-  console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
+  console.log(`Stage 2: ${deep.filter((d) => d.deep).length} deepened, ${byReit.filter((d) => d.deep).length} of ${byReit.length} Real Estate (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 
   // EV/EBITDA peer sample (src/evSample.js; in the score since 11 Nov): deepened stocks
   // record theirs, and a rotating batch of the rest is refreshed each night.
@@ -168,6 +170,7 @@ async function main() {
   const peerRows = peerRowsOf();
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
   const reitMed = reitMedian(items.filter((it) => it.deep).map((it) => withReitHint(it.f, it.u.sector)));
+  console.log(`REIT cash-flow median: ${reitMed ? `${reitMed.median}x from ${reitMed.n} REITs` : "too few REITs, P/E used"}`);
   for (const it of items) {
     // EV/EBITDA against the region's sector median (sample value for quick scores; live since 11 Nov).
     const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
@@ -179,6 +182,7 @@ async function main() {
     const old = longTerm(it.f, it.t);
     it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, rv) : null;
     if (it.sv && it.lt.reit) withReitScore(it.sv, reitLongTerm(fs, it.t, peer, rv), longTermLive(fs, it.t, peer));
+    { const pn = it.sv && !it.lt.reit ? reitPeNote(withReitHint(it.f, it.u.sector), rv, reitMed) : null; if (pn) it.sv.note = `${it.sv.note} ${pn}`.trim(); }
     it.rc = ruleChangeNote(old, it.lt);
     if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }

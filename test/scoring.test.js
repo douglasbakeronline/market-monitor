@@ -14,7 +14,7 @@ test("longTermLive is peer value plus the 10 Nov Entry rule", () => {
   assert.ok(entry.items.some((i) => i.key === "mom"), "momentum in Entry");
   assert.match(entry.items[0].why, /no extra credit/);
   assert.match(live.pillars.find((p) => p.key === "value").items[0].display, /sector 20\.0/);
-  assert.equal(SCORING_VERSION, "2026-11-12");
+  assert.equal(SCORING_VERSION, "2026-11-13");
 });
 
 test("ruleChangeNote only when the verdict moved", () => {
