@@ -272,6 +272,20 @@
   .mom-m { border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; min-width: 0; overflow-wrap: anywhere; }
   .mom-m .v { font-size: 18px; font-weight: 700; margin-top: 2px; }
   @media (max-width: 640px) { .mom-grid { grid-template-columns: 1fr; } }
+  /* Today (12 Nov) and folded paper books */
+  .today { padding: 6px 16px; }
+  .today a { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: baseline; padding: 10px 0; color: inherit; text-decoration: none; border-top: 1px solid var(--line); }
+  .today a:first-child { border-top: 0; }
+  .today a:hover .t { text-decoration: underline; }
+  .today .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neutral); align-self: center; }
+  .today .buy .dot { background: var(--buy); } .today .sell .dot { background: var(--sell); } .today .plan .dot { background: var(--accent); } .today .watch .dot { background: var(--watch); }
+  .today .go { font-size: 12px; color: var(--muted); }
+  .today .quiet { padding: 10px 0; color: var(--muted); }
+  details.fold > summary { cursor: pointer; list-style: none; }
+  details.fold > summary::-webkit-details-marker { display: none; }
+  details.fold .fold-hint { margin-left: auto; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 12px; color: var(--accent); }
+  details.fold[open] .fold-hint::after { content: " \2191"; }
+  details.fold:not([open]) .fold-hint::after { content: " \2193"; }
 </style>
 </head>
 <body>
@@ -283,6 +297,12 @@
   </header>
   <div class="meta" id="meta"></div>
   <div id="banners"></div>
+
+  <!-- Today (12 Nov platform review): what needs doing, before any context -->
+  <section class="section" id="todaySection" style="margin-top:20px" hidden>
+    <div class="eyebrow">Today</div>
+    <div class="card today" id="todayCard"></div>
+  </section>
 
   <!-- 0. Plan this week -->
   <section class="section" id="planSection" style="margin-top:20px" hidden>
@@ -301,6 +321,18 @@
       </div>
     </div>
     <p class="cap">What the agreed plan says is due in the next seven days. A pick tranche passes when the stock is still a long-term <b>good entry</b> with no results due within a week. The pullback rule brings the next core purchase forward if the S&amp;P 500 or FTSE 100 falls 5% or more below its high first. You place every trade; this is a checklist, not advice.</p>
+  </section>
+
+  <!-- Short-term pot (real money since 11 Nov) -->
+  <section class="section" id="stSection" hidden>
+    <div class="eyebrow">Short-term pot <span class="pill plain" style="margin-left:4px">Real money · 10%</span></div>
+    <div class="card" id="stCard"></div>
+  </section>
+
+  <!-- Results ahead (12 Nov): who reports this week and how far results days usually move them -->
+  <section class="section" id="raSection" hidden>
+    <div class="eyebrow">Results ahead</div>
+    <div class="card" id="raCard"></div>
   </section>
 
   <!-- 0a. Decisions waiting on Douglas (read from docs/ROADMAP.md) -->
@@ -371,7 +403,7 @@
     <div class="eyebrow">Sentiment over the past year</div>
     <div class="card"><svg id="chart" class="chart" viewBox="0 0 800 200" role="img" aria-label="Fear and Greed history"></svg></div>
     <div class="card sess" style="margin-top:10px" id="sessions"></div>
-    <p class="cap">Green band: panic, historically a buying zone. Red band: froth, stop adding. The session row shows Fear &amp; Greed at each US close; where the monitor captured the open too, the move is open-to-close.</p>
+    <p class="cap">Green band: panic, historically a buying zone. Red band: froth, no need to add extra money (scheduled purchases carry on). The session row shows Fear &amp; Greed at each US close; where the monitor captured the open too, the move is open-to-close.</p>
   </section>
 
   <!-- 6. World -->
@@ -414,21 +446,12 @@
     <p class="cap">Every alert is logged with the price at the time, then checked against what happened next and against its home index over the same period (FTSE 100 for London shares, Euro Stoxx 50 for European ones, else the S&amp;P 500). For greed and trim alerts, a fall afterwards counts as the right call. The hit rate switches to one-month results once there are enough of them.</p>
   </section>
 
-  <!-- Short-term pot (real money since 11 Nov) -->
-  <section class="section" id="stSection" hidden>
-    <div class="eyebrow">Short-term pot <span class="pill plain" style="margin-left:4px">Real money · 10%</span></div>
-    <div class="card" id="stCard"></div>
-  </section>
 
-  <!-- Results ahead (12 Nov): who reports this week and how far results days usually move them -->
-  <section class="section" id="raSection" hidden>
-    <div class="eyebrow">Results ahead</div>
-    <div class="card" id="raCard"></div>
-  </section>
 
   <!-- Swing paper trading -->
   <section class="section" id="ppSection" hidden>
-    <div class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span></div>
+    <details class="fold" id="ppFold">
+    <summary class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span><span class="fold-hint">Show</span></summary>
     <div class="card" id="scoreCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="buffCard" style="margin-bottom:12px" hidden></div>
     <div class="card book" id="momCard" style="margin-bottom:12px" hidden></div>
@@ -439,6 +462,7 @@
       <div id="ppList"></div>
     </div>
     <p class="cap">Every clean swing setup from the nightly index scan is logged as a paper trade under the swing rules: buy at the next open, stop at 2× the average daily range, take profit at twice the risk (2R), or sell after 20 sessions. <b>Average R</b> is the result per trade in units of risk: above zero means the rules make money before costs. No real money is involved.</p>
+    </details>
   </section>
 
   <!-- 8. Rebound watch -->
@@ -461,6 +485,7 @@ import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { dayLabel } from "./src/resultsPreview.js";
+import { todayItems } from "./src/today.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
 import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
@@ -495,6 +520,7 @@ function render(d) {
   $("banners").innerHTML = b.join("");
   renderShortTerm(d.shortTerm);
   renderResultsAhead(d.resultsPreview);
+  renderToday();
 
   renderHero(d.regime);
   renderFG(d);
@@ -718,6 +744,17 @@ function renderShortTerm(st) {
       (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
     <p class="small muted" style="margin:12px 0 0">Your call on 11 Nov: 10% of the portfolio, both setups, from the core. Up to 5 trades, a fifth of the pot each; drift takes free slots first, then the most oversold bounces. No stop orders (the backtest's stop cut drift's edge); the pot pauses if it falls 25% from its high. In the backtest drift beat random entry after costs in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years, while bounces won often but lost a little on average after costs. When there is anything to buy or sell, a push goes to your phone the evening before (about 21:30 London, once the scan has run after the US close), so you can place the orders before the open; if the scan runs late, the push comes at 08:15 instead.${st.pushedAt ? ` This list was pushed at ${new Date(st.pushedAt).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" })}.` : ""}</p>`;
   el.hidden = false; $("stSection").hidden = false;
+}
+// --- Today (src/today.js): what needs doing, linked to the detail ---
+let DEC_N = null;
+function renderToday() {
+  const el = $("todayCard");
+  if (!el || !LAST_DATA) return;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  const items = todayItems(LAST_DATA, today, { decisions: DEC_N });
+  el.innerHTML = items.length ? items.map((x) => `<a class="${esc(x.tone)}" href="${esc(x.href)}"><span class="dot" aria-hidden="true"></span><span class="t">${esc(x.text)}</span><span class="go">Details</span></a>`).join("")
+    : `<div class="quiet">Nothing to do today. No orders, no plan actions due, no list results tomorrow.</div>`;
+  $("todaySection").hidden = false;
 }
 // --- Results ahead (scan.json resultsPreview via data.json; src/resultsPreview.js) ---
 function renderResultsAhead(p) {
@@ -1190,6 +1227,7 @@ let CORE_CLOSES = null;
 const getText = (u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.text() : Promise.reject(r.status)));
 getText("https://raw.githubusercontent.com/douglasbakeronline/market-monitor/main/docs/ROADMAP.md").catch(() => getText("docs/ROADMAP.md")).then((md) => {
   const items = md ? parseDecisions(md) : [];
+  DEC_N = items.filter((x) => x.kind === "decision").length || null; renderToday();
   if (!items.length) return;
   const sorted = [...items.filter((x) => x.kind === "decision"), ...items.filter((x) => x.kind !== "decision")];
   $("decCard").innerHTML = `<div class="dec-head"><span>${esc(decisionsLine(items))}</span></div>` + sorted.map((x) => `<details><summary><span class="t">${esc(x.title)}</span><span class="tag">${x.kind === "decision" ? "<b>Decision</b>" : "To do"}${x.date ? ` · ${esc(x.date)}` : ""}</span>${x.gist ? `<span class="g">${esc(x.gist)}</span>` : ""}</summary>${x.body ? `<div class="body">${inlineHtml(x.body, esc)}</div>` : ""}</details>`).join("");
