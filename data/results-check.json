@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T20:07:40.871Z",
+  "updated": "2026-11-12T21:23:36.714Z",
   "items": {
     "NVDA": {
       "quarter": "2026-07-31",
@@ -316,30 +316,6 @@
       "note": "Weak results and a falling price. Over ten years (2017 to 2026, about 5,600 results-day falls) this group did only 0.4 points worse than other falls against the index over the next 60 sessions, and was behind in 6 of 10 years: a pointer, not a reason to skip a tranche. A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
       "tone": "watch"
     },
-    "VICI": {
-      "moves": {
-        "n": 4,
-        "typical": 2.6,
-        "moves": [
-          {
-            "date": "2026-02-26",
-            "pct": -1.5
-          },
-          {
-            "date": "2026-04-30",
-            "pct": 2.1
-          },
-          {
-            "date": "2026-07-30",
-            "pct": -3
-          },
-          {
-            "date": "2026-10-29",
-            "pct": 4.3
-          }
-        ]
-      }
-    },
     "HSBA.L": {
       "quarter": "2026-09-30",
       "date": "2026-10-27",
@@ -385,50 +361,29 @@
       "note": "Weak results and a falling price. Over ten years (2017 to 2026, about 5,600 results-day falls) this group did only 0.4 points worse than other falls against the index over the next 60 sessions, and was behind in 6 of 10 years: a pointer, not a reason to skip a tranche.",
       "tone": "watch"
     },
-    "CF": {
-      "quarter": "2026-09-30",
-      "date": "2026-11-05",
-      "actual": 2.87,
-      "estimate": 3.05303,
-      "surprisePct": -6,
-      "reaction": 6.2,
-      "record": {
-        "beats": 2,
-        "of": 4,
-        "avgSurprise": 8.8,
-        "next": {
-          "date": null,
-          "epsEstimate": 3.50418,
-          "epsLow": 2.91251,
-          "epsHigh": 3.90096
-        }
-      },
+    "VICI": {
       "moves": {
         "n": 4,
-        "typical": 2.4,
+        "typical": 2.6,
         "moves": [
           {
-            "date": "2026-02-19",
-            "pct": 3.8
+            "date": "2026-02-26",
+            "pct": -1.5
           },
           {
-            "date": "2026-05-07",
-            "pct": -0.9
+            "date": "2026-04-30",
+            "pct": 2.1
           },
           {
-            "date": "2026-08-06",
-            "pct": 0
+            "date": "2026-07-30",
+            "pct": -3
           },
           {
-            "date": "2026-11-05",
-            "pct": 6.2
+            "date": "2026-10-29",
+            "pct": 4.3
           }
         ]
-      },
-      "fifth": "bottom",
-      "label": "EPS missed the forecast by 6.0% (bottom fifth); the price rose 6.2% on the day",
-      "note": null,
-      "tone": "neutral"
+      }
     },
     "AMZN": {
       "quarter": "2026-09-30",
@@ -472,6 +427,51 @@
       },
       "fifth": "bottom",
       "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "CF": {
+      "quarter": "2026-09-30",
+      "date": "2026-11-05",
+      "actual": 2.87,
+      "estimate": 3.05303,
+      "surprisePct": -6,
+      "reaction": 6.2,
+      "record": {
+        "beats": 2,
+        "of": 4,
+        "avgSurprise": 8.8,
+        "next": {
+          "date": null,
+          "epsEstimate": 3.50418,
+          "epsLow": 2.91251,
+          "epsHigh": 3.90096
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 2.4,
+        "moves": [
+          {
+            "date": "2026-02-19",
+            "pct": 3.8
+          },
+          {
+            "date": "2026-05-07",
+            "pct": -0.9
+          },
+          {
+            "date": "2026-08-06",
+            "pct": 0
+          },
+          {
+            "date": "2026-11-05",
+            "pct": 6.2
+          }
+        ]
+      },
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 6.0% (bottom fifth); the price rose 6.2% on the day",
       "note": null,
       "tone": "neutral"
     }
