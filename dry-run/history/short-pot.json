@@ -1,0 +1,69 @@
+{
+  "updated": "2026-11-12T15:14:27.806Z",
+  "rules": {
+    "start": "2026-11-11",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-12"
+  },
+  "start": "2026-11-12",
+  "value": 9996,
+  "returnPct": -0.04,
+  "peak": 10000,
+  "fallPct": -0.04,
+  "paused": false,
+  "open": [
+    {
+      "id": "2026-11-11:bounce:OTIS",
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "entry": 78.18,
+      "pos": 2000,
+      "sessions": 1,
+      "openPct": -0.2,
+      "openPnl": -4
+    }
+  ],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "SBRY.L",
+      "ticker": "SBRY",
+      "name": "J Sainsbury plc",
+      "market": "UK",
+      "signalDate": "2026-11-12",
+      "signalPrice": 345.6
+    },
+    {
+      "kind": "bounce",
+      "symbol": "VEEV",
+      "ticker": "VEEV",
+      "name": "Veeva Systems Inc.",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 301.39
+    }
+  ],
+  "skipped": 0,
+  "free": 4,
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": [
+    {
+      "kind": "bounce",
+      "ticker": "OTIS",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "exitDate": null
+    }
+  ]
+}
