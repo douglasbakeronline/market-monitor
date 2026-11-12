@@ -18,7 +18,7 @@ import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
 import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays } from "./src/surpriseStudy.js";
-import { fetchResultsData, fetchReportedDates } from "./src/data/fundamentals.js";
+import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
@@ -39,7 +39,7 @@ import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
 import { shortPot } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
-import { resultsPreview, previewCandidates } from "./src/resultsPreview.js";
+import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn } from "./src/resultsPreview.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
@@ -292,6 +292,18 @@ async function main() {
       let sl = await readJson("history/short-signals.json", []);
       sl = sl.map((t) => updateShort(t, rowsBySymbol[t.symbol], idx[t.market]));
       const today = shortTermToday(out.filter((i) => i.index === "S&P 500" || i.index === "FTSE 100"), rowsBySymbol);
+      // EPS surprise for results-day drift signals: the pot ranks scarce slots
+      // by it (12 Nov, after swing lab round 6). Never blocks a signal.
+      const qAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
+      for (const s of today.drift.filter((x) => x.results)) {
+        try {
+          const h = await fetchResultsHistory(s.symbol, { size: 12 });
+          const at = qAt.get(s.symbol);
+          if (at) for (const e of reportedSessions([at], s.symbol)) if (!h.some((x) => x.date === e.date)) h.push(e);
+          s.surprisePct = surpriseOn(rowsBySymbol[s.symbol], h, s.date);
+        } catch { s.surprisePct = null; }
+        await sleep(150);
+      }
       sl = addShort(sl, [...today.drift, ...today.bounce]).slice(-2000);
       await writeJson("history/short-signals.json", sl, true);
       const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;
@@ -445,14 +457,27 @@ async function main() {
   // week and how far results days usually move them. Display and heads-up only.
   let resultsAhead = null;
   try {
-    // Past results dates with their time of day, for the names in the window.
-    const reported = {};
-    for (const { it } of previewCandidates(out, { today, focus: focusSet })) {
-      try { reported[it.symbol] = await fetchReportedDates(it.symbol); } catch { /* plain dates still used */ }
+    // Past results dates with their time of day and EPS, for the names in the
+    // window, the pot's holdings and anything that may have just reported.
+    const held = new Set((shortTerm?.pot?.open ?? []).map((o) => o.symbol).filter(Boolean));
+    const reported = {}, toFetch = new Map();
+    for (const { it } of previewCandidates(out, { today, focus: focusSet, held })) toFetch.set(it.symbol, it);
+    for (const it of recentCandidates(out, { today, focus: focusSet, dates: resultsHist })) toFetch.set(it.symbol, it);
+    const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
+    for (const sym of toFetch.keys()) {
+      try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
+      // Yahoo's history lags a day or two: add the quote's own results time.
+      const at = quoteAt.get(sym);
+      const extra = at ? reportedSessions([at], sym) : [];
+      // London results come out by RNS before the open (07:00), so a stored
+      // London date is safe to read as that session.
+      if (/\.L$/.test(sym)) for (const d of resultsHist[sym] ?? []) if (d <= today) extra.push({ date: d, after: false });
+      for (const e of extra) if (!reported[sym].some((x) => x.date === e.date)) reported[sym] = [...reported[sym], e].sort((a, b) => (a.date < b.date ? -1 : 1));
       await sleep(150);
     }
-    resultsAhead = resultsPreview(out, { today, focus: focusSet, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
-    console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names.`);
+    resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
+    resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet });
+    console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}${r.held ? " (held)" : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names; just reported: ${resultsAhead.just.map((j) => `${j.ticker} ${j.move}% ${j.volX}x${j.surprisePct != null ? ` EPS ${j.surprisePct}%` : ""}`).join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results preview failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
   console.log(`Swing lab volume shocks: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} ${x.movePct > 0 ? "+" : ""}${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open; up ${driftSummary.up.n60} and down ${driftSummary.down.n60} closed.`);

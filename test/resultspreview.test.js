@@ -94,3 +94,36 @@ test("timed dates: after the close reacts the next session, before the close tha
   const p = resultsPreview(items, { today: "2026-11-12", rowsBySymbol: { Z: rows }, reported: { Z: [{ date: rows[66].date, after: true }] }, dates: { Z: [rows[66].date] } });
   assert.deepEqual(p.watch[0].moves.map((x) => x.pct), [-3]);
 });
+
+test("beat record, pot holdings and just reported", async () => {
+  const { beatRecord, justReported, recentCandidates } = await import("../src/resultsPreview.js");
+  const hist = [1, 2, -3, 4, 5, 0, 6, 7, 8].map((v, k) => ({ date: `2026-0${(k % 9) + 1}-10`, after: false, surprisePct: v }));
+  const r = beatRecord(hist, "2026-11-12");
+  assert.deepEqual([r.n, r.beats, r.median], [8, 6, 4.5]);
+  // Held names join the list even when not on the research list.
+  const rows = bars(240, { 239: 6 }, { 239: 4 });
+  const items = [{ symbol: "Q", ticker: "Q", name: "Q", index: "S&P 500", market: "US", earnings: { date: "2026-11-16" } }];
+  const p = resultsPreview(items, { today: "2026-11-12", held: new Set(["Q"]), rowsBySymbol: { Q: rows }, reported: { Q: hist } });
+  assert.equal(p.focus[0].held, true);
+  assert.match(previewLine(p.focus[0], "2026-11-12"), /beat the forecast 6 of the last 8 times\. The short-term pot holds it/);
+  // Just reported: the latest bar is the reaction day.
+  const j = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true, surprisePct: 9 }] } });
+  assert.deepEqual([j[0].move, j[0].volX, j[0].surprisePct, j[0].potBuy], [6, 4, 9, true]);
+  assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: false }] } }).length, 0);
+  assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-10"] } }).length, 1);
+  assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-01"] } }).length, 0);
+});
+
+test("London results always read as that session (Yahoo's 16:30 placeholder)", async () => {
+  const { reportedSessions } = await import("../src/data/fundamentals.js");
+  assert.deepEqual(reportedSessions([1794501000e3], "BRBY.L"), [{ date: "2026-11-12", after: false }]);
+});
+
+test("surpriseOn: the surprise of the results that reacted on a given session", async () => {
+  const { surpriseOn } = await import("../src/resultsPreview.js");
+  const rows = bars(60);
+  const hist = [{ date: rows[40].date, after: true, surprisePct: 12 }, { date: rows[50].date, after: false, surprisePct: -3 }];
+  assert.equal(surpriseOn(rows, hist, rows[41].date), 12);
+  assert.equal(surpriseOn(rows, hist, rows[50].date), -3);
+  assert.equal(surpriseOn(rows, hist, rows[40].date), null);
+});

@@ -53,7 +53,10 @@ export function shortTermToday(items, rowsBySymbol) {
     const base = { symbol: i.symbol, ticker: i.ticker, name: i.name, market: i.market, index: i.index, score: i.longTerm?.score ?? null };
     const d = driftToday(rows);
     if (d && d.kind === "up") {
-      const nearResults = !!(i.lastEarnings && Math.abs(Date.parse(d.date) - Date.parse(i.lastEarnings)) <= 3 * 86400000);
+      // Near a results date: the last one, or the scheduled one when Yahoo has
+      // not rolled it over yet (Burberry's 12 Nov interims showed only there).
+      const near = (x) => !!(x && Math.abs(Date.parse(d.date) - Date.parse(x)) <= 3 * 86400000);
+      const nearResults = near(i.lastEarnings) || near(i.earnings?.date);
       drift.push({ ...base, kind: "drift", date: d.date, price: d.price, movePct: d.movePct, volX: d.volX, results: nearResults });
       continue; // a stock that just jumped is not a dip
     }
@@ -74,7 +77,7 @@ export function addShort(log = [], sigs = []) {
     const k = `${s.kind}:${s.symbol}`;
     if (open.has(k)) continue;
     out.push({ id: `${s.date}:${s.kind}:${s.symbol}`, kind: s.kind, symbol: s.symbol, ticker: s.ticker, name: s.name, market: s.market, signalDate: s.date, signalPrice: s.price,
-      ...(s.kind === "drift" ? { movePct: s.movePct ?? null, volX: s.volX ?? null, results: !!s.results } : { rsi2: s.rsi2 ?? null }), status: "pending" });
+      ...(s.kind === "drift" ? { movePct: s.movePct ?? null, volX: s.volX ?? null, results: !!s.results, surprisePct: s.surprisePct ?? null } : { rsi2: s.rsi2 ?? null }), status: "pending" });
     open.add(k);
   }
   return out;
@@ -220,7 +223,7 @@ export function shortTermAlert(st, seen = null) {
   if (!drift.length && !bounce.length && !sells.length) return null;
   const T = st.tested ?? {}, L = st.live ?? {};
   const sig = Object.fromEntries([...drift, ...bounce].map((x) => [`${x.kind}:${x.symbol}`, x]));
-  const what = (x) => { const s = sig[`${x.kind}:${x.symbol}`]; return x.kind === "drift" ? `results drift${s ? `, ${sg(s.movePct)} on ${s.volX}x volume${s.results ? " (results)" : ""}` : ""}` : `bounce${s ? `, 2-day RSI ${s.rsi2}, ${sg(s.fall3)} over 3 days` : ""}`; };
+  const what = (x) => { const s = sig[`${x.kind}:${x.symbol}`]; return x.kind === "drift" ? `results drift${s ? `, ${sg(s.movePct)} on ${s.volX}x volume${s.results ? ` (results${s.surprisePct != null ? `, EPS ${sg(s.surprisePct)} vs forecast` : ""})` : ""}` : ""}` : `bounce${s ? `, 2-day RSI ${s.rsi2}, ${sg(s.fall3)} over 3 days` : ""}`; };
   const lines = [];
   if (pot) {
     lines.push(`Short-term pot (real money, 10% of the portfolio)${pot.paused ? ": PAUSED, 25% below its high. No new buys; review the pot before resuming." : "."}`);

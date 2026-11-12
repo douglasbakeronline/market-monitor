@@ -49,38 +49,60 @@ function nextDate(it) {
   return null;
 }
 
-// Names reporting in the window: focus names (any date the scan has, estimates
-// flagged) and S&P 500 / FTSE 100 names with a firm date.
-export function previewCandidates(items = [], { today, focus = new Set(), days = PREVIEW.days } = {}) {
+// Names reporting in the window: focus names and the pot's open holdings (any
+// date the scan has, estimates flagged) and S&P 500 / FTSE 100 names with a
+// firm date.
+export function previewCandidates(items = [], { today, focus = new Set(), held = new Set(), days = PREVIEW.days } = {}) {
   const out = [];
   for (const it of items) {
     const nd = nextDate(it);
     if (!nd) continue;
     const inDays = dayDiff(nd.date, today);
     if (inDays < 0 || inDays > days) continue;
-    const isFocus = focus.has(it.symbol), pot = POT_INDEX.has(it.index);
+    const isFocus = focus.has(it.symbol) || held.has(it.symbol), pot = POT_INDEX.has(it.index);
     if (!isFocus && (!pot || nd.estimated)) continue;
     out.push({ it, nd, inDays, isFocus, pot });
   }
   return out;
 }
 
+// Names that may have reported in the last few days (for "Just reported"):
+// a stored or scheduled results date from 4 days ago to today.
+export function recentCandidates(items = [], { today, focus = new Set(), dates = {} } = {}) {
+  return items.filter((it) => {
+    if (!focus.has(it.symbol) && !POT_INDEX.has(it.index)) return false;
+    const ds = [...(dates[it.symbol] ?? []), ...(it.earnings?.date ? [it.earnings.date] : [])];
+    return ds.some((d) => { const k = dayDiff(today, d); return k >= 0 && k <= 4; });
+  });
+}
+
+// The beat record from timed history with EPS: last 8 with a surprise.
+export function beatRecord(hist = [], today) {
+  const xs = hist.filter((e) => e.date < today && e.surprisePct != null).slice(-8);
+  if (!xs.length) return null;
+  const s = [...xs.map((e) => e.surprisePct)].sort((a, b) => a - b), h = s.length / 2;
+  return { n: xs.length, beats: xs.filter((e) => e.surprisePct > 0).length, median: Math.round((s.length % 2 ? s[Math.floor(h)] : (s[h - 1] + s[h]) / 2) * 10) / 10, last: xs.at(-1) };
+}
+
 // items: the scan's output items. focus: Set of symbols (research list, picks,
-// bench). rowsBySymbol: daily bars. reported: { symbol: [{ date, after }] }
-// (fetchReportedDates). dates: history/results-dates.json (plain dates).
-// afterClose: hand-checked after-close reporters.
-export function resultsPreview(items = [], { today, focus = new Set(), rowsBySymbol = {}, reported = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
+// bench). held: the short-term pot's open symbols. rowsBySymbol: daily bars.
+// reported: { symbol: [{ date, after, surprisePct? }] } (fetchResultsHistory).
+// dates: history/results-dates.json (plain dates). afterClose: hand-checked
+// after-close reporters.
+export function resultsPreview(items = [], { today, focus = new Set(), held = new Set(), rowsBySymbol = {}, reported = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
   const rows = [];
-  for (const { it, nd, inDays, isFocus, pot } of previewCandidates(items, { today, focus, days })) {
+  for (const { it, nd, inDays, isFocus, pot } of previewCandidates(items, { today, focus, held, days })) {
     const timed = (reported[it.symbol] ?? []).filter((e) => e.date < today);
     const plain = (dates[it.symbol] ?? []).filter((d) => d < today && !timed.some((e) => e.date === d)).map((d) => (afterClose.has(it.symbol) ? { date: d, after: true } : d));
     const moves = typicalMove(rowsBySymbol[it.symbol], [...timed, ...plain]);
-    const rc = it.resultsCheck;
+    const rc = it.resultsCheck, rec = beatRecord(timed, today);
     rows.push({
       symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, index: it.index,
-      date: nd.date, estimated: nd.estimated, days: inDays, focus: isFocus, pot,
+      date: nd.date, estimated: nd.estimated, days: inDays, focus: isFocus, pot, held: held.has(it.symbol),
       typical: moves?.typical ?? null, moves: moves?.moves ?? [],
-      last: rc?.surprisePct != null ? { surprisePct: rc.surprisePct, reaction: rc.reaction ?? null, date: rc.date ?? null } : null,
+      record: rec ? { n: rec.n, beats: rec.beats, median: rec.median } : null,
+      last: rc?.surprisePct != null ? { surprisePct: rc.surprisePct, reaction: rc.reaction ?? null, date: rc.date ?? null }
+        : rec ? { surprisePct: rec.last.surprisePct, reaction: moveOn(rowsBySymbol[it.symbol], rec.last), date: rec.last.date } : null,
     });
   }
   const byDate = (a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (b.typical ?? 0) - (a.typical ?? 0));
@@ -88,6 +110,32 @@ export function resultsPreview(items = [], { today, focus = new Set(), rowsBySym
   const others = rows.filter((r) => !r.focus && r.pot);
   const watch = [...others].sort((a, b) => (b.typical ?? -1) - (a.typical ?? -1) || byDate(a, b)).slice(0, PREVIEW.watchMax);
   return { date: today, days, focus: focusRows, watch, potCount: others.length };
+}
+
+// The close-to-close move on an event's reaction session.
+function moveOn(rows, e) {
+  if (!rows?.length || !e) return null;
+  const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date));
+  return i >= 1 ? Math.round((rows[i].close / rows[i - 1].close - 1) * 1000) / 10 : null;
+}
+
+// Just reported: names whose results reaction session is the latest bar.
+// move, volume against the previous 50 sessions, the surprise, and whether it
+// meets the pot's drift trigger (4%+ on 3x) as it stands.
+export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set() } = {}) {
+  const out = [];
+  for (const it of items) {
+    const rows = rowsBySymbol[it.symbol], hist = reported[it.symbol];
+    if (!rows?.length || rows.length < 52 || !hist?.length) continue;
+    const d = rows.length - 1, last = rows[d].date;
+    const ev = hist.find((e) => { const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date)); return i === d; });
+    if (!ev) continue;
+    const avg = rows.slice(d - 50, d).reduce((a, r) => a + (r.volume || 0), 0) / 50;
+    const move = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10, volX = avg > 0 ? Math.round(((rows[d].volume || 0) / avg) * 10) / 10 : null;
+    out.push({ symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, date: last, move, volX, surprisePct: ev.surprisePct ?? null,
+      focus: focus.has(it.symbol), pot: POT_INDEX.has(it.index), potBuy: POT_INDEX.has(it.index) && move >= 4 && volX != null && volX >= 3 });
+  }
+  return out.sort((a, b) => (b.focus - a.focus) || Math.abs(b.move) - Math.abs(a.move)).slice(0, 12);
 }
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -108,7 +156,9 @@ export function previewLine(r, today) {
     : r.moves.length === 1 ? `moved ${sp(r.moves[0].pct)} on its last results day (the only one on record so far)`
     : `usually moves ±${r.typical.toFixed(1)}% on results (last ${r.moves.length}: ${r.moves.map((m) => sp(m.pct)).join(", ")})`;
   const last = r.last ? `; last time EPS ${sp(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sp(r.last.reaction)} on the day` : ""}` : "";
-  return `${r.ticker} ${when}: ${usual}${last}.`;
+  const rec = r.record?.n >= 4 ? `; beat the forecast ${r.record.beats} of the last ${r.record.n} times` : "";
+  const held = r.held ? " The short-term pot holds it, so its results land inside the trade (the rules keep it; this is a heads-up)." : "";
+  return `${r.ticker} ${when}: ${usual}${last}${rec}.${held}`;
 }
 
 // The morning push. sent: { "SYM|date": ["week", "eve"] } from monitor state.
@@ -136,4 +186,15 @@ export function resultsAlert(preview, sent = {}, today) {
   const potNames = fresh.filter((r) => r.pot).map((r) => r.ticker);
   if (potNames.length) body.push(`${potNames.join(", ")}: a close up 4%+ on 3× normal volume would make ${potNames.length > 1 ? "any of them" : "it"} a short-term pot buy, pushed that evening.`);
   return { alert: { kind: "results", priority: "default", tags: "spiral_calendar", title, body: body.join("\n") }, sent: next };
+}
+
+// The EPS surprise of the results whose reaction session is `date` (a drift
+// signal's day), from timed history; null if none matches or no forecast.
+// Used to rank the short-term pot's drift signals (12 Nov).
+export function surpriseOn(rows = [], hist = [], date) {
+  for (const e of hist ?? []) {
+    const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date));
+    if (i >= 0 && rows[i].date === date) return e.surprisePct ?? null;
+  }
+  return null;
 }

@@ -18,7 +18,7 @@ const bars = (n, jumps = {}, spikes = {}) => {
 
 test("EPS figures ride along with the timed dates, surprise against the forecast", () => {
   const r = reportedSessions([{ t: 1763587200e3, actual: 1.3, estimate: 1.25 }, { t: Date.parse("2025-02-19T04:18:00Z"), actual: 0.28, estimate: 0.27 }, { t: Date.parse("2025-02-19T15:00:00Z"), actual: null, estimate: 0.17 }], "HSBA.L");
-  assert.deepEqual(r.map((x) => [x.date, x.after, x.surprisePct]), [["2025-02-19", false, 3.7], ["2025-11-19", true, 4]]);
+  assert.deepEqual(r.map((x) => [x.date, x.after, x.surprisePct]), [["2025-02-19", false, 3.7], ["2025-11-19", false, 4]]);
   // Forecast near zero: no surprise.
   assert.equal(reportedSessions([{ t: 1763587200e3, actual: 0.05, estimate: 0.004 }], "NVDA")[0].surprisePct, null);
 });
@@ -58,4 +58,18 @@ test("verdicts: a beat filter that only matches the current trigger fails the 0.
   assert.equal(a.H9.diff, 1);
   assert.equal(a.H9.pass, true);
   assert.equal(a.H7.spread60 > 2, true);
+});
+
+test("round 7: weak results with a fall trail other falls, by year", async () => {
+  const { analyseWeakFalls } = await import("../src/surpriseDrift.js");
+  const ev = [];
+  // Per year: 60 weak falls, 160 other falls, 40 rises (weak = bottom fifth).
+  for (const y of ["2019", "2020", "2021", "2022"]) {
+    for (let k = 0; k < 60; k++) ev.push({ kind: "results", year: y, move: -3, surprisePct: -5, fx: { 20: -1, 60: -3 } });
+    for (let k = 0; k < 160; k++) ev.push({ kind: "results", year: y, move: -3, surprisePct: 10 + (k % 4), fx: { 20: 0, 60: 0 } });
+    for (let k = 0; k < 40; k++) ev.push({ kind: "results", year: y, move: 1, surprisePct: 20, fx: { 20: 5, 60: 5 } });
+  }
+  const a = analyseWeakFalls(ev);
+  assert.equal(a.cut, -5);
+  assert.deepEqual([a.diff60, a.diff20, a.yearsBehind.behind, a.pass], [-3, -1, 4, true]);
 });

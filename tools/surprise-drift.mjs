@@ -4,7 +4,7 @@
 import { readFile } from "node:fs/promises";
 import { fetchDaily } from "../src/data/prices.js";
 import { fetchResultsHistory } from "../src/data/fundamentals.js";
-import { surpriseDriftEvents, analyseSurpriseDrift } from "../src/surpriseDrift.js";
+import { surpriseDriftEvents, analyseSurpriseDrift, analyseWeakFalls } from "../src/surpriseDrift.js";
 import { sleep } from "../src/util.js";
 
 const cons = JSON.parse(await readFile("data/constituents.json", "utf8"));
@@ -33,4 +33,4 @@ const dates = all.map((e) => e.date).sort();
 const res = analyseSurpriseDrift(all);
 const brief = (t) => { const { byYear, ...x } = t; return { ...x, byYear: byYear.map((y) => [y.year, y.n, y.edge]) }; };
 console.log(JSON.stringify({ ran: new Date().toISOString().slice(0, 10), universe: universe.length, fetched, withDates, range, from: dates[0], to: dates.at(-1),
-  D2: res.D2, H7: res.H7, H8: res.H8, H9: res.H9, counts: res.counts, random: res.random, groups: Object.fromEntries(Object.entries(res.groups).map(([k, v]) => [k, brief(v)])) }, null, 1));
+  H10: analyseWeakFalls(all), D2: res.D2, H7: res.H7, H8: res.H8, H9: res.H9, counts: res.counts, random: res.random, groups: Object.fromEntries(Object.entries(res.groups).map(([k, v]) => [k, brief(v)])) }, null, 1));
