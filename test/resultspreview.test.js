@@ -66,6 +66,8 @@ test("alert: once when a name enters the week, again the day before, never twice
   assert.match(eve.alert.title, /^Results ahead: HSBA tomorrow$/);
   assert.match(eve.alert.body, /Also this week: SPCX Wed 18 Nov/);
   assert.equal(resultsAlert(preview, eve.sent, "2026-11-16").alert, null);
+  // Results day itself is never pushed.
+  assert.equal(resultsAlert({ days: 7, focus: [{ symbol: "B", ticker: "B", date: "2026-11-12", typical: null, moves: [] }] }, {}, "2026-11-12").alert, null);
   // Past keys are dropped.
   assert.deepEqual(Object.keys(resultsAlert(preview, eve.sent, "2026-11-19").sent), []);
 });
@@ -91,4 +93,23 @@ test("timed dates: after the close reacts the next session, before the close tha
   const items = [{ symbol: "Z", ticker: "Z", name: "Z", index: "S&P 500", market: "US", earnings: { date: "2026-11-13" } }];
   const p = resultsPreview(items, { today: "2026-11-12", rowsBySymbol: { Z: rows }, reported: { Z: [{ date: rows[66].date, after: true }] }, dates: { Z: [rows[66].date] } });
   assert.deepEqual(p.watch[0].moves.map((x) => x.pct), [-3]);
+});
+
+test("beat record, pot holdings and just reported", async () => {
+  const { beatRecord, justReported, recentCandidates } = await import("../src/resultsPreview.js");
+  const hist = [1, 2, -3, 4, 5, 0, 6, 7, 8].map((v, k) => ({ date: `2026-0${(k % 9) + 1}-10`, after: false, surprisePct: v }));
+  const r = beatRecord(hist, "2026-11-12");
+  assert.deepEqual([r.n, r.beats, r.median], [8, 6, 4.5]);
+  // Held names join the list even when not on the research list.
+  const rows = bars(240, { 239: 6 }, { 239: 4 });
+  const items = [{ symbol: "Q", ticker: "Q", name: "Q", index: "S&P 500", market: "US", earnings: { date: "2026-11-16" } }];
+  const p = resultsPreview(items, { today: "2026-11-12", held: new Set(["Q"]), rowsBySymbol: { Q: rows }, reported: { Q: hist } });
+  assert.equal(p.focus[0].held, true);
+  assert.match(previewLine(p.focus[0], "2026-11-12"), /beat the forecast 6 of the last 8 times\. The short-term pot holds it/);
+  // Just reported: the latest bar is the reaction day.
+  const j = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true, surprisePct: 9 }] } });
+  assert.deepEqual([j[0].move, j[0].volX, j[0].surprisePct, j[0].potBuy], [6, 4, 9, true]);
+  assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: false }] } }).length, 0);
+  assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-10"] } }).length, 1);
+  assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-01"] } }).length, 0);
 });
