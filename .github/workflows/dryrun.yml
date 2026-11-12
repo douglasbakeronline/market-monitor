@@ -1,5 +1,5 @@
 name: Dry run
-# UK REIT hint (BBOX.L) for the cash-flow score, 12 Nov.
+# UK REIT hint (BBOX.L) for the cash-flow score, 12 Nov (run 2).
 on:
   push:
     branches: [dryrun]
