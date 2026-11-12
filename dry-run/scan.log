@@ -1,0 +1,36 @@
+Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
+Quotes: 663
+Stage 1: 662 scored, 1 failed (3.0 min)
+Stage 2: 109 deepened (3.7 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.7 min)
+Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.7 min)
+Paper trades: markets open, not updated.
+Swing book (paper): -2.23% since 2026-11-02 (S&P 0.08%), 4 open, 0 orders for the next session.
+Swing lab: markets open, not updated.
+Short-term pot: 1 open, 4 to buy, 0 to sell, -0.08% since 2026-11-12.
+Short-term signals: 0 drift (0 fired), 4 bounce (4 fired); log 5.
+Drift book (paper): 0.73% since 2026-11-11, 2 open, 0 orders, 0 closed.
+Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
+Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
+Plan book (paper): agreed not started, weakHold not started, reitValue not started, vwrp not started, buffettPot not started, momentumPot not started.
+Results check: 10 of 13 with a recent EPS surprise; 0 live events tagged.
+Results preview: BRBY 2026-11-12 ±4.4%, NVDA 2026-11-17 ±4.4% this week; 29 other S&P 500 / FTSE 100 names; just reported: BRBY 6.8% 0.7x, EDV -6.2% 0.5x, III 3.3% 0.9x, UU 1.8% 0.1x.
+Swing lab volume shocks: 0 new (none); 3 open; up 0 and down 0 closed.
+Paper trades: 151 open, 34 closed, -0.51R average.
+Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
+Data checks: all 662 items passed. 
+ALERT (evening) Short-term pot: buy SBRY, VEEV, PSA, ABT
+
+[dry run] Short-term pot: buy SBRY, VEEV, PSA, ABT
+Short-term pot (real money, 10% of the portfolio).
+Buy at the next open, a fifth of the pot each (about 2% of the portfolio):
+- SBRY (J Sainsbury): bounce, 2-day RSI 5.7, -1.8% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- VEEV (Veeva Systems): bounce, 2-day RSI 8.2, -1.9% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- PSA (Public Storage): bounce, 2-day RSI 9.7, -1.2% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- ABT (Abbott Laboratories): bounce, 2-day RSI 9.9, -1.9% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+Pot: 5 of 5 slots used after these, -0.08% since 2026-11-12.
+Evidence. Drift: tested avg +1.36% a trade after costs vs +0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet. Bounce: tested 61% won but avg -0.08% a trade after costs; live: none closed yet.
+
+Scoring (live since 10 Nov): 26 of 108 full-score verdicts differ from the old rule; Good entry lost: CRM, DECK, ECHO, COF, PRX.AS, EXPE, NWG.L, SMCI; gained: SNDK, STX.
+Done: 662 scored, 0 new good entries, 7 new setups, 4.0 min.
+exit=0

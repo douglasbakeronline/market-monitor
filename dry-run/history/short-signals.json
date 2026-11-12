@@ -1,0 +1,69 @@
+[
+  {
+    "id": "2026-11-11:bounce:OTIS",
+    "kind": "bounce",
+    "symbol": "OTIS",
+    "ticker": "OTIS",
+    "name": "Otis Worldwide Corporation",
+    "market": "US",
+    "signalDate": "2026-11-11",
+    "signalPrice": 77.5,
+    "rsi2": 9.9,
+    "status": "open",
+    "entryDate": "2026-11-12",
+    "entry": 78.18,
+    "lastDate": "2026-11-12",
+    "last": 78.1,
+    "netPct": -0.4,
+    "vsIdx": 0.03,
+    "sessions": 1
+  },
+  {
+    "id": "2026-11-12:bounce:SBRY.L",
+    "kind": "bounce",
+    "symbol": "SBRY.L",
+    "ticker": "SBRY",
+    "name": "J Sainsbury plc",
+    "market": "UK",
+    "signalDate": "2026-11-12",
+    "signalPrice": 345.9,
+    "rsi2": 5.7,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-12:bounce:VEEV",
+    "kind": "bounce",
+    "symbol": "VEEV",
+    "ticker": "VEEV",
+    "name": "Veeva Systems Inc.",
+    "market": "US",
+    "signalDate": "2026-11-12",
+    "signalPrice": 300.73,
+    "rsi2": 8.2,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-12:bounce:PSA",
+    "kind": "bounce",
+    "symbol": "PSA",
+    "ticker": "PSA",
+    "name": "Public Storage",
+    "market": "US",
+    "signalDate": "2026-11-12",
+    "signalPrice": 333.93,
+    "rsi2": 9.7,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-12:bounce:ABT",
+    "kind": "bounce",
+    "symbol": "ABT",
+    "ticker": "ABT",
+    "name": "Abbott Laboratories",
+    "market": "US",
+    "signalDate": "2026-11-12",
+    "signalPrice": 108.46,
+    "rsi2": 9.9,
+    "status": "pending"
+  }
+]

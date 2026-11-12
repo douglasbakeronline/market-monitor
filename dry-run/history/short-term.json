@@ -1,0 +1,191 @@
+{
+  "updated": "2026-11-12T15:02:42.715Z",
+  "date": "2026-11-12",
+  "drift": [],
+  "bounce": [
+    {
+      "symbol": "SBRY.L",
+      "ticker": "SBRY",
+      "name": "J Sainsbury plc",
+      "market": "UK",
+      "index": "FTSE 100",
+      "score": 60,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 345.9,
+      "rsi2": 5.7,
+      "vs200": 3,
+      "fall3": -1.8
+    },
+    {
+      "symbol": "VEEV",
+      "ticker": "VEEV",
+      "name": "Veeva Systems Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 39,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 300.73,
+      "rsi2": 8.2,
+      "vs200": 41.1,
+      "fall3": -1.9
+    },
+    {
+      "symbol": "PSA",
+      "ticker": "PSA",
+      "name": "Public Storage",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 50,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 333.93,
+      "rsi2": 9.7,
+      "vs200": 9.4,
+      "fall3": -1.2
+    },
+    {
+      "symbol": "ABT",
+      "ticker": "ABT",
+      "name": "Abbott Laboratories",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 55,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 108.46,
+      "rsi2": 9.9,
+      "vs200": 6.8,
+      "fall3": -1.9
+    }
+  ],
+  "counts": {
+    "drift": 0,
+    "bounce": 4
+  },
+  "tested": {
+    "drift": {
+      "n": 2453,
+      "avg": 1.36,
+      "win": 54,
+      "vsIdx": 0.52,
+      "random": 0.78,
+      "edge": 0.58,
+      "yearsAhead": 6,
+      "years": 9,
+      "sd": 12
+    },
+    "bounce": {
+      "n": 33793,
+      "avg": -0.08,
+      "win": 61,
+      "vsIdx": -0.31,
+      "random": -0.24,
+      "edge": 0.16,
+      "yearsAhead": 7,
+      "years": 10,
+      "sd": 3.72
+    }
+  },
+  "live": {
+    "drift": {
+      "closed": 0,
+      "open": 0,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    },
+    "bounce": {
+      "closed": 0,
+      "open": 5,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    }
+  },
+  "pot": {
+    "rules": {
+      "start": "2026-11-11",
+      "equity0": 10000,
+      "maxOpen": 5,
+      "pauseFall": 0.25,
+      "today": "2026-11-12"
+    },
+    "start": "2026-11-12",
+    "value": 9992,
+    "returnPct": -0.08,
+    "peak": 10000,
+    "fallPct": -0.08,
+    "paused": false,
+    "open": [
+      {
+        "id": "2026-11-11:bounce:OTIS",
+        "kind": "bounce",
+        "symbol": "OTIS",
+        "ticker": "OTIS",
+        "name": "Otis Worldwide Corporation",
+        "market": "US",
+        "entryDate": "2026-11-12",
+        "entry": 78.18,
+        "pos": 2000,
+        "sessions": 1,
+        "openPct": -0.4,
+        "openPnl": -8
+      }
+    ],
+    "buys": [
+      {
+        "kind": "bounce",
+        "symbol": "SBRY.L",
+        "ticker": "SBRY",
+        "name": "J Sainsbury plc",
+        "market": "UK",
+        "signalDate": "2026-11-12",
+        "signalPrice": 345.9
+      },
+      {
+        "kind": "bounce",
+        "symbol": "VEEV",
+        "ticker": "VEEV",
+        "name": "Veeva Systems Inc.",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 300.73
+      },
+      {
+        "kind": "bounce",
+        "symbol": "PSA",
+        "ticker": "PSA",
+        "name": "Public Storage",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 333.93
+      },
+      {
+        "kind": "bounce",
+        "symbol": "ABT",
+        "ticker": "ABT",
+        "name": "Abbott Laboratories",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 108.46
+      }
+    ],
+    "sells": [],
+    "free": 4,
+    "closed": 0,
+    "winRate": null,
+    "avgNetPct": null,
+    "trades": [
+      {
+        "kind": "bounce",
+        "ticker": "OTIS",
+        "market": "US",
+        "entryDate": "2026-11-12",
+        "exitDate": null
+      }
+    ]
+  },
+  "pushedAt": "2026-11-12T15:02:42.660Z"
+}
