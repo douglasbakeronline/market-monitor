@@ -21,6 +21,7 @@ import { coreFundView, coreFundLine, drawdownTag, fillCloses } from "./src/coreF
 import { mergeCloses } from "./src/scorecard.js";
 import { checksDigestLine } from "./src/dataChecks.js";
 import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
+import { crowdingDigestLine } from "./src/crowding.js";
 import { bookLine, bookNews, swingTradeAlerts } from "./src/swingBook.js";
 import { paperDigestLine } from "./src/paperScore.js";
 import { shortTermAlert, shortPauseAlert } from "./src/shortTerm.js";
@@ -380,6 +381,8 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   }
   const sl = scanLine(scan, null);
   if (sl) L.push(sl);
+  const crl = scan && Date.now() - Date.parse(scan.updated) < 4 * 86400000 ? crowdingDigestLine(scan) : null;
+  if (crl) L.push(crl);
   const dcl = scan && Date.now() - Date.parse(scan.updated) < 4 * 86400000 ? checksDigestLine(scan.dataChecks, PLAN.picks.map((p) => p.symbol)) : null;
   if (dcl) L.push(dcl);
   const pal = alertDigestLine(priceAlerts ?? []);

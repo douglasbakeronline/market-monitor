@@ -132,6 +132,14 @@ export function crowdingNote(items, opts = {}) {
   };
 }
 
+// The Sunday digest's version of the Research banner (monitor.js digestBody).
+export function crowdingDigestLine(scan, opts = {}) {
+  const n = crowdingNote(scan?.items, opts);
+  if (!n) return null;
+  const groups = n.groups.map((g) => `${g.symbols.join(", ")}${g.sector ? ` (${g.allSector ? (g.symbols.length === 2 ? "both" : "all") : "mostly"} ${g.sector})` : ""}`);
+  return `Good entries: ${n.good}, about ${word(n.ideas)} separate idea${n.ideas === 1 ? "" : "s"}. Moving together: ${groups.join("; ")}.`;
+}
+
 // Picks and bench that move with a pick (display only). The plan wants picks in
 // different sectors and replacements from sectors the pot doesn't own; a bench
 // name that moves with a pick would add to a bet the pot already holds.
