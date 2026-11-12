@@ -1,0 +1,99 @@
+{
+  "updated": "2026-11-12T08:41:55.417Z",
+  "date": "2026-11-11",
+  "drift": [],
+  "bounce": [
+    {
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 60,
+      "kind": "bounce",
+      "date": "2026-11-11",
+      "price": 77.5,
+      "rsi2": 9.9,
+      "vs200": 2.2,
+      "fall3": -1.8
+    }
+  ],
+  "counts": {
+    "drift": 0,
+    "bounce": 1
+  },
+  "tested": {
+    "drift": {
+      "n": 2453,
+      "avg": 1.36,
+      "win": 54,
+      "vsIdx": 0.52,
+      "random": 0.78,
+      "edge": 0.58,
+      "yearsAhead": 6,
+      "years": 9,
+      "sd": 12
+    },
+    "bounce": {
+      "n": 33793,
+      "avg": -0.08,
+      "win": 61,
+      "vsIdx": -0.31,
+      "random": -0.24,
+      "edge": 0.16,
+      "yearsAhead": 7,
+      "years": 10,
+      "sd": 3.72
+    }
+  },
+  "live": {
+    "drift": {
+      "closed": 0,
+      "open": 0,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    },
+    "bounce": {
+      "closed": 0,
+      "open": 1,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    }
+  },
+  "pot": {
+    "rules": {
+      "start": "2026-11-11",
+      "equity0": 10000,
+      "maxOpen": 5,
+      "pauseFall": 0.25,
+      "today": "2026-11-11"
+    },
+    "start": null,
+    "value": 10000,
+    "returnPct": 0,
+    "peak": 10000,
+    "fallPct": 0,
+    "paused": false,
+    "open": [],
+    "buys": [
+      {
+        "kind": "bounce",
+        "symbol": "OTIS",
+        "ticker": "OTIS",
+        "name": "Otis Worldwide Corporation",
+        "market": "US",
+        "signalDate": "2026-11-11",
+        "signalPrice": 77.5
+      }
+    ],
+    "sells": [],
+    "free": 5,
+    "closed": 0,
+    "winRate": null,
+    "avgNetPct": null,
+    "trades": []
+  },
+  "pushedAt": "2026-11-11T21:23:23.976Z"
+}
