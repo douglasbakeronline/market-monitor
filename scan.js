@@ -90,6 +90,9 @@ async function main() {
     if (behind >= STALE_SESSIONS) { console.log(`Stale: ${it.u.symbol} last traded ${it.t.date} (${behind} sessions behind), dropped.`); failed.push(it.u.symbol); items.splice(i, 1); }
   }
   console.log(`Stage 1: ${items.length} scored, ${failed.length} failed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
+  // Results timestamps from the quotes, and a cache of timed results history
+  // shared by the pot ranking, the results check and the preview (12 Nov).
+  const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
 
   // Value against sector peers (live since 10 Nov): medians from the quick data
   // pick the stage 2 candidates; they are recomputed after stage 2 below.
@@ -294,14 +297,8 @@ async function main() {
       const today = shortTermToday(out.filter((i) => i.index === "S&P 500" || i.index === "FTSE 100"), rowsBySymbol);
       // EPS surprise for results-day drift signals: the pot ranks scarce slots
       // by it (12 Nov, after swing lab round 6). Never blocks a signal.
-      const qAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
       for (const s of today.drift.filter((x) => x.results)) {
-        try {
-          const h = await fetchResultsHistory(s.symbol, { size: 12 });
-          const at = qAt.get(s.symbol);
-          if (at) for (const e of reportedSessions([at], s.symbol)) if (!h.some((x) => x.date === e.date)) h.push(e);
-          s.surprisePct = surpriseOn(rowsBySymbol[s.symbol], h, s.date);
-        } catch { s.surprisePct = null; }
+        try { s.surprisePct = surpriseOn(rowsBySymbol[s.symbol], await timedHistory(s.symbol, { quoteAt, resultsHist }), s.date); } catch { s.surprisePct = null; }
         await sleep(150);
       }
       sl = addShort(sl, [...today.drift, ...today.bounce]).slice(-2000);
@@ -448,10 +445,14 @@ async function main() {
         if (timed.length) timedUsed++;
         for (const d of dateDisagreements(hand, timed)) disagree.push(`${it.ticker ?? it.symbol} (hand ${d.hand}, Yahoo ${d.yahoo})`);
         const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
+        // The reaction day from the timed dates too (12 Nov platform review: the
+        // busiest-day guess put Newmont's 22 Oct after-close results on 22 Oct).
+        const pastTh = (timedHist.get(it.symbol) ?? []).filter((e) => e.date <= rows.at(-1).date);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
         const record = resultsRecord(rd.history, rd.next);
-        const d = reportDay(rows, h.quarter, it.lastEarnings);
+        const lastTimed = pastTh.filter((e) => { const q = Date.parse(h.quarter), t = Date.parse(e.date); return t >= q + 7 * 864e5 && t <= q + 75 * 864e5; }).at(-1);
+        const d = lastTimed ? rows.findIndex((r) => (lastTimed.after === true ? r.date > lastTimed.date : r.date >= lastTimed.date)) : reportDay(rows, h.quarter, it.lastEarnings);
         if (d < 1 || (Date.now() - Date.parse(rows[d].date)) / 864e5 > 120) { it.resultsCheck = { record, ...(moves ? { moves } : {}) }; continue; }
         const reaction = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10;
         it.resultsCheck = { quarter: h.quarter, date: rows[d].date, actual: h.actual, estimate: h.estimate, surprisePct: h.surprisePct, reaction, record, ...(moves ? { moves } : {}), ...resultsCheck({ surprisePct: h.surprisePct, reaction }, study) };
@@ -475,18 +476,9 @@ async function main() {
     const reported = {}, toFetch = new Map();
     for (const { it } of previewCandidates(out, { today, focus: focusSet, held })) toFetch.set(it.symbol, it);
     for (const it of recentCandidates(out, { today, focus: focusSet, dates: resultsHist })) toFetch.set(it.symbol, it);
-    const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
     for (const sym of toFetch.keys()) {
-      if (timedHist.has(sym)) reported[sym] = [...timedHist.get(sym)];
-      else try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
-      // Yahoo's history lags a day or two: add the quote's own results time.
-      const at = quoteAt.get(sym);
-      const extra = at ? reportedSessions([at], sym) : [];
-      // London results come out by RNS before the open (07:00), so a stored
-      // London date is safe to read as that session.
-      if (/\.L$/.test(sym)) for (const d of resultsHist[sym] ?? []) if (d <= today) extra.push({ date: d, after: false });
-      for (const e of extra) if (!reported[sym].some((x) => x.date === e.date)) reported[sym] = [...reported[sym], e].sort((a, b) => (a.date < b.date ? -1 : 1));
-      await sleep(150);
+      reported[sym] = await timedHistory(sym, { quoteAt, resultsHist, today, cached: timedHist.get(sym) });
+      if (!timedHist.has(sym)) await sleep(150);
     }
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
     resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet });
@@ -563,3 +555,16 @@ function marketsClosed(at = new Date()) {
 }
 
 main().catch((e) => { console.error("Scan failed:", e); process.exit(1); });
+
+// Past results with their time of day and EPS (Yahoo's history), plus the
+// quote's own results time (the history lags a day or two) and, for London
+// names, stored dates (RNS before the open). Used by the short-term pot's
+// drift ranking, the results check and the results preview (12 Nov).
+async function timedHistory(sym, { quoteAt = new Map(), resultsHist = {}, today, cached = null } = {}) {
+  let h = cached ? [...cached] : [];
+  if (!cached) { try { h = await fetchResultsHistory(sym, { size: 12 }); } catch { h = []; } }
+  const at = quoteAt.get(sym), extra = at ? reportedSessions([at], sym) : [];
+  if (/\.L$/.test(sym)) for (const d of resultsHist[sym] ?? []) if (!today || d <= today) extra.push({ date: d, after: false });
+  for (const e of extra) if (!h.some((x) => x.date === e.date)) h.push(e);
+  return h.sort((a, b) => (a.date < b.date ? -1 : 1));
+}
