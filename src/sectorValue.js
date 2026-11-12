@@ -151,6 +151,13 @@ export function pocf(f) {
   const x = f.marketCap / f.operatingCashflow;
   return x >= 2 && x <= 100 ? Math.round(x * 10) / 10 : null; // outside this, a currency or data mix-up
 }
+// Yahoo gives some UK REITs no industry (Tritax Big Box, 12 Nov 2026), so
+// they missed the cash-flow score. The index list's FTSE sector ("Real Estate
+// Investment Trusts") fills the gap; an industry from Yahoo always wins.
+export function withReitHint(f, listedSector) {
+  if (!f || f.industry || !/Real Estate Investment Trusts/i.test(listedSector || "")) return f;
+  return gicsSector(f.sector || "Real Estate") === "Real Estate" ? { ...f, industry: "REIT" } : f;
+}
 export const MIN_REITS = 5;
 export function reitMedian(fs = []) {
   const xs = fs.map(pocf).filter((x) => x != null);
