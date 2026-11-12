@@ -18,7 +18,7 @@ import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
 import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays } from "./src/surpriseStudy.js";
-import { fetchResultsData, fetchResultsHistory } from "./src/data/fundamentals.js";
+import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
@@ -451,8 +451,12 @@ async function main() {
     const reported = {}, toFetch = new Map();
     for (const { it } of previewCandidates(out, { today, focus: focusSet, held })) toFetch.set(it.symbol, it);
     for (const it of recentCandidates(out, { today, focus: focusSet, dates: resultsHist })) toFetch.set(it.symbol, it);
+    const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
     for (const sym of toFetch.keys()) {
-      try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { /* plain dates still used */ }
+      try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
+      // Yahoo's history lags a day or two: add the quote's own results time.
+      const at = quoteAt.get(sym);
+      if (at) for (const e of reportedSessions([at], sym)) if (!reported[sym].some((x) => x.date === e.date)) reported[sym] = [...reported[sym], e].sort((a, b) => (a.date < b.date ? -1 : 1));
       await sleep(150);
     }
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
