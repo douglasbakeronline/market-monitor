@@ -59,3 +59,17 @@ test("verdicts: a beat filter that only matches the current trigger fails the 0.
   assert.equal(a.H9.pass, true);
   assert.equal(a.H7.spread60 > 2, true);
 });
+
+test("round 7: weak results with a fall trail other falls, by year", async () => {
+  const { analyseWeakFalls } = await import("../src/surpriseDrift.js");
+  const ev = [];
+  // Per year: 60 weak falls, 160 other falls, 40 rises (weak = bottom fifth).
+  for (const y of ["2019", "2020", "2021", "2022"]) {
+    for (let k = 0; k < 60; k++) ev.push({ kind: "results", year: y, move: -3, surprisePct: -5, fx: { 20: -1, 60: -3 } });
+    for (let k = 0; k < 160; k++) ev.push({ kind: "results", year: y, move: -3, surprisePct: 10 + (k % 4), fx: { 20: 0, 60: 0 } });
+    for (let k = 0; k < 40; k++) ev.push({ kind: "results", year: y, move: 1, surprisePct: 20, fx: { 20: 5, 60: 5 } });
+  }
+  const a = analyseWeakFalls(ev);
+  assert.equal(a.cut, -5);
+  assert.deepEqual([a.diff60, a.diff20, a.yearsBehind.behind, a.pass], [-3, -1, 4, true]);
+});
