@@ -15,6 +15,7 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - Market greed and "Euphoric" readings mean no extra money is needed now; scheduled purchases carry on. The trim alert stays as a rebalance reminder only, never a sell-to-cash signal (decided 12 Nov: tested 7 Nov, neither warned of weaker markets).
 
 ## Review points (decided 12 Nov 2026)
+- REITs (VICI) are valued on cash flow, not P/E: price / operating cash flow against fully scored REITs replaces P/E in their Value score (depreciation distorts REIT earnings). Live from 12 Nov.
 - Each November from 2027, the Sunday review scores the picks pot against VWRP over the same dates. If the picks have trailed VWRP after three years (Nov 2029), Claude proposes folding them into the core and Douglas decides.
 - Pick tranches are not held back after weak results and a falling price: over ten years that group did only 0.4 points worse than other falls (research log 12 Nov, round 7). The Research page shows the flag as context.
 

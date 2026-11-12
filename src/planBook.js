@@ -24,7 +24,7 @@
 //   agreed   the rules above.
 //   weakHold proposal of 10 Nov: no tranche while a pick shows "weak results
 //            and a falling price" (resultsCheck.tone "watch").
-//   reitValue proposal of 10 Nov: REITs (VICI) take their tranche on the REIT
+//   reitValue proposal of 10 Nov (live since 12 Nov, so now the same as agreed): REITs (VICI) take their tranche on the REIT
 //            view's cash-flow score instead of the P/E one (checks.reitOk,
 //            from the monitor's tranche check); other picks as agreed.
 //            Added 11 Nov, before the book starts.

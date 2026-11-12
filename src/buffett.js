@@ -72,7 +72,7 @@ export function kindOf(sector, industry = "") {
 // s: parseTimeseries() output. Returns { fy, n, kind, checks, quality, oeToNi, epsGrowth } or { kind, skip }.
 export function buffettQuality(s, { sector, industry } = {}, b = BUFFETT) {
   const kind = kindOf(sector, industry);
-  if (kind === "reit") return { kind, skip: "REIT: earnings distorted by depreciation (see the REIT view)" };
+  if (kind === "reit") return { kind, skip: "REIT: earnings distorted by depreciation (the score values it on cash flow instead; see Peers)" };
   const n = s?.years?.length ?? 0;
   if (n < 3) return { kind, skip: "fewer than 3 years of accounts" };
   const NI = s.NetIncome, checks = [];

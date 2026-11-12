@@ -85,3 +85,14 @@ test("ruleChangeNote mentions the REIT change only for REITs scored on cash flow
   assert.match(ruleChangeNote(old, { score: 75, verdict: "Good entry", reit: { pocf: 10 } }).note, /REITs are valued on cash flow/);
   assert.doesNotMatch(ruleChangeNote(old, { score: 75, verdict: "Good entry" }).note, /REIT/);
 });
+
+test("withReitHint: a UK REIT with no industry from Yahoo is recognised by its listed FTSE sector", async () => {
+  const { withReitHint, pocf } = await import("../src/sectorValue.js");
+  const bbox = { sector: "Real Estate", industry: null, marketCap: 4e9, operatingCashflow: 2.5e8 };
+  assert.equal(pocf(bbox), null, "no industry: not seen as a REIT");
+  assert.equal(pocf(withReitHint(bbox, "Real Estate Investment Trusts")), 16);
+  assert.equal(withReitHint(bbox, "Real Estate Investment & Services"), bbox, "property services stay as they are");
+  const named = { sector: "Real Estate", industry: "Real Estate Services" };
+  assert.equal(withReitHint(named, "Real Estate Investment Trusts"), named, "an industry from Yahoo wins");
+  assert.equal(withReitHint(null, "Real Estate Investment Trusts"), null);
+});

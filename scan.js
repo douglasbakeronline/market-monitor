@@ -13,7 +13,7 @@ import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
 import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
-import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore } from "./src/sectorValue.js";
+import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore, withReitHint } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
@@ -167,14 +167,14 @@ async function main() {
   // (before 10 Nov) is kept only for the "what changed" note.
   const peerRows = peerRowsOf();
   const medians = sectorMedians(peerRows), regional = regionMedians(peerRows);
-  const reitMed = reitMedian(items.filter((it) => it.deep).map((it) => it.f));
+  const reitMed = reitMedian(items.filter((it) => it.deep).map((it) => withReitHint(it.f, it.u.sector)));
   for (const it of items) {
     // EV/EBITDA against the region's sector median (sample value for quick scores; live since 11 Nov).
     const ep = evPeer(it.f.evToEbitda ?? freshEv(evCache, it.u.symbol, today), it.u.sector || it.f.sector, MARKET[it.u.index] ?? "US", evMed);
     const { f: fs, peer } = withEv(it.f, peerOf(it, medians, regional), ep);
     // REITs score on cash flow, not P/E (since 12 Nov; full scores only, as the
     // REIT median comes from them). The P/E score stays for the note.
-    const rv = it.deep ? reitView(it.f, reitMed) : null;
+    const rv = it.deep ? reitView(withReitHint(it.f, it.u.sector), reitMed) : null;
     it.lt = longTermScored(fs, it.t, peer, rv);
     const old = longTerm(it.f, it.t);
     it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, rv) : null;

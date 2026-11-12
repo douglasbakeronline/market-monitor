@@ -95,8 +95,8 @@ export function pickStatus(pick, item, today = null) {
   const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";
   const ok = good && !resultsSoon;
-  // REIT view (proposal of 10 Nov; paper only): the same check on the would-be
-  // cash-flow score. null for anything that is not a REIT with that view.
+  // REIT cash-flow score (proposed 10 Nov, live since 12 Nov, so reitOk now
+  // equals ok; kept for the plan book's reitValue variant). null for anything that is not a REIT with that view.
   const reit = item.sectorValue?.reit ?? null;
   const reitOk = reit ? reit.verdict === "Good entry" && !resultsSoon : null;
   // Nothing published and not reported recently: estimate from the cadence

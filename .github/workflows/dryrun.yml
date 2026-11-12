@@ -1,5 +1,5 @@
 name: Dry run
-# REITs scored on cash flow (scan and research paths), 12 Nov.
+# UK REIT hint (BBOX.L) for the cash-flow score, 12 Nov.
 on:
   push:
     branches: [dryrun]
