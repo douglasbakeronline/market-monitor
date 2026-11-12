@@ -17,7 +17,7 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
-import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays, timedReactionDays } from "./src/surpriseStudy.js";
+import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays, timedReactionDays, dateDisagreements } from "./src/surpriseStudy.js";
 import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -429,7 +429,7 @@ async function main() {
     // Plus research-list names reporting in the next week (results preview, 12 Nov).
     const soon = out.filter((i) => focusSet.has(i.symbol) && i.earnings?.days != null && i.earnings.days >= 0 && i.earnings.days <= 7).map((i) => i.symbol);
     const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol), ...soon]);
-    let n = 0, tagged = 0, timedUsed = 0;
+    let n = 0, tagged = 0, timedUsed = 0; const disagree = [];
     for (const it of out) {
       if (!want.has(it.symbol)) continue;
       try {
@@ -446,6 +446,7 @@ async function main() {
         const timed = timedReactionDays(rows, timedHist.get(it.symbol), /\.L$/.test(it.symbol) ? false : null);
         const exact = [...hand, ...timed.filter((d) => !hand.includes(d))];
         if (timed.length) timedUsed++;
+        for (const d of dateDisagreements(hand, timed)) disagree.push(`${it.ticker ?? it.symbol} (hand ${d.hand}, Yahoo ${d.yahoo})`);
         const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
@@ -462,7 +463,7 @@ async function main() {
     }
     if (tagged && marketsClosed()) await writeJson("history/swing-lab.json", drift, true);
     await writeJson("data/results-check.json", { updated: new Date().toISOString(), items: Object.fromEntries(out.filter((i) => i.resultsCheck).map((i) => [i.symbol, i.resultsCheck])) }, true);
-    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged; ${timedUsed} with Yahoo's timed results dates.`);
+    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged; ${timedUsed} with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: ${disagree.join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results check failed: ${e.message}`); }
   // Results preview (12 Nov; src/resultsPreview.js): who reports in the next
   // week and how far results days usually move them. Display and heads-up only.

@@ -201,3 +201,12 @@ test("timed Yahoo dates: reaction sessions for the picks' results-day moves", as
   const m = resultsMoves(rows, [{ quarter: "2026-03-31" }, { quarter: "2026-05-31" }], null, [], timedReactionDays(rows, ev));
   assert.deepEqual(m.moves.map((x) => [x.date, x.pct]), [["2026-05-01", 2], ["2026-07-01", 5.9]]);
 });
+
+test("hand-kept results days that Yahoo's timed dates contradict", async () => {
+  const { dateDisagreements } = await import("../src/surpriseStudy.js");
+  assert.deepEqual(dateDisagreements(["2026-07-01", "2026-04-09"], ["2026-04-09", "2026-07-02"]), [{ hand: "2026-07-01", yahoo: "2026-07-02" }]);
+  // A hand day with no timed date near it is not a disagreement (Yahoo just lacks it).
+  assert.deepEqual(dateDisagreements(["2026-01-08"], ["2026-04-09"]), []);
+  assert.deepEqual(dateDisagreements([], ["2026-04-09"]), []);
+  assert.deepEqual(dateDisagreements(["2026-04-09"], []), []);
+});

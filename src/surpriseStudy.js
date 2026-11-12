@@ -238,6 +238,20 @@ export function timedReactionDays(rows = [], events = [], assume = null) {
   return out.sort();
 }
 
+// Hand-kept reaction days that Yahoo's timed dates contradict: a timed day
+// within 10 days of a hand day but not equal to it (the same results, read
+// differently). Logged nightly so a slip in data/results-dates-known.json is
+// caught; hand days still win in resultsMoves().
+export function dateDisagreements(hand = [], timed = []) {
+  const out = [];
+  for (const h of hand || []) {
+    if ((timed || []).includes(h)) continue;
+    const t = (timed || []).find((x) => Math.abs(Date.parse(x) - Date.parse(h)) <= 10 * 864e5);
+    if (t) out.push({ hand: h, yahoo: t });
+  }
+  return out;
+}
+
 // "Results-day moves: typically ±4.1% (last 4: +2.4%, −5.0%, +1.1%, −6.3%)."
 export function movesText(m) {
   if (!m?.n) return null;
