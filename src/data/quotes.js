@@ -32,6 +32,8 @@ export function quoteToFundamentals(q) {
     // Yahoo divides a London stock's dividend (pounds) by its price (pence),
     // so the quote yield is 100× too small for GBp quotes (GSK showed 0.04%).
     dividendYield: q.trailingAnnualDividendYield == null ? null : q.currency === "GBp" ? q.trailingAnnualDividendYield * 100 : q.trailingAnnualDividendYield,
-    recommendationMean: Number.isFinite(rating) ? rating : null, nextEarnings: next, lastEarnings: last, source: "quote",
+    recommendationMean: Number.isFinite(rating) ? rating : null, nextEarnings: next, lastEarnings: last,
+    // The results timestamp itself (time of day: before or after the close).
+    earningsAt: et ? et * 1000 : null, source: "quote",
   };
 }
