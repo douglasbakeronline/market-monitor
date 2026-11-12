@@ -460,7 +460,7 @@ import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
 import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize } from "./src/shortPot.js";
-import { bigJump, BIG_JUMP, newerShort } from "./src/shortTerm.js";
+import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
@@ -682,6 +682,7 @@ function renderShortTerm(st) {
       <div class="st-head"><b>${esc(name)}</b><span class="st-rec">${esc(tag)}</span></div>
       <div class="small muted">${esc(rule)}</div>
       <div class="small muted" style="margin-top:2px">${t ? `Backtest: ${t.win}% won, avg ${sg(t.avg)} a trade after costs (random entry ${sg(t.random)})` : "Backtest: n/a"} · ${esc(live(l))}</div>
+      ${t ? (() => { const v = liveVerdict(l, t); return `<div class="small ${v.tone === "bad" ? "t-sell" : v.tone === "watch" ? "t-caution" : v.tone === "good" ? "t-buy" : "muted"}" style="margin-top:2px">Review: ${esc(v.text)}</div>`; })() : ""}
       ${list.length ? list.map(row).join("") : `<div class="st-row"><span class="muted">None last night.</span><span></span></div>`}
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
