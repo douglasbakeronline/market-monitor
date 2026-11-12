@@ -174,7 +174,7 @@ export async function fetchTimeseries(symbol, types) {
 // plus its earnings visualization (older, sparser, covers half-yearly UK
 // reporters). Returns [{ date (exchange-local YYYY-MM-DD), after (true: after
 // the close, so the market reacts the next session) }], oldest first.
-export async function fetchReportedDates(symbol) {
+export async function fetchReportedDates(symbol, { size = 12 } = {}) {
   const { cookie, crumb } = await yahooSession();
   const ts = [];
   try {
@@ -182,7 +182,7 @@ export async function fetchReportedDates(symbol) {
     for (const q of j?.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly ?? []) { const t = raw(q?.reportedDate); if (t) ts.push(t * 1000); }
   } catch { /* the other source may still have dates */ }
   try {
-    const body = { offset: 0, size: 12, sortField: "startdatetime", sortType: "DESC", entityIdType: "earnings", includeFields: ["ticker", "startdatetime"], query: { operator: "eq", operands: ["ticker", symbol] } };
+    const body = { offset: 0, size, sortField: "startdatetime", sortType: "DESC", entityIdType: "earnings", includeFields: ["ticker", "startdatetime"], query: { operator: "eq", operands: ["ticker", symbol] } };
     const j = await fetchJson(`https://query2.finance.yahoo.com/v1/finance/visualization?crumb=${encodeURIComponent(crumb)}&lang=en-US&region=US`, { method: "POST", headers: { cookie, "content-type": "application/json" }, body: JSON.stringify(body), tries: 2 });
     for (const r of j?.finance?.result?.[0]?.documents?.[0]?.rows ?? []) { const t = Date.parse(r?.[1]); if (Number.isFinite(t)) ts.push(t); }
   } catch { /* optional */ }
