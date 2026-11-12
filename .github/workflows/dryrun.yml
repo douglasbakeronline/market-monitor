@@ -1,5 +1,5 @@
 name: Dry run
-# Every scanned REIT on cash flow (all Real Estate deepened), 13 Nov.
+# Sunday digest crowding line, 13 Nov.
 on:
   push:
     branches: [dryrun]
@@ -18,18 +18,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          node -e '
-            const fs=require("fs"); const s=JSON.parse(fs.readFileSync("dry-run/scan.json"));
-            const r=s.items.filter(i=>/Real Estate|REIT/i.test((i.sector||"")+(i.industry||"")));
-            fs.writeFileSync("dry-run/scan-reits.json", JSON.stringify({scoringVersion:s.scoringVersion, reitPocf:s.reitPocf, count:s.items.length, good:s.items.filter(i=>i.longTerm.verdict==="Good entry").length, items:r.map(i=>({symbol:i.symbol,deep:i.deep,industry:i.industry,score:i.longTerm.score,verdict:i.longTerm.verdict,reit:i.longTerm.reit??null,value:i.longTerm.pillars.find(p=>p.key==="value"),sv:i.sectorValue}))},null,1));' >> dry-run/scan.log 2>&1
-          rm -f dry-run/scan.json
-          DRY_RUN=1 FORCE_RESEARCH=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          node -e '
-            const fs=require("fs"); const s=JSON.parse(fs.readFileSync("dry-run/research.json"));
-            const r=s.items.filter(i=>/Real Estate|REIT/i.test((i.sector||"")+(i.industry||"")));
-            const d=JSON.parse(fs.readFileSync("dry-run/data.json"));
-            fs.writeFileSync("dry-run/research-reits.json", JSON.stringify({scoringVersion:s.scoringVersion, items:r.map(i=>({symbol:i.symbol,score:i.longTerm.score,verdict:i.longTerm.verdict,reit:i.longTerm.reit??null,value:i.longTerm.pillars.find(p=>p.key==="value"),sv:i.sectorValue,rc:i.ruleChange})), picks:(d.copilot?.picks??[]).map(p=>({symbol:p.symbol,verdict:p.verdict,score:p.score,ok:p.ok,reitVerdict:p.reitVerdict,reitOk:p.reitOk}))},null,1));' >> dry-run/monitor.log 2>&1
+          DRY_RUN=1 FORCE_DIGEST=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           rm -f dry-run/scan.json
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
