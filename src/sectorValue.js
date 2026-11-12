@@ -133,11 +133,7 @@ export function sectorValueNote(f, peer, now, alt, reit = null) {
   if (peer.cyclical && (altValue?.capped || (ratio != null && ratio < 1))) parts.push(`Cyclical: a low P/E may mark peak earnings${altValue?.capped ? `, so value is capped at ${CYCLICAL_VALUE_CAP}` : ""}.`);
   if (peer.sector === "Real Estate" && !reit) parts.push("REITs are better judged on funds from operations than P/E.");
   if (reit?.note) parts.push(alt.reit ? `Scored on cash flow (since 12 Nov): ${reit.note}` : `REIT view (not in the score yet: too few fully scored REITs for a median): ${reit.note}`);
-<<<<<<< HEAD
-  if (vAlt != null && vNow != null) parts.push(`Value scored against peers: ${vAlt}${vAlt !== vNow ? ` (${vNow} on the old fixed bands)` : ""}.`);
-=======
   if (vAlt != null && vNow != null) parts.push(`${alt.reit ? "Value on cash flow against REITs" : "Value scored against peers"}: ${vAlt}${vAlt !== vNow ? ` (${vNow} on the old fixed P/E bands)` : ""}.`);
->>>>>>> origin/main
   return {
     sector: peer.sector, region: peer.region ?? null, n: peer.n, pe: r1(pe), medianPE: peer.pe, ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
     cyclical: peer.cyclical, value: vAlt, valueNow: vNow, score: alt.score, verdict: alt.verdict, changed: alt.verdict !== now.verdict,

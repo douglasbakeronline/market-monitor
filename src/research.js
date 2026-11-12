@@ -340,12 +340,7 @@ export function longTermScored(f, t, peer, rv = null) {
   return lt;
 }
 
-<<<<<<< HEAD
-// The P/E-based score a REIT would have had (for the "what changed" line), and
-// the cash-flow score as a compact summary (sectorValue.reit; the plan book's
-=======
 // A REIT's cash-flow score as a compact summary (sectorValue.reit; the plan book's
->>>>>>> origin/main
 // "reitValue" variant reads it, now the same as the agreed plan).
 export function reitLongTerm(f, t, peer, rv) {
   const r = reitInputs(f, peer, rv);
