@@ -56,9 +56,13 @@ test("results check: fifths and the group note", async () => {
   assert.equal(miss.fifth, "bottom");
   assert.equal(miss.tone, "watch");
   assert.match(miss.label, /missed the forecast by 5\.0% \(bottom fifth\); the price fell 6\.0%/);
-  assert.match(miss.note, /−3\.4 points/);
+  // Ten years (round 7, 12 Nov) replace the one-year figures (−3.4) in the note.
+  assert.match(miss.note, /ten years/);
+  assert.match(miss.note, /0\.4 points/);
+  assert.doesNotMatch(miss.note, /−3\.4/);
   const beat = resultsCheck({ surprisePct: 20, reaction: 3 }, study);
   assert.equal(beat.tone, "good");
+  assert.match(beat.note, /ten years/);
   const mid = resultsCheck({ surprisePct: 5, reaction: 4 }, study);
   assert.equal(mid.fifth, "middle");
   assert.equal(mid.note, null);

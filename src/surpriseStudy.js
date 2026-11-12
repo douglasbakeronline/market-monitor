@@ -131,13 +131,15 @@ export function resultsCheck(ev, study) {
   const sign = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}`;
   const label = `EPS ${ev.surprisePct >= 0 ? "beat" : "missed"} the forecast by ${Math.abs(ev.surprisePct).toFixed(1)}%${fifth === "top" ? " (top fifth)" : fifth === "bottom" ? " (bottom fifth)" : ""}; the price ${ev.reaction >= 0 ? "rose" : "fell"} ${Math.abs(ev.reaction).toFixed(1)}% on the day`;
   let note = null, tone = "neutral";
-  const h = study.H5;
-  if (fifth === "bottom" && ev.reaction <= -2 && h?.down?.bottom?.vsIdx != null) {
+  // The notes cite ten years of real results days (swing lab rounds 6 and 7,
+  // research log 12 Nov), which replaced round 4's single year: that year's
+  // −3.4 points for weak-and-falling shrank to −0.36 over ten years.
+  if (fifth === "bottom" && ev.reaction <= -2) {
     tone = "watch";
-    note = `Weak results and a falling price: over the past year this group did ${sign(h.down.bottom.vsIdx)} points against the S&P 500 over the next 60 sessions, vs ${sign(h.down.rest.vsIdx)} for other falls (one year of data, so a pointer, not a rule).`;
-  } else if (fifth === "top" && ev.reaction >= 2 && h?.up?.top?.vsIdx != null) {
+    note = "Weak results and a falling price. Over ten years (2017 to 2026, about 5,600 results-day falls) this group did only 0.4 points worse than other falls against the index over the next 60 sessions, and was behind in 6 of 10 years: a pointer, not a reason to skip a tranche.";
+  } else if (fifth === "top" && ev.reaction >= 2) {
     tone = "good";
-    note = `Strong results and a rising price: over the past year this group did ${sign(h.up.top.vsIdx)} points against the S&P 500 over the next 60 sessions, vs ${sign(h.up.rest.vsIdx)} for other rises (one year of data, so a pointer, not a rule).`;
+    note = "Strong results and a rising price. Over ten years, results-day jumps of 4%+ with a 5%+ beat did 0.8 points better than random holds over the next 20 sessions, but in only 6 of 10 years: context, not a rule.";
   }
   // A surprise of 25% or more either way is often a one-off (a tax charge, a
   // write-down, a gain on a sale) rather than the trading itself: say so.
