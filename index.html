@@ -726,19 +726,29 @@ function renderResultsAhead(p) {
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
   const live = (xs) => (xs ?? []).filter((r) => r.date >= today);
   const F = live(p.focus), W = live(p.watch);
+  // Just reported: shown while the scan is at most 3 days old.
+  const J = (Date.parse(today) - Date.parse(p.date)) / 864e5 <= 3 ? p.just ?? [] : [];
   const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`;
   const when = (r) => `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
-  const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name ?? "")}</span><span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${r.pot && r.focus ? " · in the pot's universe" : ""}</span></span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
+  const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
+  const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name ?? "")}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
+  const jtag = (j) => (j.potBuy ? `<span class="sub t-buy">Meets the pot's drift rule: a buy at the next open (see the pot card).</span>`
+    : j.pot && j.move >= 4 ? `<span class="sub muted">Up 4%+ but under 3\u00d7 normal volume, so not a pot trade.</span>` : "");
+  const jrow = (j) => `<div class="st-row"><span><b>${esc(j.ticker)}</b> <span class="muted">${esc(j.name ?? "")}</span><span class="sub">${j.surprisePct != null ? `EPS ${sg(j.surprisePct)} vs forecast` : "No EPS forecast on record"}${j.volX != null ? ` · ${j.volX}\u00d7 normal volume` : ""}</span>${jtag(j)}</span><span class="num ${pnClass(j.move)}">${sg(j.move)}<span class="sub">on results</span></span></div>`;
   el.innerHTML = `<div class="k">Next ${p.days ?? 7} days · from the ${esc(fmtDM(p.date))} scan</div>
+    ${J.length ? `<div class="st-group">
+      <div class="st-head"><b>Just reported</b><span class="st-rec">reaction at the last close</span></div>
+      ${J.map(jrow).join("")}
+    </div>` : ""}
     <div class="st-group">
-      <div class="st-head"><b>Your research list</b><span class="st-rec">${F.length ? `${F.length} reporting` : "none reporting"}</span></div>
+      <div class="st-head"><b>Your research list${F.some((r) => r.held) ? " and pot holdings" : ""}</b><span class="st-rec">${F.length ? `${F.length} reporting` : "none reporting"}</span></div>
       ${F.length ? F.map(row).join("") : `<div class="st-row"><span class="muted">Nothing on your list reports in the next week.</span><span></span></div>`}
     </div>
     ${W.length ? `<div class="st-group">
       <div class="st-head"><b>Biggest usual movers in the pot's universe</b><span class="st-rec">${W.length} of ${p.potCount} other S&amp;P 500 and FTSE 100 names</span></div>
       ${W.map(row).join("")}
     </div>` : ""}
-    <p class="small muted" style="margin:12px 0 0">The usual move is the median size of the last few results-day moves (close to close), from real results dates only, so names with one date on record show that day's move and the record fills in each quarter. It says how much is at stake, not which way: the direction can't be called reliably in advance (research log, 10 Nov). A push comes to your phone when a list name is a week out and again the day before. A close up 4%+ on 3\u00d7 normal volume in the pot's universe becomes a short-term pot buy, pushed that evening.</p>`;
+    <p class="small muted" style="margin:12px 0 0">The usual move is the median size of the last few results-day moves (close to close), from real, timed results dates. It says how much is at stake, not which way: the direction can't be called reliably in advance. Ten years of results tested on 12 Nov (research log): jumps of 4%+ that also beat the forecast by 5%+ did better over the next 20 sessions than jumps without a big beat (+0.79 against +0.15 points over random holds), but only in 6 of 10 years, so the beat is shown here as context and the pot's rule is unchanged. A push comes to your phone when a list name or a pot holding is a week out and again the day before.</p>`;
   el.hidden = false; $("raSection").hidden = false;
 }
 // --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
