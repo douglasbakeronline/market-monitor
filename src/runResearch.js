@@ -2,7 +2,7 @@
 import { CONFIG } from "./config.js";
 import { fetchDaily } from "./data/prices.js";
 import { fetchFundamentals } from "./data/fundamentals.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, reitLongTerm, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, SCORING_VERSION, freshSignal, regimeNote, daysUntil, earningsFields, resultsEstimate, summarise } from "./research.js";
 import { smartFor, smartEvent } from "./smartMoney.js";
 import { pickResultsLine, pickSellLine } from "./plan.js";
 import { latestSellSignals } from "./sellSignals.js";
@@ -43,10 +43,11 @@ export async function runResearch({ regimeKey, state }) {
       const peer0 = f ? peerFor(f, medians, regional, marketOf(s.symbol)) : null;
       const ep = peer0 ? evPeer(f?.evToEbitda, f?.sector, marketOf(s.symbol), scanMeta?.evSample ?? null) : null;
       const { f: fs, peer } = withEv(f, peer0, ep);
-      const lt = longTermLive(fs, t, peer), old = longTerm(f, t);
+      // REITs score on cash flow against the scan's REIT median (since 12 Nov).
       const rv = reitView(f, scanMeta?.reitPocf ?? null);
+      const lt = longTermScored(fs, t, peer, rv), old = longTerm(f, t);
       const sectorValue = peer ? sectorValueNote(fs, peer, old, lt, rv) : null;
-      if (sectorValue && rv) withReitScore(sectorValue, reitLongTerm(fs, t, peer, rv));
+      if (sectorValue && lt.reit) withReitScore(sectorValue, reitLongTerm(fs, t, peer, rv), longTermLive(fs, t, peer));
       if (sectorValue && ep) Object.assign(sectorValue, { ev: ep, note: `${sectorValue.note} ${ep.note}`.trim() });
       const ruleChange = ruleChangeNote(old, lt);
       const swing = swingVerdict(t, signals, earningsDays);
