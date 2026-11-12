@@ -724,10 +724,11 @@ function renderResultsAhead(p) {
   const el = $("raCard");
   if (!el || !p?.date) return;
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
-  const live = (xs) => (xs ?? []).filter((r) => r.date >= today);
-  const F = live(p.focus), W = live(p.watch);
-  // Just reported: shown while the scan is at most 3 days old.
+  // Just reported: shown while the scan is at most 3 days old; those names
+  // leave the lists below.
   const J = (Date.parse(today) - Date.parse(p.date)) / 864e5 <= 3 ? p.just ?? [] : [];
+  const done = new Set(J.map((j) => j.symbol)), live = (xs) => (xs ?? []).filter((r) => r.date >= today && !done.has(r.symbol));
+  const F = live(p.focus), W = live(p.watch);
   const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`;
   const when = (r) => `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
   const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
