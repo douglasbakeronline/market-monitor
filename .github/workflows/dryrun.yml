@@ -1,5 +1,5 @@
 name: Dry run
-# UK REIT hint (BBOX.L) for the cash-flow score, 12 Nov (run 2).
+# UK REIT hint (BBOX.L): why no cash-flow view, 12 Nov.
 on:
   push:
     branches: [dryrun]
@@ -18,7 +18,10 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          node --input-type=module -e '
+            import { fetchFundamentals } from "./src/data/fundamentals.js";
+            for (const s of ["BBOX.L","LMP.L"]) { const f = await fetchFundamentals(s); console.log(s, JSON.stringify({ sector: f?.sector, industry: f?.industry, marketCap: f?.marketCap, operatingCashflow: f?.operatingCashflow, currency: f?.currency, fin: f?.financialCurrency })); }' > dry-run/bbox.log 2>&1
+          exit 0
           node -e '
             const fs=require("fs"); const s=JSON.parse(fs.readFileSync("dry-run/scan.json"));
             const r=s.items.filter(i=>/Real Estate|REIT/i.test((i.sector||"")+(i.industry||"")));
