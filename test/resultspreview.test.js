@@ -113,3 +113,8 @@ test("beat record, pot holdings and just reported", async () => {
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-10"] } }).length, 1);
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-01"] } }).length, 0);
 });
+
+test("London results always read as that session (Yahoo's 16:30 placeholder)", async () => {
+  const { reportedSessions } = await import("../src/data/fundamentals.js");
+  assert.deepEqual(reportedSessions([1794501000e3], "BRBY.L"), [{ date: "2026-11-12", after: false }]);
+});

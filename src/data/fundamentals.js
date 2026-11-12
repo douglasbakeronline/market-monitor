@@ -222,7 +222,10 @@ export function reportedSessions(ts = [], symbol = "") {
     if (t % 864e5 === 0) { date = new Date(t).toISOString().slice(0, 10); if (!by.has(date)) by.set(date, null); }
     else {
       const p = Object.fromEntries(fmt.formatToParts(new Date(t)).map((y) => [y.type, y.value]));
-      date = `${p.year}-${p.month}-${p.day}`; after = +p.hour * 60 + +p.minute >= close;
+      // London results come out by RNS before the open (usually 07:00), and
+      // Yahoo's London times are sometimes placeholders (Burberry's 12 Nov
+      // interims carried 16:30), so a London date always reads as that session.
+      date = `${p.year}-${p.month}-${p.day}`; after = uk ? false : +p.hour * 60 + +p.minute >= close;
       // Several stamps on one day (a call later in the day): before the close wins.
       by.set(date, by.has(date) && by.get(date) != null ? by.get(date) && after : after);
     }
