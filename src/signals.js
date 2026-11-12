@@ -65,7 +65,7 @@ export function regime({ sp, vix, fg }) {
   if (t.enabled && score >= t.minScore && (sp.vs200Pct ?? 0) >= t.minAbove200Pct && (v == null || v <= t.maxVix))
     return { ...base, key: "overheated", tone: "sell", label: "Overheated", action: "Extreme greed, stretched prices, calm volatility. Consider trimming winners back to your target allocation." };
   if (score >= CONFIG.greedScore && dd >= CONFIG.greedMaxDrawdown)
-    return { ...base, key: "euphoric", tone: "greed", label: "Euphoric", action: "Stop deploying new money. Build cash for the next dip." };
+    return { ...base, key: "euphoric", tone: "greed", label: "Euphoric", action: "No need to add extra money now; keep scheduled purchases going." };
   if (score <= CONFIG.fearNoDip.maxScore && dd > CONFIG.fearNoDip.minDrawdown)
     return { ...base, key: "fear-no-dip", tone: "watch", label: "Nervous, but no dip yet", action: "Sentiment has cracked before prices have. Get your shopping list ready; don't chase." };
   if (dd <= -5 && sp.above200)
@@ -123,7 +123,7 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
     if (greedy && !ns.greedActive) {
       alerts.push({ kind: "greed", priority: "default", tags: "red_circle",
         title: `GREED · Euphoric (${score})`,
-        body: `Fear & Greed ${score}, S&P 500 within ${Math.abs(sp.drawdownPct).toFixed(1)}% of its high. Stop deploying new money; build cash for the next dip.` });
+        body: `Fear & Greed ${score}, S&P 500 within ${Math.abs(sp.drawdownPct).toFixed(1)}% of its high. No need to add extra money now; keep scheduled purchases going. (Tested 7 Nov: greed has not warned of weaker markets, so this is not a sell or hold-cash signal.)` });
       ns.greedActive = true;
     }
     if (score < CONFIG.greedResetScore) ns.greedActive = false;

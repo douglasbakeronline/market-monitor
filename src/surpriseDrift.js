@@ -140,3 +140,31 @@ export function analyseSurpriseDrift(all, { bar = LAB_BAR, h = 20 } = {}) {
   H7.pass = D2.pass && H7.spread60 >= 2 && h7c.length > 0 && H7.years.ahead / h7c.length >= bar.yearShare;
   return { D2, H7, H8, H9, groups: T, counts: Object.fromEntries(Object.keys(GROUPS).map((k) => [k, T[k].n])), random: rnd.length };
 }
+
+// Swing lab round 7 (12 Nov 2026, platform review): the open decision "hold a
+// pick tranche after weak results and a falling price" rested on one year
+// (round 4: bottom-fifth surprise and a 2%+ fall trailed the S&P 500 by 3.6
+// points over 60 sessions, other falls +0.5). Same events as round 6, ten years.
+// Pre-registered BEFORE the run:
+//   H10: among results days that fell 2%+, those with a surprise in the bottom
+//     fifth (pooled cut, as round 4) trail the other falls against the home
+//     index by 1+ point at 60 sessions, trail at 20 sessions too, and trail at
+//     60 sessions in 3 of 4 years with 30+ events in each group.
+// If it passes, the hold rule is adopted (Douglas, 12 Nov: "fix weaknesses";
+// decisions within the agreed plan's spirit are Claude's to make and record).
+export function analyseWeakFalls(all, { bar = LAB_BAR } = {}) {
+  const res = all.filter((e) => e.kind === "results");
+  const sv = res.filter((e) => e.surprisePct != null).map((e) => e.surprisePct).sort((a, b) => a - b);
+  const lo = sv[Math.floor(0.2 * sv.length)];
+  const falls = res.filter((e) => e.surprisePct != null && e.move <= -2);
+  const weak = falls.filter((e) => e.surprisePct <= lo), other = falls.filter((e) => e.surprisePct > lo);
+  const rel = (xs, h) => { const v = xs.map((e) => e.fx[h]).filter((x) => x != null); return v.length ? r2(mean(v)) : null; };
+  const years = [...new Set(falls.map((e) => e.year))].sort().map((y) => {
+    const a = weak.filter((e) => e.year === y), b = other.filter((e) => e.year === y);
+    return { year: y, weak: a.length, other: b.length, diff60: a.length >= 30 && b.length >= 30 ? r2(rel(a, 60) - rel(b, 60)) : null };
+  });
+  const counted = years.filter((y) => y.diff60 != null), behind = counted.filter((y) => y.diff60 < 0).length;
+  const d60 = r2(rel(weak, 60) - rel(other, 60)), d20 = r2(rel(weak, 20) - rel(other, 20));
+  const checks = { size: d60 != null && d60 <= -1, at20: d20 != null && d20 < 0, years: counted.length > 0 && behind / counted.length >= bar.yearShare };
+  return { cut: r2(lo), n: { weak: weak.length, other: other.length }, weak60: rel(weak, 60), other60: rel(other, 60), diff60: d60, diff20: d20, years, yearsBehind: { behind, counted: counted.length }, checks, pass: Object.values(checks).every(Boolean) };
+}
