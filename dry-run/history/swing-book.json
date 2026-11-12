@@ -1,0 +1,207 @@
+{
+  "updated": "2026-11-12T22:48:45.553Z",
+  "start": "2026-11-02",
+  "equity0": 10000,
+  "realised": 9691.66,
+  "value": 9726.08,
+  "returnPct": -2.74,
+  "paused": false,
+  "open": [
+    {
+      "id": "2026-10-30:HSX.L",
+      "symbol": "HSX.L",
+      "ticker": "HSX",
+      "name": "Hiscox Ltd",
+      "market": "UK",
+      "currency": "GBp",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 1883,
+      "stop": 1813.42,
+      "target": 2022.16,
+      "riskAmt": 92.38,
+      "posValue": 2500,
+      "lastPrice": 1945,
+      "lastDate": "2026-11-12",
+      "openR": 0.89,
+      "openPnl": 82.22
+    },
+    {
+      "id": "2026-10-30:DE",
+      "symbol": "DE",
+      "ticker": "DE",
+      "name": "Deere & Company",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 669.34,
+      "stop": 638.09,
+      "target": 731.84,
+      "riskAmt": 116.72,
+      "posValue": 2500,
+      "lastPrice": 678.79,
+      "lastDate": "2026-11-12",
+      "openR": 0.3,
+      "openPnl": 35.02
+    },
+    {
+      "id": "2026-10-30:MRK",
+      "symbol": "MRK",
+      "ticker": "MRK",
+      "name": "Merck & Co., Inc.",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 148.82,
+      "stop": 140.31,
+      "target": 165.84,
+      "riskAmt": 142.96,
+      "posValue": 2500,
+      "lastPrice": 146.95,
+      "lastDate": "2026-11-12",
+      "openR": -0.22,
+      "openPnl": -31.45
+    },
+    {
+      "id": "2026-11-04:CL",
+      "symbol": "CL",
+      "ticker": "CL",
+      "name": "Colgate-Palmolive Company",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-05",
+      "entry": 100,
+      "stop": 94.27,
+      "target": 111.46,
+      "riskAmt": 138.83,
+      "posValue": 2422.92,
+      "lastPrice": 97.9,
+      "lastDate": "2026-11-12",
+      "openR": -0.37,
+      "openPnl": -51.37
+    }
+  ],
+  "orders": [],
+  "waiting": 9,
+  "skipped": 179,
+  "closed": 2,
+  "winRate": 0,
+  "avgNetR": -1.05,
+  "recent": [
+    {
+      "id": "2026-11-04:DASH",
+      "symbol": "DASH",
+      "ticker": "DASH",
+      "name": "DoorDash, Inc.",
+      "market": "US",
+      "currency": "USD",
+      "score": 84,
+      "entryDate": "2026-11-05",
+      "entry": 190.71,
+      "stop": 179.35,
+      "target": 213.43,
+      "riskAmt": 146.62,
+      "posValue": 2461.42,
+      "pnl": -154,
+      "netR": -1.05,
+      "exitDate": "2026-11-05",
+      "exit": 179.35,
+      "reason": "stop"
+    },
+    {
+      "id": "2026-10-30:IEX",
+      "symbol": "IEX",
+      "ticker": "IEX",
+      "name": "IDEX Corporation",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 236.15,
+      "stop": 222.28,
+      "target": 263.89,
+      "riskAmt": 146.83,
+      "posValue": 2500,
+      "pnl": -154.33,
+      "netR": -1.05,
+      "exitDate": "2026-11-05",
+      "exit": 222.28,
+      "reason": "stop"
+    }
+  ],
+  "curve": [
+    {
+      "date": "2026-11-05",
+      "equity": 9845.67
+    },
+    {
+      "date": "2026-11-05",
+      "equity": 9691.66
+    }
+  ],
+  "rules": {
+    "equity0": 10000,
+    "maxOpen": 4,
+    "riskPct": 2,
+    "maxPosPct": 25,
+    "pausePct": 25
+  },
+  "sp": {
+    "from": "2026-10-30",
+    "to": "2026-11-12",
+    "pct": 0.16
+  },
+  "spSeries": [
+    {
+      "date": "2026-11-02",
+      "pct": -0.51
+    },
+    {
+      "date": "2026-11-03",
+      "pct": -0.15
+    },
+    {
+      "date": "2026-11-04",
+      "pct": 1.43
+    },
+    {
+      "date": "2026-11-05",
+      "pct": -2.99
+    },
+    {
+      "date": "2026-11-06",
+      "pct": -2.68
+    },
+    {
+      "date": "2026-11-09",
+      "pct": -0.4
+    },
+    {
+      "date": "2026-11-10",
+      "pct": -0.78
+    },
+    {
+      "date": "2026-11-11",
+      "pct": 0.52
+    },
+    {
+      "date": "2026-11-12",
+      "pct": 0.16
+    }
+  ],
+  "random": {
+    "runs": 200,
+    "mine": -2.74,
+    "median": -0.16,
+    "p10": -3.28,
+    "p90": 2.76,
+    "beatShare": 14
+  },
+  "everySetup": {
+    "closed": 35,
+    "avgNetR": -0.54
+  }
+}

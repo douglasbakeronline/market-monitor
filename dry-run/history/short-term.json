@@ -1,0 +1,221 @@
+{
+  "updated": "2026-11-12T22:49:02.731Z",
+  "date": "2026-11-12",
+  "drift": [
+    {
+      "symbol": "BRBY.L",
+      "ticker": "BRBY",
+      "name": "Burberry Group plc",
+      "market": "UK",
+      "index": "FTSE 100",
+      "score": 37,
+      "kind": "drift",
+      "date": "2026-11-12",
+      "price": 1180.5,
+      "movePct": 8,
+      "volX": 3.8,
+      "results": true,
+      "surprisePct": null
+    }
+  ],
+  "bounce": [
+    {
+      "symbol": "ABT",
+      "ticker": "ABT",
+      "name": "Abbott Laboratories",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 56,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 107.25,
+      "rsi2": 6,
+      "vs200": 5.6,
+      "fall3": -2.9
+    },
+    {
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 60,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 77.14,
+      "rsi2": 6.2,
+      "vs200": 1.8,
+      "fall3": -2.1
+    },
+    {
+      "symbol": "AMCR",
+      "ticker": "AMCR",
+      "name": "Amcor plc",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 61,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 43.8,
+      "rsi2": 6.4,
+      "vs200": 1.6,
+      "fall3": -3
+    },
+    {
+      "symbol": "SBRY.L",
+      "ticker": "SBRY",
+      "name": "J Sainsbury plc",
+      "market": "UK",
+      "index": "FTSE 100",
+      "score": 60,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 346.8,
+      "rsi2": 6.9,
+      "vs200": 3.3,
+      "fall3": -1.6
+    },
+    {
+      "symbol": "IFF",
+      "ticker": "IFF",
+      "name": "International Flavors & Fragrances Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 52,
+      "kind": "bounce",
+      "date": "2026-11-12",
+      "price": 80.38,
+      "rsi2": 6.9,
+      "vs200": 1.5,
+      "fall3": -4.8
+    }
+  ],
+  "counts": {
+    "drift": 1,
+    "bounce": 9
+  },
+  "tested": {
+    "drift": {
+      "n": 2453,
+      "avg": 1.36,
+      "win": 54,
+      "vsIdx": 0.52,
+      "random": 0.78,
+      "edge": 0.58,
+      "yearsAhead": 6,
+      "years": 9,
+      "sd": 12
+    },
+    "bounce": {
+      "n": 33793,
+      "avg": -0.08,
+      "win": 61,
+      "vsIdx": -0.31,
+      "random": -0.24,
+      "edge": 0.16,
+      "yearsAhead": 7,
+      "years": 10,
+      "sd": 3.72
+    }
+  },
+  "live": {
+    "drift": {
+      "closed": 0,
+      "open": 1,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    },
+    "bounce": {
+      "closed": 0,
+      "open": 5,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    }
+  },
+  "pot": {
+    "rules": {
+      "start": "2026-11-11",
+      "equity0": 10000,
+      "maxOpen": 5,
+      "pauseFall": 0.25,
+      "today": "2026-11-12"
+    },
+    "start": "2026-11-12",
+    "value": 9967.4,
+    "returnPct": -0.33,
+    "peak": 10000,
+    "fallPct": -0.33,
+    "paused": false,
+    "open": [
+      {
+        "id": "2026-11-11:bounce:OTIS",
+        "kind": "bounce",
+        "symbol": "OTIS",
+        "ticker": "OTIS",
+        "name": "Otis Worldwide Corporation",
+        "market": "US",
+        "entryDate": "2026-11-12",
+        "entry": 78.18,
+        "pos": 2000,
+        "sessions": 1,
+        "openPct": -1.63,
+        "openPnl": -32.6
+      }
+    ],
+    "buys": [
+      {
+        "kind": "drift",
+        "symbol": "BRBY.L",
+        "ticker": "BRBY",
+        "name": "Burberry Group plc",
+        "market": "UK",
+        "signalDate": "2026-11-12",
+        "signalPrice": 1180.5
+      },
+      {
+        "kind": "bounce",
+        "symbol": "ABT",
+        "ticker": "ABT",
+        "name": "Abbott Laboratories",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 107.25
+      },
+      {
+        "kind": "bounce",
+        "symbol": "AMCR",
+        "ticker": "AMCR",
+        "name": "Amcor plc",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 43.8
+      },
+      {
+        "kind": "bounce",
+        "symbol": "IFF",
+        "ticker": "IFF",
+        "name": "International Flavors & Fragrances Inc.",
+        "market": "US",
+        "signalDate": "2026-11-12",
+        "signalPrice": 80.38
+      }
+    ],
+    "sells": [],
+    "free": 4,
+    "closed": 0,
+    "winRate": null,
+    "avgNetPct": null,
+    "trades": [
+      {
+        "kind": "bounce",
+        "ticker": "OTIS",
+        "market": "US",
+        "entryDate": "2026-11-12",
+        "exitDate": null
+      }
+    ]
+  },
+  "pushedAt": "2026-11-12T21:23:51.339Z"
+}
