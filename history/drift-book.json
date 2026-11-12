@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-12T20:07:35.856Z",
+  "updated": "2026-11-12T21:23:31.808Z",
   "start": "2026-11-11",
   "equity0": 10000,
   "realised": 10000,
-  "value": 10073.5,
-  "returnPct": 0.73,
+  "value": 10022,
+  "returnPct": 0.22,
   "open": [
     {
       "id": "2026-11-10:TTWO",
@@ -18,9 +18,9 @@
       "volX": 3.1,
       "results": true,
       "pos": 2500,
-      "sessions": 1,
-      "openPct": 1.38,
-      "openPnl": 34.5
+      "sessions": 2,
+      "openPct": -0.54,
+      "openPnl": -13.5
     },
     {
       "id": "2026-11-10:AKAM",
@@ -34,12 +34,24 @@
       "volX": 4.2,
       "results": false,
       "pos": 2500,
-      "sessions": 1,
-      "openPct": 1.56,
-      "openPnl": 39
+      "sessions": 2,
+      "openPct": 1.42,
+      "openPnl": 35.5
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "symbol": "BRBY.L",
+      "ticker": "BRBY",
+      "name": "Burberry Group plc",
+      "market": "UK",
+      "signalDate": "2026-11-12",
+      "signalPrice": 1180.5,
+      "movePct": 8,
+      "volX": 3.8,
+      "results": false
+    }
+  ],
   "waiting": 0,
   "closed": 0,
   "winRate": null,
@@ -54,7 +66,7 @@
   "sp": {
     "from": "2026-11-10",
     "to": "2026-11-12",
-    "pct": 0.98
+    "pct": 0.95
   },
   "spSeries": [
     {
@@ -63,15 +75,15 @@
     },
     {
       "date": "2026-11-12",
-      "pct": 0.98
+      "pct": 0.95
     }
   ],
   "random": {
     "runs": 200,
-    "mine": 0.73,
-    "median": 0.73,
-    "p10": 0.73,
-    "p90": 0.73,
+    "mine": 0.22,
+    "median": 0.22,
+    "p10": 0.22,
+    "p90": 0.22,
     "beatShare": 0
   }
 }

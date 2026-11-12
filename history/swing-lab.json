@@ -14,11 +14,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 172.8000030517578,
-    "sessions": 1,
-    "lastDate": "2026-11-11",
-    "lastPrice": 173.73,
-    "netPct": 0.24,
-    "idxPct": 1.31
+    "sessions": 2,
+    "lastDate": "2026-11-12",
+    "lastPrice": 166.19,
+    "netPct": -4.13,
+    "idxPct": 0.95
   },
   {
     "id": "2026-11-10:AKAM",
@@ -35,11 +35,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 85.0999984741211,
-    "sessions": 1,
-    "lastDate": "2026-11-11",
-    "lastPrice": 86.68,
-    "netPct": 1.56,
-    "idxPct": 1.31
+    "sessions": 2,
+    "lastDate": "2026-11-12",
+    "lastPrice": 86.56,
+    "netPct": 1.42,
+    "idxPct": 0.95
   },
   {
     "id": "2026-11-10:TTWO",
@@ -57,10 +57,38 @@
     "surprisePct": 66.4,
     "entryDate": "2026-11-11",
     "entry": 227.49000549316406,
-    "sessions": 1,
-    "lastDate": "2026-11-11",
-    "lastPrice": 231.31,
-    "netPct": 1.38,
-    "idxPct": 1.31
+    "sessions": 2,
+    "lastDate": "2026-11-12",
+    "lastPrice": 226.95,
+    "netPct": -0.54,
+    "idxPct": 0.95
+  },
+  {
+    "id": "2026-11-12:GPN",
+    "symbol": "GPN",
+    "ticker": "GPN",
+    "name": "Global Payments Inc.",
+    "market": "US",
+    "kind": "down",
+    "signalDate": "2026-11-12",
+    "signalPrice": 88.19,
+    "movePct": -12,
+    "volX": 3.6,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-12:BRBY.L",
+    "symbol": "BRBY.L",
+    "ticker": "BRBY",
+    "name": "Burberry Group plc",
+    "market": "UK",
+    "kind": "up",
+    "signalDate": "2026-11-12",
+    "signalPrice": 1180.5,
+    "movePct": 8,
+    "volX": 3.8,
+    "results": false,
+    "status": "pending"
   }
 ]

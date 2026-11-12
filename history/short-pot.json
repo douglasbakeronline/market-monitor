@@ -1,37 +1,87 @@
 {
-  "updated": "2026-11-12T02:25:28.887Z",
+  "updated": "2026-11-12T21:23:31.764Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
     "maxOpen": 5,
     "pauseFall": 0.25,
-    "today": "2026-11-11"
+    "today": "2026-11-12"
   },
-  "start": null,
-  "value": 10000,
-  "returnPct": 0,
+  "start": "2026-11-12",
+  "value": 9967.4,
+  "returnPct": -0.33,
   "peak": 10000,
-  "fallPct": 0,
+  "fallPct": -0.33,
   "paused": false,
-  "open": [],
-  "buys": [
+  "open": [
     {
+      "id": "2026-11-11:bounce:OTIS",
       "kind": "bounce",
       "symbol": "OTIS",
       "ticker": "OTIS",
       "name": "Otis Worldwide Corporation",
       "market": "US",
-      "signalDate": "2026-11-11",
-      "signalPrice": 77.5
+      "entryDate": "2026-11-12",
+      "entry": 78.18,
+      "pos": 2000,
+      "sessions": 1,
+      "openPct": -1.63,
+      "openPnl": -32.6
     }
   ],
-  "skipped": 0,
-  "free": 5,
+  "buys": [
+    {
+      "kind": "drift",
+      "symbol": "BRBY.L",
+      "ticker": "BRBY",
+      "name": "Burberry Group plc",
+      "market": "UK",
+      "signalDate": "2026-11-12",
+      "signalPrice": 1180.5
+    },
+    {
+      "kind": "bounce",
+      "symbol": "ABT",
+      "ticker": "ABT",
+      "name": "Abbott Laboratories",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 107.25
+    },
+    {
+      "kind": "bounce",
+      "symbol": "AMCR",
+      "ticker": "AMCR",
+      "name": "Amcor plc",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 43.8
+    },
+    {
+      "kind": "bounce",
+      "symbol": "IFF",
+      "ticker": "IFF",
+      "name": "International Flavors & Fragrances Inc.",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 80.38
+    }
+  ],
+  "skipped": 1,
+  "free": 4,
   "sells": [],
   "closed": 0,
   "winRate": null,
   "avgNetPct": null,
   "recent": [],
   "curve": [],
-  "trades": []
+  "trades": [
+    {
+      "kind": "bounce",
+      "ticker": "OTIS",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "exitDate": null
+    }
+  ]
 }
