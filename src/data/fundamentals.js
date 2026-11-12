@@ -168,3 +168,73 @@ export async function fetchTimeseries(symbol, types) {
   const t = types.map((x) => "annual" + x).join(",");
   return fetchJson(`https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/${encodeURIComponent(symbol)}?symbol=${encodeURIComponent(symbol)}&type=${t}&period1=${p1}&period2=${now}&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
 }
+
+// Past results dates with their time of day (results preview, 12 Nov 2026):
+// Yahoo's earnings module (reportedDate for the last four quarters with EPS)
+// plus its earnings visualization (older, sparser, covers half-yearly UK
+// reporters). Returns [{ date (exchange-local YYYY-MM-DD), after (true: after
+// the close, so the market reacts the next session) }], oldest first.
+export async function fetchReportedDates(symbol, { size = 12 } = {}) {
+  return (await fetchResultsHistory(symbol, { size })).map(({ date, after }) => ({ date, after }));
+}
+
+// The same dates with the analysts' EPS forecast and the actual EPS where
+// Yahoo has them (swing lab round 6, 12 Nov: about ten years for most US
+// names). Returns [{ date, after, actual, estimate, surprisePct }], oldest
+// first; surprisePct is null without both figures or when the forecast is
+// within 0.01 of zero.
+export async function fetchResultsHistory(symbol, { size = 12 } = {}) {
+  const { cookie, crumb } = await yahooSession();
+  const stamps = [];
+  try {
+    const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=earnings&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+    for (const q of j?.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly ?? []) { const t = raw(q?.reportedDate); if (t) stamps.push({ t: t * 1000, actual: raw(q?.actual), estimate: raw(q?.estimate) }); }
+  } catch { /* the other source may still have dates */ }
+  try {
+    const body = { offset: 0, size, sortField: "startdatetime", sortType: "DESC", entityIdType: "earnings", includeFields: ["ticker", "startdatetime", "startdatetimetype", "epsestimate", "epsactual"], query: { operator: "eq", operands: ["ticker", symbol] } };
+    const j = await fetchJson(`https://query2.finance.yahoo.com/v1/finance/visualization?crumb=${encodeURIComponent(crumb)}&lang=en-US&region=US`, { method: "POST", headers: { cookie, "content-type": "application/json" }, body: JSON.stringify(body), tries: 2 });
+    const doc = j?.finance?.result?.[0]?.documents?.[0], cols = (doc?.columns ?? []).map((c) => c.id);
+    const at = (r, id, k) => { const i = cols.indexOf(id); return i >= 0 ? r?.[i] : r?.[k]; };
+    for (const r of doc?.rows ?? []) {
+      const t = Date.parse(at(r, "startdatetime", 1));
+      const num = (v) => (Number.isFinite(+v) && v !== null && v !== "" ? +v : null);
+      if (Number.isFinite(t)) stamps.push({ t, actual: num(at(r, "epsactual", 4)), estimate: num(at(r, "epsestimate", 3)) });
+    }
+  } catch { /* optional */ }
+  return reportedSessions(stamps, symbol);
+}
+
+// Timestamps (ms) to exchange-local dates and before/after the close
+// (London 16:30, New York 16:00; Europe 17:30). One entry per date.
+// Items are timestamps or { t, actual, estimate }; EPS figures are kept from
+// the first stamp of a date that has them.
+export function reportedSessions(ts = [], symbol = "") {
+  const uk = /\.L$/.test(symbol), eu = !uk && /\.[A-Z]+$/.test(symbol);
+  const tz = uk ? "Europe/London" : eu ? "Europe/Paris" : "America/New_York", close = uk ? 990 : eu ? 1050 : 960;
+  const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const by = new Map(), eps = new Map();
+  for (const x of ts) {
+    const t = typeof x === "number" ? x : x?.t;
+    if (!Number.isFinite(t)) continue;
+    let date, after;
+    // A bare midnight-UTC stamp is a date with no time: keep the UTC date,
+    // timing unknown (null).
+    if (t % 864e5 === 0) { date = new Date(t).toISOString().slice(0, 10); if (!by.has(date)) by.set(date, null); }
+    else {
+      const p = Object.fromEntries(fmt.formatToParts(new Date(t)).map((y) => [y.type, y.value]));
+      // London results come out by RNS before the open (usually 07:00), and
+      // Yahoo's London times are sometimes placeholders (Burberry's 12 Nov
+      // interims carried 16:30), so a London date always reads as that session.
+      date = `${p.year}-${p.month}-${p.day}`; after = uk ? false : +p.hour * 60 + +p.minute >= close;
+      // Several stamps on one day (a call later in the day): before the close wins.
+      by.set(date, by.has(date) && by.get(date) != null ? by.get(date) && after : after);
+    }
+    if (typeof x === "object" && x.actual != null && x.estimate != null && !eps.has(date)) eps.set(date, { actual: x.actual, estimate: x.estimate });
+  }
+  return [...by].map(([date, after]) => {
+    if (!eps.size) return { date, after };
+    const e = eps.get(date) ?? null;
+    const surprisePct = e && Math.abs(e.estimate) >= 0.01 ? Math.round(((e.actual - e.estimate) / Math.abs(e.estimate)) * 1000) / 10 : null;
+    return { date, after, actual: e?.actual ?? null, estimate: e?.estimate ?? null, surprisePct };
+  }).sort((a, b) => (a.date < b.date ? -1 : 1));
+}

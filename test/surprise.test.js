@@ -153,13 +153,14 @@ test("results-day moves skip index-event days and use known dates", async () => 
   assert.deepEqual(resultsMoves(rows, hist, null, ["2026-05-29"]).moves.map((m) => m.date), ["2026-02-10", "2026-05-29"]);
 });
 
-test("hand-kept results dates: picks and bench only, valid past dates", async () => {
+test("hand-kept results dates: picks, bench and research list only, valid past dates", async () => {
   const { readFileSync } = await import("node:fs");
   const { PLAN } = await import("../src/plan.js");
   const { dates } = JSON.parse(readFileSync(new URL("../data/results-dates-known.json", import.meta.url)));
-  const names = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
+  const list = JSON.parse(readFileSync(new URL("../research-list.json", import.meta.url))).stocks.map((x) => x.symbol);
+  const names = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...list]);
   for (const [sym, ds] of Object.entries(dates)) {
-    assert.ok(names.has(sym), `${sym} is a pick or bench name`);
+    assert.ok(names.has(sym), `${sym} is a pick, bench or research-list name`);
     assert.deepEqual([...ds].sort(), ds, `${sym} dates sorted`);
     for (const d of ds) assert.match(d, /^\d{4}-\d{2}-\d{2}$/), assert.ok(!Number.isNaN(Date.parse(d)));
   }

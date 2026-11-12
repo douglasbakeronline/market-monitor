@@ -420,6 +420,12 @@
     <div class="card" id="stCard"></div>
   </section>
 
+  <!-- Results ahead (12 Nov): who reports this week and how far results days usually move them -->
+  <section class="section" id="raSection" hidden>
+    <div class="eyebrow">Results ahead</div>
+    <div class="card" id="raCard"></div>
+  </section>
+
   <!-- Swing paper trading -->
   <section class="section" id="ppSection" hidden>
     <div class="eyebrow">Paper books <span class="pill plain" style="margin-left:4px">No real money</span></div>
@@ -454,6 +460,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
+import { dayLabel } from "./src/resultsPreview.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
 import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
@@ -487,6 +494,7 @@ function render(d) {
   else if (Date.now() - Date.parse(d.updated) > 30 * 3600e3) b.push(`<div class="banner warn">This page hasn't refreshed for ${ago(d.updated).replace(" ago", "")}. The scheduler may be paused.</div>`);
   $("banners").innerHTML = b.join("");
   renderShortTerm(d.shortTerm);
+  renderResultsAhead(d.resultsPreview);
 
   renderHero(d.regime);
   renderFG(d);
@@ -682,7 +690,7 @@ function renderShortTerm(st) {
       <div class="st-head"><b>${esc(name)}</b><span class="st-rec">${esc(tag)}</span></div>
       <div class="small muted">${esc(rule)}</div>
       <div class="small muted" style="margin-top:2px">${t ? `Backtest: ${t.win}% won, avg ${sg(t.avg)} a trade after costs (random entry ${sg(t.random)})` : "Backtest: n/a"} · ${esc(live(l))}</div>
-      ${t ? (() => { const v = liveVerdict(l, t); return `<div class="small ${v.tone === "bad" ? "t-sell" : v.tone === "watch" ? "t-caution" : v.tone === "good" ? "t-buy" : "muted"}" style="margin-top:2px">Review: ${esc(v.text)}</div>`; })() : ""}
+      ${t ? (() => { const v = liveVerdict(l, t); return `<div class="small ${v.tone === "bad" ? "t-sell" : v.tone === "watch" ? "t-caution" : v.tone === "good" ? "t-buy" : "muted"}" style="margin-top:2px">Review: ${esc(v.text).replace(/-(?=\d)/g, "\u2212")}</div>`; })() : ""}
       ${list.length ? list.map(row).join("") : `<div class="st-row"><span class="muted">None last night.</span><span></span></div>`}
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
@@ -705,11 +713,44 @@ function renderShortTerm(st) {
   el.innerHTML = `<div class="k">From the ${esc(fmtDM(st.date))} close</div>
     ${potHtml}
     ${group("Results drift", "Some edge, inconsistent", "A 4%+ jump on 3× normal volume. Buy the next open, hold 20 sessions.", T.drift, L.drift, st.drift ?? [],
-      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? "Results day" : "No results date nearby"}${bigJump({ kind: "drift", ...s }) ? " · check it is not a takeover offer" : ""}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
+      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? `Results day${s.surprisePct != null ? `, EPS ${signPct(s.surprisePct)} vs forecast` : ""}` : "No results date nearby"}${bigJump({ kind: "drift", ...s }) ? " · check it is not a takeover offer" : ""}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
     ${group("Bounce in an uptrend", "No edge after costs", "A sharp dip (2-day RSI under 10) above the 200-day average. Buy the next open, sell at the first close above the 5-day average or after 10 sessions.", T.bounce, L.bounce, st.bounce ?? [],
       (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
     <p class="small muted" style="margin:12px 0 0">Your call on 11 Nov: 10% of the portfolio, both setups, from the core. Up to 5 trades, a fifth of the pot each; drift takes free slots first, then the most oversold bounces. No stop orders (the backtest's stop cut drift's edge); the pot pauses if it falls 25% from its high. In the backtest drift beat random entry after costs in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years, while bounces won often but lost a little on average after costs. When there is anything to buy or sell, a push goes to your phone the evening before (about 21:30 London, once the scan has run after the US close), so you can place the orders before the open; if the scan runs late, the push comes at 08:15 instead.${st.pushedAt ? ` This list was pushed at ${new Date(st.pushedAt).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" })}.` : ""}</p>`;
   el.hidden = false; $("stSection").hidden = false;
+}
+// --- Results ahead (scan.json resultsPreview via data.json; src/resultsPreview.js) ---
+function renderResultsAhead(p) {
+  const el = $("raCard");
+  if (!el || !p?.date) return;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  // Just reported: shown while the scan is at most 3 days old; those names
+  // leave the lists below.
+  const J = (Date.parse(today) - Date.parse(p.date)) / 864e5 <= 3 ? p.just ?? [] : [];
+  const done = new Set(J.map((j) => j.symbol)), live = (xs) => (xs ?? []).filter((r) => r.date >= today && !done.has(r.symbol));
+  const F = live(p.focus), W = live(p.watch);
+  const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`;
+  const when = (r) => `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
+  const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
+  const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name ?? "")}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
+  const jtag = (j) => (j.potBuy ? `<span class="sub t-buy">Meets the pot's drift rule: a buy at the next open (see the pot card).</span>`
+    : j.pot && j.move >= 4 ? `<span class="sub muted">Up 4%+ but under 3\u00d7 normal volume, so not a pot trade.</span>` : "");
+  const jrow = (j) => `<div class="st-row"><span><b>${esc(j.ticker)}</b> <span class="muted">${esc(j.name ?? "")}</span><span class="sub">${j.surprisePct != null ? `EPS ${sg(j.surprisePct)} vs forecast` : "No EPS forecast on record"}${j.volX != null ? ` · ${j.volX}\u00d7 normal volume` : ""}</span>${jtag(j)}</span><span class="num ${pnClass(j.move)}">${sg(j.move)}<span class="sub">on results</span></span></div>`;
+  el.innerHTML = `<div class="k">Next ${p.days ?? 7} days · from the ${esc(fmtDM(p.date))} scan</div>
+    ${J.length ? `<div class="st-group">
+      <div class="st-head"><b>Just reported</b><span class="st-rec">reaction at the last close</span></div>
+      ${J.map(jrow).join("")}
+    </div>` : ""}
+    <div class="st-group">
+      <div class="st-head"><b>Your research list${F.some((r) => r.held) ? " and pot holdings" : ""}</b><span class="st-rec">${F.length ? `${F.length} reporting` : "none reporting"}</span></div>
+      ${F.length ? F.map(row).join("") : `<div class="st-row"><span class="muted">Nothing on your list reports in the next week.</span><span></span></div>`}
+    </div>
+    ${W.length ? `<div class="st-group">
+      <div class="st-head"><b>Biggest usual movers in the pot's universe</b><span class="st-rec">${W.length} of ${p.potCount} other S&amp;P 500 and FTSE 100 names</span></div>
+      ${W.map(row).join("")}
+    </div>` : ""}
+    <p class="small muted" style="margin:12px 0 0">The usual move is the median size of the last few results-day moves (close to close), from real, timed results dates. It says how much is at stake, not which way: the direction can't be called reliably in advance. Ten years of results tested on 12 Nov (research log): jumps of 4%+ that also beat the forecast by 5%+ did better over the next 20 sessions than jumps without a big beat (+0.79 against +0.15 points over random holds), but only in 6 of 10 years, so the beat is shown here as context and the pot's rule is unchanged. A push comes to your phone when a list name or a pot holding is a week out and again the day before.</p>`;
+  el.hidden = false; $("raSection").hidden = false;
 }
 // --- Buffett book (paper; history/buffett-book.json, lens in data/buffett.json) ---
 let BUFFJ = null;

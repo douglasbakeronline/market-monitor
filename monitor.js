@@ -24,6 +24,7 @@ import { digestLine as rebalanceDigestLine } from "./src/rebalance.js";
 import { bookLine, bookNews, swingTradeAlerts } from "./src/swingBook.js";
 import { paperDigestLine } from "./src/paperScore.js";
 import { shortTermAlert, shortPauseAlert } from "./src/shortTerm.js";
+import { resultsAlert } from "./src/resultsPreview.js";
 import { shortPotLine } from "./src/shortPot.js";
 import { allowAlert, summaryAllowed } from "./src/alertProfile.js";
 import { SCORING_VERSION } from "./src/research.js";
@@ -186,6 +187,16 @@ async function main() {
   if (sta) alerts.push(sta);
   // The pot's drawdown: a heads-up at 15% below its high, then the 25% pause.
   if (stScan?.pot) { const pa = shortPauseAlert(stScan.pot, state.shortPotStage ?? null); state.shortPotStage = pa.stage; if (pa.alert) alerts.push(pa.alert); }
+  // Results preview (12 Nov; src/resultsPreview.js): a heads-up when a list name
+  // comes within a week of results, and again the day before. Weekdays from
+  // 07:00 London, so the eve push lands before a before-the-open report.
+  const rp = (await readJson("scan.json", null))?.resultsPreview ?? null;
+  const lonNow = partsIn("Europe/London");
+  if (lonNow.weekday >= 1 && lonNow.weekday <= 5 && lonNow.min >= 7 * 60) {
+    const ra = resultsAlert(rp, state.resultsSent ?? {}, today);
+    state.resultsSent = ra.sent;
+    if (ra.alert) alerts.push(ra.alert);
+  }
   // Track record: log today's signals with prices, then score all past ones.
   const marketEvents = ev.alerts.filter((a) => KIND_LABEL[a.kind]).map((a) => {
     const snap = a.market === "UK" ? ftse : sp;
@@ -263,6 +274,7 @@ async function main() {
     researchTop: researchHighlights(research), trackRecord, copilot: cp,
     paper: scan?.paper ?? null,
     shortTerm: stScan,
+    resultsPreview: rp,
     priceAlerts: { items: pa.view, invalid: pa.invalid },
   });
   await writeJson("history/fear-greed.json", fgHistory);
