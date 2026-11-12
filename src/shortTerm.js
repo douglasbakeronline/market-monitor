@@ -26,7 +26,7 @@ export const ST_LABEL = { drift: "Results drift", bounce: "Bounce in an uptrend"
 export function testedRecord(lab) {
   const pick = (key) => {
     const r = lab?.results?.find((x) => x.key === key && !x.stop);
-    return r ? { n: r.signal.n, avg: r.signal.avg, win: r.signal.win, vsIdx: r.signal.vsIdx, random: r.baseline.avg, edge: r.edge, yearsAhead: r.yearsAhead, years: r.yearsCounted } : null;
+    return r ? { n: r.signal.n, avg: r.signal.avg, win: r.signal.win, vsIdx: r.signal.vsIdx, random: r.baseline.avg, edge: r.edge, yearsAhead: r.yearsAhead, years: r.yearsCounted, ...(r.signal.sd != null ? { sd: r.signal.sd } : {}) } : null;
   };
   return { drift: pick("drift"), bounce: pick("dip") };
 }
@@ -116,9 +116,60 @@ export function summariseShort(log = []) {
       win: c.length ? Math.round((c.filter((t) => t.netPct > 0).length / c.length) * 100) : null,
       avg: c.length ? r2(c.reduce((a, t) => a + t.netPct, 0) / c.length) : null,
       vsIdx: vi.length ? r2(vi.reduce((a, t) => a + t.vsIdx, 0) / vi.length) : null };
+    // Spread and a 90% range for the average (normal approximation), so a
+    // live record is read with its noise (research log 12 Nov).
+    if (c.length >= 2) {
+      const m = c.reduce((a, t) => a + t.netPct, 0) / c.length;
+      const sd = Math.sqrt(c.reduce((a, t) => a + (t.netPct - m) ** 2, 0) / (c.length - 1));
+      out[kind].sd = r2(sd);
+      if (c.length >= 5) { const h = (Z90 * sd) / Math.sqrt(c.length); out[kind].lo = r2(m - h); out[kind].hi = r2(m + h); }
+    }
   }
   return out;
 }
+
+// Reading the live record against the agreed review (strategy notes: after 30
+// closed live trades, drop a setup that trails random entry after costs).
+// Research log 12 Nov: a 20-session drift trade has a spread of about 12
+// points, so 30 trades leave a 90% range of about +/-3.6 points around the
+// average, six times the backtest's whole edge (0.58). A setup with exactly
+// the backtest's edge would still trail random entry at 30 trades about 40%
+// of the time. Display only: the rule itself is unchanged until Douglas agrees.
+export const REVIEW_AT = 30;
+const Z90 = 1.645;
+// Standard normal CDF (Abramowitz and Stegun 26.2.17, error under 1e-7).
+export function normCdf(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989422804014327 * Math.exp((-z * z) / 2);
+  const p = d * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+  return z >= 0 ? 1 - p : p;
+}
+// Chance that a setup whose true edge is the backtest's still trails random
+// entry after n trades.
+export function trailOdds(t, n = REVIEW_AT) {
+  if (!(t?.sd > 0) || t.edge == null || !(n > 0)) return null;
+  return Math.round(normCdf(-t.edge / (t.sd / Math.sqrt(n))) * 100);
+}
+// Trades needed before the 90% range is narrower than the backtest's edge.
+export function tradesToTell(t) {
+  if (!(t?.sd > 0) || !(t?.edge > 0)) return null;
+  return Math.ceil(((Z90 * t.sd) / t.edge) ** 2);
+}
+// One line for the Dashboard: where the live record stands against random entry.
+export function liveVerdict(l, t) {
+  const n = l?.closed ?? 0, rnd = t?.random;
+  const odds = trailOdds(t);
+  const noise = odds != null ? ` Even with the backtest's edge, a setup trails random entry at ${REVIEW_AT} trades about ${odds}% of the time, so one review is a weak test.` : "";
+  if (n < REVIEW_AT) return { stage: "early", tone: "neutral", text: `${n} of ${REVIEW_AT} closed before the review.${noise}` };
+  if (rnd == null || l.avg == null) return { stage: "review", tone: "neutral", text: `${n} closed; no backtest to compare with.` };
+  const range = l.lo != null ? ` (90% range ${sgn(l.lo)} to ${sgn(l.hi)})` : "";
+  const vs = `avg ${sgn(l.avg)}${range} against ${sgn(rnd)} for random entry`;
+  if (l.hi != null && l.hi < rnd) return { stage: "review", tone: "bad", text: `Clearly behind random entry: ${vs}.` };
+  if (l.avg < rnd) return { stage: "review", tone: "watch", text: `Behind random entry, within the noise: ${vs}.${noise}` };
+  if (l.lo != null && l.lo > rnd) return { stage: "review", tone: "good", text: `Clearly ahead of random entry: ${vs}.` };
+  return { stage: "review", tone: "neutral", text: `Ahead of random entry, within the noise: ${vs}.` };
+}
+const sgn = (x) => `${x > 0 ? "+" : ""}${x}%`;
 
 const sg = (x) => (x == null ? "n/a" : `${x > 0 ? "+" : ""}${x}%`);
 const liveTxt = (l) => (l?.closed ? `live ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}` : "live: none closed yet");
