@@ -1,0 +1,548 @@
+[
+ {
+  "label": "hand-checked",
+  "n": 42,
+  "hit": 15,
+  "rate": 0.36,
+  "miss": [
+   {
+    "sym": "HSBA.L",
+    "known": "2026-02-25",
+    "react": "2026-02-25",
+    "volX": 2.9,
+    "nextVolX": 0.8,
+    "near": [
+     "2026-03-12"
+    ]
+   },
+   {
+    "sym": "HSBA.L",
+    "known": "2026-05-05",
+    "react": "2026-05-05",
+    "volX": 1.6,
+    "nextVolX": 0.7,
+    "near": []
+   },
+   {
+    "sym": "HSBA.L",
+    "known": "2026-08-04",
+    "react": "2026-08-04",
+    "volX": 1.8,
+    "nextVolX": 1.6,
+    "near": [
+     "2026-08-07"
+    ]
+   },
+   {
+    "sym": "META",
+    "known": "2026-10-21",
+    "react": "2026-10-22",
+    "volX": 2.1,
+    "nextVolX": 0.7,
+    "near": [
+     "2026-10-27"
+    ]
+   },
+   {
+    "sym": "NEM",
+    "known": "2026-02-19",
+    "react": "2026-02-20",
+    "volX": 1.3,
+    "nextVolX": 1,
+    "near": [
+     "2026-01-30"
+    ]
+   },
+   {
+    "sym": "NEM",
+    "known": "2026-04-23",
+    "react": "2026-04-24",
+    "volX": 1.2,
+    "nextVolX": 0.7,
+    "near": []
+   },
+   {
+    "sym": "NEM",
+    "known": "2026-07-23",
+    "react": "2026-07-24",
+    "volX": 1.1,
+    "nextVolX": 0.6,
+    "near": []
+   },
+   {
+    "sym": "NEM",
+    "known": "2026-10-22",
+    "react": "2026-10-23",
+    "volX": 1.1,
+    "nextVolX": 1.1,
+    "near": []
+   },
+   {
+    "sym": "STZ",
+    "known": "2026-06-30",
+    "react": "2026-07-01",
+    "volX": 2.1,
+    "nextVolX": 1.1,
+    "near": []
+   },
+   {
+    "sym": "VICI",
+    "known": "2026-02-25",
+    "react": "2026-02-26",
+    "volX": 1.8,
+    "nextVolX": 1.3,
+    "near": []
+   },
+   {
+    "sym": "VICI",
+    "known": "2026-04-29",
+    "react": "2026-04-30",
+    "volX": 1.9,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "VICI",
+    "known": "2026-07-29",
+    "react": "2026-07-30",
+    "volX": 1.7,
+    "nextVolX": 1,
+    "near": [
+     "2026-08-04"
+    ]
+   },
+   {
+    "sym": "VICI",
+    "known": "2026-10-28",
+    "react": "2026-10-29",
+    "volX": 1.2,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "SCHW",
+    "known": "2026-01-21",
+    "react": "2026-01-21",
+    "volX": 2.1,
+    "nextVolX": 1.5,
+    "near": [
+     "2026-02-10"
+    ]
+   },
+   {
+    "sym": "SCHW",
+    "known": "2026-07-21",
+    "react": "2026-07-21",
+    "volX": 1.3,
+    "nextVolX": 0.7,
+    "near": []
+   },
+   {
+    "sym": "CF",
+    "known": "2026-02-18",
+    "react": "2026-02-19",
+    "volX": 2.7,
+    "nextVolX": 1.5,
+    "near": [
+     "2026-03-12"
+    ]
+   },
+   {
+    "sym": "CF",
+    "known": "2026-05-06",
+    "react": "2026-05-07",
+    "volX": 1.1,
+    "nextVolX": 0.6,
+    "near": []
+   },
+   {
+    "sym": "CF",
+    "known": "2026-08-05",
+    "react": "2026-08-06",
+    "volX": 1.2,
+    "nextVolX": 0.8,
+    "near": []
+   },
+   {
+    "sym": "CF",
+    "known": "2026-11-04",
+    "react": "2026-11-05",
+    "volX": 1.5,
+    "nextVolX": 0.7,
+    "near": []
+   },
+   {
+    "sym": "LLOY.L",
+    "known": "2026-01-29",
+    "react": "2026-01-29",
+    "volX": 1.5,
+    "nextVolX": 1.1,
+    "near": [
+     "2026-02-13"
+    ]
+   },
+   {
+    "sym": "LLOY.L",
+    "known": "2026-04-29",
+    "react": "2026-04-29",
+    "volX": 1,
+    "nextVolX": 1.5,
+    "near": []
+   },
+   {
+    "sym": "LLOY.L",
+    "known": "2026-07-30",
+    "react": "2026-07-30",
+    "volX": 1.2,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "LLOY.L",
+    "known": "2026-10-29",
+    "react": "2026-10-29",
+    "volX": 2.2,
+    "nextVolX": 2,
+    "near": [
+     "2026-11-02"
+    ]
+   },
+   {
+    "sym": "NWG.L",
+    "known": "2026-07-31",
+    "react": "2026-07-31",
+    "volX": 2.1,
+    "nextVolX": 1.1,
+    "near": [
+     "2026-08-05"
+    ]
+   },
+   {
+    "sym": "NWG.L",
+    "known": "2026-10-30",
+    "react": "2026-10-30",
+    "volX": 2.1,
+    "nextVolX": 1.2,
+    "near": [
+     "2026-10-15"
+    ]
+   },
+   {
+    "sym": "GLEN.L",
+    "known": "2026-02-18",
+    "react": "2026-02-18",
+    "volX": 1,
+    "nextVolX": 0.8,
+    "near": [
+     "2026-02-06"
+    ]
+   },
+   {
+    "sym": "GLEN.L",
+    "known": "2026-08-05",
+    "react": "2026-08-05",
+    "volX": 0.9,
+    "nextVolX": 0.7,
+    "near": [
+     "2026-07-20"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "yahoo (first 60 US)",
+  "n": 63,
+  "hit": 30,
+  "rate": 0.48,
+  "miss": [
+   {
+    "sym": "MMM",
+    "known": "2026-10-20",
+    "react": "2026-10-20",
+    "volX": 2.7,
+    "nextVolX": 1.9,
+    "near": [
+     "2026-11-04"
+    ]
+   },
+   {
+    "sym": "ABBV",
+    "known": "2026-10-30",
+    "react": "2026-10-30",
+    "volX": 1.5,
+    "nextVolX": 1.9,
+    "near": []
+   },
+   {
+    "sym": "AMD",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 1.7,
+    "nextVolX": 2.4,
+    "near": [
+     "2026-11-05"
+    ]
+   },
+   {
+    "sym": "AES",
+    "known": "2026-11-04",
+    "react": "2026-11-04",
+    "volX": 1.6,
+    "nextVolX": 1.4,
+    "near": []
+   },
+   {
+    "sym": "AFL",
+    "known": "2026-11-04",
+    "react": "2026-11-04",
+    "volX": 1.3,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "AKAM",
+    "known": "2026-11-05",
+    "react": "2026-11-05",
+    "volX": 2,
+    "nextVolX": 2.1,
+    "near": [
+     "2026-11-10"
+    ]
+   },
+   {
+    "sym": "ARE",
+    "known": "2026-10-26",
+    "react": "2026-10-26",
+    "volX": 1.5,
+    "nextVolX": 1.8,
+    "near": [
+     "2026-10-28"
+    ]
+   },
+   {
+    "sym": "ALGN",
+    "known": "2026-10-28",
+    "react": "2026-10-28",
+    "volX": 1.4,
+    "nextVolX": 2.2,
+    "near": [
+     "2026-11-09"
+    ]
+   },
+   {
+    "sym": "ALLE",
+    "known": "2026-10-22",
+    "react": "2026-10-22",
+    "volX": 1.8,
+    "nextVolX": 1.5,
+    "near": []
+   },
+   {
+    "sym": "ALL",
+    "known": "2026-11-04",
+    "react": "2026-11-04",
+    "volX": 1,
+    "nextVolX": 1.7,
+    "near": []
+   },
+   {
+    "sym": "AEE",
+    "known": "2026-11-05",
+    "react": "2026-11-05",
+    "volX": 1.7,
+    "nextVolX": 1.7,
+    "near": [
+     "2026-10-07"
+    ]
+   },
+   {
+    "sym": "AEP",
+    "known": "2026-10-28",
+    "react": "2026-10-28",
+    "volX": 1.8,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "AXP",
+    "known": "2026-10-23",
+    "react": "2026-10-23",
+    "volX": 1.4,
+    "nextVolX": 1.2,
+    "near": []
+   },
+   {
+    "sym": "AIG",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 1.4,
+    "nextVolX": 1.3,
+    "near": []
+   },
+   {
+    "sym": "AMT",
+    "known": "2026-10-27",
+    "react": "2026-10-27",
+    "volX": 1.2,
+    "nextVolX": 1.4,
+    "near": [
+     "2026-10-23"
+    ]
+   },
+   {
+    "sym": "AWK",
+    "known": "2026-10-28",
+    "react": "2026-10-28",
+    "volX": 1.1,
+    "nextVolX": 1.3,
+    "near": []
+   },
+   {
+    "sym": "AMP",
+    "known": "2026-10-29",
+    "react": "2026-10-29",
+    "volX": 1.5,
+    "nextVolX": 1.4,
+    "near": []
+   },
+   {
+    "sym": "AMGN",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 0.8,
+    "nextVolX": 1.6,
+    "near": []
+   },
+   {
+    "sym": "AON",
+    "known": "2026-10-28",
+    "react": "2026-10-28",
+    "volX": 1.5,
+    "nextVolX": 1.1,
+    "near": []
+   },
+   {
+    "sym": "APA",
+    "known": "2026-11-04",
+    "react": "2026-11-04",
+    "volX": 1.5,
+    "nextVolX": 1.5,
+    "near": []
+   },
+   {
+    "sym": "AAPL",
+    "known": "2026-11-02",
+    "react": "2026-11-02",
+    "volX": 1.6,
+    "nextVolX": 1.5,
+    "near": [
+     "2026-11-04"
+    ]
+   },
+   {
+    "sym": "APTV",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 1.8,
+    "nextVolX": 1.3,
+    "near": []
+   },
+   {
+    "sym": "ACGL",
+    "known": "2026-10-27",
+    "react": "2026-10-27",
+    "volX": 0.6,
+    "nextVolX": 0.9,
+    "near": []
+   },
+   {
+    "sym": "ARES",
+    "known": "2026-10-29",
+    "react": "2026-10-29",
+    "volX": 1.1,
+    "nextVolX": 1.5,
+    "near": []
+   },
+   {
+    "sym": "T",
+    "known": "2026-10-21",
+    "react": "2026-10-21",
+    "volX": 2.2,
+    "nextVolX": 1.4,
+    "near": [
+     "2026-10-09"
+    ]
+   },
+   {
+    "sym": "ATO",
+    "known": "2026-11-04",
+    "react": "2026-11-04",
+    "volX": 1.4,
+    "nextVolX": 1.4,
+    "near": [
+     "2026-10-08"
+    ]
+   },
+   {
+    "sym": "ADP",
+    "known": "2026-10-28",
+    "react": "2026-10-28",
+    "volX": 1.5,
+    "nextVolX": 1.1,
+    "near": []
+   },
+   {
+    "sym": "AZO",
+    "known": "2026-09-22",
+    "react": "2026-09-22",
+    "volX": 3.3,
+    "nextVolX": 2.6,
+    "near": []
+   },
+   {
+    "sym": "AVY",
+    "known": "2026-10-29",
+    "react": "2026-10-29",
+    "volX": 1.3,
+    "nextVolX": 1.1,
+    "near": []
+   },
+   {
+    "sym": "BALL",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 1.9,
+    "nextVolX": 1.8,
+    "near": [
+     "2026-10-30"
+    ]
+   },
+   {
+    "sym": "TECH",
+    "known": "2026-08-12",
+    "react": "2026-08-12",
+    "volX": 0.4,
+    "nextVolX": 0.4,
+    "near": []
+   },
+   {
+    "sym": "BE",
+    "known": "2026-10-22",
+    "react": "2026-10-22",
+    "volX": 1.6,
+    "nextVolX": 2.5,
+    "near": [
+     "2026-11-05"
+    ]
+   },
+   {
+    "sym": "BKNG",
+    "known": "2026-11-03",
+    "react": "2026-11-03",
+    "volX": 1.8,
+    "nextVolX": 1.9,
+    "near": []
+   }
+  ]
+ }
+]
