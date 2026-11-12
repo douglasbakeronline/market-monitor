@@ -66,6 +66,8 @@ test("alert: once when a name enters the week, again the day before, never twice
   assert.match(eve.alert.title, /^Results ahead: HSBA tomorrow$/);
   assert.match(eve.alert.body, /Also this week: SPCX Wed 18 Nov/);
   assert.equal(resultsAlert(preview, eve.sent, "2026-11-16").alert, null);
+  // Results day itself is never pushed.
+  assert.equal(resultsAlert({ days: 7, focus: [{ symbol: "B", ticker: "B", date: "2026-11-12", typical: null, moves: [] }] }, {}, "2026-11-12").alert, null);
   // Past keys are dropped.
   assert.deepEqual(Object.keys(resultsAlert(preview, eve.sent, "2026-11-19").sent), []);
 });
