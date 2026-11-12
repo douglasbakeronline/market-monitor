@@ -192,6 +192,7 @@ import { costR } from "./src/swingRetune.js";
 import { labVerdict, DRIFT, summariseDrift } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
+import { crowdingNote, movesWith, CROWD } from "./src/crowding.js";
 let SELL = null;
 fetch("data/sell-study.json").then((r) => (r.ok ? r.json() : null)).then((j) => { SELL = j; }).catch(() => {});
 const PICKS = new Set(PLAN.picks.map((p) => p.symbol)), BENCH = new Set(PLAN.bench);
@@ -351,6 +352,8 @@ function detailHtml(it) {
   const bf = BUFF[it.symbol];
   const bfn = bf ? `<div class="note ${bf.tone === "good" ? "good" : "peer"}"><b>Buffett lens</b> (display only, not in the score): ${esc(bf.note)}${bf.checks?.length ? `<span class="bf-checks">${bf.checks.map((c) => `<span class="bf-c ${c.ok === true ? "ok" : c.ok === false ? "no" : "na"}">${c.ok === true ? "\u2713" : c.ok === false ? "\u2717" : "\u2013"} ${esc(c.label)}: ${esc(c.value)}</span>`).join("")}</span>` : ""}</div>` : "";
   const smn = it.smartMoney?.note ? `<div class="note peer"><b>Smart money</b> (tie-breaker, not in the score): ${esc(it.smartMoney.note)}</div>` : "";
+  const mw = movesWith(it, st.data?.items);
+  const mwn = mw.length ? `<div class="note peer"><b>Moves with</b> (daily returns over the last ${CROWD.window} sessions; 1 means in step): ${mw.map((m) => `${esc(m.symbol)} ${m.corr.toFixed(2)}${m.verdict === "Good entry" ? " (Good entry)" : ""}`).join(", ")}. Holding several of these is closer to one bigger bet than to separate ones.</div>` : "";
   const full = fullOf(it);
   const quick = st.source === "scan" && !it.deep ? `<div class="note">Quick score: this company was scored on value, entry and analyst rating only. Full quality data is fetched for the top ~100 candidates each night.${full ? ` <b>Your list scores it in full: ${full.longTerm.score} (${esc(full.longTerm.verdict)}).</b> The pick check uses the full score.` : ""}</div>` : "";
   const eu = it.market === "EU" ? `<div class="note peer">Euro Stoxx 50 share, priced in euros. On Trading 212 euro shares carry the 0.15% FX fee each way, like US ones; check it is available there before buying. Scored like the rest, but not swing paper-traded (the backtests cover US and UK only).</div>` : "";
@@ -360,7 +363,7 @@ function detailHtml(it) {
   const rsn = rc?.label ? `<div class="note ${rc.tone === "watch" ? "bad" : rc.tone === "good" ? "good" : "peer"}"><b>Last results</b> (${esc(fmtDM(rc.date))}): ${esc(rc.label)}.${rc.note ? ` ${esc(rc.note)}` : ""}${esc(recTxt)}</div>` : recTxt ? `<div class="note peer"><b>Results record</b>:${esc(recTxt)}</div>` : "";
   const dcf = (st.cache["scan.json"]?.dataChecks?.flags ?? []).filter((f) => f.symbol === it.symbol);
   const dcn = dcf.length ? `<div class="note bad"><b>Data check</b>: ${dcf.map((f) => `${esc(f.label)}: ${esc(f.detail)}`).join("; ")}. Check the figure on Trading 212 or Yahoo before acting on it.</div>` : "";
-  return `<p class="summary">${esc(it.summary)}</p>${dcn}${quick}${eu}${results}${rsn}${notes}${exn}${peer}${bfn}${rcn}${smn}${stopn}
+  return `<p class="summary">${esc(it.summary)}</p>${dcn}${quick}${eu}${results}${rsn}${notes}${exn}${peer}${bfn}${rcn}${smn}${mwn}${stopn}
   <div class="cols">
     <div class="panel"><h3><span>Long-term breakdown</span><span>${lt.coverage}% data</span></h3>${pillars}</div>
     <div>
@@ -443,6 +446,8 @@ async function load() {
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
     if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${dataChecksHtml(D)}</div>`);
+    const crowd = crowdingNote(D.items);
+    if (crowd) b.push(`<div class="banner warn crowd"><b>Fewer ideas than it looks.</b> ${esc(crowd.text)} Display only; the scores are unchanged.</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
     $("banners").innerHTML = b.join("");
     const sectors = [...new Set(D.items.map((i) => i.sector).filter(Boolean))].sort();
