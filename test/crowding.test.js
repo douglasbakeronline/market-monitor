@@ -99,3 +99,14 @@ test("planOverlap: pick pairs once, bench against picks only, picks first", () =
   assert.match(n, /Bench names that move with a pick: B3 with P/);
   assert.equal(planOverlapNote([]), null);
 });
+
+test("crowdingDigestLine: one Sunday line when good entries move together, null otherwise", async () => {
+  const { crowdingDigestLine } = await import("../src/crowding.js");
+  const shock = noise(60, 0.03);
+  const crowded = ["NVDA", "SNDK", "MU"].map((s) => item(s, mix(shock, noise(60), 0.85)));
+  const apart = ["KO", "PG"].map((s) => item(s, noise(60), { sector: "Staples" }));
+  const line = crowdingDigestLine({ items: [...crowded, ...apart] });
+  assert.match(line, /^Good entries: 5, about three separate ideas\. Moving together: NVDA, SNDK, MU \(all Tech\)\.$/);
+  assert.equal(crowdingDigestLine({ items: apart }), null);
+  assert.equal(crowdingDigestLine(null), null);
+});
