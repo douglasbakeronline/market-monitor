@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T14:41:15.908Z",
+  "updated": "2026-11-12T14:58:54.113Z",
   "items": {
     "NVDA": {
       "quarter": "2026-07-31",
@@ -21,19 +21,19 @@
       },
       "moves": {
         "n": 4,
-        "typical": 4.3,
+        "typical": 4.4,
         "moves": [
           {
-            "date": "2025-11-21",
-            "pct": -1
+            "date": "2025-11-20",
+            "pct": -3.2
           },
           {
             "date": "2026-02-26",
             "pct": -5.5
           },
           {
-            "date": "2026-06-18",
-            "pct": 3
+            "date": "2026-05-21",
+            "pct": -1.8
           },
           {
             "date": "2026-08-27",
@@ -250,6 +250,51 @@
       "note": null,
       "tone": "neutral"
     },
+    "META": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-22",
+      "actual": 3.83,
+      "estimate": 5.41956,
+      "surprisePct": -29.3,
+      "reaction": -7,
+      "record": {
+        "beats": 2,
+        "of": 4,
+        "avgSurprise": 5.3,
+        "next": {
+          "date": "2027-01-27",
+          "epsEstimate": 8.71875,
+          "epsLow": 8.23,
+          "epsHigh": 9.65
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 8.3,
+        "moves": [
+          {
+            "date": "2026-01-29",
+            "pct": 10.4
+          },
+          {
+            "date": "2026-04-30",
+            "pct": -8.6
+          },
+          {
+            "date": "2026-07-30",
+            "pct": -8
+          },
+          {
+            "date": "2026-10-22",
+            "pct": -7
+          }
+        ]
+      },
+      "fifth": "bottom",
+      "label": "EPS missed the forecast by 29.3% (bottom fifth); the price fell 7.0% on the day",
+      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule). A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
+      "tone": "watch"
+    },
     "NEM": {
       "quarter": "2026-09-30",
       "date": "2026-10-22",
@@ -339,51 +384,6 @@
       "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
       "note": null,
       "tone": "neutral"
-    },
-    "META": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-22",
-      "actual": 3.83,
-      "estimate": 5.41956,
-      "surprisePct": -29.3,
-      "reaction": -7,
-      "record": {
-        "beats": 2,
-        "of": 4,
-        "avgSurprise": 5.3,
-        "next": {
-          "date": "2027-01-27",
-          "epsEstimate": 8.71875,
-          "epsLow": 8.23,
-          "epsHigh": 9.65
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 8.3,
-        "moves": [
-          {
-            "date": "2026-01-29",
-            "pct": 10.4
-          },
-          {
-            "date": "2026-04-30",
-            "pct": -8.6
-          },
-          {
-            "date": "2026-07-30",
-            "pct": -8
-          },
-          {
-            "date": "2026-10-22",
-            "pct": -7
-          }
-        ]
-      },
-      "fifth": "bottom",
-      "label": "EPS missed the forecast by 29.3% (bottom fifth); the price fell 7.0% on the day",
-      "note": "Weak results and a falling price: over the past year this group did −3.6 points against the S&P 500 over the next 60 sessions, vs +0.5 for other falls (one year of data, so a pointer, not a rule). A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
-      "tone": "watch"
     },
     "HSBA.L": {
       "quarter": "2026-09-30",

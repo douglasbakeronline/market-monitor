@@ -17,7 +17,7 @@ import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, rei
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
 import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLab.js";
-import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays } from "./src/surpriseStudy.js";
+import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays, timedReactionDays, dateDisagreements } from "./src/surpriseStudy.js";
 import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
@@ -92,7 +92,7 @@ async function main() {
   console.log(`Stage 1: ${items.length} scored, ${failed.length} failed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
   // Results timestamps from the quotes, and a cache of timed results history
   // shared by the pot ranking, the results check and the preview (12 Nov).
-  const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null])), hists = new Map();
+  const quoteAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
 
   // Value against sector peers (live since 10 Nov): medians from the quick data
   // pick the stage 2 candidates; they are recomputed after stage 2 below.
@@ -414,6 +414,8 @@ async function main() {
     await writeJson("history/plan-book.json", pb, true);
     console.log(`Plan book (paper): ${planSummary(pb).map((x) => `${x.key} ${x.returnPct ?? "not started"}`).join(", ")}.`);
   } catch (e) { console.warn(`Plan book failed: ${e.message}`); }
+  // Timed results history per symbol, fetched once for the results check and the preview.
+  const timedHist = new Map();
   // Research list, picks and bench: the results preview's focus names.
   const focusSet = new Set([...((await readJson("research-list.json", {}))?.stocks ?? []).map((x) => x.symbol), ...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
   // Results check (swing lab round 4): the latest EPS surprise and the day's
@@ -424,21 +426,28 @@ async function main() {
     // Plus research-list names reporting in the next week (results preview, 12 Nov).
     const soon = out.filter((i) => focusSet.has(i.symbol) && i.earnings?.days != null && i.earnings.days >= 0 && i.earnings.days <= 7).map((i) => i.symbol);
     const want = new Set([...PLAN.picks.map((p) => p.symbol), ...PLAN.bench, ...driftToday_.filter((x) => x.results).map((x) => x.symbol), ...soon]);
-    let n = 0, tagged = 0;
+    let n = 0, tagged = 0, timedUsed = 0; const disagree = [];
     for (const it of out) {
       if (!want.has(it.symbol)) continue;
       try {
         const rd = await fetchResultsData(it.symbol), h = rd.history.at(-1), rows = rowsBySymbol[it.symbol];
         if (!h || !rows?.length) continue;
-        // Real, timed results dates (12 Nov): the busiest-day guess below was
-        // right only 36 to 43% of the time, so it is the fallback only.
-        const th = await timedHistory(it.symbol, { quoteAt, resultsHist, today });
-        hists.set(it.symbol, th);
-        const exact = reactionDays(rows, knownDates?.dates?.[it.symbol], (knownDates?.afterClose ?? []).includes(it.symbol));
-        const pastTh = th.filter((e) => e.date <= rows.at(-1).date);
         // How far results days usually move it (all names, REITs included).
-        const moves = (pastTh.length ? typicalMove(rows, [...pastTh, ...exact.filter((x) => !pastTh.some((e) => Math.abs(Date.parse(e.date) - Date.parse(x)) <= 4 * 864e5)).map((x) => ({ date: x, after: false }))]) : null)
-          ?? resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
+        // Hand-kept days first, then Yahoo's timed dates (12 Nov: in place of
+        // the busiest-day guess, which was right only 36 to 43% of the time).
+        if (!timedHist.has(it.symbol)) {
+          try { timedHist.set(it.symbol, await fetchResultsHistory(it.symbol, { size: 12 })); } catch { timedHist.set(it.symbol, []); }
+          await sleep(150);
+        }
+        const hand = reactionDays(rows, knownDates?.dates?.[it.symbol], (knownDates?.afterClose ?? []).includes(it.symbol));
+        const timed = timedReactionDays(rows, timedHist.get(it.symbol), /\.L$/.test(it.symbol) ? false : null);
+        const exact = [...hand, ...timed.filter((d) => !hand.includes(d))];
+        if (timed.length) timedUsed++;
+        for (const d of dateDisagreements(hand, timed)) disagree.push(`${it.ticker ?? it.symbol} (hand ${d.hand}, Yahoo ${d.yahoo})`);
+        const moves = resultsMoves(rows, rd.history, it.lastEarnings, resultsHist[it.symbol] ?? [], exact);
+        // The reaction day from the timed dates too (12 Nov platform review: the
+        // busiest-day guess put Newmont's 22 Oct after-close results on 22 Oct).
+        const pastTh = (timedHist.get(it.symbol) ?? []).filter((e) => e.date <= rows.at(-1).date);
         // Yahoo's REIT forecasts mix FFO with earnings per share, so REITs get the moves only.
         if (/REIT|Real Estate/i.test(it.sector || "")) { if (moves) it.resultsCheck = { moves }; continue; }
         const record = resultsRecord(rd.history, rd.next);
@@ -455,7 +464,7 @@ async function main() {
     }
     if (tagged && marketsClosed()) await writeJson("history/swing-lab.json", drift, true);
     await writeJson("data/results-check.json", { updated: new Date().toISOString(), items: Object.fromEntries(out.filter((i) => i.resultsCheck).map((i) => [i.symbol, i.resultsCheck])) }, true);
-    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged.`);
+    console.log(`Results check: ${n} of ${want.size} with a recent EPS surprise; ${tagged} live events tagged; ${timedUsed} with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: ${disagree.join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results check failed: ${e.message}`); }
   // Results preview (12 Nov; src/resultsPreview.js): who reports in the next
   // week and how far results days usually move them. Display and heads-up only.
@@ -468,8 +477,8 @@ async function main() {
     for (const { it } of previewCandidates(out, { today, focus: focusSet, held })) toFetch.set(it.symbol, it);
     for (const it of recentCandidates(out, { today, focus: focusSet, dates: resultsHist })) toFetch.set(it.symbol, it);
     for (const sym of toFetch.keys()) {
-      reported[sym] = hists.get(sym) ?? await timedHistory(sym, { quoteAt, resultsHist, today });
-      if (!hists.has(sym)) await sleep(150);
+      reported[sym] = await timedHistory(sym, { quoteAt, resultsHist, today, cached: timedHist.get(sym) });
+      if (!timedHist.has(sym)) await sleep(150);
     }
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
     resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet });
@@ -551,9 +560,9 @@ main().catch((e) => { console.error("Scan failed:", e); process.exit(1); });
 // quote's own results time (the history lags a day or two) and, for London
 // names, stored dates (RNS before the open). Used by the short-term pot's
 // drift ranking, the results check and the results preview (12 Nov).
-async function timedHistory(sym, { quoteAt = new Map(), resultsHist = {}, today } = {}) {
-  let h = [];
-  try { h = await fetchResultsHistory(sym, { size: 12 }); } catch { h = []; }
+async function timedHistory(sym, { quoteAt = new Map(), resultsHist = {}, today, cached = null } = {}) {
+  let h = cached ? [...cached] : [];
+  if (!cached) { try { h = await fetchResultsHistory(sym, { size: 12 }); } catch { h = []; } }
   const at = quoteAt.get(sym), extra = at ? reportedSessions([at], sym) : [];
   if (/\.L$/.test(sym)) for (const d of resultsHist[sym] ?? []) if (!today || d <= today) extra.push({ date: d, after: false });
   for (const e of extra) if (!h.some((x) => x.date === e.date)) h.push(e);
