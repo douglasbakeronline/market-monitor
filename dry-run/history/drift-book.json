@@ -1,0 +1,73 @@
+{
+  "updated": "2026-11-12T11:58:19.332Z",
+  "start": "2026-11-11",
+  "equity0": 10000,
+  "realised": 10000,
+  "value": 10073.5,
+  "returnPct": 0.73,
+  "open": [
+    {
+      "id": "2026-11-10:TTWO",
+      "symbol": "TTWO",
+      "ticker": "TTWO",
+      "name": "Take-Two Interactive Software, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 227.49000549316406,
+      "movePct": 8.3,
+      "volX": 3.1,
+      "results": true,
+      "pos": 2500,
+      "sessions": 1,
+      "openPct": 1.38,
+      "openPnl": 34.5
+    },
+    {
+      "id": "2026-11-10:AKAM",
+      "symbol": "AKAM",
+      "ticker": "AKAM",
+      "name": "Akamai Technologies, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 85.0999984741211,
+      "movePct": 4.3,
+      "volX": 4.2,
+      "results": false,
+      "pos": 2500,
+      "sessions": 1,
+      "openPct": 1.56,
+      "openPnl": 39
+    }
+  ],
+  "orders": [],
+  "waiting": 0,
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "rules": {
+    "equity0": 10000,
+    "maxOpen": 4
+  },
+  "paused": false,
+  "sp": {
+    "from": "2026-11-10",
+    "to": "2026-11-11",
+    "pct": 1.31
+  },
+  "spSeries": [
+    {
+      "date": "2026-11-11",
+      "pct": 1.31
+    }
+  ],
+  "random": {
+    "runs": 200,
+    "mine": 0.73,
+    "median": 0.73,
+    "p10": 0.73,
+    "p90": 0.73,
+    "beatShare": 0
+  }
+}
