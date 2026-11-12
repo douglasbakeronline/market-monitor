@@ -109,3 +109,12 @@ test("evening push: a pushed list is not pushed again; a rerun keeps the mark on
   assert.equal(carryPushed(null, st), st);
   assert.notEqual(shortActionKey(st), shortActionKey(changed));
 });
+
+test("drift: a scheduled results date counts as a results day; the surprise rides into the log and the push", () => {
+  const r = rows({ jump: 0.06, lastVol: 5e6 }), last = r.at(-1).date;
+  const items = [{ symbol: "C", ticker: "C", name: "C", market: "UK", index: "FTSE 100", earnings: { date: last, days: 0 }, lastEarnings: null }];
+  const t = shortTermToday(items, { C: r });
+  assert.equal(t.drift[0].results, true);
+  const log = addShort([], [{ ...t.drift[0], surprisePct: 12.5 }]);
+  assert.equal(log[0].surprisePct, 12.5);
+});

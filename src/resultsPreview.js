@@ -187,3 +187,14 @@ export function resultsAlert(preview, sent = {}, today) {
   if (potNames.length) body.push(`${potNames.join(", ")}: a close up 4%+ on 3× normal volume would make ${potNames.length > 1 ? "any of them" : "it"} a short-term pot buy, pushed that evening.`);
   return { alert: { kind: "results", priority: "default", tags: "spiral_calendar", title, body: body.join("\n") }, sent: next };
 }
+
+// The EPS surprise of the results whose reaction session is `date` (a drift
+// signal's day), from timed history; null if none matches or no forecast.
+// Used to rank the short-term pot's drift signals (12 Nov).
+export function surpriseOn(rows = [], hist = [], date) {
+  for (const e of hist ?? []) {
+    const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date));
+    if (i >= 0 && rows[i].date === date) return e.surprisePct ?? null;
+  }
+  return null;
+}

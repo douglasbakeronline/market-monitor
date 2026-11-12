@@ -39,7 +39,7 @@ import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
 import { shortPot } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
-import { resultsPreview, previewCandidates, recentCandidates, justReported } from "./src/resultsPreview.js";
+import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn } from "./src/resultsPreview.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
@@ -292,6 +292,18 @@ async function main() {
       let sl = await readJson("history/short-signals.json", []);
       sl = sl.map((t) => updateShort(t, rowsBySymbol[t.symbol], idx[t.market]));
       const today = shortTermToday(out.filter((i) => i.index === "S&P 500" || i.index === "FTSE 100"), rowsBySymbol);
+      // EPS surprise for results-day drift signals: the pot ranks scarce slots
+      // by it (12 Nov, after swing lab round 6). Never blocks a signal.
+      const qAt = new Map(items.map((i) => [i.u.symbol, i.f?.earningsAt ?? null]));
+      for (const s of today.drift.filter((x) => x.results)) {
+        try {
+          const h = await fetchResultsHistory(s.symbol, { size: 12 });
+          const at = qAt.get(s.symbol);
+          if (at) for (const e of reportedSessions([at], s.symbol)) if (!h.some((x) => x.date === e.date)) h.push(e);
+          s.surprisePct = surpriseOn(rowsBySymbol[s.symbol], h, s.date);
+        } catch { s.surprisePct = null; }
+        await sleep(150);
+      }
       sl = addShort(sl, [...today.drift, ...today.bounce]).slice(-2000);
       await writeJson("history/short-signals.json", sl, true);
       const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;

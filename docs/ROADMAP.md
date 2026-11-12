@@ -20,7 +20,6 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - **Dip reserve and the proposed 2027 cash-interest charge (research log 10 Nov):** if the 22% charge on interest from cash in a stocks and shares ISA goes ahead from 6 Apr 2027, should the reserve sit in a money market fund inside the ISA instead of cash? Check the final rules and Trading 212's options first (Claude can research this in early 2027).
 - **Skip takeover targets in the short-term pot? (11 Nov)** A results-drift signal can be a takeover bid (a 4%+ jump on heavy volume), which the backtest never saw because bought-out companies leave the index; the price then sits near the offer. Since 11 Nov evening, drift jumps of 12%+ carry a "check the news" note. Proposal: the pot skips a drift signal when an agreed or recommended cash offer was announced that day (Claude cannot see news from the runners, so Douglas would decide on the note). OK?
 - **Judge the short-term setups on clear evidence, not a coin toss? (12 Nov)** At 30 closed trades, a setup with exactly the backtest's edge still trails random entry about 40% of the time (research log 12 Nov), so the agreed review would often drop a working setup. Proposal: at 30, drop a setup only if it is clearly behind random entry (the top of its 90% range below random) or if it still trails at 100 trades; the 25% pause stays the safety net. The Dashboard already shows each setup's review line. OK?
-- **Rank drift slots by the EPS beat? (12 Nov afternoon)** When the pot has more drift signals than free slots, take the biggest EPS beat first (today: results days first, then volume). Round 6: among 4%+ results jumps, a 5%+ beat earned +0.79 over random holds against +0.15 without; it did not clear the bar on its own (6 of 10 years), so this only decides who gets a scarce slot. OK?
 - **Exclude Burberry from the short-term pot? (12 Nov, private reason, asked in chat)** Douglas to confirm whether he can trade it; if not, add BRBY.L to a pot skip list (not built yet).
 - Delete leftover branches `probe`, `lab-runup` and `dryrun-results` (Claude cannot force-push or delete; `dryrun` is reused for testing; keep it).
 
@@ -59,6 +58,7 @@ In progress (12 Nov 14:50): picks' "Last results" moves on Yahoo's timed dates (
 
 ## Done (recent)
 - 12 Nov (midday): good entries that move together (Research banner and "Moves with" line) and picks and bench overlap (Picks & bench filter); display only.
+- 12 Nov (late afternoon): the pot ranks scarce drift slots by the EPS beat (Douglas: "you decide"); drift signals carry `surprisePct`; a scheduled results date now counts as a results day.
 - 12 Nov (afternoon): Results ahead gains Just reported, beat record and pot holdings; swing lab round 6 (results jumps with an EPS beat) fails narrowly, slot-ranking proposal.
 - 12 Nov (midday): results preview (card and push, usual results-day move from Yahoo's timed dates); swing lab round 5 (run-up into results) fails.
 - 12 Nov (daily run): short-term pot review line per setup (live average with its 90% range against random entry; odds that a working setup trails at 30 trades).
