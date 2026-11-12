@@ -445,7 +445,7 @@ async function main() {
   // week and how far results days usually move them. Display and heads-up only.
   let resultsAhead = null;
   try {
-    resultsAhead = resultsPreview(out, { today, focus: focusSet, rowsBySymbol, dates: resultsHist });
+    resultsAhead = resultsPreview(out, { today, focus: focusSet, rowsBySymbol, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
     console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names.`);
   } catch (e) { console.warn(`Results preview failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };

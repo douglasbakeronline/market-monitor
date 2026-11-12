@@ -17,30 +17,39 @@ const bars = (n, jumps = {}, spikes = {}) => {
   return out;
 };
 
-test("usual move: known dates first (busier of that day and the next), else volume-found days", () => {
-  // Known 2026-02-05 (index 66, after-close: busier next day 67); volume-found
-  // spikes in May and Aug; the Feb volume spike at 67 is not counted twice.
-  const rows = bars(240, { 67: -8, 130: 3, 196: -5 }, { 67: 5, 130: 4, 196: 6 });
-  const m = typicalMove(rows, [rows[66].date]);
-  assert.equal(m.n, 3);
-  assert.deepEqual(m.moves.map((x) => x.pct), [-8, 3, -5]);
-  assert.equal(m.typical, 5);
+test("usual move: real dates only, the bigger move of that day and the next, after-close names the next day", () => {
+  const rows = bars(240, { 66: 1, 67: -8, 130: 3, 196: -5, 197: 1 }, { 150: 9 });
+  // 66 then 67: the bigger move (67) is the reaction; 130 on the day; the
+  // volume spike at 150 has no date and is ignored.
+  const m = typicalMove(rows, [rows[66].date, rows[130].date, "2027-01-01"]);
+  assert.deepEqual(m.moves.map((x) => x.pct), [-8, 3]);
+  assert.equal(m.typical, 5.5);
+  // Known after-close reporter: always the next session.
+  assert.deepEqual(typicalMove(rows, [rows[196].date], true).moves.map((x) => x.pct), [1]);
+  assert.equal(typicalMove(rows, []), null);
 });
 
 test("preview: list names in the next 7 days, plus pot-universe names, biggest usual movers first", () => {
+  const rows = bars(240, { 100: -6, 160: 7, 120: 2 });
   const items = [
-    { symbol: "BRBY.L", ticker: "BRBY", name: "Burberry", index: "FTSE 100", market: "UK", earnings: { date: "2026-11-13" }, resultsCheck: { moves: { typical: 6.1, moves: [{ pct: 5 }, { pct: -7 }] } } },
+    { symbol: "BRBY.L", ticker: "BRBY", name: "Burberry", index: "FTSE 100", market: "UK", earnings: { date: "2026-11-13" } },
     { symbol: "MSFT", ticker: "MSFT", name: "Microsoft", index: "S&P 500", market: "US", earnings: { date: "2026-11-30" } },
-    { symbol: "NVDA", ticker: "NVDA", name: "Nvidia", index: "S&P 500", market: "US", earnings: { date: "2026-11-17" }, resultsCheck: { moves: { typical: 4, moves: [] } } },
-    { symbol: "CSCO", ticker: "CSCO", name: "Cisco", index: "S&P 500", market: "US", earnings: { date: "2026-11-12" }, resultsCheck: { moves: { typical: 7, moves: [] } } },
+    { symbol: "NVDA", ticker: "NVDA", name: "Nvidia", index: "S&P 500", market: "US", earnings: { date: "2026-11-17" } },
+    { symbol: "CSCO", ticker: "CSCO", name: "Cisco", index: "S&P 500", market: "US", earnings: { date: "2026-11-12" } },
+    { symbol: "KO", ticker: "KO", name: "Coca-Cola", index: "S&P 500", market: "US", earnings: { date: "2026-11-16" } },
     { symbol: "X.L", ticker: "X", name: "Est", index: "FTSE 100", market: "UK", resultsEstimate: { date: "2026-11-14", stale: false } },
     { symbol: "Y", ticker: "Y", name: "Old", index: "S&P 500", market: "US", earnings: { date: "2026-11-10" } },
   ];
-  const p = resultsPreview(items, { today: "2026-11-12", focus: new Set(["BRBY.L", "MSFT", "NVDA"]) });
+  const by = Object.fromEntries(items.map((i) => [i.symbol, rows]));
+  const dates = { BRBY: [], "BRBY.L": [rows[100].date, rows[160].date, "2026-11-13"], CSCO: [rows[120].date], KO: [rows[160].date] };
+  const p = resultsPreview(items, { today: "2026-11-12", focus: new Set(["BRBY.L", "MSFT", "NVDA"]), rowsBySymbol: by, dates });
   assert.deepEqual(p.focus.map((r) => r.ticker), ["BRBY", "NVDA"]); // MSFT too far, sorted by date
-  assert.deepEqual(p.watch.map((r) => r.ticker), ["CSCO"]); // estimated and past dates left out
+  assert.equal(p.focus[0].typical, 6.5);
   assert.equal(p.focus[0].days, 1);
   assert.equal(p.focus[0].pot, true);
+  assert.equal(p.focus[1].typical, null);
+  assert.deepEqual(p.watch.map((r) => r.ticker), ["KO", "CSCO"]); // biggest first; estimated and past dates left out
+  assert.equal(p.potCount, 2);
 });
 
 test("alert: once when a name enters the week, again the day before, never twice", () => {

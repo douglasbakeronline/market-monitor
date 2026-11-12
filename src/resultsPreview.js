@@ -9,30 +9,29 @@
 //     universe), biggest usual movers first.
 //   - resultsAlert(): the morning push (kind "results"), once when a focus name
 //     enters the window and again the day before it reports.
-import { findResultsDays } from "./runupStudy.js";
-
 export const PREVIEW = { days: 7, watchMax: 8, keep: 4 };
 const POT_INDEX = new Set(["S&P 500", "FTSE 100"]);
 const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
 
 // Usual results-day move from about a year of daily bars: the close-to-close
-// move on each results reaction day (last 4), and the median of their sizes.
-// Known dates (history/results-dates.json) come first, taking that session or
-// the next, whichever traded more (after-close reporters react the next day);
-// otherwise the volume-found days (src/runupStudy.js, 2x normal volume).
-export function typicalMove(rows = [], known = []) {
-  if (!rows?.length || rows.length < 60) return null;
+// move on each real results date (history/results-dates.json, which also holds
+// the hand-checked dates), last 4, and the median of their sizes. Known
+// after-close reporters react the next session; otherwise the bigger move of
+// that session and the next (a slight upward lean, the safe side for a risk
+// guide). Real dates only: on 12 Nov the busiest-day guess matched only 36% of
+// hand-checked dates (large caps often trade under 2x their normal volume on
+// results), so it is not used here (research log 12 Nov).
+export function typicalMove(rows = [], known = [], afterClose = false) {
+  if (!rows?.length || rows.length < 2) return null;
+  const mv = (i) => rows[i].close / rows[i - 1].close - 1;
   const days = new Set();
   for (const k of known ?? []) {
-    const i = rows.findIndex((r) => r.date >= k);
+    const i = rows.findIndex((r) => (afterClose ? r.date > k : r.date >= k));
     if (i < 1) continue;
-    days.add(rows[i + 1] && (rows[i + 1].volume || 0) > (rows[i].volume || 0) ? i + 1 : i);
+    days.add(afterClose || !rows[i + 1] || Math.abs(mv(i)) >= Math.abs(mv(i + 1)) ? i : i + 1);
   }
-  // Volume-found days not within 10 sessions of a known one.
-  for (const i of findResultsDays(rows)) if (![...days].some((d) => Math.abs(d - i) <= 10)) days.add(i);
-  const moves = [...days].filter((i) => i >= 1 && i < rows.length).sort((a, b) => a - b).slice(-PREVIEW.keep)
-    .map((i) => ({ date: rows[i].date, pct: Math.round((rows[i].close / rows[i - 1].close - 1) * 1000) / 10 }));
-  if (moves.length < 2) return null;
+  const moves = [...days].sort((a, b) => a - b).slice(-PREVIEW.keep).map((i) => ({ date: rows[i].date, pct: Math.round(mv(i) * 1000) / 10 }));
+  if (!moves.length) return null;
   const abs = moves.map((m) => Math.abs(m.pct)).sort((a, b) => a - b), h = abs.length / 2;
   const typical = abs.length % 2 ? abs[Math.floor(h)] : (abs[h - 1] + abs[h]) / 2;
   return { n: moves.length, typical: Math.round(typical * 10) / 10, moves };
@@ -49,7 +48,7 @@ function nextDate(it) {
 
 // items: the scan's output items. focus: Set of symbols (research list, picks,
 // bench). rowsBySymbol: daily bars. dates: history/results-dates.json.
-export function resultsPreview(items = [], { today, focus = new Set(), rowsBySymbol = {}, dates = {}, days = PREVIEW.days } = {}) {
+export function resultsPreview(items = [], { today, focus = new Set(), rowsBySymbol = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
   const rows = [];
   for (const it of items) {
     const nd = nextDate(it);
@@ -59,7 +58,7 @@ export function resultsPreview(items = [], { today, focus = new Set(), rowsBySym
     const isFocus = focus.has(it.symbol), pot = POT_INDEX.has(it.index);
     if (!isFocus && (!pot || nd.estimated)) continue;
     const past = (dates[it.symbol] ?? []).filter((d) => d < today);
-    const moves = it.resultsCheck?.moves ?? typicalMove(rowsBySymbol[it.symbol], past);
+    const moves = typicalMove(rowsBySymbol[it.symbol], past, afterClose.has(it.symbol));
     const rc = it.resultsCheck;
     rows.push({
       symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, index: it.index,
@@ -89,7 +88,9 @@ const sp = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%
 // One line per company, plain enough for a phone.
 export function previewLine(r, today) {
   const when = `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
-  const usual = r.typical != null ? `usually moves ±${r.typical.toFixed(1)}% on results (last ${r.moves.length}: ${r.moves.map((m) => sp(m.pct)).join(", ")})` : "no usual move yet (too few past results in the data)";
+  const usual = r.typical == null ? "no past results day in the data yet"
+    : r.moves.length === 1 ? `moved ${sp(r.moves[0].pct)} on its last results day (the only one on record so far)`
+    : `usually moves ±${r.typical.toFixed(1)}% on results (last ${r.moves.length}: ${r.moves.map((m) => sp(m.pct)).join(", ")})`;
   const last = r.last ? `; last time EPS ${sp(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sp(r.last.reaction)} on the day` : ""}` : "";
   return `${r.ticker} ${when}: ${usual}${last}.`;
 }
