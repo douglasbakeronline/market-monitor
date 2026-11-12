@@ -456,7 +456,11 @@ async function main() {
       try { reported[sym] = await fetchResultsHistory(sym, { size: 12 }); } catch { reported[sym] = []; }
       // Yahoo's history lags a day or two: add the quote's own results time.
       const at = quoteAt.get(sym);
-      if (at) for (const e of reportedSessions([at], sym)) if (!reported[sym].some((x) => x.date === e.date)) reported[sym] = [...reported[sym], e].sort((a, b) => (a.date < b.date ? -1 : 1));
+      const extra = at ? reportedSessions([at], sym) : [];
+      // London results come out by RNS before the open (07:00), so a stored
+      // London date is safe to read as that session.
+      if (/\.L$/.test(sym)) for (const d of resultsHist[sym] ?? []) if (d <= today) extra.push({ date: d, after: false });
+      for (const e of extra) if (!reported[sym].some((x) => x.date === e.date)) reported[sym] = [...reported[sym], e].sort((a, b) => (a.date < b.date ? -1 : 1));
       await sleep(150);
     }
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
