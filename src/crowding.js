@@ -131,3 +131,31 @@ export function crowdingNote(items, opts = {}) {
     text: `${inGroups} of the ${good.length} good entries move together over the last ${window} sessions: ${parts.join("; ")}. They tend to rise and fall together, so count each group as one idea: about ${word(ideas)} separate idea${ideas === 1 ? "" : "s"}, not ${word(good.length)}.`,
   };
 }
+
+// Picks and bench that move with a pick (display only). The plan wants picks in
+// different sectors and replacements from sectors the pot doesn't own; a bench
+// name that moves with a pick would add to a bet the pot already holds.
+export function planOverlap(items, picks = [], bench = [], opts = {}) {
+  const { link = CROWD.link } = opts;
+  const by = new Map((items || []).map((it) => [it.symbol, it]));
+  const P = picks.filter((s) => by.has(s)), B = bench.filter((s) => by.has(s));
+  const out = [];
+  for (const p of P) {
+    for (const m of movesWith(by.get(p), [...P, ...B].map((s) => by.get(s)), { ...opts, link, max: 10 })) {
+      const pick = P.includes(m.symbol);
+      if (pick && m.symbol < p) continue; // each pick pair once
+      out.push(pick ? { a: p, b: m.symbol, corr: m.corr, pick } : { a: m.symbol, b: p, corr: m.corr, pick });
+    }
+  }
+  return out.sort((x, y) => Number(y.pick) - Number(x.pick) || y.corr - x.corr);
+}
+
+export function planOverlapNote(pairs) {
+  if (!pairs?.length) return null;
+  const fmt = (x) => `${x.a} with ${x.b} (${x.corr.toFixed(2)})`;
+  const pk = pairs.filter((x) => x.pick), bn = pairs.filter((x) => !x.pick);
+  const s = [];
+  if (pk.length) s.push(`Picks that move together: ${pk.map(fmt).join(", ")}; the pot is less spread than five names suggest.`);
+  if (bn.length) s.push(`Bench names that move with a pick: ${bn.map(fmt).join(", ")}; if one replaced a different pick, the pot would hold that bet twice.`);
+  return s.join(" ");
+}

@@ -122,6 +122,7 @@
     <p>Your stocks, or every company in the S&amp;P 500, FTSE 100 and Euro Stoxx 50 (plus the Nasdaq 100 names they miss), scored two ways. <b>Long-term</b> asks whether it's a quality business at a sensible price and entry point. <b>Swing</b> reads the chart for short-term setups. Tap a stock to see exactly why.</p>
     <div class="meta" id="meta"></div>
     <div id="banners"></div>
+    <div id="planCrowd"></div>
   </div>
 
   <div class="seg source" role="group" aria-label="Source" id="sourceSeg" style="margin-top:22px">
@@ -192,7 +193,7 @@ import { costR } from "./src/swingRetune.js";
 import { labVerdict, DRIFT, summariseDrift } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
-import { crowdingNote, movesWith, CROWD } from "./src/crowding.js";
+import { crowdingNote, movesWith, CROWD, planOverlap, planOverlapNote } from "./src/crowding.js";
 let SELL = null;
 fetch("data/sell-study.json").then((r) => (r.ok ? r.json() : null)).then((j) => { SELL = j; }).catch(() => {});
 const PICKS = new Set(PLAN.picks.map((p) => p.symbol)), BENCH = new Set(PLAN.bench);
@@ -403,6 +404,8 @@ function render() {
   const head = `<div class="head"><button data-sort="name">Stock</button><button data-sort="day">Price</button><button data-sort="lt" class="${st.lens === "lt" ? "on" : ""}">Long-term</button><button data-sort="sw" class="${st.lens === "sw" ? "on" : ""}">Swing</button><span>${st.lens === "lt" ? "Strengths / weaknesses" : "Signals"}</span><span></span></div>`;
   list.innerHTML = head + (items.length ? items.map(rowHtml).join("") : `<div class="row" style="cursor:default"><span class="muted">No stocks match.</span></div>`);
   $("moreWrap").hidden = all.length <= items.length;
+  const pon = st.filter === "plan" ? planOverlapNote(planOverlap(st.data.items, [...PICKS], [...BENCH])) : null;
+  $("planCrowd").innerHTML = pon ? `<div class="banner warn"><b>Overlap.</b> ${esc(pon)} Daily returns over the last ${CROWD.window} sessions; 1 means in step. Display only.</div>` : "";
   $("more").textContent = `Show more (${all.length - items.length} left)`;
   $("scanControls").hidden = st.source !== "scan";
   $("extras").innerHTML = EXTRAS.map(([k, l]) => `<button class="chip" type="button" data-x="${k}" aria-pressed="${st.extras.has(k)}">${l}</button>`).join("");

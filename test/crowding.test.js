@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dailyReturns, correlation, moveTogether, movesWith, crowdingNote } from "../src/crowding.js";
+import { dailyReturns, correlation, moveTogether, movesWith, crowdingNote, planOverlap, planOverlapNote } from "../src/crowding.js";
 
 // Build a rebased series (cumulative %) from daily returns.
 const series = (rets) => { const out = [0]; let v = 1; for (const r of rets) { v *= 1 + r; out.push(Math.round((v - 1) * 10000) / 100); } return out; };
@@ -80,4 +80,22 @@ test("crowdingNote stays quiet when good entries are few or unrelated", () => {
   assert.equal(crowdingNote([]), null);
   assert.equal(crowdingNote([item("A", noise(120)), item("B", noise(120))]), null);
   assert.equal(crowdingNote(["A", "B", "C", "D"].map((s) => item(s, noise(120)))), null);
+});
+
+test("planOverlap: pick pairs once, bench against picks only, picks first", () => {
+  const f = noise(120), g = noise(120);
+  const items = [
+    item("P1", mix(f, noise(120), 0.9)), item("P2", mix(f, noise(120), 0.9)), item("P3", noise(120)),
+    item("B1", mix(g, noise(120), 0.9)), item("B2", mix(g, noise(120), 0.9)), item("B3", mix(f, noise(120), 0.9)),
+  ];
+  // B1 and B2 move together but neither is a pick: not reported.
+  const o = planOverlap(items, ["P1", "P2", "P3", "MISSING"], ["B1", "B2", "B3"]);
+  assert.equal(o.filter((x) => x.pick).length, 1);
+  assert.equal(o[0].pick, true);
+  assert.deepEqual(o.filter((x) => !x.pick).map((x) => x.a), ["B3", "B3"].slice(0, o.filter((x) => !x.pick).length));
+  assert.ok(!o.some((x) => x.a === "B1" || x.a === "B2"));
+  const n = planOverlapNote(o);
+  assert.match(n, /^Picks that move together: P1 with P2 \(0\.\d\d\)/);
+  assert.match(n, /Bench names that move with a pick: B3 with P/);
+  assert.equal(planOverlapNote([]), null);
 });
