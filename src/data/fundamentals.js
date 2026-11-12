@@ -168,3 +168,42 @@ export async function fetchTimeseries(symbol, types) {
   const t = types.map((x) => "annual" + x).join(",");
   return fetchJson(`https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/${encodeURIComponent(symbol)}?symbol=${encodeURIComponent(symbol)}&type=${t}&period1=${p1}&period2=${now}&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
 }
+
+// Past results dates with their time of day (results preview, 12 Nov 2026):
+// Yahoo's earnings module (reportedDate for the last four quarters with EPS)
+// plus its earnings visualization (older, sparser, covers half-yearly UK
+// reporters). Returns [{ date (exchange-local YYYY-MM-DD), after (true: after
+// the close, so the market reacts the next session) }], oldest first.
+export async function fetchReportedDates(symbol) {
+  const { cookie, crumb } = await yahooSession();
+  const ts = [];
+  try {
+    const j = await fetchJson(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=earnings&crumb=${encodeURIComponent(crumb)}`, { headers: { cookie }, tries: 2 });
+    for (const q of j?.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly ?? []) { const t = raw(q?.reportedDate); if (t) ts.push(t * 1000); }
+  } catch { /* the other source may still have dates */ }
+  try {
+    const body = { offset: 0, size: 12, sortField: "startdatetime", sortType: "DESC", entityIdType: "earnings", includeFields: ["ticker", "startdatetime"], query: { operator: "eq", operands: ["ticker", symbol] } };
+    const j = await fetchJson(`https://query2.finance.yahoo.com/v1/finance/visualization?crumb=${encodeURIComponent(crumb)}&lang=en-US&region=US`, { method: "POST", headers: { cookie, "content-type": "application/json" }, body: JSON.stringify(body), tries: 2 });
+    for (const r of j?.finance?.result?.[0]?.documents?.[0]?.rows ?? []) { const t = Date.parse(r?.[1]); if (Number.isFinite(t)) ts.push(t); }
+  } catch { /* optional */ }
+  return reportedSessions(ts, symbol);
+}
+
+// Timestamps (ms) to exchange-local dates and before/after the close
+// (London 16:30, New York 16:00; Europe 17:30). One entry per date.
+export function reportedSessions(ts = [], symbol = "") {
+  const uk = /\.L$/.test(symbol), eu = !uk && /\.[A-Z]+$/.test(symbol);
+  const tz = uk ? "Europe/London" : eu ? "Europe/Paris" : "America/New_York", close = uk ? 990 : eu ? 1050 : 960;
+  const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const by = new Map();
+  for (const t of ts) {
+    const p = Object.fromEntries(fmt.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+    // A bare midnight-UTC stamp is a date with no time: keep the UTC date,
+    // timing unknown (null).
+    if (t % 864e5 === 0) { const d = new Date(t).toISOString().slice(0, 10); if (!by.has(d)) by.set(d, null); continue; }
+    const date = `${p.year}-${p.month}-${p.day}`, after = +p.hour * 60 + +p.minute >= close;
+    // Several stamps on one day (a call later in the day): before the close wins.
+    by.set(date, by.has(date) && by.get(date) != null ? by.get(date) && after : after);
+  }
+  return [...by].map(([date, after]) => ({ date, after })).sort((a, b) => (a.date < b.date ? -1 : 1));
+}

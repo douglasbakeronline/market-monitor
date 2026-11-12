@@ -14,21 +14,24 @@ const POT_INDEX = new Set(["S&P 500", "FTSE 100"]);
 const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
 
 // Usual results-day move from about a year of daily bars: the close-to-close
-// move on each real results date (history/results-dates.json, which also holds
-// the hand-checked dates), last 4, and the median of their sizes. Known
-// after-close reporters react the next session; otherwise the bigger move of
-// that session and the next (a slight upward lean, the safe side for a risk
-// guide). Real dates only: on 12 Nov the busiest-day guess matched only 36% of
+// move on each real results date, last 4, and the median of their sizes.
+// events: [{ date, after }] or plain dates. after true: reported after the
+// close, so the reaction is the next session; false: that session; unknown
+// (plain dates from history/results-dates.json): the bigger move of that
+// session and the next, a slight upward lean (the safe side for a risk guide).
+// Real dates only: on 12 Nov the busiest-day guess matched only 36% of
 // hand-checked dates (large caps often trade under 2x their normal volume on
 // results), so it is not used here (research log 12 Nov).
-export function typicalMove(rows = [], known = [], afterClose = false) {
+export function typicalMove(rows = [], events = [], afterClose = false) {
   if (!rows?.length || rows.length < 2) return null;
   const mv = (i) => rows[i].close / rows[i - 1].close - 1;
   const days = new Set();
-  for (const k of known ?? []) {
-    const i = rows.findIndex((r) => (afterClose ? r.date > k : r.date >= k));
+  for (const e of events ?? []) {
+    const k = typeof e === "string" ? e : e?.date, after = typeof e === "string" ? (afterClose ? true : null) : e?.after ?? null;
+    if (!k) continue;
+    const i = rows.findIndex((r) => (after === true ? r.date > k : r.date >= k));
     if (i < 1) continue;
-    days.add(afterClose || !rows[i + 1] || Math.abs(mv(i)) >= Math.abs(mv(i + 1)) ? i : i + 1);
+    days.add(after != null || !rows[i + 1] || Math.abs(mv(i)) >= Math.abs(mv(i + 1)) ? i : i + 1);
   }
   const moves = [...days].sort((a, b) => a - b).slice(-PREVIEW.keep).map((i) => ({ date: rows[i].date, pct: Math.round(mv(i) * 1000) / 10 }));
   if (!moves.length) return null;
@@ -46,10 +49,10 @@ function nextDate(it) {
   return null;
 }
 
-// items: the scan's output items. focus: Set of symbols (research list, picks,
-// bench). rowsBySymbol: daily bars. dates: history/results-dates.json.
-export function resultsPreview(items = [], { today, focus = new Set(), rowsBySymbol = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
-  const rows = [];
+// Names reporting in the window: focus names (any date the scan has, estimates
+// flagged) and S&P 500 / FTSE 100 names with a firm date.
+export function previewCandidates(items = [], { today, focus = new Set(), days = PREVIEW.days } = {}) {
+  const out = [];
   for (const it of items) {
     const nd = nextDate(it);
     if (!nd) continue;
@@ -57,8 +60,21 @@ export function resultsPreview(items = [], { today, focus = new Set(), rowsBySym
     if (inDays < 0 || inDays > days) continue;
     const isFocus = focus.has(it.symbol), pot = POT_INDEX.has(it.index);
     if (!isFocus && (!pot || nd.estimated)) continue;
-    const past = (dates[it.symbol] ?? []).filter((d) => d < today);
-    const moves = typicalMove(rowsBySymbol[it.symbol], past, afterClose.has(it.symbol));
+    out.push({ it, nd, inDays, isFocus, pot });
+  }
+  return out;
+}
+
+// items: the scan's output items. focus: Set of symbols (research list, picks,
+// bench). rowsBySymbol: daily bars. reported: { symbol: [{ date, after }] }
+// (fetchReportedDates). dates: history/results-dates.json (plain dates).
+// afterClose: hand-checked after-close reporters.
+export function resultsPreview(items = [], { today, focus = new Set(), rowsBySymbol = {}, reported = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
+  const rows = [];
+  for (const { it, nd, inDays, isFocus, pot } of previewCandidates(items, { today, focus, days })) {
+    const timed = (reported[it.symbol] ?? []).filter((e) => e.date < today);
+    const plain = (dates[it.symbol] ?? []).filter((d) => d < today && !timed.some((e) => e.date === d)).map((d) => (afterClose.has(it.symbol) ? { date: d, after: true } : d));
+    const moves = typicalMove(rowsBySymbol[it.symbol], [...timed, ...plain]);
     const rc = it.resultsCheck;
     rows.push({
       symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, index: it.index,

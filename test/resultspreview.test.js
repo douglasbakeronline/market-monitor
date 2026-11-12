@@ -76,3 +76,19 @@ test("labels and lines read plainly", () => {
   const l = previewLine({ ticker: "BRBY", date: "2026-11-13", typical: 6.1, moves: [{ pct: 5.2 }, { pct: -7 }], last: { surprisePct: 3.9, reaction: -5.4 } }, "2026-11-12");
   assert.equal(l, "BRBY tomorrow: usually moves ±6.1% on results (last 2: +5.2%, −7.0%); last time EPS +3.9% vs forecast, −5.4% on the day.");
 });
+
+test("timed dates: after the close reacts the next session, before the close that session", async () => {
+  const { reportedSessions } = await import("../src/data/fundamentals.js");
+  // NVDA 19 Nov 2025 21:20 UTC (16:20 New York): after the close. HSBC
+  // 27 Oct 2026 04:40 UTC: before the London open. A bare midnight stamp: unknown.
+  assert.deepEqual(reportedSessions([1763587200e3], "NVDA"), [{ date: "2025-11-19", after: true }]);
+  assert.deepEqual(reportedSessions([1793073612e3, Date.parse("2026-01-01T00:00:00Z")], "HSBA.L"), [{ date: "2026-01-01", after: null }, { date: "2026-10-27", after: false }]);
+  const rows = bars(240, { 66: 9, 67: -3, 130: 2, 131: -11 });
+  // after: false takes the day itself even when the next move is bigger.
+  const m = typicalMove(rows, [{ date: rows[66].date, after: true }, { date: rows[130].date, after: false }]);
+  assert.deepEqual(m.moves.map((x) => x.pct), [-3, 2]);
+  // Timed dates replace the same plain date in the preview.
+  const items = [{ symbol: "Z", ticker: "Z", name: "Z", index: "S&P 500", market: "US", earnings: { date: "2026-11-13" } }];
+  const p = resultsPreview(items, { today: "2026-11-12", rowsBySymbol: { Z: rows }, reported: { Z: [{ date: rows[66].date, after: true }] }, dates: { Z: [rows[66].date] } });
+  assert.deepEqual(p.watch[0].moves.map((x) => x.pct), [-3]);
+});
