@@ -103,7 +103,8 @@
       "close": 37
     },
     "2026-11-12": {
-      "open": 36
+      "open": 36,
+      "close": 40
     }
   },
   "research": {
@@ -111,25 +112,25 @@
       "lt": "Expensive",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-20"
     },
     "MSFT": {
       "lt": "Fair",
-      "sw": "Setup",
+      "sw": "Neutral",
       "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (new), Fundsmith, Dodge & Cox",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": "2026-11-11",
       "rr": "2026-10-28"
     },
     "GOOGL": {
       "lt": "Fair",
-      "sw": "Avoid",
+      "sw": "Neutral",
       "sm": "Q2 2026|Held by Berkshire Hathaway (added), Fundsmith, Dodge & Cox",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-28"
@@ -138,16 +139,16 @@
       "lt": "Expensive",
       "sw": "Setup",
       "sm": "Q2 2026|Held by Berkshire Hathaway",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
-      "s": "2026-11-11",
+      "s": "2026-11-12",
       "rr": "2026-11-02"
     },
     "AMZN": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-29"
@@ -156,8 +157,8 @@
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
-      "g": "2026-11-11",
+      "v": "2026-11-12",
+      "g": "2026-11-12",
       "s": null,
       "rr": null
     },
@@ -165,8 +166,8 @@
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": "Q1 2026 to Q2 2026|Held by Pershing Square, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-11",
-      "g": "2026-11-11",
+      "v": "2026-11-12",
+      "g": "2026-11-12",
       "s": null,
       "rr": null
     },
@@ -174,7 +175,7 @@
       "lt": "Expensive",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
@@ -183,7 +184,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
@@ -192,16 +193,16 @@
       "lt": "Expensive",
       "sw": "Setup",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
-      "s": "2026-11-11",
+      "s": "2026-11-12",
       "rr": "2026-11-03"
     },
     "V": {
       "lt": "Expensive",
       "sw": "Neutral",
       "sm": "Q2 2026|Held by Akre Capital, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-27"
@@ -210,16 +211,16 @@
       "lt": "Fair",
       "sw": "Setup",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
-      "s": "2026-11-11",
+      "s": "2026-11-12",
       "rr": null
     },
     "AZN.L": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-30"
@@ -228,7 +229,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-29"
@@ -237,8 +238,8 @@
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
-      "g": "2026-11-11",
+      "v": "2026-11-12",
+      "g": "2026-11-12",
       "s": null,
       "rr": "2026-10-27"
     },
@@ -246,17 +247,17 @@
       "lt": "Wait",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
     },
     "NEM": {
-      "lt": "Fair",
+      "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
-      "g": null,
+      "v": "2026-11-12",
+      "g": "2026-11-12",
       "s": "2026-11-11",
       "rr": "2026-10-22"
     },
@@ -264,7 +265,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": "Q2 2026|",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
@@ -273,7 +274,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-28"
@@ -282,25 +283,25 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": "Q2 2026|Held by Dodge & Cox",
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
     },
     "CF": {
       "lt": "Fair",
-      "sw": "Setup",
+      "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": "2026-11-11",
       "rr": "2026-11-05"
     },
     "LLOY.L": {
-      "lt": "Good entry",
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": "2026-11-11",
       "s": null,
       "rr": "2026-10-29"
@@ -309,7 +310,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": "2026-10-30"
@@ -318,7 +319,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-11",
+      "v": "2026-11-12",
       "g": null,
       "s": null,
       "rr": null
@@ -327,9 +328,9 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 41,
+      "score": 40,
       "rating": "fear",
-      "asOf": "2026-11-12T19:26:08+00:00",
+      "asOf": "2026-11-12T20:59:59+00:00",
       "comparisons": {
         "close": 37,
         "week": 20,
@@ -340,25 +341,25 @@
         {
           "key": "market_momentum_sp500",
           "label": "Market momentum",
-          "score": 17,
+          "score": 16,
           "rating": "extreme fear"
         },
         {
           "key": "stock_price_strength",
           "label": "Stock price strength",
-          "score": 50,
+          "score": 49,
           "rating": "neutral"
         },
         {
           "key": "stock_price_breadth",
           "label": "Stock price breadth",
-          "score": 52,
+          "score": 51,
           "rating": "neutral"
         },
         {
           "key": "put_call_options",
           "label": "Put/call options",
-          "score": 31,
+          "score": 26,
           "rating": "fear"
         },
         {
@@ -370,13 +371,13 @@
         {
           "key": "safe_haven_demand",
           "label": "Safe-haven demand",
-          "score": 31,
+          "score": 29,
           "rating": "fear"
         },
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 60,
+          "score": 58,
           "rating": "greed"
         }
       ],
@@ -1633,32 +1634,32 @@
         },
         {
           "date": "2026-11-12",
-          "t": 1794511568000,
-          "y": 41
+          "t": 1794517199000,
+          "y": 40
         }
       ]
     },
-    "fgAt": "2026-11-12T19:30:22.054Z",
+    "fgAt": "2026-11-12T21:10:00.690Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
-        "level": 7607.18,
+        "level": 7592.4,
         "date": "2026-11-12",
-        "asOf": "2026-11-12T19:30:21.000Z",
+        "asOf": "2026-11-12T21:10:00.000Z",
         "currency": "USD",
-        "drawdownPct": -2.7,
+        "drawdownPct": -2.9,
         "peak": 7818.93,
         "peakDate": "2026-10-06",
-        "sma50": 7671.48,
-        "sma200": 7337.43,
-        "vs200Pct": 3.7,
+        "sma50": 7671.18,
+        "sma200": 7337.35,
+        "vs200Pct": 3.5,
         "above200": true,
-        "rsi14": 49.1,
-        "dayPct": -0.2,
-        "weekPct": 3.4,
-        "monthPct": -1.4,
-        "ytdPct": 11.1,
+        "rsi14": 48.4,
+        "dayPct": -0.4,
+        "weekPct": 3.2,
+        "monthPct": -1.6,
+        "ytdPct": 10.9,
         "fiveDay": [
           {
             "date": "2026-11-06",
@@ -1678,7 +1679,7 @@
           },
           {
             "date": "2026-11-12",
-            "pct": -0.16
+            "pct": -0.35
           }
         ],
         "series": [
@@ -1711,7 +1712,7 @@
           -2.24,
           -2.61,
           -1.34,
-          -1.5
+          -1.69
         ]
       },
       "ftse": {
@@ -1789,11 +1790,11 @@
         ]
       },
       "vix": {
-        "level": 18.21,
-        "dayPct": 4.1,
+        "level": 18.97,
+        "dayPct": 8.5,
         "date": "2026-11-12"
       },
-      "at": "2026-11-12T19:30:22.054Z"
+      "at": "2026-11-12T21:10:00.690Z"
     },
     "watchlist": [
       {
@@ -1801,13 +1802,13 @@
         "yahoo": "SPCX",
         "name": "SpaceX",
         "currency": "USD",
-        "price": 141.68,
+        "price": 139.94,
         "date": "2026-11-12",
-        "dropFromHigh": -1.5,
-        "lastChange": 1.4,
+        "dropFromHigh": -2.7,
+        "lastChange": 0.1,
         "previous": -2.3,
-        "week": 14.6,
-        "month": -6.9,
+        "week": 13.2,
+        "month": -8,
         "series": [
           0,
           7.63,
@@ -1838,7 +1839,7 @@
           -10.63,
           -9.98,
           -12.08,
-          -10.87
+          -11.97
         ],
         "rebound": false
       },
@@ -1847,13 +1848,13 @@
         "yahoo": "MSFT",
         "name": "Microsoft",
         "currency": "USD",
-        "price": 523.52,
+        "price": 523,
         "date": "2026-11-12",
-        "dropFromHigh": -5.8,
-        "lastChange": 0.5,
+        "dropFromHigh": -5.9,
+        "lastChange": 0.4,
         "previous": -2.3,
-        "week": -2.3,
-        "month": -1.9,
+        "week": -2.4,
+        "month": -2,
         "series": [
           0,
           1.48,
@@ -1884,7 +1885,7 @@
           5.34,
           3.02,
           0.7,
-          1.16
+          1.06
         ],
         "rebound": false
       },
@@ -1893,13 +1894,13 @@
         "yahoo": "GOOGL",
         "name": "Alphabet",
         "currency": "USD",
-        "price": 300.05,
+        "price": 298.7,
         "date": "2026-11-12",
         "dropFromHigh": 0,
-        "lastChange": 2.2,
+        "lastChange": 1.8,
         "previous": 2.1,
-        "week": 6.2,
-        "month": -13.7,
+        "week": 5.7,
+        "month": -14.1,
         "series": [
           0,
           0.86,
@@ -1930,7 +1931,7 @@
           -16.11,
           -16.34,
           -14.57,
-          -12.65
+          -13.04
         ],
         "rebound": false
       },
@@ -1939,13 +1940,13 @@
         "yahoo": "AAPL",
         "name": "Apple",
         "currency": "USD",
-        "price": 355.65,
+        "price": 354.88,
         "date": "2026-11-12",
-        "dropFromHigh": 0,
-        "lastChange": 0,
+        "dropFromHigh": -0.2,
+        "lastChange": -0.2,
         "previous": 2,
-        "week": 3.3,
-        "month": 3.7,
+        "week": 3.1,
+        "month": 3.5,
         "series": [
           0,
           -0.24,
@@ -1976,7 +1977,7 @@
           5.09,
           4.44,
           6.57,
-          6.58
+          6.35
         ],
         "rebound": false
       },
@@ -1985,13 +1986,13 @@
         "yahoo": "AMZN",
         "name": "Amazon",
         "currency": "USD",
-        "price": 269.04,
+        "price": 267.44,
         "date": "2026-11-12",
-        "dropFromHigh": -0.7,
-        "lastChange": 1.1,
+        "dropFromHigh": -1.3,
+        "lastChange": 0.5,
         "previous": -1.7,
-        "week": 3.4,
-        "month": 5.9,
+        "week": 2.8,
+        "month": 5.3,
         "series": [
           0,
           -0.05,
@@ -2022,7 +2023,7 @@
           6.13,
           7.69,
           5.82,
-          6.96
+          6.33
         ],
         "rebound": false
       },
@@ -2031,13 +2032,13 @@
         "yahoo": "NVDA",
         "name": "Nvidia",
         "currency": "USD",
-        "price": 164.48,
+        "price": 166.19,
         "date": "2026-11-12",
-        "dropFromHigh": -23,
-        "lastChange": -5.3,
+        "dropFromHigh": -22.2,
+        "lastChange": -4.3,
         "previous": 2.9,
-        "week": -9.4,
-        "month": -25.7,
+        "week": -8.5,
+        "month": -24.9,
         "series": [
           0,
           2.12,
@@ -2068,7 +2069,7 @@
           -23.63,
           -27.81,
           -25.74,
-          -29.7
+          -28.96
         ],
         "rebound": false
       },
@@ -2077,13 +2078,13 @@
         "yahoo": "META",
         "name": "Meta",
         "currency": "USD",
-        "price": 622.26,
+        "price": 623.61,
         "date": "2026-11-12",
-        "dropFromHigh": -3,
-        "lastChange": -1,
+        "dropFromHigh": -2.8,
+        "lastChange": -0.8,
         "previous": -2,
-        "week": 2.8,
-        "month": -15.6,
+        "week": 3.1,
+        "month": -15.4,
         "series": [
           0,
           1.9,
@@ -2114,7 +2115,7 @@
           -11.91,
           -11.91,
           -13.64,
-          -14.53
+          -14.35
         ],
         "rebound": false
       },
@@ -2123,13 +2124,13 @@
         "yahoo": "TSLA",
         "name": "Tesla",
         "currency": "USD",
-        "price": 389.92,
+        "price": 397.45,
         "date": "2026-11-12",
-        "dropFromHigh": -3.4,
-        "lastChange": -0.2,
+        "dropFromHigh": -1.6,
+        "lastChange": 1.7,
         "previous": 2.9,
-        "week": 13.5,
-        "month": 6.2,
+        "week": 15.6,
+        "month": 8.2,
         "series": [
           0,
           2.2,
@@ -2160,7 +2161,7 @@
           2.01,
           2.48,
           5.46,
-          5.22
+          7.25
         ],
         "rebound": false
       },
@@ -2169,13 +2170,13 @@
         "yahoo": "AVGO",
         "name": "Broadcom",
         "currency": "USD",
-        "price": 364.64,
+        "price": 364.36,
         "date": "2026-11-12",
         "dropFromHigh": 0,
-        "lastChange": 5.6,
+        "lastChange": 5.5,
         "previous": 4,
-        "week": 25.1,
-        "month": 5.3,
+        "week": 25,
+        "month": 5.2,
         "series": [
           0,
           2.08,
@@ -2206,7 +2207,7 @@
           -10.04,
           -6.52,
           -2.79,
-          2.67
+          2.6
         ],
         "rebound": false
       },
@@ -2215,13 +2216,13 @@
         "yahoo": "AMD",
         "name": "AMD",
         "currency": "USD",
-        "price": 583.79,
+        "price": 585.3,
         "date": "2026-11-12",
         "dropFromHigh": 0,
-        "lastChange": 5.6,
+        "lastChange": 5.9,
         "previous": 7.3,
-        "week": 44.4,
-        "month": 2.3,
+        "week": 44.7,
+        "month": 2.5,
         "series": [
           0,
           -0.34,
@@ -2252,7 +2253,7 @@
           -19.77,
           -18.73,
           -12.78,
-          -7.91
+          -7.67
         ],
         "rebound": false
       },
@@ -2261,13 +2262,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 423.03,
+        "price": 420.33,
         "date": "2026-11-12",
-        "dropFromHigh": -3.1,
-        "lastChange": -0.6,
+        "dropFromHigh": -3.7,
+        "lastChange": -1.2,
         "previous": 0.6,
-        "week": 0.1,
-        "month": 8.1,
+        "week": -0.5,
+        "month": 7.4,
         "series": [
           0,
           2.51,
@@ -2298,7 +2299,7 @@
           17.05,
           17.28,
           17.99,
-          17.29
+          16.54
         ],
         "rebound": false
       },
@@ -2307,13 +2308,13 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 343.73,
+        "price": 342.88,
         "date": "2026-11-12",
-        "dropFromHigh": -2.4,
-        "lastChange": 0.1,
+        "dropFromHigh": -2.6,
+        "lastChange": -0.1,
         "previous": 0.4,
-        "week": 1.9,
-        "month": 2.5,
+        "week": 1.6,
+        "month": 2.3,
         "series": [
           0,
           0,
@@ -2344,7 +2345,7 @@
           2.92,
           2.92,
           3.31,
-          3.41
+          3.16
         ],
         "rebound": false
       },
@@ -2488,22 +2489,22 @@
       }
     ],
     "context": {
-      "score": 41,
+      "score": 40,
       "band": [
-        36,
-        46
+        35,
+        45
       ],
       "since": "2020-07-15",
-      "days": 288,
+      "days": 280,
       "episodes": 34,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 285,
+            "n": 277,
             "median": 1.7,
-            "positive": 66
+            "positive": 65
           },
           "baseline": {
             "n": 1570,
@@ -2515,8 +2516,8 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 272,
-            "median": 3.8,
+            "n": 264,
+            "median": 3.9,
             "positive": 72
           },
           "baseline": {
@@ -2529,7 +2530,7 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 248,
+            "n": 241,
             "median": 9.4,
             "positive": 81
           },
@@ -2543,7 +2544,7 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 224,
+            "n": 217,
             "median": 12.9,
             "positive": 76
           },
@@ -2572,8 +2573,8 @@
       "ytdPct": 13,
       "vs200Pct": 3.9,
       "above200": true,
-      "spGap": 0,
-      "note": "VWRP is 2.7% below its 52-week high in pounds, about the same as the S&P 500's 2.7% in dollars."
+      "spGap": 0.2,
+      "note": "VWRP is 2.7% below its 52-week high in pounds, about the same as the S&P 500's 2.9% in dollars."
     }
   },
   "pending": [],
