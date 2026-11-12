@@ -17,7 +17,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          DRY_RUN=1 SHORT_FORCE=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           node -e 'console.log(JSON.stringify(require("./dry-run/scan.json").resultsPreview,null,1))' > dry-run/preview.json 2>&1
           cp dry-run/scan.json scan.json
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
