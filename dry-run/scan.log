@@ -1,0 +1,24 @@
+Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
+Quotes: 663
+Stage 1: 662 scored, 1 failed (2.7 min)
+Stage 2: 110 deepened (3.4 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.4 min)
+Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.4 min)
+Paper trades: markets open, not updated.
+Swing book (paper): -2.23% since 2026-11-02 (S&P 0.28%), 4 open, 0 orders for the next session.
+Swing lab: markets open, not updated.
+Short-term signals: markets open, kept the last list.
+Drift book (paper): 0.73% since 2026-11-11, 2 open, 0 orders, 0 closed.
+Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
+Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
+Plan book (paper): agreed not started, weakHold not started, reitValue not started, vwrp not started, buffettPot not started, momentumPot not started.
+Results check: 10 of 13 with a recent EPS surprise; 0 live events tagged; 11 with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: none.
+Results preview: BRBY 2026-11-12 ±4.4%, NVDA 2026-11-17 ±4.4% this week; 29 other S&P 500 / FTSE 100 names; just reported: BRBY 6.6% 0.7x, EDV -6.9% 0.5x, III 4.1% 0.8x, UU 1.8% 0.1x.
+Swing lab volume shocks: 0 new (none); 3 open; up 0 and down 0 closed.
+Paper trades: 151 open, 34 closed, -0.51R average.
+Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
+Data checks: all 662 items passed. 
+Short-term push: already sent at 2026-11-11T21:23:23.976Z.
+Scoring (live since 10 Nov): 25 of 109 full-score verdicts differ from the old rule; Good entry lost: CRM, ECHO, COF, PRX.AS, EXPE, NWG.L, SMCI; gained: SNDK, STX.
+Done: 662 scored, 0 new good entries, 11 new setups, 3.7 min.
+exit=0
