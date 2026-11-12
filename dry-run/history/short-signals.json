@@ -1,0 +1,33 @@
+[
+  {
+    "id": "2026-11-11:bounce:OTIS",
+    "kind": "bounce",
+    "symbol": "OTIS",
+    "ticker": "OTIS",
+    "name": "Otis Worldwide Corporation",
+    "market": "US",
+    "signalDate": "2026-11-11",
+    "signalPrice": 77.5,
+    "rsi2": 9.9,
+    "status": "open",
+    "entryDate": "2026-11-12",
+    "entry": 77.28,
+    "lastDate": "2026-11-12",
+    "last": 77.81,
+    "netPct": 0.39,
+    "vsIdx": 0.66,
+    "sessions": 1
+  },
+  {
+    "id": "2026-11-12:bounce:SBRY.L",
+    "kind": "bounce",
+    "symbol": "SBRY.L",
+    "ticker": "SBRY",
+    "name": "J Sainsbury plc",
+    "market": "UK",
+    "signalDate": "2026-11-12",
+    "signalPrice": 345.882,
+    "rsi2": 5.7,
+    "status": "pending"
+  }
+]

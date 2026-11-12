@@ -1,0 +1,60 @@
+{
+  "updated": "2026-11-12T14:43:30.092Z",
+  "rules": {
+    "start": "2026-11-11",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-12"
+  },
+  "start": "2026-11-12",
+  "value": 10007.8,
+  "returnPct": 0.08,
+  "peak": 10000,
+  "fallPct": 0,
+  "paused": false,
+  "open": [
+    {
+      "id": "2026-11-11:bounce:OTIS",
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "entry": 77.28,
+      "pos": 2000,
+      "sessions": 1,
+      "openPct": 0.39,
+      "openPnl": 7.8
+    }
+  ],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "SBRY.L",
+      "ticker": "SBRY",
+      "name": "J Sainsbury plc",
+      "market": "UK",
+      "signalDate": "2026-11-12",
+      "signalPrice": 345.882
+    }
+  ],
+  "skipped": 0,
+  "free": 4,
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": [
+    {
+      "kind": "bounce",
+      "ticker": "OTIS",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "exitDate": null
+    }
+  ]
+}
