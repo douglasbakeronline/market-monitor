@@ -18,7 +18,7 @@ const bars = (n, jumps = {}, spikes = {}) => {
 
 test("EPS figures ride along with the timed dates, surprise against the forecast", () => {
   const r = reportedSessions([{ t: 1763587200e3, actual: 1.3, estimate: 1.25 }, { t: Date.parse("2025-02-19T04:18:00Z"), actual: 0.28, estimate: 0.27 }, { t: Date.parse("2025-02-19T15:00:00Z"), actual: null, estimate: 0.17 }], "HSBA.L");
-  assert.deepEqual(r.map((x) => [x.date, x.after, x.surprisePct]), [["2025-02-19", false, 3.7], ["2025-11-19", true, 4]]);
+  assert.deepEqual(r.map((x) => [x.date, x.after, x.surprisePct]), [["2025-02-19", false, 3.7], ["2025-11-19", false, 4]]);
   // Forecast near zero: no surprise.
   assert.equal(reportedSessions([{ t: 1763587200e3, actual: 0.05, estimate: 0.004 }], "NVDA")[0].surprisePct, null);
 });

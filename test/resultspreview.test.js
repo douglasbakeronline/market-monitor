@@ -118,3 +118,12 @@ test("London results always read as that session (Yahoo's 16:30 placeholder)", a
   const { reportedSessions } = await import("../src/data/fundamentals.js");
   assert.deepEqual(reportedSessions([1794501000e3], "BRBY.L"), [{ date: "2026-11-12", after: false }]);
 });
+
+test("surpriseOn: the surprise of the results that reacted on a given session", async () => {
+  const { surpriseOn } = await import("../src/resultsPreview.js");
+  const rows = bars(60);
+  const hist = [{ date: rows[40].date, after: true, surprisePct: 12 }, { date: rows[50].date, after: false, surprisePct: -3 }];
+  assert.equal(surpriseOn(rows, hist, rows[41].date), 12);
+  assert.equal(surpriseOn(rows, hist, rows[50].date), -3);
+  assert.equal(surpriseOn(rows, hist, rows[40].date), null);
+});
