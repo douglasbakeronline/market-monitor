@@ -1,0 +1,105 @@
+{
+  "updated": "2026-11-13T11:49:10.084Z",
+  "rules": {
+    "start": "2026-11-11",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-12"
+  },
+  "start": "2026-11-12",
+  "value": 9965.6,
+  "returnPct": -0.34,
+  "peak": 10000,
+  "fallPct": -0.34,
+  "paused": false,
+  "open": [
+    {
+      "id": "2026-11-11:bounce:OTIS",
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "entry": 78.18,
+      "pos": 2000,
+      "sessions": 1,
+      "openPct": -1.63,
+      "openPnl": -32.6
+    },
+    {
+      "id": "2026-11-12:bounce:SBRY.L",
+      "kind": "bounce",
+      "symbol": "SBRY.L",
+      "ticker": "SBRY",
+      "name": "J Sainsbury plc",
+      "market": "UK",
+      "entryDate": "2026-11-13",
+      "entry": 346.3,
+      "pos": 2000,
+      "sessions": 1,
+      "openPct": -0.09,
+      "openPnl": -1.8
+    }
+  ],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "ABT",
+      "ticker": "ABT",
+      "name": "Abbott Laboratories",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 107.25
+    },
+    {
+      "kind": "bounce",
+      "symbol": "AMCR",
+      "ticker": "AMCR",
+      "name": "Amcor plc",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 43.8
+    },
+    {
+      "kind": "bounce",
+      "symbol": "IFF",
+      "ticker": "IFF",
+      "name": "International Flavors & Fragrances Inc.",
+      "market": "US",
+      "signalDate": "2026-11-12",
+      "signalPrice": 80.38
+    }
+  ],
+  "skipped": 1,
+  "free": 3,
+  "skipList": [
+    {
+      "symbol": "BRBY.L",
+      "from": "2026-11-12"
+    }
+  ],
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": [
+    {
+      "kind": "bounce",
+      "ticker": "OTIS",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "exitDate": null
+    },
+    {
+      "kind": "bounce",
+      "ticker": "SBRY",
+      "market": "UK",
+      "entryDate": "2026-11-13",
+      "exitDate": null
+    }
+  ]
+}
