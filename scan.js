@@ -39,7 +39,7 @@ import { notify } from "./src/notify.js";
 import { inQuietHours } from "./src/schedule.js";
 import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
-import { shortPot } from "./src/shortPot.js";
+import { shortPot, potSkips } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn } from "./src/resultsPreview.js";
 
@@ -196,6 +196,8 @@ async function main() {
   // Hand-kept real dates for the picks and bench (data/results-dates-known.json):
   // the busiest-day guess misdated some results days (data note 10 Nov).
   const knownDates = await readJson("data/results-dates-known.json", null);
+  // Names the short-term pot never buys (data/pot-skip.json, 13 Nov; empty unless Douglas adds one).
+  const potSkip = potSkips(await readJson("data/pot-skip.json", null));
   for (const [sym, ds] of Object.entries(knownDates?.dates ?? {})) recordResults(resultsHist, sym, ds, today);
 
   // Smart money (display only): 13F holdings of a few long-term managers,
@@ -314,12 +316,12 @@ async function main() {
       await writeJson("history/short-signals.json", sl, true);
       const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;
       // The real-money pot (11 Nov): what to buy and sell at the next open.
-      const pot = shortPot(sl, { today: date, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
+      const pot = shortPot(sl, { today: date, skip: potSkip, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
       await writeJson("history/short-pot.json", { updated: new Date().toISOString(), ...pot }, true);
       shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl),
-        pot: { rules: pot.rules, start: pot.start, value: pot.value, returnPct: pot.returnPct, peak: pot.peak, fallPct: pot.fallPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct, trades: pot.trades } };
+        pot: { rules: pot.rules, skipList: pot.skipList, start: pot.start, value: pot.value, returnPct: pot.returnPct, peak: pot.peak, fallPct: pot.fallPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct, trades: pot.trades } };
       shortFresh = true;
-      console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}.`);
+      console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}; skip list: ${potSkip.map((x) => x.symbol).join(", ") || "none"}.`);
       console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);
     } else {
       shortTerm = (await readJson("scan.json", {}))?.shortTerm ?? null;
@@ -489,7 +491,7 @@ async function main() {
       if (!timedHist.has(sym)) await sleep(150);
     }
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
-    resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet });
+    resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet, skip: new Set(potSkip.filter((x) => (x.from ?? "") <= today).map((x) => x.symbol)) });
     console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}${r.held ? " (held)" : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names; just reported: ${resultsAhead.just.map((j) => `${j.ticker} ${j.move}% ${j.volX}x${j.surprisePct != null ? ` EPS ${j.surprisePct}%` : ""}`).join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results preview failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
