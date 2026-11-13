@@ -4,6 +4,11 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 9 November 2026
 
+### Fri 13 Nov (daily run)
+- **Research-list stocks with no sector from Yahoo now take the index list's sector, so both pages give one score.** Yahoo gives Tritax Big Box (and 3i) no sector, so the Research page had no sector peers for them and fell back to the old fixed P/E bands, while the scan used the FTSE sector: BBOX scored 81 on the scan and 71 on Research. `runResearch` now fills a missing sector from the latest scan (`withListedSector()` in `src/sectorValue.js`, which also applies the FTSE REIT hint); Yahoo's own sector always wins. Real-data dry run: BBOX 71 to 81 (matches the scan), 3i 76 to 78 (scan 75), every other name unchanged apart from intraday moves of 1 to 3 points; 40 of 40 scored, monitor exit 0. No verdict changed. Test in `test/reitscore.test.js`.
+- Checked: all slots since 12 Nov 08:15 ran on time, both nightly scans saved, the next run is waiting. Last night's scan logged "35 of 35 Real Estate" and "REIT cash-flow median: 16x from 32 REITs" (16x the night before: steady). The 08:15 push sent "Results ahead: SSE Wed 18 Nov" (NVDA's was sent on 12 Nov; Burberry, whose date has passed, was not repeated).
+- Research (research log): the 200-day trend rule as a timing tool for the core. No rule change.
+
 ### Fri 13 Nov (build session, 02:00)
 - **Douglas's own research list replaces the placeholder.** 33 names, three per sector across all 11 sectors, each with one role (growth, quality, value or income), 11 of them UK or European, from the full stock review of 13 Nov (project doc `stock-review-2026-11-13`). The five picks stay; the bench and Burberry (results tracking) are kept so their cards keep full scores. 40 names in all.
 - **The scan now gives every research-list, pick and bench name its full score.** Stage 2 deepened only the top 70 long-term candidates, the top 40 swing setups and Real Estate, so most list names showed a quick score on the scan, up to 22 points away from the Research list's full score (AMD 37 vs 59, Meta 65 vs 77). `deepenList()` in `src/deepen.js` adds the focus names; tests in `test/deepen.test.js`. Stage 2 goes from about 140 to 163 stocks (3.5 minutes in all).
