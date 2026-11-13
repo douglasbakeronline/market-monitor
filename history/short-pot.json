@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T23:03:20.469Z",
+  "updated": "2026-11-13T02:03:17.654Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
@@ -8,10 +8,10 @@
     "today": "2026-11-12"
   },
   "start": "2026-11-12",
-  "value": 9967.4,
-  "returnPct": -0.33,
+  "value": 9994,
+  "returnPct": -0.06,
   "peak": 10000,
-  "fallPct": -0.33,
+  "fallPct": -0.06,
   "paused": false,
   "open": [
     {
@@ -22,11 +22,11 @@
       "name": "Otis Worldwide Corporation",
       "market": "US",
       "entryDate": "2026-11-12",
-      "entry": 78.18,
+      "entry": 77.14,
       "pos": 2000,
       "sessions": 1,
-      "openPct": -1.63,
-      "openPnl": -32.6
+      "openPct": -0.3,
+      "openPnl": -6
     }
   ],
   "buys": [
