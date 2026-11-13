@@ -1,0 +1,97 @@
+{
+  "updated": "2026-11-13T22:50:19.621Z",
+  "start": "2026-11-11",
+  "equity0": 10000,
+  "realised": 10000,
+  "value": 10016,
+  "returnPct": 0.16,
+  "open": [
+    {
+      "id": "2026-11-10:TTWO",
+      "symbol": "TTWO",
+      "ticker": "TTWO",
+      "name": "Take-Two Interactive Software, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 227.49000549316406,
+      "movePct": 8.3,
+      "volX": 3.1,
+      "results": true,
+      "pos": 2500,
+      "sessions": 3,
+      "openPct": -0.15,
+      "openPnl": -3.75
+    },
+    {
+      "id": "2026-11-10:AKAM",
+      "symbol": "AKAM",
+      "ticker": "AKAM",
+      "name": "Akamai Technologies, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 85.0999984741211,
+      "movePct": 4.3,
+      "volX": 4.2,
+      "results": false,
+      "pos": 2500,
+      "sessions": 3,
+      "openPct": 0.05,
+      "openPnl": 1.25
+    },
+    {
+      "id": "2026-11-12:BRBY.L",
+      "symbol": "BRBY.L",
+      "ticker": "BRBY",
+      "name": "Burberry Group plc",
+      "market": "UK",
+      "entryDate": "2026-11-13",
+      "entry": 1170.5,
+      "movePct": 8,
+      "volX": 3.8,
+      "results": false,
+      "pos": 2500,
+      "sessions": 1,
+      "openPct": 0.74,
+      "openPnl": 18.5
+    }
+  ],
+  "orders": [],
+  "waiting": 0,
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "rules": {
+    "equity0": 10000,
+    "maxOpen": 4
+  },
+  "paused": false,
+  "sp": {
+    "from": "2026-11-10",
+    "to": "2026-11-13",
+    "pct": 0.54
+  },
+  "spSeries": [
+    {
+      "date": "2026-11-11",
+      "pct": 1.31
+    },
+    {
+      "date": "2026-11-12",
+      "pct": 0.95
+    },
+    {
+      "date": "2026-11-13",
+      "pct": 0.54
+    }
+  ],
+  "random": {
+    "runs": 200,
+    "mine": 0.16,
+    "median": 0.16,
+    "p10": 0.16,
+    "p90": 0.16,
+    "beatShare": 0
+  }
+}
