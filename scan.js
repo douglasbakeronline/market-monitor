@@ -2,8 +2,9 @@
 // Nasdaq 100 names those miss, each weeknight.
 //   Stage 1 (all ~600): daily prices + batch quotes -> swing signals and a
 //                       provisional long-term score (value, entry, analysts).
-//   Stage 2 (top ~100): full fundamentals for the best candidates and every
-//                       swing setup -> full long-term score with quality.
+//   Stage 2 (~180): full fundamentals for the best candidates, the swing setups,
+//                   Real Estate and the research list, picks and bench
+//                   -> full long-term score with quality.
 // Writes scan.json for the Research page's "Index scan" view.
 //   node scan.js            DRY_RUN=1 node scan.js     SCAN_LIMIT=40 node scan.js
 
@@ -20,6 +21,7 @@ import { driftToday, addDrift, updateDrift, summariseDrift } from "./src/swingLa
 import { reportDay, resultsCheck, resultsRecord, resultsMoves, reactionDays, timedReactionDays, dateDisagreements } from "./src/surpriseStudy.js";
 import { fetchResultsData, fetchResultsHistory, reportedSessions } from "./src/data/fundamentals.js";
 import { PLAN } from "./src/plan.js";
+import { deepenList } from "./src/deepen.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
@@ -100,12 +102,13 @@ async function main() {
   const peerRowsOf = () => items.map((it) => ({ sector: it.u.sector || it.f.sector, market: MARKET[it.u.index] ?? "US", forwardPE: it.f.forwardPE, trailingPE: it.f.trailingPE, evToEbitda: it.f.evToEbitda, trust: notScored(it.f) }));
   { const rows = peerRowsOf(), m1 = sectorMedians(rows), r1m = regionMedians(rows); for (const it of items) { it.peer = peerOf(it, m1, r1m); it.lt = longTermLive(it.f, it.t, it.peer); } }
 
-  // Stage 2: deepen the best long-term candidates and the swing setups.
-  const byLong = items.filter((i) => i.lt.score != null).sort((a, b) => b.lt.score - a.lt.score).slice(0, DEEP_LONG);
-  const bySwing = items.filter((i) => i.swing?.verdict?.startsWith("Setup")).sort((a, b) => b.swing.score - a.swing.score).slice(0, DEEP_SWING);
-  // Real Estate names too (13 Nov): the REIT cash-flow median needs their operating cash flow.
+  // Stage 2: deepen the best long-term candidates, the swing setups, Real Estate
+  // (the REIT cash-flow median needs their operating cash flow) and the focus
+  // names (research list, picks, bench: 13 Nov, so the scan and the Research
+  // list give a list stock the same full score).
+  const focusSet = new Set([...((await readJson("research-list.json", {}))?.stocks ?? []).map((x) => x.symbol), ...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
   const byReit = items.filter((i) => isRealEstate(i.f, i.u.sector));
-  const deep = [...new Set([...byLong, ...bySwing, ...byReit])];
+  const deep = deepenList(items, { long: DEEP_LONG, swing: DEEP_SWING, focus: focusSet });
   for (const it of deep) {
     const full = await fetchFundamentals(it.u.symbol).catch(() => null);
     if (full) {
@@ -422,8 +425,7 @@ async function main() {
   } catch (e) { console.warn(`Plan book failed: ${e.message}`); }
   // Timed results history per symbol, fetched once for the results check and the preview.
   const timedHist = new Map();
-  // Research list, picks and bench: the results preview's focus names.
-  const focusSet = new Set([...((await readJson("research-list.json", {}))?.stocks ?? []).map((x) => x.symbol), ...PLAN.picks.map((p) => p.symbol), ...PLAN.bench]);
+  // focusSet (research list, picks and bench, built before stage 2) is also the results preview's focus.
   // Results check (swing lab round 4): the latest EPS surprise and the day's
   // reaction for the picks, the bench and tonight's results-day volume shocks.
   // Display only. Never stops the scan.
