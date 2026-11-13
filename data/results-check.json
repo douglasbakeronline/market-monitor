@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T21:23:36.714Z",
+  "updated": "2026-11-12T23:03:24.540Z",
   "items": {
     "NVDA": {
       "quarter": "2026-07-31",
@@ -226,6 +226,30 @@
       "note": null,
       "tone": "neutral"
     },
+    "VICI": {
+      "moves": {
+        "n": 4,
+        "typical": 2.6,
+        "moves": [
+          {
+            "date": "2026-02-26",
+            "pct": -1.5
+          },
+          {
+            "date": "2026-04-30",
+            "pct": 2.1
+          },
+          {
+            "date": "2026-07-30",
+            "pct": -3
+          },
+          {
+            "date": "2026-10-29",
+            "pct": 4.3
+          }
+        ]
+      }
+    },
     "SCHW": {
       "quarter": "2026-09-30",
       "date": "2026-10-15",
@@ -360,30 +384,6 @@
       "label": "EPS missed the forecast by 3.9% (bottom fifth); the price fell 5.4% on the day",
       "note": "Weak results and a falling price. Over ten years (2017 to 2026, about 5,600 results-day falls) this group did only 0.4 points worse than other falls against the index over the next 60 sessions, and was behind in 6 of 10 years: a pointer, not a reason to skip a tranche.",
       "tone": "watch"
-    },
-    "VICI": {
-      "moves": {
-        "n": 4,
-        "typical": 2.6,
-        "moves": [
-          {
-            "date": "2026-02-26",
-            "pct": -1.5
-          },
-          {
-            "date": "2026-04-30",
-            "pct": 2.1
-          },
-          {
-            "date": "2026-07-30",
-            "pct": -3
-          },
-          {
-            "date": "2026-10-29",
-            "pct": 4.3
-          }
-        ]
-      }
     },
     "AMZN": {
       "quarter": "2026-09-30",
