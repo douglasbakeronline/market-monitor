@@ -1,2 +1,0 @@
-skipList [{"symbol":"BRBY.L","from":"2026-11-12"}] open [ 'OTIS', 'SBRY.L' ] buys [ 'ABT', 'AMCR', 'IFF' ]
-just [["LAND.L",false,false]]
