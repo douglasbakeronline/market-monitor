@@ -129,3 +129,14 @@ test("surpriseOn: the surprise of the results that reacted on a given session", 
   assert.equal(surpriseOn(rows, hist, rows[50].date), -3);
   assert.equal(surpriseOn(rows, hist, rows[40].date), null);
 });
+
+test("hand-checked dates read as that session (07:00 RNS), not the bigger of two days", () => {
+  // Day 100 is the results day (+2%), day 101 a bigger unrelated move (-9%).
+  const rows = bars(240, { 100: 2, 101: -9 });
+  const items = [{ symbol: "SSE.L", ticker: "SSE", name: "SSE", index: "FTSE 100", market: "UK", earnings: { date: "2026-11-18" } }];
+  const opts = { today: "2026-11-13", focus: new Set(["SSE.L"]), rowsBySymbol: { "SSE.L": rows }, dates: { "SSE.L": [rows[100].date] } };
+  assert.equal(resultsPreview(items, opts).focus[0].typical, 9); // plain date: bigger of the two
+  assert.equal(resultsPreview(items, { ...opts, known: { "SSE.L": [rows[100].date] } }).focus[0].typical, 2);
+  // A hand-checked after-close reporter still reacts the next session.
+  assert.equal(resultsPreview(items, { ...opts, known: { "SSE.L": [rows[100].date] }, afterClose: new Set(["SSE.L"]) }).focus[0].typical, 9);
+});

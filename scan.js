@@ -490,7 +490,7 @@ async function main() {
       reported[sym] = await timedHistory(sym, { quoteAt, resultsHist, today, cached: timedHist.get(sym) });
       if (!timedHist.has(sym)) await sleep(150);
     }
-    resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []) });
+    resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []), known: knownDates?.dates ?? {} });
     resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, focus: focusSet, skip: new Set(potSkip.filter((x) => (x.from ?? "") <= today).map((x) => x.symbol)) });
     console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}${r.held ? " (held)" : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names; just reported: ${resultsAhead.just.map((j) => `${j.ticker} ${j.move}% ${j.volX}x${j.surprisePct != null ? ` EPS ${j.surprisePct}%` : ""}`).join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results preview failed: ${e.message}`); }

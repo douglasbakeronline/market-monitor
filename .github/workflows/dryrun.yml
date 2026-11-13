@@ -1,5 +1,5 @@
 name: Dry run
-# Short-term pot skip list (test entry BRBY.L from 12 Nov on this branch only), 13 Nov.
+# Results preview: hand-kept FTSE 100 dates read as that session, 13 Nov (14:41).
 on:
   push:
     branches: [dryrun]
@@ -18,16 +18,14 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          cp history/short-pot.json dry-run/short-pot-before.json
-          SHORT_FORCE=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp history/short-pot.json dry-run/short-pot-after.json
-          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           node -e '
             const s = JSON.parse(require("fs").readFileSync("scan.json"));
-            const p = s.shortTerm?.pot ?? {};
-            console.log("skipList", JSON.stringify(p.skipList), "open", (p.open ?? []).map((o) => o.symbol), "buys", (p.buys ?? []).map((b) => b.symbol));
-            console.log("just", JSON.stringify((s.resultsPreview?.just ?? []).map((j) => [j.symbol, j.potBuy, j.potSkip ?? false])));
-          ' > dry-run/pot.txt 2>&1
+            const r = s.resultsPreview ?? {};
+            for (const x of [...(r.focus ?? []), ...(r.watch ?? [])]) console.log(x.focus ? "focus" : "watch", x.ticker, x.date, "typical", x.typical, JSON.stringify(x.moves));
+            console.log("potCount", r.potCount);
+            for (const sym of ["SSE.L","EXPN.L","BLND.L","IMB.L"]) { const it = s.items.find((i) => i.symbol === sym); console.log(sym, JSON.stringify(it?.resultsCheck ?? null)); }
+          ' > dry-run/preview.txt 2>&1
           cp scan.json data.json dry-run/ 2>/dev/null
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
