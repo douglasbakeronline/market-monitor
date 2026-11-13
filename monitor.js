@@ -183,7 +183,7 @@ async function main() {
   // Short-term signals (Douglas, 11 Nov): last night's ranked drift and bounce
   // list from the scan, pushed once per scan date (paper; src/shortTerm.js).
   const stScan = (await readJson("scan.json", null))?.shortTerm ?? null;
-  const sta = shortTermAlert(stScan, state.shortSeen ?? null);
+  const sta = shortTermAlert(stScan, state.shortSeen ?? null, new Date());
   if (stScan?.date) state.shortSeen = stScan.date;
   if (sta) alerts.push(sta);
   // The pot's drawdown: a heads-up at 15% below its high, then the 25% pause.
