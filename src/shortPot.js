@@ -17,6 +17,11 @@
 //   - Costs as tested (US 0.3%, UK 0.5% round trip, already in the log).
 //   - Pause: no new trades once the pot is 25% below its high; review with
 //     Douglas before resuming.
+// Skip list (13 Nov, built empty; data/pot-skip.json): names Douglas cannot or
+// will not trade. A signal on a listed name from its "from" date is never
+// bought (the next ranked signal takes the slot); trades taken before that
+// date are kept, so adding a name never rewrites the pot's history. The
+// signal log still records them, so each setup's live review is unchanged.
 // start: the first signal date counted (11 Nov close, so the first buys are at
 // the 12 Nov open). Values are a notional 10,000; percentages are what matter.
 import { r2 } from "./util.js";
@@ -29,8 +34,10 @@ const rank = (a, b) => (a.kind === b.kind ? 0 : a.kind === "drift" ? -1 : 1)
 // log: history/short-signals.json. opts.today: the latest bar's date (sells are
 // the trades whose exit came at that close).
 export function shortPot(log = [], opts = {}) {
-  const o = { ...SPOT, ...opts };
-  const inRange = log.filter((t) => t.signalDate >= o.start);
+  const { skip: skipList = [], ...rest } = opts;
+  const o = { ...SPOT, ...rest };
+  const skipped = (t) => skipList.some((x) => x.symbol === t.symbol && t.signalDate >= (x.from ?? ""));
+  const inRange = log.filter((t) => t.signalDate >= o.start && !skipped(t));
   const live = inRange.filter((t) => t.status !== "pending" && t.entryDate && t.entry > 0);
   const done = (t) => t.status === "closed" && t.exitDate;
   const byEntry = Object.groupBy(live, (t) => t.entryDate);
@@ -67,7 +74,7 @@ export function shortPot(log = [], opts = {}) {
   const lastExit = o.today ?? closed.map((x) => x.exitDate).sort().at(-1) ?? null;
   return {
     rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), fallPct, paused,
-    open, buys, skipped: Math.max(0, pending.length - buys.length), free,
+    open, buys, skipped: Math.max(0, pending.length - buys.length), free, skipList,
     // Trades whose exit came at the latest close: sell at the next open.
     sells: closed.filter((x) => x.exitDate === lastExit).map((x) => ({ kind: x.kind, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, netPct: x.netPct })),
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
@@ -76,6 +83,14 @@ export function shortPot(log = [], opts = {}) {
     // Every trade the pot took (newest 200), so the trade log can match them.
     trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null })),
   };
+}
+
+// data/pot-skip.json ({ skip: [{ symbol, from, note? }] }) to the list
+// shortPot() takes; anything malformed is dropped.
+export function potSkips(file) {
+  return (Array.isArray(file?.skip) ? file.skip : [])
+    .filter((x) => x && typeof x.symbol === "string" && x.symbol.trim())
+    .map((x) => ({ symbol: x.symbol.trim().toUpperCase(), ...(typeof x.from === "string" ? { from: x.from } : {}) }));
 }
 
 // One line for the Sunday digest. p: history/short-pot.json (shortPot()).

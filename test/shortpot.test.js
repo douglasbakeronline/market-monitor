@@ -45,3 +45,28 @@ test("shortPot: scarce slots go to results days, then the bigger EPS beat, then 
   assert.deepEqual(p.buys.map((x) => x.ticker), ["BIG", "SMALL"]);
   assert.equal(p.skipped, 2);
 });
+
+test("shortPot: skip list (13 Nov) blocks new buys from its date, keeps earlier trades and frees the slot", () => {
+  const log = [
+    tr({ kind: "drift", symbol: "BRBY.L", ticker: "BRBY", market: "UK", signalDate: "2026-11-11", status: "open", entryDate: "2026-11-12", entry: 10, netPct: 1 }),
+    tr({ kind: "drift", symbol: "BRBY.L", ticker: "BRBY", market: "UK", signalDate: "2026-11-16", status: "pending", results: true, volX: 9 }),
+    tr({ kind: "bounce", symbol: "Q", signalDate: "2026-11-16", status: "pending", rsi2: 4 }),
+  ];
+  const none = shortPot(log, { today: "2026-11-16" });
+  assert.deepEqual(none.buys.map((x) => x.symbol), ["BRBY.L", "Q"], "an empty list changes nothing");
+  assert.deepEqual(none.skipList, []);
+  const p = shortPot(log, { today: "2026-11-16", skip: [{ symbol: "BRBY.L", from: "2026-11-14" }] });
+  assert.deepEqual(p.open.map((x) => x.symbol), ["BRBY.L"], "a trade taken before the date stays");
+  assert.deepEqual(p.buys.map((x) => x.symbol), ["Q"], "the skipped name frees its slot");
+  assert.equal(p.skipped, 0, "skip-list names are not counted as missing a slot");
+  assert.deepEqual(p.skipList.map((x) => x.symbol), ["BRBY.L"]);
+  // A replayed entry after the date is never held either.
+  const q = shortPot([tr({ kind: "drift", symbol: "X.L", signalDate: "2026-11-16", status: "open", entryDate: "2026-11-17", entry: 10, netPct: 3 })], { skip: [{ symbol: "X.L" }] });
+  assert.equal(q.open.length, 0, "no date means from the start");
+});
+
+test("potSkips: reads the skip file safely", async () => {
+  const { potSkips } = await import("../src/shortPot.js");
+  assert.deepEqual(potSkips(null), []);
+  assert.deepEqual(potSkips({ skip: [{ symbol: "brby.l", from: "2026-11-14" }, { from: "x" }, "BAD"] }), [{ symbol: "BRBY.L", from: "2026-11-14" }]);
+});

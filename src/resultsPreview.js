@@ -121,8 +121,9 @@ function moveOn(rows, e) {
 
 // Just reported: names whose results reaction session is the latest bar.
 // move, volume against the previous 50 sessions, the surprise, and whether it
-// meets the pot's drift trigger (4%+ on 3x) as it stands.
-export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set() } = {}) {
+// meets the pot's drift trigger (4%+ on 3x) as it stands. skip: names on the
+// pot's skip list (data/pot-skip.json): never a pot buy, flagged potSkip.
+export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set(), skip = new Set() } = {}) {
   const out = [];
   for (const it of items) {
     const rows = rowsBySymbol[it.symbol], hist = reported[it.symbol];
@@ -133,7 +134,7 @@ export function justReported(items = [], { rowsBySymbol = {}, reported = {}, foc
     const avg = rows.slice(d - 50, d).reduce((a, r) => a + (r.volume || 0), 0) / 50;
     const move = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10, volX = avg > 0 ? Math.round(((rows[d].volume || 0) / avg) * 10) / 10 : null;
     out.push({ symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, date: last, move, volX, surprisePct: ev.surprisePct ?? null,
-      focus: focus.has(it.symbol), pot: POT_INDEX.has(it.index), potBuy: POT_INDEX.has(it.index) && move >= 4 && volX != null && volX >= 3 });
+      focus: focus.has(it.symbol), pot: POT_INDEX.has(it.index), potBuy: POT_INDEX.has(it.index) && move >= 4 && volX != null && volX >= 3 && !skip.has(it.symbol), ...(skip.has(it.symbol) ? { potSkip: true } : {}) });
   }
   return out.sort((a, b) => (b.focus - a.focus) || Math.abs(b.move) - Math.abs(a.move)).slice(0, 12);
 }

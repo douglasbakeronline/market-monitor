@@ -109,6 +109,8 @@ test("beat record, pot holdings and just reported", async () => {
   // Just reported: the latest bar is the reaction day.
   const j = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true, surprisePct: 9 }] } });
   assert.deepEqual([j[0].move, j[0].volX, j[0].surprisePct, j[0].potBuy], [6, 4, 9, true]);
+  const js = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true }] }, skip: new Set(["Q"]) });
+  assert.deepEqual([js[0].potBuy, js[0].potSkip], [false, true], "a skip-list name is never a pot buy");
   assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: false }] } }).length, 0);
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-10"] } }).length, 1);
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-01"] } }).length, 0);
