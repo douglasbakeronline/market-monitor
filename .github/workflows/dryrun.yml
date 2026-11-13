@@ -1,5 +1,5 @@
 name: Dry run
-# Research list stocks with no Yahoo sector take the scan's listed sector, 13 Nov.
+# Short-term pot skip list (test entry BRBY.L from 12 Nov on this branch only), 13 Nov.
 on:
   push:
     branches: [dryrun]
@@ -10,7 +10,7 @@ jobs:
   dry:
     if: "!contains(github.event.head_commit.message, 'dry-run output')"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -18,21 +18,17 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 FORCE_RESEARCH=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          cp history/short-pot.json dry-run/short-pot-before.json
+          SHORT_FORCE=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp history/short-pot.json dry-run/short-pot-after.json
+          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node -e '
-            const fs = require("fs");
-            const scan = JSON.parse(fs.readFileSync("scan.json"));
-            const r = JSON.parse(fs.readFileSync(fs.existsSync("dry-run/research.json") ? "dry-run/research.json" : "research.json"));
-            const live = JSON.parse(fs.readFileSync("research.json"));
-            const byS = Object.fromEntries(scan.items.map((x) => [x.symbol, x]));
-            const old = Object.fromEntries(live.items.map((x) => [x.symbol, x]));
-            for (const it of r.items) {
-              const s = byS[it.symbol], o = old[it.symbol];
-              const line = `${it.symbol} research ${o?.longTerm?.score} -> ${it.longTerm?.score} ${it.longTerm?.verdict} | scan ${s?.longTerm?.score ?? "-"} | sector ${o?.sector} -> ${it.sector}`;
-              if (!o || o.longTerm?.score !== it.longTerm?.score || o.sector !== it.sector || (s && s.longTerm?.score !== it.longTerm?.score)) console.log(line);
-            }
-            console.log("items", r.items.length);
-          ' > dry-run/compare.txt 2>&1
+            const s = JSON.parse(require("fs").readFileSync("scan.json"));
+            const p = s.shortTerm?.pot ?? {};
+            console.log("skipList", JSON.stringify(p.skipList), "open", (p.open ?? []).map((o) => o.symbol), "buys", (p.buys ?? []).map((b) => b.symbol));
+            console.log("just", JSON.stringify((s.resultsPreview?.just ?? []).map((j) => [j.symbol, j.potBuy, j.potSkip ?? false])));
+          ' > dry-run/pot.txt 2>&1
+          cp scan.json data.json dry-run/ 2>/dev/null
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
           git add -f dry-run && git commit -qm "dry-run output" && git push -q
