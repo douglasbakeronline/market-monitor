@@ -11,12 +11,12 @@
     "rsi2": 9.9,
     "status": "open",
     "entryDate": "2026-11-12",
-    "entry": 77.14,
-    "lastDate": "2026-11-12",
-    "last": 77.14,
-    "netPct": -0.3,
-    "vsIdx": 0.05,
-    "sessions": 1
+    "entry": 78.18,
+    "lastDate": "2026-11-13",
+    "last": 77.5,
+    "netPct": -1.17,
+    "vsIdx": -0.41,
+    "sessions": 2
   },
   {
     "id": "2026-11-12:drift:BRBY.L",
@@ -31,7 +31,14 @@
     "volX": 3.8,
     "results": true,
     "surprisePct": null,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 1170.5,
+    "lastDate": "2026-11-13",
+    "last": 1185,
+    "netPct": 0.74,
+    "vsIdx": 0.38,
+    "sessions": 1
   },
   {
     "id": "2026-11-12:bounce:ABT",
@@ -43,7 +50,14 @@
     "signalDate": "2026-11-12",
     "signalPrice": 107.25,
     "rsi2": 6,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 108.2,
+    "lastDate": "2026-11-13",
+    "last": 108.52,
+    "netPct": 0,
+    "vsIdx": 0.4,
+    "sessions": 1
   },
   {
     "id": "2026-11-12:bounce:AMCR",
@@ -55,7 +69,14 @@
     "signalDate": "2026-11-12",
     "signalPrice": 43.8,
     "rsi2": 6.4,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 44.24,
+    "lastDate": "2026-11-13",
+    "last": 43.8,
+    "netPct": -1.29,
+    "vsIdx": -0.89,
+    "sessions": 1
   },
   {
     "id": "2026-11-12:bounce:SBRY.L",
@@ -67,7 +88,16 @@
     "signalDate": "2026-11-12",
     "signalPrice": 346.8,
     "rsi2": 6.9,
-    "status": "pending"
+    "status": "closed",
+    "entryDate": "2026-11-13",
+    "entry": 346.3,
+    "lastDate": "2026-11-13",
+    "last": 352.9,
+    "netPct": 1.41,
+    "vsIdx": 1.04,
+    "sessions": 1,
+    "exitDate": "2026-11-13",
+    "exit": 352.9
   },
   {
     "id": "2026-11-12:bounce:IFF",
@@ -79,6 +109,61 @@
     "signalDate": "2026-11-12",
     "signalPrice": 80.38,
     "rsi2": 6.9,
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 81.04,
+    "lastDate": "2026-11-13",
+    "last": 81.16,
+    "netPct": -0.15,
+    "vsIdx": 0.25,
+    "sessions": 1
+  },
+  {
+    "id": "2026-11-13:bounce:PSA",
+    "kind": "bounce",
+    "symbol": "PSA",
+    "ticker": "PSA",
+    "name": "Public Storage",
+    "market": "US",
+    "signalDate": "2026-11-13",
+    "signalPrice": 332.59,
+    "rsi2": 5.7,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-13:bounce:VRTX",
+    "kind": "bounce",
+    "symbol": "VRTX",
+    "ticker": "VRTX",
+    "name": "Vertex Pharmaceuticals Incorporated",
+    "market": "US",
+    "signalDate": "2026-11-13",
+    "signalPrice": 538.6,
+    "rsi2": 7.3,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-13:bounce:MRNA",
+    "kind": "bounce",
+    "symbol": "MRNA",
+    "ticker": "MRNA",
+    "name": "Moderna, Inc.",
+    "market": "US",
+    "signalDate": "2026-11-13",
+    "signalPrice": 223.37,
+    "rsi2": 7.5,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-13:bounce:IQV",
+    "kind": "bounce",
+    "symbol": "IQV",
+    "ticker": "IQV",
+    "name": "IQVIA Holdings Inc.",
+    "market": "US",
+    "signalDate": "2026-11-13",
+    "signalPrice": 265.12,
+    "rsi2": 7.7,
     "status": "pending"
   }
 ]

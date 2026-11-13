@@ -14,11 +14,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 172.8000030517578,
-    "sessions": 2,
-    "lastDate": "2026-11-12",
-    "lastPrice": 166.19,
-    "netPct": -4.13,
-    "idxPct": 0.95
+    "sessions": 3,
+    "lastDate": "2026-11-13",
+    "lastPrice": 162.85,
+    "netPct": -6.06,
+    "idxPct": 0.54
   },
   {
     "id": "2026-11-10:AKAM",
@@ -35,11 +35,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 85.0999984741211,
-    "sessions": 2,
-    "lastDate": "2026-11-12",
-    "lastPrice": 86.56,
-    "netPct": 1.42,
-    "idxPct": 0.95
+    "sessions": 3,
+    "lastDate": "2026-11-13",
+    "lastPrice": 85.4,
+    "netPct": 0.05,
+    "idxPct": 0.54
   },
   {
     "id": "2026-11-10:TTWO",
@@ -57,11 +57,11 @@
     "surprisePct": 66.4,
     "entryDate": "2026-11-11",
     "entry": 227.49000549316406,
-    "sessions": 2,
-    "lastDate": "2026-11-12",
-    "lastPrice": 226.95,
-    "netPct": -0.54,
-    "idxPct": 0.95
+    "sessions": 3,
+    "lastDate": "2026-11-13",
+    "lastPrice": 227.82,
+    "netPct": -0.15,
+    "idxPct": 0.54
   },
   {
     "id": "2026-11-12:GPN",
@@ -75,7 +75,14 @@
     "movePct": -12,
     "volX": 3.6,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 88.41000366210938,
+    "sessions": 1,
+    "lastDate": "2026-11-13",
+    "lastPrice": 91.9,
+    "netPct": 3.65,
+    "idxPct": -0.4
   },
   {
     "id": "2026-11-12:BRBY.L",
@@ -89,6 +96,13 @@
     "movePct": 8,
     "volX": 3.8,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-13",
+    "entry": 1170.5,
+    "sessions": 1,
+    "lastDate": "2026-11-13",
+    "lastPrice": 1185,
+    "netPct": 0.74,
+    "idxPct": 0.36
   }
 ]
