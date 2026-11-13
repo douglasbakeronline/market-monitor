@@ -1711,7 +1711,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-13T12:00:00.483Z",
+    "fgAt": "2026-11-13T12:00:23.350Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1790,16 +1790,16 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10874.73,
+        "level": 10875.32,
         "date": "2026-11-13",
-        "asOf": "2026-11-13T11:44:59.000Z",
+        "asOf": "2026-11-13T11:45:23.000Z",
         "currency": "GBP",
         "drawdownPct": -0.3,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10694.67,
+        "sma50": 10694.68,
         "sma200": 10553.43,
-        "vs200Pct": 3,
+        "vs200Pct": 3.1,
         "above200": true,
         "rsi14": 58.3,
         "dayPct": 0.1,
@@ -1858,15 +1858,15 @@
           2.42,
           3.22,
           3.48,
-          3.59
+          3.6
         ]
       },
       "vix": {
-        "level": 18.39,
+        "level": 18.38,
         "dayPct": -1.7,
         "date": "2026-11-13"
       },
-      "at": "2026-11-13T12:00:00.483Z"
+      "at": "2026-11-13T12:00:23.350Z"
     },
     "watchlist": [
       {
@@ -2426,7 +2426,7 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13972,
+        "price": 13974,
         "date": "2026-11-13",
         "dropFromHigh": -0.7,
         "lastChange": 0.3,
@@ -2463,7 +2463,7 @@
           18.02,
           18.12,
           18.41,
-          18.77
+          18.79
         ],
         "rebound": false
       },
@@ -2518,10 +2518,10 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1350.4,
+        "price": 1350.8,
         "date": "2026-11-13",
         "dropFromHigh": -0.4,
-        "lastChange": -0.3,
+        "lastChange": -0.2,
         "previous": -0.1,
         "week": 3.5,
         "month": -5,
@@ -2555,7 +2555,7 @@
           -8.06,
           -7.09,
           -7.2,
-          -7.44
+          -7.42
         ],
         "rebound": false
       }
