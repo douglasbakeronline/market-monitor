@@ -486,6 +486,7 @@ import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { dayLabel } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
+import { orderTiming } from "./src/sessions.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
 import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
@@ -728,12 +729,24 @@ function renderShortTerm(st) {
   const sizeNote = !SZ ? (P && (P.buys ?? []).length ? `<div class="small muted" style="margin-top:4px">Save your pots below to see each order in pounds (kept in this browser only).</div>` : "")
     : `<div class="small muted" style="margin-top:4px">Sizes from your pots panel: short-term pot about ${gbp(SZ.real)}${SZ.basis === "moved" ? `, following the pot's trades since you saved on ${fmtDM(SZ.saved)}` : SZ.basis === "target" ? " (10% of your pots; save its own value for exact sizes)" : SZ.saved ? `, as saved on ${fmtDM(SZ.saved)}` : ""}. Trading 212 lets you buy by value in pounds; sell the whole holding.</div>`;
   const exitTxt = (k) => (k === "drift" ? "hold 20 sessions" : "out at the first close above the 5-day average, or 10 sessions");
+  // Is each order's open still ahead (13 Nov: the list read "at the next open"
+  // all day after that open had passed, until the evening scan replaced it)?
+  const now = new Date(), from = P?.rules?.today ?? st.date, todayL = now.toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  const tm = (o, d) => orderTiming(d ?? from, o.market, now);
+  const orders = P ? [...(P.buys ?? []).map((b) => tm(b, b.signalDate)), ...(P.sells ?? []).map((x) => tm(x, x.exitDate))] : [];
+  const anyOpen = orders.length ? orders.find((t) => t.state !== "passed") : ["US", "UK"].map((m) => orderTiming(from, m, now)).find((t) => t.state !== "passed");
+  const dmy = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" });
+  const tomorrowL = new Date(Date.parse(`${todayL}T12:00:00Z`) + 864e5).toISOString().slice(0, 10);
+  const openName = (t) => (t.due === todayL ? "today's open" : t.due === tomorrowL ? "the next open" : `the next open, ${dmy(t.due)}`);
+  const passedTag = (t) => (anyOpen && t?.state === "passed" ? `<span class="sub muted">Its open has passed: log it if you placed it.</span>` : "");
+  const potTitle = P?.paused ? "Paused: 25% below its high" : anyOpen ? `What the pot does at ${openName(anyOpen)}` : orders.length ? `Orders for ${orders[0].due === todayL ? "today's open" : `the ${dmy(orders[0].due)} open`} (now passed)` : "Since the last close";
   const potHtml = !P ? "" : `<div class="st-group">
-      <div class="st-head"><b>${P.paused ? "Paused: 25% below its high" : "What the pot does at the next open"}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots held${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
-      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)} · ${sizeTxt} · ${exitTxt(b.kind)}</span>${b.kind === "drift" && bigJump({ ...(st.drift ?? []).find((s) => s.symbol === b.symbol), kind: "drift" }) ? `<span class="sub t-caution">Up ${BIG_JUMP}%+ in a day: check the news first. If it is a takeover offer, the price usually stays near the offer (the backtest never saw one).</span>` : ""}</span><span class="num">${esc(b.market)}</span></div>`).join("")}
-      ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)} · exit rule met at the last close</span></span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
-      ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : "Nothing to buy or sell at the next open."}</span><span></span></div>` : ""}
-      ${(P.buys ?? []).length ? sizeNote : ""}
+      <div class="st-head"><b>${potTitle}</b><span class="st-rec">${P.open?.length ?? 0} of ${P.rules?.maxOpen ?? 5} slots held${P.start ? ` · ${signPct(P.returnPct)} since ${fmtDM(P.start)}` : " · first trades from 12 Nov"}</span></div>
+      ${(P.buys ?? []).map((b) => `<div class="st-row"><span><b class="t-buy">Buy</b> <b>${esc(b.ticker)}</b> <span class="muted">${esc(short(b.name))}</span><span class="sub">${kindName(b.kind)} · ${sizeTxt} · ${exitTxt(b.kind)}</span>${passedTag(tm(b, b.signalDate))}${b.kind === "drift" && bigJump({ ...(st.drift ?? []).find((s) => s.symbol === b.symbol), kind: "drift" }) ? `<span class="sub t-caution">Up ${BIG_JUMP}%+ in a day: check the news first. If it is a takeover offer, the price usually stays near the offer (the backtest never saw one).</span>` : ""}</span><span class="num">${esc(b.market)}</span></div>`).join("")}
+      ${(P.sells ?? []).map((x) => `<div class="st-row"><span><b class="t-sell">Sell</b> <b>${esc(x.ticker)}</b> <span class="muted">${esc(short(x.name))}</span><span class="sub">${kindName(x.kind)} · exit rule met at the last close</span>${passedTag(tm(x, x.exitDate))}</span><span class="num ${pnClass(x.netPct)}">${signPct(x.netPct)}<span class="sub">after costs</span></span></div>`).join("")}
+      ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : anyOpen ? "Nothing to buy or sell at the next open." : "Nothing was due at today's opens. The next list follows the evening scan."}</span><span></span></div>` : ""}
+      ${orders.length && !anyOpen ? `<div class="small muted" style="margin-top:4px">These were for that open, which has passed. Log them in the trade log if you placed them; the next list follows the evening scan.</div>` : ""}
+      ${(P.buys ?? []).length && anyOpen ? sizeNote : ""}
       ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
       ${(P.skipList ?? []).length ? `<div class="small muted" style="margin-top:4px">Never bought (your skip list): ${P.skipList.map((x) => esc(String(x.symbol).replace(/\.L$/, ""))).join(", ")}. Their signals still count in each setup's live record.</div>` : ""}
       ${P.start && P.fallPct != null && !P.paused ? `<div class="small muted" style="margin-top:4px">${Math.abs(P.fallPct) < 0.05 ? "At its high" : `${Math.abs(P.fallPct).toFixed(1)}% below its high`}; new trades pause at ${Math.round((P.rules?.pauseFall ?? 0.25) * 100)}% below (a heads-up push comes at 15%).</div>` : ""}
@@ -753,7 +766,7 @@ function renderToday() {
   const el = $("todayCard");
   if (!el || !LAST_DATA) return;
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
-  const items = todayItems(LAST_DATA, today, { decisions: DEC_N });
+  const items = todayItems(LAST_DATA, today, { decisions: DEC_N, now: new Date() });
   el.innerHTML = items.length ? items.map((x) => `<a class="${esc(x.tone)}" href="${esc(x.href)}"><span class="dot" aria-hidden="true"></span><span class="t">${esc(x.text)}</span><span class="go">Details</span></a>`).join("")
     : `<div class="quiet">Nothing to do today. No orders, no plan actions due, no list results tomorrow.</div>`;
   $("todaySection").hidden = false;
