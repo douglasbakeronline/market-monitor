@@ -108,102 +108,75 @@
     }
   },
   "research": {
-    "SPCX": {
-      "lt": "Expensive",
-      "sw": "Neutral",
-      "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-20"
-    },
-    "MSFT": {
-      "lt": "Fair",
-      "sw": "Neutral",
-      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (new), Fundsmith, Dodge & Cox",
-      "v": "2026-11-12",
-      "g": null,
-      "s": "2026-11-11",
-      "rr": "2026-10-28"
-    },
-    "GOOGL": {
-      "lt": "Fair",
-      "sw": "Neutral",
-      "sm": "Q2 2026|Held by Berkshire Hathaway (added), Fundsmith, Dodge & Cox",
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-28"
-    },
-    "AAPL": {
-      "lt": "Expensive",
-      "sw": "Setup",
-      "sm": "Q2 2026|Held by Berkshire Hathaway",
-      "v": "2026-11-12",
-      "g": null,
-      "s": "2026-11-12",
-      "rr": "2026-11-02"
-    },
-    "AMZN": {
-      "lt": "Fair",
-      "sw": "Neutral",
-      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)",
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-29"
-    },
     "NVDA": {
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": "2026-11-12",
+      "v": "2026-11-13",
+      "g": "2026-11-13",
       "s": null,
       "rr": null
+    },
+    "ASML.AS": {
+      "lt": "Good entry",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "ADBE": {
+      "lt": "Fair",
+      "sw": "Avoid",
+      "sm": null,
+      "v": "2026-11-13"
     },
     "META": {
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": "Q1 2026 to Q2 2026|Held by Pershing Square, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-12",
-      "g": "2026-11-12",
+      "v": "2026-11-13",
+      "g": "2026-11-13",
       "s": null,
       "rr": null
     },
-    "TSLA": {
-      "lt": "Expensive",
+    "GOOGL": {
+      "lt": "Fair",
       "sw": "Neutral",
-      "sm": null,
-      "v": "2026-11-12",
+      "sm": "Q2 2026|Held by Berkshire Hathaway (added), Fundsmith, Dodge & Cox",
+      "v": "2026-11-13",
       "g": null,
       "s": null,
-      "rr": null
+      "rr": "2026-10-28"
     },
-    "AVGO": {
+    "DTE.DE": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": null
+      "v": "2026-11-13"
     },
-    "AMD": {
-      "lt": "Expensive",
-      "sw": "Setup",
-      "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": "2026-11-12",
-      "rr": "2026-11-03"
-    },
-    "V": {
-      "lt": "Expensive",
+    "REGN": {
+      "lt": "Fair",
       "sw": "Neutral",
-      "sm": "Q2 2026|Held by Akre Capital, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-12",
-      "g": null,
+      "sm": "Q2 2026|Held by Dodge & Cox",
+      "v": "2026-11-13"
+    },
+    "ZTS": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q2 2026|",
+      "v": "2026-11-13"
+    },
+    "GSK.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "HSBA.L": {
+      "lt": "Good entry",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": "2026-11-13",
       "s": null,
       "rr": "2026-10-27"
     },
@@ -211,79 +184,160 @@
       "lt": "Fair",
       "sw": "Setup",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
-      "s": "2026-11-12",
+      "s": "2026-11-13",
       "rr": null
     },
-    "AZN.L": {
+    "III.L": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-30"
+      "v": "2026-11-13"
     },
-    "SHEL.L": {
+    "EME": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-29"
+      "v": "2026-11-13"
     },
-    "HSBA.L": {
-      "lt": "Good entry",
+    "SNA": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": "2026-11-12",
-      "s": null,
-      "rr": "2026-10-27"
+      "v": "2026-11-13"
     },
-    "BRBY.L": {
-      "lt": "Wait",
+    "IMI.L": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": null,
-      "s": null,
-      "rr": null
+      "v": "2026-11-13"
     },
-    "NEM": {
-      "lt": "Good entry",
+    "GRMN": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "BKNG": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Dodge & Cox (added)",
+      "v": "2026-11-13"
+    },
+    "DECK": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
-      "g": "2026-11-12",
-      "s": "2026-11-11",
-      "rr": "2026-10-22"
+      "v": "2026-11-13"
+    },
+    "MNST": {
+      "lt": "Expensive",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "PG": {
+      "lt": "Expensive",
+      "sw": "Setup",
+      "sm": "Q2 2026|Held by Fundsmith",
+      "v": "2026-11-13"
     },
     "STZ": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": "Q2 2026|",
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
       "s": null,
       "rr": null
+    },
+    "CVX": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": "Q2 2026|Held by Berkshire Hathaway",
+      "v": "2026-11-13"
+    },
+    "SHEL.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": "2026-10-29"
+    },
+    "TTE.PA": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "NEM": {
+      "lt": "Good entry",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": "2026-11-13",
+      "s": "2026-11-11",
+      "rr": "2026-10-22"
+    },
+    "FCX": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "SHW": {
+      "lt": "Expensive",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "VST": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "SSE.L": {
+      "lt": "Fair",
+      "sw": "Setup (earnings risk)",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "ENGI.PA": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
     },
     "VICI": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
       "s": null,
       "rr": "2026-10-28"
+    },
+    "BBOX.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "EQIX": {
+      "lt": "Expensive",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
     },
     "SCHW": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": "Q2 2026|Held by Dodge & Cox",
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
       "s": null,
       "rr": null
@@ -292,7 +346,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
       "s": "2026-11-11",
       "rr": "2026-11-05"
@@ -301,7 +355,7 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": "2026-11-11",
       "s": null,
       "rr": "2026-10-29"
@@ -310,16 +364,34 @@
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
       "g": null,
       "s": null,
       "rr": "2026-10-30"
+    },
+    "AMZN": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)",
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": "2026-10-29"
     },
     "GLEN.L": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-12",
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": null
+    },
+    "BRBY.L": {
+      "lt": "Wait",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
       "g": null,
       "s": null,
       "rr": null
@@ -330,7 +402,7 @@
     "fg": {
       "score": 40,
       "rating": "fear",
-      "asOf": "2026-11-12T20:59:59+00:00",
+      "asOf": "2026-11-12T23:59:58+00:00",
       "comparisons": {
         "close": 37,
         "week": 20,
@@ -382,11 +454,6 @@
         }
       ],
       "history": [
-        {
-          "date": "2025-11-12",
-          "t": 1762905600000,
-          "y": 35
-        },
         {
           "date": "2025-11-13",
           "t": 1762992000000,
@@ -1634,19 +1701,19 @@
         },
         {
           "date": "2026-11-12",
-          "t": 1794517199000,
+          "t": 1794527998000,
           "y": 40
         }
       ]
     },
-    "fgAt": "2026-11-12T21:10:45.076Z",
+    "fgAt": "2026-11-13T02:35:11.941Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7592.4,
         "date": "2026-11-12",
-        "asOf": "2026-11-12T21:10:43.000Z",
+        "asOf": "2026-11-12T21:58:23.000Z",
         "currency": "USD",
         "drawdownPct": -2.9,
         "peak": 7818.93,
@@ -1790,11 +1857,11 @@
         ]
       },
       "vix": {
-        "level": 18.99,
-        "dayPct": 8.6,
+        "level": 18.7,
+        "dayPct": 6.9,
         "date": "2026-11-12"
       },
-      "at": "2026-11-12T21:10:45.076Z"
+      "at": "2026-11-13T02:35:11.941Z"
     },
     "watchlist": [
       {
@@ -2262,7 +2329,7 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 420.33,
+        "price": 420.31,
         "date": "2026-11-12",
         "dropFromHigh": -3.7,
         "lastChange": -1.2,
@@ -2308,13 +2375,13 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 342.88,
+        "price": 342.82,
         "date": "2026-11-12",
         "dropFromHigh": -2.6,
-        "lastChange": -0.1,
+        "lastChange": -0.2,
         "previous": 0.4,
         "week": 1.6,
-        "month": 2.3,
+        "month": 2.2,
         "series": [
           0,
           0,
@@ -2345,7 +2412,7 @@
           2.92,
           2.92,
           3.31,
-          3.16
+          3.14
         ],
         "rebound": false
       },
@@ -2590,7 +2657,7 @@
       "2026-10-30:IEX"
     ]
   },
-  "shortSeen": "2026-11-11",
+  "shortSeen": "2026-11-12",
   "shortPotStage": null,
   "resultsSent": {
     "NVDA|2026-11-17": [
