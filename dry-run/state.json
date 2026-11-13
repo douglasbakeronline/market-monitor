@@ -108,23 +108,35 @@
     }
   },
   "research": {
-    "SPCX": {
-      "lt": "Expensive",
+    "NVDA": {
+      "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
       "v": "2026-11-13",
-      "g": null,
+      "g": "2026-11-13",
       "s": null,
-      "rr": "2026-10-20"
+      "rr": null
     },
-    "MSFT": {
-      "lt": "Fair",
+    "ASML.AS": {
+      "lt": "Good entry",
       "sw": "Neutral",
-      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (new), Fundsmith, Dodge & Cox",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "ADBE": {
+      "lt": "Fair",
+      "sw": "Avoid",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "META": {
+      "lt": "Good entry",
+      "sw": "Neutral",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square, Fundsmith, Dodge & Cox (added)",
       "v": "2026-11-13",
-      "g": null,
-      "s": "2026-11-11",
-      "rr": "2026-10-28"
+      "g": "2026-11-13",
+      "s": null,
+      "rr": null
     },
     "GOOGL": {
       "lt": "Fair",
@@ -135,75 +147,36 @@
       "s": null,
       "rr": "2026-10-28"
     },
-    "AAPL": {
-      "lt": "Expensive",
-      "sw": "Setup",
-      "sm": "Q2 2026|Held by Berkshire Hathaway",
-      "v": "2026-11-13",
-      "g": null,
-      "s": "2026-11-12",
-      "rr": "2026-11-02"
-    },
-    "AMZN": {
+    "DTE.DE": {
       "lt": "Fair",
       "sw": "Neutral",
-      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)",
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-29"
+      "sm": null,
+      "v": "2026-11-13"
     },
-    "NVDA": {
+    "REGN": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Dodge & Cox",
+      "v": "2026-11-13"
+    },
+    "ZTS": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q2 2026|",
+      "v": "2026-11-13"
+    },
+    "GSK.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "HSBA.L": {
       "lt": "Good entry",
       "sw": "Neutral",
       "sm": null,
       "v": "2026-11-13",
-      "g": "2026-11-12",
-      "s": null,
-      "rr": null
-    },
-    "META": {
-      "lt": "Good entry",
-      "sw": "Neutral",
-      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-13",
-      "g": "2026-11-12",
-      "s": null,
-      "rr": null
-    },
-    "TSLA": {
-      "lt": "Expensive",
-      "sw": "Neutral",
-      "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": null
-    },
-    "AVGO": {
-      "lt": "Fair",
-      "sw": "Neutral",
-      "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": null
-    },
-    "AMD": {
-      "lt": "Expensive",
-      "sw": "Setup",
-      "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": "2026-11-12",
-      "rr": "2026-11-03"
-    },
-    "V": {
-      "lt": "Expensive",
-      "sw": "Neutral",
-      "sm": "Q2 2026|Held by Akre Capital, Fundsmith, Dodge & Cox (added)",
-      "v": "2026-11-13",
-      "g": null,
+      "g": "2026-11-13",
       "s": null,
       "rr": "2026-10-27"
     },
@@ -213,53 +186,62 @@
       "sm": null,
       "v": "2026-11-13",
       "g": null,
-      "s": "2026-11-12",
+      "s": "2026-11-13",
       "rr": null
     },
-    "AZN.L": {
+    "III.L": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-30"
+      "v": "2026-11-13"
     },
-    "SHEL.L": {
+    "EME": {
       "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": "2026-10-29"
+      "v": "2026-11-13"
     },
-    "HSBA.L": {
-      "lt": "Good entry",
+    "SNA": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-13",
-      "g": "2026-11-12",
-      "s": null,
-      "rr": "2026-10-27"
+      "v": "2026-11-13"
     },
-    "BRBY.L": {
-      "lt": "Wait",
+    "IMI.L": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-13",
-      "g": null,
-      "s": null,
-      "rr": null
+      "v": "2026-11-13"
     },
-    "NEM": {
-      "lt": "Good entry",
+    "GRMN": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "BKNG": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q2 2026|Held by Dodge & Cox (added)",
+      "v": "2026-11-13"
+    },
+    "DECK": {
+      "lt": "Fair",
       "sw": "Neutral",
       "sm": null,
-      "v": "2026-11-13",
-      "g": "2026-11-12",
-      "s": "2026-11-11",
-      "rr": "2026-10-22"
+      "v": "2026-11-13"
+    },
+    "MNST": {
+      "lt": "Expensive",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "PG": {
+      "lt": "Expensive",
+      "sw": "Setup",
+      "sm": "Q2 2026|Held by Fundsmith",
+      "v": "2026-11-13"
     },
     "STZ": {
       "lt": "Fair",
@@ -270,6 +252,66 @@
       "s": null,
       "rr": null
     },
+    "CVX": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": "Q2 2026|Held by Berkshire Hathaway",
+      "v": "2026-11-13"
+    },
+    "SHEL.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": "2026-10-29"
+    },
+    "TTE.PA": {
+      "lt": "Fair",
+      "sw": "Setup",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "NEM": {
+      "lt": "Good entry",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": "2026-11-13",
+      "s": "2026-11-11",
+      "rr": "2026-10-22"
+    },
+    "FCX": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "SHW": {
+      "lt": "Expensive",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "VST": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "SSE.L": {
+      "lt": "Fair",
+      "sw": "Setup (earnings risk)",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "ENGI.PA": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
     "VICI": {
       "lt": "Fair",
       "sw": "Neutral",
@@ -278,6 +320,18 @@
       "g": null,
       "s": null,
       "rr": "2026-10-28"
+    },
+    "BBOX.L": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
+    },
+    "EQIX": {
+      "lt": "Expensive",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13"
     },
     "SCHW": {
       "lt": "Fair",
@@ -315,8 +369,26 @@
       "s": null,
       "rr": "2026-10-30"
     },
+    "AMZN": {
+      "lt": "Fair",
+      "sw": "Neutral",
+      "sm": "Q1 2026 to Q2 2026|Held by Pershing Square (added), Dodge & Cox (added)",
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": "2026-10-29"
+    },
     "GLEN.L": {
       "lt": "Fair",
+      "sw": "Neutral",
+      "sm": null,
+      "v": "2026-11-13",
+      "g": null,
+      "s": null,
+      "rr": null
+    },
+    "BRBY.L": {
+      "lt": "Wait",
       "sw": "Neutral",
       "sm": null,
       "v": "2026-11-13",
@@ -330,7 +402,7 @@
     "fg": {
       "score": 40,
       "rating": "fear",
-      "asOf": "2026-11-12T22:36:43+00:00",
+      "asOf": "2026-11-12T23:59:58+00:00",
       "comparisons": {
         "close": 37,
         "week": 20,
@@ -382,11 +454,6 @@
         }
       ],
       "history": [
-        {
-          "date": "2025-11-12",
-          "t": 1762905600000,
-          "y": 35
-        },
         {
           "date": "2025-11-13",
           "t": 1762992000000,
@@ -1634,12 +1701,12 @@
         },
         {
           "date": "2026-11-12",
-          "t": 1794523003000,
+          "t": 1794527998000,
           "y": 40
         }
       ]
     },
-    "fgAt": "2026-11-12T22:57:08.494Z",
+    "fgAt": "2026-11-13T02:00:13.258Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1794,7 +1861,7 @@
         "dayPct": 6.9,
         "date": "2026-11-12"
       },
-      "at": "2026-11-12T22:57:08.494Z"
+      "at": "2026-11-13T02:00:13.258Z"
     },
     "watchlist": [
       {

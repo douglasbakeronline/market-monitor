@@ -1,0 +1,42 @@
+scan deepened 163 of 662; research 40 scored, placeholder false, failed none
+NVDA 79 Good entry | scan 79 Good entry deep
+ASML.AS 77 Good entry | scan 77 Good entry deep
+ADBE 77 Fair | scan 77 Fair deep
+META 77 Good entry | scan 78 Good entry deep
+GOOGL 71 Fair | scan 71 Fair deep
+DTE.DE 65 Fair | scan 65 Fair deep
+REGN 71 Fair | scan 71 Fair deep
+ZTS 55 Fair | scan 55 Fair deep
+GSK.L 56 Fair | scan 56 Fair deep
+HSBA.L 72 Good entry | scan 72 Good entry deep
+JPM 65 Fair | scan 65 Fair deep
+III.L 76 Fair | scan 75 Fair deep
+EME 80 Fair | scan 80 Fair deep
+SNA 63 Fair | scan 64 Fair deep
+IMI.L 66 Fair | scan 66 Fair deep
+GRMN 66 Fair | scan 63 Fair deep
+BKNG 68 Fair | scan 67 Fair deep
+DECK 76 Fair | scan 76 Fair deep
+MNST 54 Expensive | scan 55 Expensive deep
+PG 49 Expensive | scan 49 Expensive deep
+STZ 67 Fair | scan 67 Fair deep
+CVX 71 Fair | scan 71 Fair deep
+SHEL.L 70 Fair | scan 70 Fair deep
+TTE.PA 70 Fair | scan 70 Fair deep
+NEM 75 Good entry | scan 75 Good entry deep
+FCX 69 Fair | scan 69 Fair deep
+SHW 46 Expensive | scan 46 Expensive deep
+VST 74 Fair | scan 74 Fair deep
+SSE.L 59 Fair | scan 59 Fair deep
+ENGI.PA 55 Fair | scan 55 Fair deep
+VICI 66 Fair | scan 66 Fair deep
+BBOX.L 71 Fair | scan 81 Fair deep
+EQIX 55 Expensive | scan 55 Expensive deep
+SCHW 77 Fair | scan 77 Fair deep
+CF 68 Fair | scan 68 Fair deep
+LLOY.L 77 Fair | scan 77 Fair deep
+NWG.L 70 Fair | scan 70 Fair deep
+AMZN 63 Fair | scan 63 Fair deep
+GLEN.L 68 Fair | scan 68 Fair deep
+BRBY.L 40 Wait | scan 40 Wait deep
+same score: 33 of 40; still quick on the scan: 0
