@@ -11,7 +11,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - OK to keep the five pick names in the public repo (they drive the Dashboard tranche check)? Alternative: load the plan from the browser like the pots panel.
 - Optional `FINNHUB_KEY` secret.
 - **Add the `SEC_CONTACT` secret (6 Nov), now optional (8 Nov: 13f.info covers the same filings):** Douglas agreed to use his email for SEC. If he wants EDGAR as the first source, he adds it himself: repo Settings, Secrets and variables, Actions, New repository secret, name `SEC_CONTACT` (Claude cannot set secrets).
-- **Exclude Burberry from the short-term pot? (12 Nov, private reason, asked in chat)** Douglas to confirm whether he can trade it; if not, add BRBY.L to a pot skip list (not built yet).
+- **Exclude Burberry from the short-term pot? (12 Nov, private reason, asked in chat)** Douglas to confirm whether he can trade it. The skip list is built (13 Nov, empty): on a yes, add `{ "symbol": "BRBY.L", "from": "2026-11-12" }` to `data/pot-skip.json` if he did not buy it at the 13 Nov open (the pot listed it), or `"from": "2026-11-14"` if he did, so the book matches what he holds.
 - Delete leftover branches `probe`, `lab-runup` and `dryrun-results` (Claude cannot force-push or delete; `dryrun` is reused for testing; keep it).
 
 ## Decided recently (no longer waiting)
@@ -53,6 +53,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 13 Nov (11:41): short-term pot skip list (`data/pot-skip.json`, built empty): a listed name is never bought from its date, the next signal takes the slot, earlier trades and the setups' live record are kept.
 - 12 Nov (22:41): every scanned REIT valued on cash flow (all Real Estate names get full data; median from 32 REITs, not 5); a REIT left on P/E says why; `SCORING_VERSION` 2026-11-13.
 - 12 Nov (22:41): Sunday digest line saying how many separate ideas the good entries are.
 - 12 Nov (19:41, later): UK REITs with no industry from Yahoo recognised by their FTSE sector for the cash-flow score.
