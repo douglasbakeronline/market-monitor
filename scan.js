@@ -524,7 +524,7 @@ async function main() {
   try {
     if (shortFresh) shortTerm = carryPushed((await readJson("scan.json", {}))?.shortTerm ?? null, shortTerm);
     const canPush = CONFIG.shortEveningPush && shortFresh && (process.env.NTFY_TOPIC || process.env.DRY_RUN) && !inQuietHours(new Date());
-    const sta = canPush ? shortTermAlert(shortTerm) : null;
+    const sta = canPush ? shortTermAlert(shortTerm, null, new Date()) : null;
     if (sta && allowAlert(sta, CONFIG.alertProfile ?? "all")) {
       console.log(`ALERT (evening) ${sta.title}`);
       if (await notify(sta)) shortTerm = { ...shortTerm, pushedAt: new Date().toISOString() };

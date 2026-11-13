@@ -49,3 +49,28 @@ export function orderTiming(signalDate, market, now = new Date()) {
   const state = p.date < due ? "next" : p.date > due ? "passed" : p.min < o.min ? "today" : "passed";
   return { due, state };
 }
+
+// The open as a phrase for the pot's pushes (13 Nov, late): the 08:15
+// fallback push said "at the next open" for UK orders after London's 08:00
+// open had passed, and Friday's evening push did not say the open was Monday.
+// Returns { state, text }: text reads "at <text>", e.g. "the next open",
+// "the Mon 16 Nov open", "today's open (14:30 London)", "today's 08:00 open".
+const dmy = (date) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" });
+// London clock time of a market's open on a date (US opens 14:30 London, 13:30
+// in the weeks when only one side has moved its clocks).
+export function openInLondon(date, market) {
+  const o = OPEN[mkt(market)];
+  let t = Date.parse(`${date}T12:00:00Z`);
+  for (let k = 0; k < 3; k++) { const p = partsIn(o.tz, new Date(t)); t += ((p.date === date ? 0 : p.date < date ? 1440 : -1440) + o.min - p.min) * 6e4; }
+  const l = partsIn("Europe/London", new Date(t)).min;
+  return `${String(Math.floor(l / 60)).padStart(2, "0")}:${String(l % 60).padStart(2, "0")}`;
+}
+export function openPhrase(signalDate, market, now) {
+  const t = now ? orderTiming(signalDate, market, now) : null;
+  if (!t) return { state: "next", text: "the next open" };
+  const today = partsIn("Europe/London", now).date, hhmm = openInLondon(t.due, market);
+  const onDay = t.due === today ? "today's" : t.due < today ? `the ${dmy(t.due)}` : null;
+  if (t.state === "passed") return { state: "passed", due: t.due, text: `${onDay ?? `the ${dmy(t.due)}`} ${hhmm} open` };
+  if (t.state === "today" || t.due === today) return { state: "today", due: t.due, text: `today's open (${hhmm} London)` };
+  return { state: "next", due: t.due, text: t.due === addDays(today, 1) ? "the next open" : `the ${dmy(t.due)} open` };
+}

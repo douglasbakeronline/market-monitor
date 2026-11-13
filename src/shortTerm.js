@@ -18,6 +18,7 @@ import { sma, rsi } from "./indicators.js";
 import { r1, r2 } from "./util.js";
 import { COSTS } from "./swingRetune.js";
 import { driftToday } from "./swingLab.js";
+import { openPhrase } from "./sessions.js";
 
 export const ST = { maxDrift: 5, maxBounce: 5, rsi2Below: 10, bounceMax: 10, driftHold: 20 };
 export const ST_LABEL = { drift: "Results drift", bounce: "Bounce in an uptrend" };
@@ -216,7 +217,8 @@ export function newerShort(fromData, fromScan) {
   return fromScan.date >= fromData.date ? fromScan : fromData;
 }
 
-export function shortTermAlert(st, seen = null) {
+// now (optional): the current instant, so each order says when its open is.
+export function shortTermAlert(st, seen = null, now = null) {
   if (!st?.date || st.date === seen || st.pushedAt) return null;
   const { drift = [], bounce = [], pot = null } = st;
   const buys = pot?.buys ?? [], sells = pot?.sells ?? [];
@@ -227,13 +229,18 @@ export function shortTermAlert(st, seen = null) {
   const lines = [];
   if (pot) {
     lines.push(`Short-term pot (real money, 10% of the portfolio)${pot.paused ? ": PAUSED, 25% below its high. No new buys; review the pot before resuming." : "."}`);
-    if (buys.length) {
-      lines.push("Buy at the next open, a fifth of the pot each (about 2% of the portfolio):");
-      for (const b of buys) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.${bigJump(sig[`${b.kind}:${b.symbol}`]) ? ` Note: ${TAKEOVER_NOTE}.` : ""}`);
+    // Grouped by when the order's open is (13 Nov, late): the 08:15 fallback
+    // push can arrive after London's 08:00 open, and Friday's list is Monday's.
+    const at = (o, date) => openPhrase(date ?? pot.rules?.today ?? st.date, o.market, now);
+    const groups = (list, dateOf) => { const g = new Map(); for (const o of list) { const p = at(o, dateOf(o)); const k = `${p.state}|${p.text}`; if (!g.has(k)) g.set(k, { p, list: [] }); g.get(k).list.push(o); } return [...g.values()]; };
+    const passedNote = "now passed: if you still place them, log the price you get";
+    for (const { p, list } of groups(buys, (b) => b.signalDate)) {
+      lines.push(p.state === "passed" ? `Buys due at ${p.text}, ${passedNote} (a fifth of the pot each, about 2% of the portfolio):` : `Buy at ${p.text}, a fifth of the pot each (about 2% of the portfolio):`);
+      for (const b of list) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.${bigJump(sig[`${b.kind}:${b.symbol}`]) ? ` Note: ${TAKEOVER_NOTE}.` : ""}`);
     }
-    if (sells.length) {
-      lines.push("Sell at the next open (exit rule met at the last close):");
-      for (const x of sells) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.`);
+    for (const { p, list } of groups(sells, (x) => x.exitDate)) {
+      lines.push(p.state === "passed" ? `Sells due at ${p.text}, ${passedNote} (exit rule met at the last close):` : `Sell at ${p.text} (exit rule met at the last close):`);
+      for (const x of list) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.`);
     }
     lines.push(`Pot: ${(pot.open?.length ?? 0) + buys.length - sells.length} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
     const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));

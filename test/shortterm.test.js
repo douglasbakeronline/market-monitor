@@ -118,3 +118,20 @@ test("drift: a scheduled results date counts as a results day; the surprise ride
   const log = addShort([], [{ ...t.drift[0], surprisePct: 12.5 }]);
   assert.equal(log[0].surprisePct, 12.5);
 });
+
+test("shortTermAlert says when each order's open is: passed London open at 08:15, New York's ahead, Monday's on Friday", () => {
+  const pot = { rules: { maxOpen: 5, today: "2026-11-12" }, start: "2026-11-12", returnPct: 0, open: [],
+    buys: [{ kind: "drift", symbol: "C", ticker: "C", name: "Cee plc", market: "UK", signalDate: "2026-11-12" }, { kind: "bounce", symbol: "A", ticker: "A", name: "Ay", market: "US", signalDate: "2026-11-12" }],
+    sells: [{ kind: "bounce", ticker: "Z", name: "Zed", market: "UK", exitDate: "2026-11-12", netPct: 2.1 }] };
+  const st = { ...st0, date: "2026-11-12", pot };
+  const morning = shortTermAlert(st, null, new Date("2026-11-13T08:15:00Z")).body;
+  assert.match(morning, /Buys due at today's 08:00 open, now passed: if you still place them, log the price you get/);
+  assert.match(morning, /Buy at today's open \(14:30 London\), a fifth of the pot each/);
+  assert.match(morning, /Sells due at today's 08:00 open, now passed/);
+  assert.ok(morning.indexOf("- C (Cee)") < morning.indexOf("Buy at today's open"), "C sits under the passed group");
+  const fri = { ...st, date: "2026-11-13", pot: { ...pot, rules: { ...pot.rules, today: "2026-11-13" }, buys: pot.buys.map((b) => ({ ...b, signalDate: "2026-11-13" })), sells: [] } };
+  const evening = shortTermAlert(fri, null, new Date("2026-11-13T21:20:00Z")).body;
+  assert.match(evening, /Buy at the Mon 16 Nov open, a fifth of the pot each/);
+  assert.equal((evening.match(/^Buy at/gm) ?? []).length, 1, "one group when every open is the same");
+  assert.match(shortTermAlert(st, null).body, /Buy at the next open, a fifth/, "no clock: as before");
+});

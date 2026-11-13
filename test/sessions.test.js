@@ -37,3 +37,21 @@ test("orderTiming: next open, today's open, or already passed (London and New Yo
   assert.deepEqual(orderTiming("2026-11-13", "US", at("2026-11-14T10:00:00Z")), { due: "2026-11-16", state: "next" });
   assert.equal(orderTiming(null, "US", at("2026-11-14T10:00:00Z")), null);
 });
+
+test("openPhrase: the open in words, in London time, for the pot's pushes", async () => {
+  const { openPhrase, openInLondon } = await import("../src/sessions.js");
+  const at = (iso) => new Date(iso);
+  assert.equal(openInLondon("2026-11-13", "US"), "14:30");
+  assert.equal(openInLondon("2026-11-13", "UK"), "08:00");
+  assert.equal(openInLondon("2027-03-15", "US"), "13:30"); // New York on summer time, London not yet
+  assert.equal(openInLondon("2027-06-11", "UK"), "08:00");
+  // Evening push on Thu 12 Nov: tomorrow's open.
+  assert.deepEqual(openPhrase("2026-11-12", "UK", at("2026-11-12T21:30:00Z")), { state: "next", due: "2026-11-13", text: "the next open" });
+  // Evening push on Fri 13 Nov: Monday's.
+  assert.equal(openPhrase("2026-11-13", "US", at("2026-11-13T21:20:00Z")).text, "the Mon 16 Nov open");
+  // 08:15 fallback on Fri 13 Nov: London's open has passed, New York's is ahead.
+  assert.deepEqual(openPhrase("2026-11-12", "UK", at("2026-11-13T08:15:00Z")), { state: "passed", due: "2026-11-13", text: "today's 08:00 open" });
+  assert.deepEqual(openPhrase("2026-11-12", "US", at("2026-11-13T08:15:00Z")), { state: "today", due: "2026-11-13", text: "today's open (14:30 London)" });
+  assert.equal(openPhrase("2026-11-12", "UK", at("2026-11-13T07:30:00Z")).text, "today's open (08:00 London)");
+  assert.equal(openPhrase("2026-11-12", "US", null).text, "the next open");
+});
