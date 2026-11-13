@@ -158,6 +158,14 @@ export function withReitHint(f, listedSector) {
   if (!f || f.industry || !/Real Estate Investment Trusts/i.test(listedSector || "")) return f;
   return gicsSector(f.sector || "Real Estate") === "Real Estate" ? { ...f, industry: "REIT" } : f;
 }
+// A Research-list stock with no sector from Yahoo (Tritax Big Box, 13 Nov
+// 2026) takes the index list's sector from the scan, as the scan itself does,
+// so it gets sector peers and the REIT hint and both pages give one score.
+// Yahoo's own sector always wins.
+export function withListedSector(f, listedSector) {
+  if (!f || f.sector || !listedSector) return f;
+  return withReitHint({ ...f, sector: listedSector }, listedSector);
+}
 // Every Real Estate name in the scan gets full data (13 Nov 2026), so the REIT
 // median rests on all scanned REITs, not the 5 to 7 that happened to rank
 // among the best long-term candidates, and quick-scored REITs are valued on

@@ -7,7 +7,7 @@ import { smartFor, smartEvent } from "./smartMoney.js";
 import { pickResultsLine, pickSellLine } from "./plan.js";
 import { latestSellSignals } from "./sellSignals.js";
 import { readJson, writeJson } from "./state.js";
-import { peerFor, sectorValueNote, marketOf, reitView, withReitScore, reitPeNote } from "./sectorValue.js";
+import { peerFor, sectorValueNote, marketOf, reitView, withReitScore, reitPeNote, withListedSector } from "./sectorValue.js";
 import { evPeer, withEv } from "./evSample.js";
 import { recordScores, scoreChange, recordEarnings, lastReaction, latestPast } from "./stockHistory.js";
 import { r1, r2, sleep, dateIn } from "./util.js";
@@ -28,9 +28,12 @@ export async function runResearch({ regimeKey, state }) {
   const smart = await readJson("data/smart-money.json", null); // smart-money tags (display only)
   const rcMoves = (await readJson("data/results-check.json", null))?.items ?? {}; // usual results-day moves (display only)
   const medians = scanMeta?.sectorMedians ?? null, regional = scanMeta?.sectorMediansByRegion ?? null;
+  // The index list's sector for each scanned stock, for list stocks Yahoo gives no sector (13 Nov).
+  const listedSector = Object.fromEntries((scanMeta?.items ?? []).filter((x) => x.sector).map((x) => [x.symbol, x.sector]));
   for (const s of stocks) {
     try {
-      const [prices, f] = [await fetchDaily(s.symbol, { range: "2y" }), await fetchFundamentals(s.symbol)];
+      const [prices, f0] = [await fetchDaily(s.symbol, { range: "2y" }), await fetchFundamentals(s.symbol)];
+      const f = withListedSector(f0, listedSector[s.symbol]);
       const t = technicals(prices.rows);
       rowsBySymbol[s.symbol] = prices.rows;
       earnings = recordEarnings(earnings, s.symbol, f?.nextEarnings);

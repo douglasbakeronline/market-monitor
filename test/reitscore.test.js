@@ -114,3 +114,19 @@ test("reitPeNote: a REIT left on P/E says why (Tritax Big Box, 13 Nov)", async (
   assert.equal(reitPeNote(bbox, { pocf: 10, median: 14 }, { median: 14, n: 25 }), null, "on cash flow: no note");
   assert.equal(reitPeNote({ sector: "Real Estate", industry: "Real Estate Services" }, null, null), null, "not a REIT");
 });
+
+test("withListedSector: a list stock with no sector from Yahoo takes the scan's listed sector (13 Nov)", async () => {
+  const { withListedSector, peerFor, pocf } = await import("../src/sectorValue.js");
+  const bbox = { sector: null, industry: null, forwardPE: 16, marketCap: 4e9, operatingCashflow: 2.5e8 };
+  const f = withListedSector(bbox, "Real Estate Investment Trusts");
+  assert.equal(f.sector, "Real Estate Investment Trusts");
+  assert.equal(f.industry, "REIT", "the FTSE REIT sector also marks it as a REIT");
+  assert.equal(pocf(f), 16);
+  const med = { "Real Estate": { n: 34, pe: 34.8, forwardPE: 34.8, trailingPE: 28.3 } };
+  assert.equal(peerFor(bbox, med, null, "UK"), null, "before: no sector, no peers (scored on fixed bands)");
+  assert.equal(peerFor(f, med, null, "UK").sector, "Real Estate", "after: Real Estate peers, as on the scan");
+  const named = { sector: "Financial Services", industry: "Banks" };
+  assert.equal(withListedSector(named, "Banks"), named, "Yahoo's sector wins");
+  assert.equal(withListedSector(bbox, null), bbox, "no listed sector: unchanged");
+  assert.equal(withListedSector(null, "Banks"), null);
+});
