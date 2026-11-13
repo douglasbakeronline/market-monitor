@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-13T02:08:17.226Z",
+  "updated": "2026-11-13T11:54:34.774Z",
   "items": {
     "NVDA": {
       "quarter": "2026-07-31",
@@ -14,8 +14,8 @@
         "avgSurprise": 5.1,
         "next": {
           "date": "2026-11-17",
-          "epsEstimate": 2.47507,
-          "epsLow": 2.34,
+          "epsEstimate": 2.47323,
+          "epsLow": 2.25754,
           "epsHigh": 2.7
         }
       },
