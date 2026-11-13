@@ -720,6 +720,7 @@ function renderShortTerm(st) {
       ${list.length ? list.map(row).join("") : `<div class="st-row"><span class="muted">None last night.</span><span></span></div>`}
       ${fired > list.length ? `<div class="small muted">Top ${list.length} of ${fired} shown.</div>` : ""}
     </div>`;
+  const skipped = (s) => (st.pot?.skipList ?? []).some((x) => x.symbol === s.symbol && (s.date ?? "") >= (x.from ?? ""));
   const P = st.pot, kindName = (k) => (k === "drift" ? "Results drift" : "Bounce");
   // Pound sizes from the private pots panel (this browser only).
   const SZ = P ? potOrderSize(P, loadPf()) : null;
@@ -740,9 +741,9 @@ function renderShortTerm(st) {
   el.innerHTML = `<div class="k">From the ${esc(fmtDM(st.date))} close</div>
     ${potHtml}
     ${group("Results drift", "Some edge, inconsistent", "A 4%+ jump on 3× normal volume. Buy the next open, hold 20 sessions.", T.drift, L.drift, st.drift ?? [],
-      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? `Results day${s.surprisePct != null ? `, EPS ${signPct(s.surprisePct)} vs forecast` : ""}` : "No results date nearby"}${bigJump({ kind: "drift", ...s }) ? " · check it is not a takeover offer" : ""}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
+      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">${s.results ? `Results day${s.surprisePct != null ? `, EPS ${signPct(s.surprisePct)} vs forecast` : ""}` : "No results date nearby"}${bigJump({ kind: "drift", ...s }) ? " · check it is not a takeover offer" : ""}${skipped(s) ? " · on your skip list, not a pot trade" : ""}</span></span><span class="num">${signPct(s.movePct)}<span class="sub">${s.volX}× volume</span></span></div>`, st.counts?.drift ?? 0)}
     ${group("Bounce in an uptrend", "No edge after costs", "A sharp dip (2-day RSI under 10) above the 200-day average. Buy the next open, sell at the first close above the 5-day average or after 10 sessions.", T.bounce, L.bounce, st.bounce ?? [],
-      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
+      (s) => `<div class="st-row"><span><b>${esc(s.ticker)}</b> <span class="muted">${esc(short(s.name))}</span><span class="sub">2-day RSI ${s.rsi2} · ${signPct(s.vs200)} above its 200-day${skipped(s) ? " · on your skip list, not a pot trade" : ""}</span></span><span class="num">${signPct(s.fall3)}<span class="sub">3 days</span></span></div>`, st.counts?.bounce ?? 0)}
     <p class="small muted" style="margin:12px 0 0">Your call on 11 Nov: 10% of the portfolio, both setups, from the core. Up to 5 trades, a fifth of the pot each; drift takes free slots first, then the most oversold bounces. No stop orders (the backtest's stop cut drift's edge); the pot pauses if it falls 25% from its high. In the backtest drift beat random entry after costs in ${T.drift ? `${T.drift.yearsAhead} of ${T.drift.years}` : "most"} years, while bounces won often but lost a little on average after costs. When there is anything to buy or sell, a push goes to your phone the evening before (about 21:30 London, once the scan has run after the US close), so you can place the orders before the open; if the scan runs late, the push comes at 08:15 instead.${st.pushedAt ? ` This list was pushed at ${new Date(st.pushedAt).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" })}.` : ""}</p>`;
   el.hidden = false; $("stSection").hidden = false;
 }

@@ -1,4 +1,4 @@
 {
-  "note": "DRY RUN BRANCH ONLY: test entry.",
-  "skip": [{ "symbol": "BRBY.L", "from": "2026-11-12" }]
+  "note": "Names the short-term pot never buys (src/shortPot.js potSkips). Each entry: { \"symbol\": Yahoo symbol, \"from\": first signal date skipped (YYYY-MM-DD) }. Trades taken before \"from\" are kept. Ticker only, never the reason (public repo). Empty until Douglas asks for a name.",
+  "skip": []
 }
