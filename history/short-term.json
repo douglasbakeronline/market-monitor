@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-13T02:03:33.703Z",
+  "updated": "2026-11-13T02:08:31.554Z",
   "date": "2026-11-12",
   "drift": [
     {
@@ -8,7 +8,7 @@
       "name": "Burberry Group plc",
       "market": "UK",
       "index": "FTSE 100",
-      "score": 37,
+      "score": 40,
       "kind": "drift",
       "date": "2026-11-12",
       "price": 1180.5,
