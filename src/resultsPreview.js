@@ -88,12 +88,13 @@ export function beatRecord(hist = [], today) {
 // bench). held: the short-term pot's open symbols. rowsBySymbol: daily bars.
 // reported: { symbol: [{ date, after, surprisePct? }] } (fetchResultsHistory).
 // dates: history/results-dates.json (plain dates). afterClose: hand-checked
-// after-close reporters.
-export function resultsPreview(items = [], { today, focus = new Set(), held = new Set(), rowsBySymbol = {}, reported = {}, dates = {}, afterClose = new Set(), days = PREVIEW.days } = {}) {
+// after-close reporters. known: data/results-dates-known.json dates (hand-checked,
+// so a date not in afterClose reacts that session, as for a 07:00 RNS).
+export function resultsPreview(items = [], { today, focus = new Set(), held = new Set(), rowsBySymbol = {}, reported = {}, dates = {}, afterClose = new Set(), known = {}, days = PREVIEW.days } = {}) {
   const rows = [];
   for (const { it, nd, inDays, isFocus, pot } of previewCandidates(items, { today, focus, held, days })) {
     const timed = (reported[it.symbol] ?? []).filter((e) => e.date < today);
-    const plain = (dates[it.symbol] ?? []).filter((d) => d < today && !timed.some((e) => e.date === d)).map((d) => (afterClose.has(it.symbol) ? { date: d, after: true } : d));
+    const plain = (dates[it.symbol] ?? []).filter((d) => d < today && !timed.some((e) => e.date === d)).map((d) => (afterClose.has(it.symbol) ? { date: d, after: true } : (known[it.symbol] ?? []).includes(d) ? { date: d, after: false } : d));
     const moves = typicalMove(rowsBySymbol[it.symbol], [...timed, ...plain]);
     const rc = it.resultsCheck, rec = beatRecord(timed, today);
     rows.push({

@@ -1,5 +1,5 @@
 {
-  "note": "Hand-kept past results dates for the picks and bench (and, since 12 Nov, research-list names Yahoo lacks dates for: BRBY.L interims 13 Nov 2025 and preliminary results 14 May 2026, both RNS at 07:00) (checked 10 Nov 2026 from company releases, RNS and SEC filings). Merged into history/results-dates.json by the nightly scan, and used as exact results days for the usual results-day moves (the next session for after-close reporters) instead of the busiest-day guess. Add each new results date per quarter only if Yahoo's latest-results date misses it.",
+  "note": "Hand-kept past results dates for the picks and bench (and, since 12 Nov, research-list names Yahoo lacks dates for: BRBY.L interims 13 Nov 2025 and preliminary results 14 May 2026, both RNS at 07:00) (checked 10 Nov 2026 from company releases, RNS and SEC filings). Merged into history/results-dates.json by the nightly scan, and used as exact results days for the usual results-day moves (the next session for after-close reporters) instead of the busiest-day guess. Add each new results date per quarter only if Yahoo's latest-results date misses it. Since 13 Nov 2026 (14:41 run) also the 13 FTSE 100 names reporting in the week of 17 Nov that Yahoo has no past dates for (SSE, Investec, Imperial Brands, easyJet, Babcock, LondonMetric, Experian, British Land, Sage, Halma, Severn Trent, Diploma, Compass): their last interim and full-year results days, all 07:00 RNS, checked from RNS listings (lse.co.uk, investegate, company releases). Dates not in afterClose are read as that session's reaction.",
   "dates": {
     "HSBA.L": ["2026-02-25", "2026-05-05", "2026-08-04", "2026-10-27"],
     "BRBY.L": ["2025-11-13", "2026-05-14"],
@@ -12,7 +12,20 @@
     "LLOY.L": ["2026-01-29", "2026-04-29", "2026-07-30", "2026-10-29"],
     "NWG.L": ["2026-02-13", "2026-05-01", "2026-07-31", "2026-10-30"],
     "AMZN": ["2026-02-05", "2026-04-29", "2026-07-30", "2026-10-29"],
-    "GLEN.L": ["2026-02-18", "2026-08-05"]
+    "GLEN.L": ["2026-02-18", "2026-08-05"],
+    "SSE.L": ["2025-11-12", "2026-05-28"],
+    "INVP.L": ["2025-11-20", "2026-05-21"],
+    "IMB.L": ["2025-11-18", "2026-05-12"],
+    "EZJ.L": ["2025-11-25", "2026-05-21"],
+    "BAB.L": ["2025-11-21", "2026-06-22"],
+    "LMP.L": ["2025-11-20", "2026-05-21"],
+    "EXPN.L": ["2025-11-12", "2026-05-20"],
+    "BLND.L": ["2025-11-19", "2026-05-20"],
+    "SGE.L": ["2025-11-19", "2026-05-21"],
+    "HLMA.L": ["2025-11-20", "2026-06-11"],
+    "SVT.L": ["2025-11-19", "2026-05-20"],
+    "DPLM.L": ["2025-11-18", "2026-05-19"],
+    "CPG.L": ["2025-11-25", "2026-05-11"]
   },
   "afterClose": ["META", "NEM", "STZ", "VICI", "CF", "AMZN"]
 }
