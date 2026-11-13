@@ -1711,7 +1711,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-13T10:15:00.067Z",
+    "fgAt": "2026-11-13T10:15:22.831Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1790,11 +1790,11 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10894.12,
+        "level": 10894.33,
         "date": "2026-11-13",
-        "asOf": "2026-11-13T09:59:59.000Z",
+        "asOf": "2026-11-13T10:00:22.000Z",
         "currency": "GBP",
-        "drawdownPct": -0.2,
+        "drawdownPct": -0.1,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
         "sma50": 10695.06,
@@ -1858,7 +1858,7 @@
           2.42,
           3.22,
           3.48,
-          3.77
+          3.78
         ]
       },
       "vix": {
@@ -1866,7 +1866,7 @@
         "dayPct": -1.1,
         "date": "2026-11-13"
       },
-      "at": "2026-11-13T10:15:00.067Z"
+      "at": "2026-11-13T10:15:22.831Z"
     },
     "watchlist": [
       {
@@ -2426,13 +2426,13 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13990,
+        "price": 13986,
         "date": "2026-11-13",
-        "dropFromHigh": -0.5,
+        "dropFromHigh": -0.6,
         "lastChange": 0.4,
         "previous": 0.2,
         "week": 0.4,
-        "month": 10.2,
+        "month": 10.1,
         "series": [
           0,
           1.65,
@@ -2463,7 +2463,7 @@
           18.02,
           18.12,
           18.41,
-          18.92
+          18.89
         ],
         "rebound": false
       },
@@ -2472,7 +2472,7 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3717.5,
+        "price": 3717,
         "date": "2026-11-13",
         "dropFromHigh": -7.9,
         "lastChange": 1.4,
@@ -2509,7 +2509,7 @@
           -0.19,
           1.07,
           0.92,
-          2.37
+          2.35
         ],
         "rebound": false
       },
@@ -2518,7 +2518,7 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1354.6,
+        "price": 1354.4,
         "date": "2026-11-13",
         "dropFromHigh": -0.1,
         "lastChange": 0,
@@ -2555,7 +2555,7 @@
           -8.06,
           -7.09,
           -7.2,
-          -7.16
+          -7.17
         ],
         "rebound": false
       }
@@ -2631,8 +2631,8 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 142.7,
-      "price": "£142.70",
+      "level": 142.69,
+      "price": "£142.69",
       "currency": "GBP",
       "date": "2026-11-13",
       "drawdownPct": -3,
