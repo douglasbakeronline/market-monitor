@@ -63,7 +63,7 @@ export function regime({ sp, vix, fg }) {
   if (tier && panic) return { ...base, key: "capitulation", tone: "buy", label: `Capitulation · ${tier.label}`, action: tier.note };
   if (tier) return { ...base, key: "correction", tone: "watch", label: `${tier.label}, no panic yet`, action: "Prices are down but fear isn't extreme. Scale in slowly; save bigger adds for when fear confirms." };
   if (t.enabled && score >= t.minScore && (sp.vs200Pct ?? 0) >= t.minAbove200Pct && (v == null || v <= t.maxVix))
-    return { ...base, key: "overheated", tone: "sell", label: "Overheated", action: "Extreme greed, stretched prices, calm volatility. Consider trimming winners back to your target allocation." };
+    return { ...base, key: "overheated", tone: "sell", label: "Overheated", action: "Extreme greed, stretched prices, calm volatility. Rebalance reminder: bring back any pot 5 or more points off its target weight, new money first. Not a sell or hold-cash signal." };
   if (score >= CONFIG.greedScore && dd >= CONFIG.greedMaxDrawdown)
     return { ...base, key: "euphoric", tone: "greed", label: "Euphoric", action: "No need to add extra money now; keep scheduled purchases going." };
   if (score <= CONFIG.fearNoDip.maxScore && dd > CONFIG.fearNoDip.minDrawdown)
@@ -133,7 +133,7 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
     if (trim && !ns.trimActive) {
       alerts.push({ kind: "trim", priority: "high", tags: "scissors",
         title: `TRIM · Market overheated`,
-        body: `Fear & Greed ${score}, S&P ${sp.vs200Pct.toFixed(1)}% above its 200-day, VIX ${vix?.level?.toFixed(1) ?? "n/a"}. Consider trimming winners back to target weights. Not a call to sell everything.` });
+        body: `Fear & Greed ${score}, S&P ${sp.vs200Pct.toFixed(1)}% above its 200-day, VIX ${vix?.level?.toFixed(1) ?? "n/a"}. Rebalance reminder: at the Sunday review, bring back any pot 5 or more points off its target weight, using new money first. Not a sell or hold-cash signal (tested 7 Nov).` });
       ns.trimActive = true;
     }
     if (score < t.resetScore) ns.trimActive = false;

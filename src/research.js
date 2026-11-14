@@ -360,7 +360,7 @@ export function ruleChangeNote(old, live) {
 // Adjust the long-term verdict note for the market regime.
 export function regimeNote(regimeKey, verdict) {
   if (["capitulation", "correction"].includes(regimeKey) && ["Good entry", "Fair"].includes(verdict)) return "Market-wide fear is on your side: a good time to build long-term positions in stages.";
-  if (["euphoric", "overheated"].includes(regimeKey) && verdict === "Good entry") return "The wider market is frothy. Consider a starter position and keep cash for a better entry.";
+  if (["euphoric", "overheated"].includes(regimeKey) && verdict === "Good entry") return "The wider market is in a greedy mood. Greed has not warned of weaker markets (tested 7 Nov), so the tranche rule applies as usual.";
   if (regimeKey === "downtrend") return "The wider market is in a downtrend. Stage purchases rather than buying all at once.";
   return null;
 }
