@@ -1,5 +1,5 @@
 name: Dry run
-# Pot pushes say when each order's open is (13 Nov, 22:41).
+# Greed and trim wording follow the rebalance rule (14 Nov, 10:41).
 on:
   push:
     branches: [dryrun]
@@ -22,21 +22,15 @@ jobs:
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --input-type=module -e '
             import fs from "node:fs";
-            import { shortTermAlert } from "./src/shortTerm.js";
-            const st = JSON.parse(fs.readFileSync("scan.json")).shortTerm;
-            console.log("real list", st?.date, "buys", (st?.pot?.buys ?? []).map((b) => b.ticker), "sells", (st?.pot?.sells ?? []).map((b) => b.ticker));
-            // Real signals from the log (last two dates), as a pot list, to see the wording.
-            const log = JSON.parse(fs.readFileSync("history/short-signals.json"));
-            const dates = [...new Set(log.map((t) => t.signalDate))].sort();
-            for (const d of dates.slice(-2)) {
-              const buys = log.filter((t) => t.signalDate === d).slice(0, 5).map((t) => ({ kind: t.kind, symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, signalDate: t.signalDate }));
-              const sig = { ...st, date: d, pushedAt: null, pot: { ...(st?.pot ?? {}), rules: { ...(st?.pot?.rules ?? {}), today: d }, buys, sells: [] } };
-              for (const at of [`${d}T21:20:00Z`, new Date(Date.parse(d) + 864e5 * (new Date(d).getUTCDay() === 5 ? 3 : 1)).toISOString().slice(0, 10) + "T08:15:00Z"]) {
-                const a = shortTermAlert(sig, null, new Date(at));
-                console.log(`--- signals ${d}, push at ${at}\n${a?.title}\n${a?.body}`);
-              }
-            }
-          ' > dry-run/pot.txt 2>&1
+            import { regime } from "./src/signals.js";
+            import { regimeNote } from "./src/research.js";
+            const r = JSON.parse(fs.readFileSync("research.json"));
+            const notes = JSON.stringify(r).match(/"regimeNote":(null|"[^"]*")/g) ?? [];
+            console.log("research regimeNotes", notes.length, [...new Set(notes)]);
+            const sp = { drawdownPct: -1, vs200Pct: 12, above200: true, peak: 7000 };
+            console.log("overheated:", regime({ sp, vix: { level: 12 }, fg: { score: 85 } }).action);
+            console.log("euphoric note:", regimeNote("euphoric", "Good entry"));
+          ' > dry-run/wording.txt 2>&1
           cp scan.json data.json dry-run/ 2>/dev/null
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
