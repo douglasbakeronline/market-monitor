@@ -33,11 +33,11 @@
     "surprisePct": null,
     "status": "open",
     "entryDate": "2026-11-13",
-    "entry": 1170.5,
+    "entry": 1185,
     "lastDate": "2026-11-13",
     "last": 1185,
-    "netPct": 0.74,
-    "vsIdx": 0.38,
+    "netPct": -0.5,
+    "vsIdx": -0.86,
     "sessions": 1
   },
   {
@@ -52,11 +52,11 @@
     "rsi2": 6,
     "status": "open",
     "entryDate": "2026-11-13",
-    "entry": 108.2,
+    "entry": 108.52,
     "lastDate": "2026-11-13",
     "last": 108.52,
-    "netPct": 0,
-    "vsIdx": 0.4,
+    "netPct": -0.3,
+    "vsIdx": 0.1,
     "sessions": 1
   },
   {
@@ -71,11 +71,11 @@
     "rsi2": 6.4,
     "status": "open",
     "entryDate": "2026-11-13",
-    "entry": 44.24,
+    "entry": 43.8,
     "lastDate": "2026-11-13",
     "last": 43.8,
-    "netPct": -1.29,
-    "vsIdx": -0.89,
+    "netPct": -0.3,
+    "vsIdx": 0.1,
     "sessions": 1
   },
   {

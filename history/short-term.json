@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-13T21:23:52.906Z",
+  "updated": "2026-11-14T01:35:54.970Z",
   "date": "2026-11-13",
   "drift": [],
   "bounce": [
@@ -128,10 +128,10 @@
     },
     "skipList": [],
     "start": "2026-11-12",
-    "value": 9962.6,
-    "returnPct": -0.37,
+    "value": 9951.6,
+    "returnPct": -0.48,
     "peak": 10000,
-    "fallPct": -0.37,
+    "fallPct": -0.48,
     "paused": false,
     "open": [
       {
@@ -156,11 +156,11 @@
         "name": "Burberry Group plc",
         "market": "UK",
         "entryDate": "2026-11-13",
-        "entry": 1170.5,
+        "entry": 1185,
         "pos": 2000,
         "sessions": 1,
-        "openPct": 0.74,
-        "openPnl": 14.8
+        "openPct": -0.5,
+        "openPnl": -10
       },
       {
         "id": "2026-11-12:bounce:ABT",
@@ -170,11 +170,11 @@
         "name": "Abbott Laboratories",
         "market": "US",
         "entryDate": "2026-11-13",
-        "entry": 108.2,
+        "entry": 108.52,
         "pos": 2000,
         "sessions": 1,
-        "openPct": 0,
-        "openPnl": 0
+        "openPct": -0.3,
+        "openPnl": -6
       },
       {
         "id": "2026-11-12:bounce:AMCR",
@@ -184,11 +184,11 @@
         "name": "Amcor plc",
         "market": "US",
         "entryDate": "2026-11-13",
-        "entry": 44.24,
+        "entry": 43.8,
         "pos": 2000,
         "sessions": 1,
-        "openPct": -1.29,
-        "openPnl": -25.8
+        "openPct": -0.3,
+        "openPnl": -6
       },
       {
         "id": "2026-11-12:bounce:IFF",
