@@ -476,9 +476,9 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 38,
+      "score": 39,
       "rating": "fear",
-      "asOf": "2026-11-13T20:59:59+00:00",
+      "asOf": "2026-11-13T23:59:56+00:00",
       "comparisons": {
         "close": 40,
         "week": 24,
@@ -489,7 +489,7 @@
         {
           "key": "market_momentum_sp500",
           "label": "Market momentum",
-          "score": 14,
+          "score": 15,
           "rating": "extreme fear"
         },
         {
@@ -525,16 +525,11 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 63,
+          "score": 62,
           "rating": "greed"
         }
       ],
       "history": [
-        {
-          "date": "2025-11-13",
-          "t": 1762992000000,
-          "y": 25
-        },
         {
           "date": "2025-11-14",
           "t": 1763078400000,
@@ -1782,19 +1777,19 @@
         },
         {
           "date": "2026-11-13",
-          "t": 1794603599000,
-          "y": 38
+          "t": 1794614396000,
+          "y": 39
         }
       ]
     },
-    "fgAt": "2026-11-13T21:10:59.573Z",
+    "fgAt": "2026-11-14T02:51:21.171Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7561.67,
         "date": "2026-11-13",
-        "asOf": "2026-11-13T21:10:59.000Z",
+        "asOf": "2026-11-13T21:43:19.000Z",
         "currency": "USD",
         "drawdownPct": -3.3,
         "peak": 7818.93,
@@ -1938,11 +1933,11 @@
         ]
       },
       "vix": {
-        "level": 18.91,
-        "dayPct": 1.1,
+        "level": 19.3,
+        "dayPct": 3.2,
         "date": "2026-11-13"
       },
-      "at": "2026-11-13T21:10:59.573Z"
+      "at": "2026-11-14T02:51:21.171Z"
     },
     "watchlist": [
       {
@@ -2410,13 +2405,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 426.08,
+        "price": 425.76,
         "date": "2026-11-13",
-        "dropFromHigh": -2.4,
-        "lastChange": 1.4,
+        "dropFromHigh": -2.5,
+        "lastChange": 1.3,
         "previous": -1.2,
-        "week": 0.8,
-        "month": 6.6,
+        "week": 0.7,
+        "month": 6.5,
         "series": [
           0,
           0.25,
@@ -2447,7 +2442,7 @@
           14.41,
           15.1,
           13.69,
-          15.25
+          15.16
         ],
         "rebound": false
       },
@@ -2456,13 +2451,13 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 346.49,
+        "price": 346.19,
         "date": "2026-11-13",
-        "dropFromHigh": -1.6,
-        "lastChange": 1.1,
+        "dropFromHigh": -1.7,
+        "lastChange": 1,
         "previous": -0.2,
-        "week": 3.6,
-        "month": 3.3,
+        "week": 3.5,
+        "month": 3.2,
         "series": [
           0,
           -0.33,
@@ -2493,7 +2488,7 @@
           2.92,
           3.31,
           3.14,
-          4.25
+          4.15
         ],
         "rebound": false
       },
@@ -2637,20 +2632,20 @@
       }
     ],
     "context": {
-      "score": 38,
+      "score": 39,
       "band": [
-        33,
-        43
+        34,
+        44
       ],
       "since": "2020-07-15",
-      "days": 277,
-      "episodes": 31,
+      "days": 282,
+      "episodes": 33,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 270,
+            "n": 276,
             "median": 1.7,
             "positive": 64
           },
@@ -2664,8 +2659,8 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 259,
-            "median": 4.1,
+            "n": 265,
+            "median": 3.9,
             "positive": 72
           },
           "baseline": {
@@ -2678,9 +2673,9 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 234,
-            "median": 10,
-            "positive": 82
+            "n": 240,
+            "median": 9.3,
+            "positive": 80
           },
           "baseline": {
             "n": 1466,
@@ -2692,9 +2687,9 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 207,
+            "n": 214,
             "median": 12.9,
-            "positive": 73
+            "positive": 74
           },
           "baseline": {
             "n": 1341,
@@ -2738,7 +2733,7 @@
       "2026-10-30:IEX"
     ]
   },
-  "shortSeen": "2026-11-12",
+  "shortSeen": "2026-11-13",
   "shortPotStage": null,
   "resultsSent": {
     "NVDA|2026-11-17": [

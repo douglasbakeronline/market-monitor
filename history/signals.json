@@ -378,14 +378,14 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 1.3,
+      "now": 1.2,
       "nowDate": "2026-11-13",
       "sessions": 4,
       "spNow": 0.2,
       "idx": "^GSPC",
       "idxNow": 0.2,
-      "vsSp": 1.1,
-      "vsIdx": 1.1
+      "vsSp": 1,
+      "vsIdx": 1
     }
   },
   {
