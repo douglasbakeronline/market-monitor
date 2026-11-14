@@ -71,7 +71,7 @@ async function main() {
   const items = [], failed = [], rowsBySymbol = {};
   for (const u of universe) {
     try {
-      const prices = await fetchDaily(u.symbol, { range: "1y" });
+      const prices = await fetchDaily(u.symbol, { range: "1y", backup: false });
       rowsBySymbol[u.symbol] = prices.rows;
       const t = technicals(prices.rows);
       if (!t) throw new Error("not enough history");

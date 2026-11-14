@@ -36,7 +36,8 @@ Alerts between 22:00 and 07:00 London are held until the morning (except "monito
 | Index and stock prices (daily, 10 years for the S&P) | Yahoo Finance | No |
 | Fundamentals, analyst targets, earnings dates (US and UK) | Yahoo Finance | No |
 | Backup fundamentals for US stocks | Finnhub | Optional: `FINNHUB_KEY` |
-| Backup prices for US stocks | Alpha Vantage | Optional: `ALPHAVANTAGE_KEY` |
+| Backup prices when Yahoo fails (indices, VIX, VWRP, watchlist; about two years) | CNBC chart and quote feeds | No |
+| Last-resort backup prices for US stocks | Alpha Vantage | Optional: `ALPHAVANTAGE_KEY` |
 
 If data can't be fetched, the dashboard keeps the last good values, marks them stale, pauses price-based signals (they never fire or reset on missing data) and sends one "monitor problem" alert.
 
@@ -79,7 +80,7 @@ FORCE_SUMMARY=US NTFY_TOPIC=your-topic node monitor.js   # send a real summary n
 ```
 monitor.js              entry point
 src/config.js           everything tunable
-src/data/               CNN, Yahoo prices, Yahoo/Finnhub fundamentals
+src/data/               CNN, Yahoo prices (CNBC backup), Yahoo/Finnhub fundamentals
 src/signals.js          snapshots, regime, alert rules
 src/context.js          historical forward returns
 src/research.js         long-term and swing scoring (flags takeover-pinned prices)

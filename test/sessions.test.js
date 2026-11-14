@@ -14,6 +14,12 @@ test("sessions: weekends and market holidays are skipped, per market", () => {
   assert.equal(nextSession("2026-12-24", "UK"), "2026-12-29"); // Christmas, Boxing Day (Mon)
   assert.equal(nextSession("2027-03-25", "UK"), "2027-03-30"); // Good Friday, Easter Monday
   assert.equal(nextSession("2027-03-25", "US"), "2027-03-29");
+  // 2028 (added 14 Nov 2026): New Year on a Saturday is not observed in New York; London takes Mon 3 Jan.
+  assert.equal(nextSession("2027-12-30", "US"), "2027-12-31");
+  assert.equal(nextSession("2027-12-31", "UK"), "2028-01-04");
+  assert.equal(nextSession("2028-04-13", "UK"), "2028-04-18"); // Good Friday, Easter Monday
+  assert.equal(nextSession("2028-11-22", "US"), "2028-11-24"); // Thanksgiving
+  assert.equal(nextSession("2028-12-22", "UK"), "2028-12-27");
 });
 
 test("sessions: the holiday list reaches at least two months ahead (refresh it each year)", () => {

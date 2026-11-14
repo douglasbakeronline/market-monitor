@@ -7,7 +7,8 @@
 
 import { CONFIG } from "./src/config.js";
 import { fetchFearGreed, ratingFor } from "./src/data/feargreed.js";
-import { fetchDaily, fetchMany } from "./src/data/prices.js";
+import { fetchDaily, fetchMany, backupSymbols } from "./src/data/prices.js";
+import { backupNote } from "./src/data/cnbc.js";
 import { snapshot, regime, marketStatus, evaluateAlerts, watchItem, buildFearSessions } from "./src/signals.js";
 import { forwardReturns, contextLine, mergeHistory } from "./src/context.js";
 import { runResearch } from "./src/runResearch.js";
@@ -89,7 +90,8 @@ async function main() {
   else if (state.lastGood.coreFund) { coreFund = state.lastGood.coreFund; console.warn("Core fund: using the last good value."); }
   // VWRP's daily closes, kept so the Dashboard can compare the picks with the
   // same money in the core (display only). Grows by a row a day.
-  if (series[CONFIG.coreFund.symbol]?.rows?.length) await writeJson("history/core-fund.json", mergeCloses(cfStored, series[CONFIG.coreFund.symbol].rows));
+  // Only Yahoo's closes are stored: a backup day is not kept for good (14 Nov).
+  if (series[CONFIG.coreFund.symbol]?.rows?.length && series[CONFIG.coreFund.symbol].source !== "cnbc") await writeJson("history/core-fund.json", mergeCloses(cfStored, series[CONFIG.coreFund.symbol].rows));
 
   // --- 3. Watchlist ---------------------------------------------------------------
   const wlData = await fetchMany(CONFIG.watchlist.map((w) => w.symbol), { range: "6mo" });
@@ -111,7 +113,8 @@ async function main() {
   // --- 4. Regime, status, context ---------------------------------------------
   const reg = regime({ sp: pricesOk ? sp : null, vix, fg: fgOk ? fg : (hoursSince(state.lastGood.fgAt) < 24 ? fg : null) });
   const status = { US: marketStatus(sp, fg, vix), UK: marketStatus(ftse, fg, vix) };
-  const ctx = fg && spData?.rows ? forwardReturns(fgHistory, spData.rows, fg.score) : (state.lastGood.context ?? null);
+  // The context table needs Yahoo's ten years; the backup source has two.
+  const ctx = fg && spData?.rows && spData.source !== "cnbc" ? forwardReturns(fgHistory, spData.rows, fg.score) : (state.lastGood.context ?? null);
   if (ctx) state.lastGood.context = ctx;
 
   // --- 5. Fear & Greed open/close capture (US session) ---------------------------
@@ -149,7 +152,9 @@ async function main() {
   const problems = [];
   if (!pricesOk) problems.push(`index prices ${sp ? `are stale (last ${sp.date})` : "unavailable"}`);
   if (!fgOk) problems.push("Fear & Greed unavailable");
-  const health = { ok: problems.length === 0, problems, priceAge: Number.isFinite(priceAge) ? Math.round(priceAge) : null, checkedAt: now.toISOString() };
+  const backup = backupNote(backupSymbols(), CONFIG);
+  if (backup) console.warn(`Health: ${backup}`);
+  const health = { ok: problems.length === 0, problems, priceAge: Number.isFinite(priceAge) ? Math.round(priceAge) : null, checkedAt: now.toISOString(), ...(backup ? { backup } : {}) };
   const alerts = [];
   if (!health.ok && state.health.alertedDate !== today) {
     alerts.push({ kind: "health", priority: "high", tags: "warning", title: "Monitor problem: signals paused", body: `The monitor couldn't refresh: ${problems.join("; ")}. Price-based signals are paused until data returns. The dashboard shows the last good values.` });
@@ -214,6 +219,8 @@ async function main() {
 
   const ctxLine = contextLine(ctx);
   for (const a of alerts) if (["buy", "watch", "fear-no-dip"].includes(a.kind) && ctxLine) a.body += `\n${ctxLine}`;
+  // An alert built on backup prices says so (14 Nov).
+  if (backup) for (const a of alerts) if (a.kind !== "health") a.body += "\nPrices from the backup source this run (Yahoo failed): check the level in Trading 212.";
   const quiet = inQuietHours(now);
   state.pending = state.pending || [];
   if (!quiet && state.pending.length) {

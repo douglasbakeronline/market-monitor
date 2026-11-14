@@ -518,6 +518,7 @@ function render(d) {
   const b = [];
   if (d.health && !d.health.ok) b.push(`<div class="banner bad"><b>Signals paused.</b> ${esc(d.health.problems.join("; "))}. Showing the last good values.</div>`);
   else if (Date.now() - Date.parse(d.updated) > 30 * 3600e3) b.push(`<div class="banner warn">This page hasn't refreshed for ${ago(d.updated).replace(" ago", "")}. The scheduler may be paused.</div>`);
+  if (d.health?.backup) b.push(`<div class="banner warn"><b>Backup prices.</b> ${esc(d.health.backup)}</div>`);
   $("banners").innerHTML = b.join("");
   renderShortTerm(d.shortTerm);
   renderResultsAhead(d.resultsPreview);

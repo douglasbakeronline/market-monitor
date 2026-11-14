@@ -1,7 +1,10 @@
 // Daily price history. Yahoo Finance's chart endpoint is the primary source
-// (no key, full history, indices and UK shares). Alpha Vantage is kept as a
-// fallback for US tickers if ALPHAVANTAGE_KEY is set.
+// (no key, full history, indices and UK shares). When Yahoo fails for a symbol,
+// CNBC's chart feed is the second source (about two years of daily bars; 14 Nov;
+// see cnbc.js). Alpha Vantage is kept as a last fallback for US tickers if
+// ALPHAVANTAGE_KEY is set.
 import { fetchJson } from "./http.js";
+import { fetchCnbc } from "./cnbc.js";
 import { dateIn, sleep } from "../util.js";
 
 const YAHOO_HOSTS = ["query2.finance.yahoo.com", "query1.finance.yahoo.com"];
@@ -9,20 +12,36 @@ const YAHOO_HOSTS = ["query2.finance.yahoo.com", "query1.finance.yahoo.com"];
 // Returns { symbol, currency, tz, rows: [{date, open, high, low, close, volume}], live, source }
 // rows are oldest first. If the market is open, the last row is today's
 // in-progress bar priced at the latest quote (live: true).
-export async function fetchDaily(symbol, { range = "2y" } = {}) {
+// backup: false keeps a call on Yahoo only (bulk scans; the backup is for
+// the alert chain). PRICES_FORCE_BACKUP=1 skips Yahoo (dry runs only).
+export async function fetchDaily(symbol, { range = "2y", backup = true } = {}) {
   let lastErr;
-  for (const host of YAHOO_HOSTS) {
+  if (process.env.PRICES_FORCE_BACKUP !== "1") {
+    for (const host of YAHOO_HOSTS) {
+      try {
+        const j = await fetchJson(`https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d&includePrePost=false&events=split`, { tries: 2 });
+        const res = j?.chart?.result?.[0];
+        if (!res?.timestamp?.length) throw new Error(`No chart data for ${symbol}`);
+        return { ...parseYahoo(res), symbol, source: "yahoo" };
+      } catch (e) { lastErr = e; }
+    }
+  } else lastErr = new Error("Yahoo skipped (PRICES_FORCE_BACKUP)");
+  if (backup) {
     try {
-      const j = await fetchJson(`https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d&includePrePost=false&events=split`, { tries: 2 });
-      const res = j?.chart?.result?.[0];
-      if (!res?.timestamp?.length) throw new Error(`No chart data for ${symbol}`);
-      return { ...parseYahoo(res), symbol, source: "yahoo" };
-    } catch (e) { lastErr = e; }
+      const c = await fetchCnbc(symbol);
+      console.warn(`Prices: ${symbol} from the backup source (CNBC, ${c.rows.length} bars to ${c.rows.at(-1).date}); Yahoo failed: ${lastErr?.message ?? "unknown"}`);
+      backupUsed.add(symbol);
+      return c;
+    } catch (e) { if (!/No CNBC mapping/.test(e.message)) console.warn(`Backup prices failed for ${symbol}: ${e.message}`); }
   }
   const av = await fetchAlphaVantage(symbol).catch((e) => { lastErr = e; return null; });
   if (av) return av;
   throw lastErr ?? new Error(`No data for ${symbol}`);
 }
+
+// Symbols served by the backup source in this run (the monitor's health shows them).
+const backupUsed = new Set();
+export const backupSymbols = () => [...backupUsed];
 
 export function parseYahoo(res) {
   const tz = res.meta?.exchangeTimezoneName || "America/New_York";

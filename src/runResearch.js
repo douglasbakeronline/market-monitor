@@ -30,9 +30,11 @@ export async function runResearch({ regimeKey, state }) {
   const medians = scanMeta?.sectorMedians ?? null, regional = scanMeta?.sectorMediansByRegion ?? null;
   // The index list's sector for each scanned stock, for list stocks Yahoo gives no sector (13 Nov).
   const listedSector = Object.fromEntries((scanMeta?.items ?? []).filter((x) => x.sector).map((x) => [x.symbol, x.sector]));
+  // And its dividend yield where Yahoo's fundamentals give none (BBOX, 3i; 14 Nov, display only).
+  const listedYield = Object.fromEntries((scanMeta?.items ?? []).filter((x) => x.dividendYield != null).map((x) => [x.symbol, x.dividendYield]));
   for (const s of stocks) {
     try {
-      const [prices, f0] = [await fetchDaily(s.symbol, { range: "2y" }), await fetchFundamentals(s.symbol)];
+      const [prices, f0] = [await fetchDaily(s.symbol, { range: "2y", backup: false }), await fetchFundamentals(s.symbol)];
       const f = withListedSector(f0, listedSector[s.symbol]);
       const t = technicals(prices.rows);
       rowsBySymbol[s.symbol] = prices.rows;
@@ -60,7 +62,7 @@ export async function runResearch({ regimeKey, state }) {
         name: s.name || f?.name || prices.name || s.symbol, notes: s.notes || null,
         sector: f?.sector ?? null, industry: f?.industry ?? null,
         currency: prices.currency ?? f?.currency ?? null, price: r2(t?.last ?? prices.rows.at(-1)?.close), date: t?.date ?? null,
-        pe: r1(f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null), marketCap: f?.marketCap ?? null, dividendYield: f?.dividendYield ?? null, beta: r2(f?.beta),
+        pe: r1(f?.forwardPE > 0 ? f.forwardPE : f?.trailingPE > 0 ? f.trailingPE : null), marketCap: f?.marketCap ?? null, dividendYield: f?.dividendYield ?? listedYield[s.symbol] ?? null, beta: r2(f?.beta),
         perf: t ? { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), mom12_1: r1(t.mom12_1) } : null,
         tech: t ? { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), rangePos: r2(t.rangePos), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio), sma50: r2(t.sma50), sma200: r2(t.sma200) } : null,
         target: f?.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
