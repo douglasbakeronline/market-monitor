@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15T15:59:10.735Z",
+  "updated": "2026-11-15T16:05:53.367Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
@@ -90,6 +90,7 @@
   "skipped": 4,
   "free": 0,
   "skipList": [],
+  "unlisted": [],
   "sells": [],
   "closed": 0,
   "winRate": null,
