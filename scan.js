@@ -402,7 +402,6 @@ async function main() {
   // pending proposals on a notional £10,000, against all-VWRP. Never stops the scan.
   try {
     let pb = await readJson("history/plan-book.json", null) ?? newPlanBook();
-    if (process.env.PLAN_START) pb.rules = { ...pb.rules, start: process.env.PLAN_START }; // dry runs only
     const date = Object.values(latest).sort().at(-1);
     if (marketsClosed()) {
       const core = await readJson("history/core-fund.json", {}), mon = await readJson("data.json", {}), stt = await readJson("state.json", {});
@@ -417,7 +416,7 @@ async function main() {
         const pots = { buffett: bbk?.trades?.length ? bbk.value / bbk.rules.equity0 : null,
           momentum: mUS?.lastRebalance && mUK?.lastRebalance ? (mUS.value + mUK.value) / (2 * mbk.rules.equity0) : null,
           short: await readJson("history/short-pot.json", null).then((sp) => (sp?.start ? sp.value / sp.rules.equity0 : null)) };
-        pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier, pots });
+        pb = stepPlanBook(pb, { date, vwrp: core[ck], prices, checks, tier, pots }, { start: process.env.PLAN_START || undefined }); // PLAN_START: dry runs only
       }
       else console.log(`Plan book: no VWRP close near ${date} (latest ${ck ?? "none"}), not stepped.`);
     }

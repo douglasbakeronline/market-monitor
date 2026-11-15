@@ -114,3 +114,11 @@ test("short pot follows its own book once it trades; cash before; rules rebuilt 
   const old = newPlanBook(); old.rules = { ...old.rules, core: 0.7, short: undefined };
   assert.equal(stepPlanBook(old, ctx({ date: "2026-11-13" })).rules.core, 0.6, "unstarted book picks up the new rules");
 });
+
+test("a dry-run start date survives the pre-start rebuild (PLAN_START)", () => {
+  const b = stepPlanBook(newPlanBook(), ctx({ date: "2026-11-13" }), { start: "2026-11-13" });
+  assert.equal(b.rules.start, "2026-11-13");
+  assert.equal(b.variants.agreed.started, "2026-11-13");
+  // Without the option the live start holds.
+  assert.equal(stepPlanBook(newPlanBook(), ctx({ date: "2026-11-13" })).variants.agreed.started, null);
+});
