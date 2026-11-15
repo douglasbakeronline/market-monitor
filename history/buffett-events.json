@@ -1454,5 +1454,18 @@
     "mos": 0.57,
     "left": null,
     "h": {}
+  },
+  {
+    "id": "2026-11-13:quality:GSK.L",
+    "symbol": "GSK.L",
+    "ticker": "GSK",
+    "market": "UK",
+    "kind": "quality",
+    "date": "2026-11-13",
+    "price": 1911.5,
+    "idx": 10902.56,
+    "mos": 0.02,
+    "left": null,
+    "h": {}
   }
 ]

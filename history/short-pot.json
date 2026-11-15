@@ -1,11 +1,12 @@
 {
-  "updated": "2026-11-15T11:17:08.343Z",
+  "updated": "2026-11-15T15:59:10.735Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
     "maxOpen": 5,
     "pauseFall": 0.25,
-    "today": "2026-11-13"
+    "today": "2026-11-13",
+    "since": null
   },
   "start": "2026-11-12",
   "value": 9962.6,
