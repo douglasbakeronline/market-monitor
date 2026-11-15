@@ -144,4 +144,6 @@ test("shortTermAlert: a caught-up sell (15 Nov) is told to sell at the next open
   assert.match(a.body, /Sell at the next open/);
   assert.doesNotMatch(a.body, /now passed/);
   assert.match(a.body, /Exit rule met on Tue 17 Nov; an earlier list missed it, so sell if you still hold it\./);
+  const b = shortTermAlert({ date: "2026-11-18", drift: [], bounce: [], pot: { ...pot, open: [{}, {}, {}] } }, null, new Date("2026-11-18T21:40:00Z"));
+  assert.match(b.body, /Pot: 3 of 5 slots used after these/, "closed trades are already off the open list");
 });

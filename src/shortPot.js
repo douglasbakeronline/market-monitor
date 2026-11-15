@@ -82,7 +82,7 @@ export function shortPot(log = [], opts = {}) {
     rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), fallPct, paused,
     open, buys, skipped: Math.max(0, pending.length - buys.length), free, skipList,
     // Trades whose exit came at the latest close: sell at the next open.
-    sells: closed.filter(isSell).sort((a, b) => (a.exitDate < b.exitDate ? -1 : a.exitDate > b.exitDate ? 1 : 0)).map((x) => ({ kind: x.kind, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, orderDate: lastExit, netPct: x.netPct, ...(x.exitDate < lastExit ? { late: true } : {}) })),
+    sells: closed.filter(isSell).sort((a, b) => (a.exitDate < b.exitDate ? -1 : a.exitDate > b.exitDate ? 1 : 0)).map((x) => ({ kind: x.kind, symbol: x.symbol, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, orderDate: lastExit, netPct: x.netPct, ...(x.exitDate < lastExit ? { late: true } : {}) })),
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
     avgNetPct: closed.length ? r2(closed.reduce((a, x) => a + x.netPct, 0) / closed.length) : null,
     recent: closed.slice(-8).reverse(), curve,
@@ -97,7 +97,8 @@ export function shortPot(log = [], opts = {}) {
 export function potSince(prev, today) {
   const t = prev?.rules?.today ?? null;
   if (!t || !today) return null;
-  return t < today ? t : prev.rules.since ?? null;
+  if (t < today) return t;
+  return t === today ? prev.rules.since ?? null : null; // a date that went backwards: latest close only
 }
 
 // data/pot-skip.json ({ skip: [{ symbol, from, note? }] }) to the list

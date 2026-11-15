@@ -83,6 +83,7 @@ test("shortPot: exits since the last listed close stay on the sell list (a skipp
   assert.deepEqual(p.sells.map((x) => x.late ?? false), [true, false]);
   assert.ok(p.sells.every((x) => x.orderDate === "2026-11-18"), "every sell is due at the open after the latest close");
   assert.equal(p.rules.since, "2026-11-16");
+  assert.deepEqual(p.sells.map((x) => x.symbol), ["TUE", "WED"], "sells carry the symbol, so the push's dedup key tells them apart");
   const q = shortPot(log, { today: "2026-11-18" });
   assert.deepEqual(q.sells.map((x) => x.ticker), ["WED"], "without a previous list date, only the latest close");
 });
@@ -93,5 +94,6 @@ test("potSince: the previous list's close, kept through a rerun of the same nigh
   assert.equal(potSince({ rules: { today: "2026-11-16" } }, "2026-11-18"), "2026-11-16");
   assert.equal(potSince({ rules: { today: "2026-11-18", since: "2026-11-16" } }, "2026-11-18"), "2026-11-16", "a rerun keeps the earlier anchor");
   assert.equal(potSince({ rules: { today: "2026-11-18" } }, "2026-11-18"), null);
+  assert.equal(potSince({ rules: { today: "2026-11-18", since: "2026-11-16" } }, "2026-11-17"), null, "a date that went backwards lists the latest close only");
   assert.equal(potSince({ rules: { today: "2026-11-02" } }, "2026-11-18"), "2026-11-02", "no cap: a sell missed for weeks is still held");
 });

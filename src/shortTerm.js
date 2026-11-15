@@ -242,7 +242,7 @@ export function shortTermAlert(st, seen = null, now = null) {
       lines.push(p.state === "passed" ? `Sells due at ${p.text}, ${passedNote} (exit rule met at the last close):` : `Sell at ${p.text} (exit rule met at the last close):`);
       for (const x of list) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.${x.late ? ` Exit rule met on ${new Date(`${x.exitDate}T12:00:00Z`).toLocaleDateString("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" })}; an earlier list missed it, so sell if you still hold it.` : ""}`);
     }
-    lines.push(`Pot: ${(pot.open?.length ?? 0) + buys.length - sells.length} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
+    lines.push(`Pot: ${(pot.open?.length ?? 0) + buys.length} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
     const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));
     if (missed.length) lines.push(`Not taken (${pot.paused ? "paused" : "no free slot or already held"}): ${missed.map((x) => x.ticker).join(", ")}.`);
   } else {
