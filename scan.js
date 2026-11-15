@@ -30,7 +30,7 @@ import { swingBook, randomBooks, benchSeries } from "./src/swingBook.js";
 import { driftBook, randomDriftBooks } from "./src/driftBook.js";
 import { newPlanBook, stepPlanBook, planSummary } from "./src/planBook.js";
 import { newBuffettBook, reviewDue, review, fillOrders, markBuffett } from "./src/buffettBook.js";
-import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES, updateLensEvents, summariseLensEvents } from "./src/buffett.js";
+import { buffettQuality, buffettLens, parseTimeseries, pickBuffett, freshQ, TS_TYPES, B_VERSION, updateLensEvents, summariseLensEvents } from "./src/buffett.js";
 import { newMomentumBook, rebalanceDue, monthView, trendUp, rankMomentum, rebalance, markBook, momCost } from "./src/momentumBook.js";
 import { costR } from "./src/swingRetune.js";
 import { runDataChecks, dataChecksLine } from "./src/dataChecks.js";
@@ -144,7 +144,7 @@ async function main() {
     const it = items.find((x) => x.u.symbol === sym);
     try {
       const q = buffettQuality(parseTimeseries(await fetchTimeseries(sym, TS_TYPES)), { sector: it.u.sector || it.f.sector, industry: it.f.industry });
-      bCache[sym] = { date: today, q }; bFetched++;
+      bCache[sym] = { date: today, v: B_VERSION, q }; bFetched++;
     } catch { bFailed++; }
     await sleep(250);
   }
