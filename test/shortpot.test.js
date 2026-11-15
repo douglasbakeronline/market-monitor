@@ -97,3 +97,25 @@ test("potSince: the previous list's close, kept through a rerun of the same nigh
   assert.equal(potSince({ rules: { today: "2026-11-18", since: "2026-11-16" } }, "2026-11-17"), null, "a date that went backwards lists the latest close only");
   assert.equal(potSince({ rules: { today: "2026-11-02" } }, "2026-11-18"), "2026-11-02", "no cap: a sell missed for weeks is still held");
 });
+
+test("potUnlisted + shortPot: a skipped night's signals were never listed, so the pot never takes them (15 Nov)", async () => {
+  const { potUnlisted } = await import("../src/shortPot.js");
+  const log = [
+    tr({ kind: "bounce", symbol: "MON", signalDate: "2026-11-16", status: "open", entryDate: "2026-11-17", entry: 10, netPct: 1 }),
+    tr({ kind: "bounce", symbol: "TUE", signalDate: "2026-11-17", status: "open", entryDate: "2026-11-18", entry: 10, netPct: 2 }),
+    tr({ kind: "drift", symbol: "TUE2", signalDate: "2026-11-17", status: "closed", entryDate: "2026-11-18", entry: 10, exitDate: "2026-11-18", exit: 9, netPct: -10 }),
+    tr({ kind: "bounce", symbol: "WED", signalDate: "2026-11-18", status: "pending", rsi2: 3 }),
+  ];
+  // Monday's list went out (today 16th); Tuesday's scan was skipped; Wednesday's runs.
+  const prev = { rules: { today: "2026-11-16" }, unlisted: ["2026-11-01:drift:OLD"] };
+  const ids = potUnlisted(prev, log, "2026-11-18");
+  assert.deepEqual(ids, ["2026-11-01:drift:OLD", "2026-11-17:bounce:TUE", "2026-11-17:drift:TUE2"], "kept and added, sorted");
+  const p = shortPot(log, { today: "2026-11-18", since: "2026-11-16", unlisted: ids });
+  assert.deepEqual(p.open.map((x) => x.symbol), ["MON"], "the listed buy is held; the unlisted ones are not");
+  assert.deepEqual(p.sells, [], "no sell for a trade never bought");
+  assert.deepEqual(p.buys.map((x) => x.symbol), ["WED"]);
+  assert.deepEqual(p.unlisted, ids, "carried in the file so the next night keeps them out");
+  assert.deepEqual(potUnlisted(null, log, "2026-11-18"), [], "first run: nothing");
+  assert.deepEqual(potUnlisted({ rules: { today: "2026-11-18" }, unlisted: ids }, log, "2026-11-18"), ids, "rerun: unchanged");
+  assert.deepEqual(potUnlisted({ rules: { today: "2026-11-19" }, unlisted: [] }, log, "2026-11-18"), [], "a date that went backwards adds nothing");
+});
