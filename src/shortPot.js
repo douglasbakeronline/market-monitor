@@ -34,9 +34,10 @@ const rank = (a, b) => (a.kind === b.kind ? 0 : a.kind === "drift" ? -1 : 1)
 // log: history/short-signals.json. opts.today: the latest bar's date (sells are
 // the trades whose exit came at that close).
 export function shortPot(log = [], opts = {}) {
-  const { skip: skipList = [], ...rest } = opts;
+  const { skip: skipList = [], unlisted = [], ...rest } = opts;
   const o = { ...SPOT, ...rest };
-  const skipped = (t) => skipList.some((x) => x.symbol === t.symbol && t.signalDate >= (x.from ?? ""));
+  const never = new Set(unlisted);
+  const skipped = (t) => never.has(t.id) || skipList.some((x) => x.symbol === t.symbol && t.signalDate >= (x.from ?? ""));
   const inRange = log.filter((t) => t.signalDate >= o.start && !skipped(t));
   const live = inRange.filter((t) => t.status !== "pending" && t.entryDate && t.entry > 0);
   const done = (t) => t.status === "closed" && t.exitDate;
@@ -80,7 +81,7 @@ export function shortPot(log = [], opts = {}) {
   const isSell = (x) => (o.since ? x.exitDate > o.since && x.exitDate <= lastExit : x.exitDate === lastExit);
   return {
     rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), fallPct, paused,
-    open, buys, skipped: Math.max(0, pending.length - buys.length), free, skipList,
+    open, buys, skipped: Math.max(0, pending.length - buys.length), free, skipList, unlisted: [...never].sort(),
     // Trades whose exit came at the latest close: sell at the next open.
     sells: closed.filter(isSell).sort((a, b) => (a.exitDate < b.exitDate ? -1 : a.exitDate > b.exitDate ? 1 : 0)).map((x) => ({ kind: x.kind, symbol: x.symbol, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, orderDate: lastExit, netPct: x.netPct, ...(x.exitDate < lastExit ? { late: true } : {}) })),
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
@@ -99,6 +100,17 @@ export function potSince(prev, today) {
   if (!t || !today) return null;
   if (t < today) return t;
   return t === today ? prev.rules.since ?? null : null; // a date that went backwards: latest close only
+}
+
+// Signals from a skipped night (15 Nov): dated after the previous list's close
+// and before tonight's, so no push or card ever listed them. The log fills
+// them at the next open anyway; the pot (trade only what is listed) never took
+// them, so their ids stay out of the book for good (kept in the file). log:
+// history/short-signals.json; today: tonight's latest close.
+export function potUnlisted(prev, log = [], today) {
+  const ids = new Set(prev?.unlisted ?? []), t = prev?.rules?.today ?? null;
+  if (t && today && t < today) for (const x of log) if (x.signalDate > t && x.signalDate < today && x.id) ids.add(x.id);
+  return [...ids].sort();
 }
 
 // data/pot-skip.json ({ skip: [{ symbol, from, note? }] }) to the list

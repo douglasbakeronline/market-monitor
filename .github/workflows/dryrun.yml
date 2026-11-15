@@ -1,5 +1,5 @@
 name: Dry run
-# Short-term pot: sells caught up from a skipped night (15 Nov).
+# Short-term pot: a skipped night (prev list 11 Nov): sells caught up, unlisted buys left out (15 Nov).
 on:
   push:
     branches: [dryrun]
