@@ -94,11 +94,16 @@ export function summarise(log) {
   const hits = pool.filter((s) => right(s, s.perf[basis])).length;
   const beat = pool.filter((s) => s.perf.vsSp != null && (DOWN_IS_GOOD.has(s.kind) ? s.perf.vsSp < 0 : s.perf.vsSp > 0)).length;
   const beatH = pool.filter((s) => vsHome(s.perf) != null && (DOWN_IS_GOOD.has(s.kind) ? vsHome(s.perf) < 0 : vsHome(s.perf) > 0)).length;
+  // Average edge: points against the home index, signed so a right call is
+  // positive (greed and trim are right when the market falls). A hit rate on
+  // its own can flatter a signal that wins small and loses big.
+  const edges = pool.map((s) => vsHome(s.perf)).map((v, i) => v == null ? null : (DOWN_IS_GOOD.has(pool[i].kind) ? -v : v)).filter((v) => v != null);
   return {
     total: log.length, scored: pool.length, basis,
     hitRate: pool.length ? Math.round((hits / pool.length) * 100) : null,
     beatSp: pool.length ? Math.round((beat / pool.length) * 100) : null,
     beatIdx: pool.length ? Math.round((beatH / pool.length) * 100) : null,
+    avgEdge: edges.length ? Math.round((edges.reduce((a, b) => a + b, 0) / edges.length) * 10) / 10 : null,
     since: log[0]?.date ?? null,
   };
 }

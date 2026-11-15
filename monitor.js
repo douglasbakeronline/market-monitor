@@ -402,7 +402,7 @@ function digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research
   const pdl = paperDigestLine(paper ?? {});
   if (pdl) L.push(pdl);
   if (tr?.total && !tr.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} logged since ${tr.since}; too early to judge (each needs a week of trading).`);
-  if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatIdx ?? tr.beatSp}% beat their home index.`);
+  if (tr?.scored) L.push(`Track record: ${tr.total} signal${tr.total === 1 ? "" : "s"} since ${tr.since}; ${tr.hitRate}% went the right way ${tr.basis === "m1" ? "after a month" : "so far"}, ${tr.beatIdx ?? tr.beatSp}% beat their home index${tr.avgEdge != null ? `, average ${tr.avgEdge > 0 ? "+" : ""}${tr.avgEdge} points against it` : ""}.`);
   const kindLine = tr?.total ? digestKindLine(trackRecord.byKind) : null;
   if (kindLine) L.push(kindLine);
   return L.join("\n");

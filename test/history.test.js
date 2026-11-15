@@ -75,3 +75,16 @@ test("recordResults keeps past dates only, sorted and capped", async () => {
   const many = {}; for (let m = 1; m <= 12; m++) recordResults(many, "Z", [`2026-${String(m).padStart(2, "0")}-01`], "2026-12-31", 8);
   assert.equal(many.Z.length, 8); assert.equal(many.Z[0], "2026-05-01");
 });
+
+test("headline average edge: points vs home index, signed so a right call is positive", () => {
+  const log = [
+    { kind: "greed", perf: { now: -3, vsSp: -2, sessions: 6 } },           // right: +2
+    { kind: "buy", perf: { now: 4, vsSp: 1, vsIdx: 3, sessions: 6 } },      // home index: +3
+    { kind: "research-swing", perf: { now: 1, vsSp: -4, sessions: 6 } },   // -4 (hit, but trailed)
+    { kind: "buy", perf: { now: 9, vsSp: 9, sessions: 2 } },               // too young
+  ];
+  const s = summarise(log);
+  assert.equal(s.hitRate, 100);
+  assert.equal(s.avgEdge, 0.3);
+  assert.equal(summarise([{ kind: "buy", perf: { now: 1, sessions: 6 } }]).avgEdge, null, "no index comparison, no average");
+});

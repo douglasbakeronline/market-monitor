@@ -78,7 +78,7 @@ td { padding: 11px 18px; border-top: 1px solid #efebe4; }
 .plan { margin: 0; padding: 0; list-style: none; counter-reset: p; display: grid; gap: 12px; }
 .plan li { counter-increment: p; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 20px 14px 66px; position: relative; }
 .plan li::before { content: counter(p); position: absolute; left: 20px; top: 13px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-weight: 700; font-size: 15px; }
-.plan b { display: block; font-size: 19px; } .plan span { display: block; font-size: 15.5px; color: var(--muted); margin-top: 3px; }
+.plan li > b { display: block; font-size: 19px; } .plan span b { color: var(--ink); font-weight: 650; } .plan span { display: block; font-size: 15.5px; color: var(--muted); margin-top: 3px; }
 .note { font-size: 15px; color: var(--muted); margin: 16px 0 0; max-width: 1060px; }
 </style></head><body>
 <section class="slide cover"><div class="mark"><svg width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#1b1a17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11l4-4 3 3 5-6"/></svg></div>
