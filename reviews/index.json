@@ -1,6 +1,19 @@
 {
   "reviews": [
     {
+      "title": "Week 3: real money goes live",
+      "period": "9 to 15 November 2026",
+      "headline": "The short-term pot started trading real money on 12 Nov (5 of 5 slots filled, -0.4% so far) while markets recovered most of the 5 Nov sell-off; the alert chain ran all 40 slots on time and gained a watchdog and a backup price source.",
+      "points": [
+        "All 40 scheduled checks ran on time, within 36 seconds of each slot; the nightly scan ran every weeknight",
+        "New: short-term pot with evening pushes, results preview, chain watchdog, CNBC backup prices, REITs valued on cash flow",
+        "Paper books (plan, Buffett, momentum, drift) set up so alternatives are tracked side by side",
+        "Backtests: trend timing, run-up into results, EPS-beat drift and sector rotation all failed the bar; no tranche hold after weak results",
+        "Waiting on Douglas: Burberry skip list, pick names in public, pot model choices"
+      ],
+      "pdf": "review-2026-11-15.pdf"
+    },
+    {
       "title": "Week 2: a sell-off, and the rules put to the test",
       "period": "2 to 8 November 2026",
       "headline": "The S&P 500 fell 4.4% on Thu 5 Nov and the pullback rule fired on time; a week of backtests found no edge in swing, smart-money, trim or greed signals, so they stay display-only or on paper.",
