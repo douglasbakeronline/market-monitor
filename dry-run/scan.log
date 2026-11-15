@@ -1,0 +1,37 @@
+Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
+Quotes: 663
+Stage 1: 662 scored, 1 failed (2.3 min)
+Stage 2: 164 deepened, 35 of 35 Real Estate (3.3 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.3 min)
+Buffett lens track record: 24 buy-zone and 89 quality events (23 and 89 still listed).
+Buffett lens: 220 fetched, 0 failed, 656 of 662 assessed (4.4 min)
+REIT cash-flow median: 16.1x from 32 REITs
+Swing book (paper): -2.27% since 2026-11-02 (S&P -0.24%), 4 open, 0 orders for the next session.
+Short-term pot: 1 open, 4 to buy, 0 to sell, -0.23% since 2026-11-12; skip list: none; never listed (skipped night): 5.
+Short-term signals: 0 drift (0 fired), 5 bounce (11 fired); log 10.
+Drift book (paper): 0.16% since 2026-11-11, 3 open, 0 orders, 0 closed.
+Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
+Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
+Plan book (paper): agreed not started, weakHold not started, reitValue not started, vwrp not started, buffettPot not started, momentumPot not started.
+Results check: 10 of 13 with a recent EPS surprise; 0 live events tagged; 11 with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: none.
+Results preview: NVDA 2026-11-17 ±4.4%, SSE 2026-11-18 ±1% this week; 23 other S&P 500 / FTSE 100 names; just reported: CSCO -6.2% 1.6x EPS 5.6%, AMAT -2.7% 1.7x EPS 2.6%, LAND 0.9% 0.9x.
+Swing lab volume shocks: 0 new (none); 5 open; up 0 and down 0 closed.
+Paper trades: 171 open, 35 closed, -0.43R average.
+Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
+Data checks: all 662 items passed. 
+ALERT (evening) Short-term pot: buy PSA, VRTX, MRNA, IQV
+
+[dry run] Short-term pot: buy PSA, VRTX, MRNA, IQV
+Short-term pot (real money, 10% of the portfolio).
+Buy at the next open, a fifth of the pot each (about 2% of the portfolio):
+- PSA (Public Storage): bounce, 2-day RSI 5.7, -1% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- VRTX (Vertex Pharmaceuticals): bounce, 2-day RSI 7.3, -1.7% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- MRNA (Moderna): bounce, 2-day RSI 7.5, -10.9% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+- IQV (IQVIA): bounce, 2-day RSI 7.7, -3.6% over 3 days. Then sell at the first close above its 5-day average, or after 10 sessions.
+Pot: 5 of 5 slots used after these, -0.23% since 2026-11-12.
+Not taken (no free slot or already held): AMCR.
+Evidence. Drift: tested avg +1.36% a trade after costs vs +0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet. Bounce: tested 61% won but avg -0.08% a trade after costs; live 1 closed, 100% won, avg +1.41%.
+
+Scoring (live since 10 Nov): 50 of 164 full-score verdicts differ from the old rule; Good entry lost: DECK, COF, CTSH, TXT, NWG.L, FCX, GL, SMCI, GLEN.L, DTE.DE; gained: SNDK, HPE, STX, ADI.
+Done: 662 scored, 0 new good entries, 0 new setups, 4.6 min.
+exit=0

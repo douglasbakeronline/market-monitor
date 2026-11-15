@@ -1,0 +1,96 @@
+{
+  "updated": "2026-11-15T15:59:43.841Z",
+  "rules": {
+    "start": "2026-11-11",
+    "equity0": 10000,
+    "maxOpen": 5,
+    "pauseFall": 0.25,
+    "today": "2026-11-13",
+    "since": "2026-11-11"
+  },
+  "start": "2026-11-12",
+  "value": 9976.6,
+  "returnPct": -0.23,
+  "peak": 10000,
+  "fallPct": -0.23,
+  "paused": false,
+  "open": [
+    {
+      "id": "2026-11-11:bounce:OTIS",
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "entry": 78.18,
+      "pos": 2000,
+      "sessions": 2,
+      "openPct": -1.17,
+      "openPnl": -23.4
+    }
+  ],
+  "buys": [
+    {
+      "kind": "bounce",
+      "symbol": "PSA",
+      "ticker": "PSA",
+      "name": "Public Storage",
+      "market": "US",
+      "signalDate": "2026-11-13",
+      "signalPrice": 332.59
+    },
+    {
+      "kind": "bounce",
+      "symbol": "VRTX",
+      "ticker": "VRTX",
+      "name": "Vertex Pharmaceuticals Incorporated",
+      "market": "US",
+      "signalDate": "2026-11-13",
+      "signalPrice": 538.6
+    },
+    {
+      "kind": "bounce",
+      "symbol": "MRNA",
+      "ticker": "MRNA",
+      "name": "Moderna, Inc.",
+      "market": "US",
+      "signalDate": "2026-11-13",
+      "signalPrice": 223.37
+    },
+    {
+      "kind": "bounce",
+      "symbol": "IQV",
+      "ticker": "IQV",
+      "name": "IQVIA Holdings Inc.",
+      "market": "US",
+      "signalDate": "2026-11-13",
+      "signalPrice": 265.12
+    }
+  ],
+  "skipped": 0,
+  "free": 4,
+  "skipList": [],
+  "unlisted": [
+    "2026-11-12:bounce:ABT",
+    "2026-11-12:bounce:AMCR",
+    "2026-11-12:bounce:IFF",
+    "2026-11-12:bounce:SBRY.L",
+    "2026-11-12:drift:BRBY.L"
+  ],
+  "sells": [],
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "trades": [
+    {
+      "kind": "bounce",
+      "ticker": "OTIS",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "exitDate": null
+    }
+  ]
+}
