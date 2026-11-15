@@ -121,9 +121,11 @@ export function buffettQuality(s, { sector, industry } = {}, b = BUFFETT) {
   // 5. Owner earnings
   let oeToNi = null;
   if (kind !== "fin") {
-    const idx = s.years.map((_, i) => i).filter((i) => NI[i] != null && s.CapitalExpenditure[i] != null);
-    const oe = idx.map((i) => NI[i] + (s.DepreciationAndAmortization[i] ?? 0) + s.CapitalExpenditure[i]);
-    const niSum = idx.reduce((a, i) => a + NI[i], 0), oeSum = oe.reduce((a, v) => a + v, 0);
+    // Reported net income here (discontinued included): the cash-flow lines cover the whole group.
+    const NA = s.NetIncome ?? [];
+    const idx = s.years.map((_, i) => i).filter((i) => NA[i] != null && s.CapitalExpenditure[i] != null);
+    const oe = idx.map((i) => NA[i] + (s.DepreciationAndAmortization[i] ?? 0) + s.CapitalExpenditure[i]);
+    const niSum = idx.reduce((a, i) => a + NA[i], 0), oeSum = oe.reduce((a, v) => a + v, 0);
     oeToNi = idx.length >= 3 && niSum > 0 ? oeSum / niSum : null;
     add("cash", "Owner earnings 80%+ of profit", oeToNi == null ? null : oeToNi >= b.oeShare, oeToNi == null ? "n/a" : `${Math.round(oeToNi * 100)}%`);
   } else oeToNi = 1;

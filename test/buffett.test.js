@@ -199,3 +199,9 @@ test("lens events: joiners, leavers and horizons against the index", () => {
   assert.equal(s.zone.h[21].vsIdx, 10.5);
   assert.equal(s.quality.h[21].beat, 50);
 });
+
+test("owner earnings still compare with reported profit (cash flows cover the whole group)", () => {
+  const q = buffettQuality(ULVR, { sector: "Consumer Staples" });
+  const oe = [0, 1, 2, 3].reduce((a, i) => a + ULVR.NetIncome[i] + ULVR.DepreciationAndAmortization[i] + ULVR.CapitalExpenditure[i], 0);
+  assert.equal(q.oeToNi, Math.round((oe / ULVR.NetIncome.reduce((a, v) => a + v, 0)) * 100) / 100);
+});
