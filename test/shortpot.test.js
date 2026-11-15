@@ -70,3 +70,28 @@ test("potSkips: reads the skip file safely", async () => {
   assert.deepEqual(potSkips(null), []);
   assert.deepEqual(potSkips({ skip: [{ symbol: "brby.l", from: "2026-11-14" }, { from: "x" }, "BAD"] }), [{ symbol: "BRBY.L", from: "2026-11-14" }]);
 });
+
+test("shortPot: exits since the last listed close stay on the sell list (a skipped night's sells are not lost)", () => {
+  const log = [
+    tr({ kind: "bounce", symbol: "TUE", signalDate: "2026-11-12", status: "closed", entryDate: "2026-11-13", entry: 10, exitDate: "2026-11-17", exit: 10.3, netPct: 2.7 }),
+    tr({ kind: "bounce", symbol: "WED", signalDate: "2026-11-12", status: "closed", entryDate: "2026-11-13", entry: 10, exitDate: "2026-11-18", exit: 10.1, netPct: 0.7 }),
+    tr({ kind: "bounce", symbol: "MON", signalDate: "2026-11-12", status: "closed", entryDate: "2026-11-13", entry: 10, exitDate: "2026-11-16", exit: 10.2, netPct: 1.7 }),
+  ];
+  // Monday's list went out; Tuesday's scan was skipped; Wednesday's runs.
+  const p = shortPot(log, { today: "2026-11-18", since: "2026-11-16" });
+  assert.deepEqual(p.sells.map((x) => x.ticker), ["TUE", "WED"], "Monday's sell was listed on Monday; Tuesday's is caught up");
+  assert.deepEqual(p.sells.map((x) => x.late ?? false), [true, false]);
+  assert.ok(p.sells.every((x) => x.orderDate === "2026-11-18"), "every sell is due at the open after the latest close");
+  assert.equal(p.rules.since, "2026-11-16");
+  const q = shortPot(log, { today: "2026-11-18" });
+  assert.deepEqual(q.sells.map((x) => x.ticker), ["WED"], "without a previous list date, only the latest close");
+});
+
+test("potSince: the previous list's close, kept through a rerun of the same night", async () => {
+  const { potSince } = await import("../src/shortPot.js");
+  assert.equal(potSince(null, "2026-11-18"), null);
+  assert.equal(potSince({ rules: { today: "2026-11-16" } }, "2026-11-18"), "2026-11-16");
+  assert.equal(potSince({ rules: { today: "2026-11-18", since: "2026-11-16" } }, "2026-11-18"), "2026-11-16", "a rerun keeps the earlier anchor");
+  assert.equal(potSince({ rules: { today: "2026-11-18" } }, "2026-11-18"), null);
+  assert.equal(potSince({ rules: { today: "2026-11-02" } }, "2026-11-18"), "2026-11-02", "no cap: a sell missed for weeks is still held");
+});

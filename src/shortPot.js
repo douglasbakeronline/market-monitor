@@ -72,17 +72,32 @@ export function shortPot(log = [], opts = {}) {
   const buys = pending.slice(0, free).map((t) => ({ kind: t.kind, symbol: t.symbol, ticker: t.ticker, name: t.name, market: t.market, signalDate: t.signalDate, signalPrice: t.signalPrice }));
   const closed = taken.filter((x) => x.pnl != null);
   const lastExit = o.today ?? closed.map((x) => x.exitDate).sort().at(-1) ?? null;
+  // Sells (15 Nov): every exit after the last listed close (o.since, from
+  // potSince()), not only the latest close. A skipped or failed night's scan
+  // used to drop its exits for good: the book closed them, so they left the
+  // open list too, while Douglas still held them. A caught-up sell is "late";
+  // all are due at the open after the latest close (orderDate).
+  const isSell = (x) => (o.since ? x.exitDate > o.since && x.exitDate <= lastExit : x.exitDate === lastExit);
   return {
     rules: o, start: taken[0]?.entryDate ?? null, value: r2(value), returnPct: r2((value / o.equity0 - 1) * 100), peak: r2(peak), fallPct, paused,
     open, buys, skipped: Math.max(0, pending.length - buys.length), free, skipList,
     // Trades whose exit came at the latest close: sell at the next open.
-    sells: closed.filter((x) => x.exitDate === lastExit).map((x) => ({ kind: x.kind, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, netPct: x.netPct })),
+    sells: closed.filter(isSell).sort((a, b) => (a.exitDate < b.exitDate ? -1 : a.exitDate > b.exitDate ? 1 : 0)).map((x) => ({ kind: x.kind, ticker: x.ticker, name: x.name, market: x.market, exitDate: x.exitDate, orderDate: lastExit, netPct: x.netPct, ...(x.exitDate < lastExit ? { late: true } : {}) })),
     closed: closed.length, winRate: closed.length ? Math.round((closed.filter((x) => x.pnl > 0).length / closed.length) * 100) : null,
     avgNetPct: closed.length ? r2(closed.reduce((a, x) => a + x.netPct, 0) / closed.length) : null,
     recent: closed.slice(-8).reverse(), curve,
     // Every trade the pot took (newest 200), so the trade log can match them.
     trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null })),
   };
+}
+
+// The close the previous list covered (history/short-pot.json rules.today), so
+// the next list also carries exits from any night in between. A rerun of the
+// same night keeps the earlier anchor. today: tonight's latest close.
+export function potSince(prev, today) {
+  const t = prev?.rules?.today ?? null;
+  if (!t || !today) return null;
+  return t < today ? t : prev.rules.since ?? null;
 }
 
 // data/pot-skip.json ({ skip: [{ symbol, from, note? }] }) to the list

@@ -23,7 +23,7 @@ export function todayItems(d = {}, today, { decisions = null, now = null } = {})
     if (t?.state === "passed") { passed.push({ ticker: o.ticker, side, due: t.due }); return null; }
     return t?.state === "today" ? "at today's open" : t && t.due !== addDay(today) ? `at the ${dm(t.due)} open` : "at the next open";
   };
-  for (const s of pot?.sells ?? []) { const w = when(s, s.exitDate, "sell"); if (w) out.push({ tone: "sell", text: `Sell ${s.ticker} ${w} (short-term pot, exit rule met)`, href: "#stSection" }); }
+  for (const s of pot?.sells ?? []) { const w = when(s, s.orderDate ?? s.exitDate, "sell"); if (w) out.push({ tone: "sell", text: `Sell ${s.ticker} ${w} (short-term pot, exit rule met${s.late ? ` on ${dm(s.exitDate)}, missed by an earlier list` : ""})`, href: "#stSection" }); }
   for (const b of pot?.buys ?? []) { const w = when(b, b.signalDate, "buy"); if (w) out.push({ tone: "buy", text: `Buy ${b.ticker} ${w} (short-term pot, ${b.kind === "drift" ? "results drift" : "bounce"})`, href: "#stSection" }); }
   if (passed.length) {
     const dues = [...new Set(passed.map((x) => x.due))].sort(), last = dues.at(-1);

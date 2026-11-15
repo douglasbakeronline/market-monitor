@@ -1,5 +1,5 @@
 name: Dry run
-# Buffett lens: continuing operations only (15 Nov); raw inputs and a full scan.
+# Short-term pot: sells caught up from a skipped night (15 Nov).
 on:
   push:
     branches: [dryrun]
@@ -18,9 +18,11 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          node tools/buffett-inputs.mjs ULVR.L,DGE.L,KO,JNJ,MMM,GE,DHR,PFE,BATS.L,GSK.L > dry-run/buffett-inputs.json 2> dry-run/buffett-inputs.log; echo "exit=$?" >> dry-run/buffett-inputs.log
-          cp data/buffett.json dry-run/buffett-before.json
+          cp history/short-pot.json dry-run/short-pot-before.json
+          node -e 'const f="history/short-pot.json",fs=require("fs"),p=JSON.parse(fs.readFileSync(f));p.rules.today="2026-11-11";fs.writeFileSync(f,JSON.stringify(p))'
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp history/short-pot.json dry-run/short-pot-after.json
+          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

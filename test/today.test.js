@@ -52,3 +52,12 @@ test("today: pot orders whose open has passed become one reminder to log them (1
   const fri = { shortTerm: { date: "2026-11-13", pot: { buys: [{ ticker: "ABT", kind: "bounce", market: "US", signalDate: "2026-11-13" }] } } };
   assert.equal(todayItems(fri, "2026-11-14", { now: new Date("2026-11-14T10:00:00Z") })[0].text, "Buy ABT at the Mon 16 Nov open (short-term pot, bounce)");
 });
+
+test("today: a caught-up sell (15 Nov) is due at the next open, not its own exit's open, and says so", () => {
+  const d = { shortTerm: { date: "2026-11-18", pot: { rules: { today: "2026-11-18", since: "2026-11-16" }, buys: [],
+    sells: [{ ticker: "TUE", market: "US", exitDate: "2026-11-17", orderDate: "2026-11-18", late: true }, { ticker: "WED", market: "US", exitDate: "2026-11-18", orderDate: "2026-11-18" }] } } };
+  assert.deepEqual(todayItems(d, "2026-11-18", { now: new Date("2026-11-18T21:40:00Z") }).map((x) => x.text), [
+    "Sell TUE at the next open (short-term pot, exit rule met on Tue 17 Nov, missed by an earlier list)",
+    "Sell WED at the next open (short-term pot, exit rule met)",
+  ]);
+});

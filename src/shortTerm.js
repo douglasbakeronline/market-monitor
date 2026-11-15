@@ -238,9 +238,9 @@ export function shortTermAlert(st, seen = null, now = null) {
       lines.push(p.state === "passed" ? `Buys due at ${p.text}, ${passedNote} (a fifth of the pot each, about 2% of the portfolio):` : `Buy at ${p.text}, a fifth of the pot each (about 2% of the portfolio):`);
       for (const b of list) lines.push(`- ${b.ticker} (${short(b.name)}): ${what(b)}. Then ${exitRule(b.kind)}.${bigJump(sig[`${b.kind}:${b.symbol}`]) ? ` Note: ${TAKEOVER_NOTE}.` : ""}`);
     }
-    for (const { p, list } of groups(sells, (x) => x.exitDate)) {
+    for (const { p, list } of groups(sells, (x) => x.orderDate ?? x.exitDate)) {
       lines.push(p.state === "passed" ? `Sells due at ${p.text}, ${passedNote} (exit rule met at the last close):` : `Sell at ${p.text} (exit rule met at the last close):`);
-      for (const x of list) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.`);
+      for (const x of list) lines.push(`- ${x.ticker} (${short(x.name)}): ${x.kind === "drift" ? "20 sessions up" : "back above its 5-day average or 10 sessions up"}, ${sg(x.netPct)} after costs.${x.late ? ` Exit rule met on ${new Date(`${x.exitDate}T12:00:00Z`).toLocaleDateString("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" })}; an earlier list missed it, so sell if you still hold it.` : ""}`);
     }
     lines.push(`Pot: ${(pot.open?.length ?? 0) + buys.length - sells.length} of ${pot.rules?.maxOpen ?? 5} slots used after these, ${pot.start ? `${sg(pot.returnPct)} since ${pot.start}` : "no trades yet"}.`);
     const missed = [...drift, ...bounce].filter((x) => !buys.some((b) => b.kind === x.kind && b.symbol === x.symbol));
