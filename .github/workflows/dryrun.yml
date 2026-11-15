@@ -1,6 +1,5 @@
 name: Dry run
-# Preflight of the paper books' first steps (15 Nov): plan book (forced start
-# 13 Nov), momentum and Buffett books (forced start Nov 2026), real data.
+# Buffett lens spot check (15 Nov): raw Yahoo annual accounts for nine names.
 on:
   push:
     branches: [dryrun]
@@ -19,12 +18,7 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          PLAN_START=2026-11-13 PAPER_START=2026-11 DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp history/plan-book.json dry-run/plan-book-1.json; cp history/buffett-book.json dry-run/buffett-book-1.json
-          # Second night: Buffett orders fill at the next open, the plan book steps again.
-          PLAN_START=2026-11-13 PAPER_START=2026-11 DRY_RUN=1 node scan.js > dry-run/scan2.log 2>&1; echo "exit=$?" >> dry-run/scan2.log
-          cp history/plan-book.json history/momentum-book.json history/buffett-book.json dry-run/
+          node tools/buffett-inputs.mjs ULVR.L,DGE.L,III.L,KO,ADBE,AAPL,CB,SYF,BGEO.L > dry-run/buffett-inputs.json 2> dry-run/buffett-inputs.log; echo "exit=$?" >> dry-run/buffett-inputs.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
