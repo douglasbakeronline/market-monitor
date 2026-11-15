@@ -1218,7 +1218,7 @@
     "price": 46.08,
     "idx": 6327.87,
     "mos": 0.33,
-    "left": null,
+    "left": "2026-11-13",
     "h": {}
   },
   {
@@ -1413,6 +1413,45 @@
     "price": 83.55,
     "idx": 6327.87,
     "mos": 0.4,
+    "left": null,
+    "h": {}
+  },
+  {
+    "id": "2026-11-13:quality:CSCO",
+    "symbol": "CSCO",
+    "ticker": "CSCO",
+    "market": "US",
+    "kind": "quality",
+    "date": "2026-11-13",
+    "price": 95.64,
+    "idx": 7561.67,
+    "mos": -0.63,
+    "left": null,
+    "h": {}
+  },
+  {
+    "id": "2026-11-13:zone:NWG.L",
+    "symbol": "NWG.L",
+    "ticker": "NWG",
+    "market": "UK",
+    "kind": "zone",
+    "date": "2026-11-13",
+    "price": 600,
+    "idx": 10902.56,
+    "mos": 0.57,
+    "left": null,
+    "h": {}
+  },
+  {
+    "id": "2026-11-13:quality:NWG.L",
+    "symbol": "NWG.L",
+    "ticker": "NWG",
+    "market": "UK",
+    "kind": "quality",
+    "date": "2026-11-13",
+    "price": 600,
+    "idx": 10902.56,
+    "mos": 0.57,
     "left": null,
     "h": {}
   }
