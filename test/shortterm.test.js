@@ -135,3 +135,15 @@ test("shortTermAlert says when each order's open is: passed London open at 08:15
   assert.equal((evening.match(/^Buy at/gm) ?? []).length, 1, "one group when every open is the same");
   assert.match(shortTermAlert(st, null).body, /Buy at the next open, a fifth/, "no clock: as before");
 });
+
+test("shortTermAlert: a caught-up sell (15 Nov) is told to sell at the next open, with its exit date", () => {
+  const pot = { rules: { maxOpen: 5, today: "2026-11-18" }, start: "2026-11-12", returnPct: 1, paused: false, open: [], buys: [],
+    sells: [{ kind: "bounce", ticker: "TUE", name: "Tue Inc.", market: "US", exitDate: "2026-11-17", orderDate: "2026-11-18", late: true, netPct: 1.5 }] };
+  const a = shortTermAlert({ date: "2026-11-18", drift: [], bounce: [], pot }, null, new Date("2026-11-18T21:40:00Z"));
+  assert.equal(a.title, "Short-term pot: sell TUE");
+  assert.match(a.body, /Sell at the next open/);
+  assert.doesNotMatch(a.body, /now passed/);
+  assert.match(a.body, /Exit rule met on Tue 17 Nov; an earlier list missed it, so sell if you still hold it\./);
+  const b = shortTermAlert({ date: "2026-11-18", drift: [], bounce: [], pot: { ...pot, open: [{}, {}, {}] } }, null, new Date("2026-11-18T21:40:00Z"));
+  assert.match(b.body, /Pot: 3 of 5 slots used after these/, "closed trades are already off the open list");
+});

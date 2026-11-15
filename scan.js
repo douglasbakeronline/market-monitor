@@ -39,7 +39,7 @@ import { notify } from "./src/notify.js";
 import { inQuietHours } from "./src/schedule.js";
 import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
-import { shortPot, potSkips } from "./src/shortPot.js";
+import { shortPot, potSkips, potSince } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
 import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn } from "./src/resultsPreview.js";
 
@@ -316,12 +316,13 @@ async function main() {
       await writeJson("history/short-signals.json", sl, true);
       const date = [...today.drift, ...today.bounce].map((x) => x.date).sort().at(-1) ?? Object.values(latest).sort().at(-1)?.slice(0, 10) ?? null;
       // The real-money pot (11 Nov): what to buy and sell at the next open.
-      const pot = shortPot(sl, { today: date, skip: potSkip, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
+      const since = potSince(await readJson("history/short-pot.json", null), date); // sells from any skipped night (15 Nov)
+      const pot = shortPot(sl, { today: date, since, skip: potSkip, ...(process.env.SHORT_POT_START ? { start: process.env.SHORT_POT_START } : {}) }); // SHORT_POT_START: dry runs only
       await writeJson("history/short-pot.json", { updated: new Date().toISOString(), ...pot }, true);
       shortTerm = { date, ...today, tested: testedRecord(await readJson("data/swing-lab.json", null)), live: summariseShort(sl),
         pot: { rules: pot.rules, skipList: pot.skipList, start: pot.start, value: pot.value, returnPct: pot.returnPct, peak: pot.peak, fallPct: pot.fallPct, paused: pot.paused, open: pot.open, buys: pot.buys, sells: pot.sells, free: pot.free, closed: pot.closed, winRate: pot.winRate, avgNetPct: pot.avgNetPct, trades: pot.trades } };
       shortFresh = true;
-      console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}; skip list: ${potSkip.map((x) => x.symbol).join(", ") || "none"}.`);
+      console.log(`Short-term pot: ${pot.open.length} open, ${pot.buys.length} to buy, ${pot.sells.length} to sell${pot.sells.some((x) => x.late) ? ` (${pot.sells.filter((x) => x.late).length} caught up from a skipped night)` : ""}, ${pot.returnPct}% since ${pot.start ?? "n/a"}${pot.paused ? " (PAUSED)" : ""}; skip list: ${potSkip.map((x) => x.symbol).join(", ") || "none"}.`);
       console.log(`Short-term signals: ${today.drift.length} drift (${today.counts.drift} fired), ${today.bounce.length} bounce (${today.counts.bounce} fired); log ${sl.length}.`);
     } else {
       shortTerm = (await readJson("scan.json", {}))?.shortTerm ?? null;
