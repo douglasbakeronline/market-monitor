@@ -204,6 +204,8 @@
   .pa-out { width: 100%; min-height: 120px; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); border-radius: 9px; padding: 8px 10px; margin-top: 10px; box-sizing: border-box; }
   @media (max-width: 520px) { .pa-row { gap: 8px; } .pa-row .num { min-width: 0; } .pa-row .pill { font-size: 10px; padding-left: 6px; padding-right: 6px; } .pa-row .pa-when { display: none; } }
   .tr-head { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+  #trHead { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 640px) { #trHead { grid-template-columns: repeat(2, 1fr); } }
   .tr-row { display: grid; grid-template-columns: 74px 1fr auto auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px; }
   .tr-row .when { color: var(--muted); font-size: 12px; }
   .tr-row .what b { font-weight: 650; }
@@ -1468,7 +1470,8 @@ function renderTrack(tr) {
   const stat = (k, v, sub) => `<div><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="small muted">${sub}</div>` : ""}</div>`;
   $("trHead").innerHTML = stat("Signals logged", s.total, s.since ? `since ${fmtDM(s.since)}` : "") +
     stat(s.basis === "m1" ? "Right after 1 month" : "Right so far", s.hitRate == null ? "Too early" : `${s.hitRate}%`, s.scored ? `${s.scored} scored` : "each needs a week") +
-    stat("Beat their index", (s.beatIdx ?? s.beatSp) == null ? "Too early" : `${s.beatIdx ?? s.beatSp}%`, "home index, same period");
+    stat("Beat their index", (s.beatIdx ?? s.beatSp) == null ? "Too early" : `${s.beatIdx ?? s.beatSp}%`, "home index, same period") +
+    stat("Average vs index", s.avgEdge == null ? "Too early" : `<span class="${pnClass(s.avgEdge)}">${s.avgEdge > 0 ? "+" : ""}${s.avgEdge.toFixed(1)} pts</span>`, "per signal; a high hit rate can still trail");
   const tone = (k, v) => v == null ? "muted" : (DOWN_GOOD.has(k) ? (v < 0 ? "pos" : "neg") : pnClass(v));
   if (tr.byKind?.length) {
     $("trKinds").hidden = false;
