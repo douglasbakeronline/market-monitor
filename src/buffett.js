@@ -38,7 +38,7 @@ export const BUFFETT = { roic: 0.15, roicMin: 0.10, roe: 0.12, roeMin: 0.10, gm:
   discount: 0.10, terminal: 0.025, gCap: 0.07, years: 10, mos: 0.25, minTests: 4, minTestsFin: 3 };
 
 export const TS_TYPES = ["NetIncome", "TotalRevenue", "GrossProfit", "OperatingIncome", "EBIT", "StockholdersEquity", "LongTermDebt", "TotalDebt",
-  "OperatingCashFlow", "CapitalExpenditure", "DepreciationAndAmortization", "DilutedAverageShares", "DilutedEPS", "InvestedCapital", "TaxRateForCalcs"];
+  "OperatingCashFlow", "CapitalExpenditure", "DepreciationAndAmortization", "DilutedAverageShares", "DilutedEPS", "InvestedCapital", "TaxRateForCalcs", "NetIncomeDiscontinuousOperations"];
 
 // Yahoo fundamentals-timeseries JSON -> { years: [fiscal year ends], NetIncome: [..], ... } oldest first, null where missing.
 export function parseTimeseries(j) {
@@ -75,7 +75,16 @@ export function buffettQuality(s, { sector, industry } = {}, b = BUFFETT) {
   if (kind === "reit") return { kind, skip: "REIT: earnings distorted by depreciation (the score values it on cash flow instead; see Peers)" };
   const n = s?.years?.length ?? 0;
   if (n < 3) return { kind, skip: "fewer than 3 years of accounts" };
-  const NI = s.NetIncome, checks = [];
+  // Continuing operations only (15 Nov spot check): a disposal or demerger gain
+  // (Unilever's 3.8bn from ice cream in 2025) is not repeatable earnings.
+  // Net income and EPS lose the discontinued part; contShare scales the
+  // trailing P/E's earnings yield in buffettLens, which still carries it.
+  const disc = s.NetIncomeDiscontinuousOperations ?? [];
+  const adj = s.years.map((_, i) => Number.isFinite(disc[i]) && disc[i] !== 0 && Number.isFinite(s.NetIncome?.[i]));
+  const NI = (s.NetIncome ?? []).map((v, i) => (adj[i] ? v - disc[i] : v)), checks = [];
+  const epsAdj = (s.DilutedEPS ?? []).map((v, i) => (adj[i] && v != null && s.NetIncome[i] > 0 ? v * NI[i] / s.NetIncome[i] : v));
+  const last = s.years.length - 1, material = adj[last] && s.NetIncome[last] > 0 && Math.abs(disc[last]) > 0.05 * s.NetIncome[last];
+  const contShare = material ? r2(Math.max(0, NI[last]) / s.NetIncome[last]) : undefined;
   const add = (key, label, ok, value) => checks.push({ key, label, ok, value });
   // 1. Returns
   if (kind === "fin") {
@@ -97,12 +106,12 @@ export function buffettQuality(s, { sector, industry } = {}, b = BUFFETT) {
     else add("pricing", "Gross margin 40%+ and steady", null, "n/a");
   }
   // 3. Steady earnings
-  const eps = s.DilutedEPS, ni = nums(NI);
+  const eps = epsAdj, ni = nums(NI);
   if (ni.length >= 3) {
     const e = eps.filter((v) => v != null);
     const downs = e.slice(1).filter((v, i) => v < e[i]).length;
     const ok = ni.every((v) => v > 0) && e.length >= 3 && e.at(-1) >= e[0] && downs <= 1;
-    add("earnings", "Profit every year, EPS up over the period", ok, e.length >= 2 ? `EPS ${r2(e[0])} to ${r2(e.at(-1))}${downs ? `, ${downs} down year${downs > 1 ? "s" : ""}` : ""}` : "n/a");
+    add("earnings", "Profit every year, EPS up over the period", ok, e.length >= 2 ? `EPS ${r2(e[0])} to ${r2(e.at(-1))}${downs ? `, ${downs} down year${downs > 1 ? "s" : ""}` : ""}${adj.some(Boolean) ? " (continuing operations)" : ""}` : "n/a");
   } else add("earnings", "Profit every year, EPS up over the period", null, "n/a");
   // 4. Debt
   if (kind !== "fin") {
@@ -127,7 +136,7 @@ export function buffettQuality(s, { sector, industry } = {}, b = BUFFETT) {
   const e = eps.filter((v) => v != null);
   const yrs = e.length - 1, epsGrowth = yrs >= 2 && e[0] > 0 && e.at(-1) > 0 ? Math.pow(e.at(-1) / e[0], 1 / yrs) - 1 : 0;
   return { kind, fy: s.years.at(-1), n, checks, passed, applicable: applicable.length, quality: applicable.length >= (kind === "fin" ? b.minTestsFin : b.minTests) && passed === applicable.length, minTests: kind === "fin" ? b.minTestsFin : b.minTests,
-    oeToNi: oeToNi == null ? null : r2(oeToNi), epsGrowth: r2(Math.min(b.gCap, Math.max(0, epsGrowth)) * 100) / 100 };
+    oeToNi: oeToNi == null ? null : r2(oeToNi), contShare, epsGrowth: r2(Math.min(b.gCap, Math.max(0, epsGrowth)) * 100) / 100 };
 }
 
 // Value multiple: present value of 1 of owner earnings growing at g.
@@ -143,24 +152,29 @@ export function buffettLens(q, pe, b = BUFFETT) {
   if (q.skip) return { verdict: "Not assessed", tone: "na", note: q.skip, checks: [] };
   let mos = null, ivRatio = null;
   if (Number.isFinite(pe) && pe > 0 && pe < 200 && q.oeToNi != null && q.oeToNi > 0) {
-    ivRatio = (q.oeToNi / pe) * valueMultiple(q.epsGrowth, b);
+    // The trailing P/E includes a one-off from discontinued operations: use the continuing share (never scaled up).
+    const cont = Number.isFinite(q.contShare) ? Math.min(1, q.contShare) : 1;
+    ivRatio = (q.oeToNi * cont / pe) * valueMultiple(q.epsGrowth, b);
     mos = 1 - 1 / ivRatio;
   }
   const checks = [...q.checks, { key: "mos", label: "Price 25%+ below intrinsic value", ok: mos == null ? null : mos >= b.mos, value: mos == null ? "n/a" : `${mos >= 0 ? "" : "−"}${Math.abs(Math.round(mos * 100))}% ${mos >= 0 ? "below" : "above"}` }];
   const fails = q.checks.filter((c) => c.ok === false).map((c) => c.label);
   const verdict = q.quality ? (mos != null && mos >= b.mos ? "Buffett buy zone" : "Wonderful, not cheap") : q.applicable < (q.minTests ?? 4) ? "Not enough data" : `Fails ${fails.length} test${fails.length === 1 ? "" : "s"}`;
   const tone = verdict === "Buffett buy zone" ? "good" : verdict === "Wonderful, not cheap" ? "watch" : "na";
-  const note = `${verdict}: passes ${q.passed} of ${q.applicable} quality tests (${q.fy?.slice(0, 4)} accounts)${mos != null ? `; price ${mos >= 0 ? `${Math.round(mos * 100)}% below` : `${Math.round(-mos * 100)}% above`} a cautious intrinsic value (growth ${Math.round(q.epsGrowth * 100)}% a year for 10 years, then 2.5%, discounted at 10%)` : ""}.${fails.length && !q.quality ? ` Fails: ${fails.join("; ").toLowerCase()}.` : ""}`;
+  const note = `${verdict}: passes ${q.passed} of ${q.applicable} quality tests (${q.fy?.slice(0, 4)} accounts)${mos != null ? `; price ${mos >= 0 ? `${Math.round(mos * 100)}% below` : `${Math.round(-mos * 100)}% above`} a cautious intrinsic value (growth ${Math.round(q.epsGrowth * 100)}% a year for 10 years, then 2.5%, discounted at 10%${Number.isFinite(q.contShare) && q.contShare < 1 ? `, on continuing earnings only (${Math.round(q.contShare * 100)}% of last year's profit)` : ""})` : ""}.${fails.length && !q.quality ? ` Fails: ${fails.join("; ").toLowerCase()}.` : ""}`;
   return { verdict, tone, quality: q.quality, mos: mos == null ? null : r2(mos), ivRatio: ivRatio == null ? null : r2(ivRatio), passed: q.passed, applicable: q.applicable, fy: q.fy, kind: q.kind, checks, note };
 }
 
 // Rotating cache (data/buffett-sample.json): accounts change once a year, so
 // each company is refreshed every MAX_AGE days, PER_NIGHT at a time.
 export const B_MAX_AGE = 90, B_PER_NIGHT = 220;
+// Lens version of a cached entry: older entries are fetched again (2: 15 Nov,
+// continuing operations only), at B_PER_NIGHT a night.
+export const B_VERSION = 2;
 const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 // priority: symbols (picks, bench) fetched first when due.
 export function pickBuffett(symbols, cache, today, n = B_PER_NIGHT, priority = []) {
-  const age = (s) => (cache[s]?.date ? days(cache[s].date, today) : Infinity), pr = new Set(priority);
+  const age = (s) => (cache[s]?.date && cache[s].v === B_VERSION ? days(cache[s].date, today) : Infinity), pr = new Set(priority);
   return symbols.filter((s) => age(s) >= B_MAX_AGE).sort((a, b) => (pr.has(b) ? 1 : 0) - (pr.has(a) ? 1 : 0) || age(b) - age(a) || a.localeCompare(b)).slice(0, n);
 }
 export const freshQ = (cache, s, today) => (cache[s]?.date && days(cache[s].date, today) <= B_MAX_AGE * 2 ? cache[s].q : null);

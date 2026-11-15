@@ -1,5 +1,5 @@
 name: Dry run
-# Buffett lens spot check (15 Nov): raw Yahoo annual accounts for nine names.
+# Buffett lens: continuing operations only (15 Nov); raw inputs and a full scan.
 on:
   push:
     branches: [dryrun]
@@ -18,7 +18,9 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          node tools/buffett-inputs.mjs ULVR.L,DGE.L,III.L,KO,ADBE,AAPL,CB,SYF,BGEO.L > dry-run/buffett-inputs.json 2> dry-run/buffett-inputs.log; echo "exit=$?" >> dry-run/buffett-inputs.log
+          node tools/buffett-inputs.mjs ULVR.L,DGE.L,KO,JNJ,MMM,GE,DHR,PFE,BATS.L,GSK.L > dry-run/buffett-inputs.json 2> dry-run/buffett-inputs.log; echo "exit=$?" >> dry-run/buffett-inputs.log
+          cp data/buffett.json dry-run/buffett-before.json
+          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseTimeseries, buffettQuality, buffettLens, valueMultiple, kindOf, pickBuffett, freshQ } from "../src/buffett.js";
+import { parseTimeseries, buffettQuality, buffettLens, valueMultiple, kindOf, pickBuffett, freshQ, B_VERSION, TS_TYPES } from "../src/buffett.js";
 import { newBuffettBook, reviewDue, review, fillOrders, markBuffett, buffettSummary, bookValue } from "../src/buffettBook.js";
 import { newMomentumBook, rebalanceDue, monthView, mom121, trendUp, rankMomentum, rebalance, markBook, bookSummary } from "../src/momentumBook.js";
 
@@ -55,11 +55,43 @@ test("value multiple", () => {
 });
 
 test("rotation picks missing first and keeps values fresh", () => {
-  const cache = { A: { date: "2026-11-01", q: { x: 1 } }, B: { date: "2026-06-01", q: { x: 2 } } };
+  const cache = { A: { date: "2026-11-01", v: B_VERSION, q: { x: 1 } }, B: { date: "2026-06-01", v: B_VERSION, q: { x: 2 } } };
   assert.deepEqual(pickBuffett(["A", "B", "C"], cache, "2026-11-11"), ["C", "B"]);
   assert.deepEqual(pickBuffett(["A", "B", "C"], cache, "2026-11-11", 5, ["B"]), ["B", "C"], "picks and bench first");
   assert.deepEqual(freshQ(cache, "A", "2026-11-11"), { x: 1 });
   assert.equal(freshQ(cache, "Z", "2026-11-11"), null);
+});
+
+// Unilever's 2025 accounts as Yahoo gives them (runner, 15 Nov): net income
+// includes a 3.8bn gain from the ice cream demerger (discontinued operations).
+const ULVR = { years: ["2022-12-31", "2023-12-31", "2024-12-31", "2025-12-31"],
+  NetIncome: [7642e6, 6487e6, 5744e6, 9469e6], NetIncomeDiscontinuousOperations: [null, 503e6, 330e6, 3798e6],
+  DilutedEPS: [3.36375, 2.88, 2.57625, 4.32], DilutedAverageShares: [2.275e9, 2.251e9, 2.229e9, 2.195e9],
+  TotalRevenue: [60e9, 59.6e9, 60.8e9, 50.5e9], GrossProfit: [24e9, 25.6e9, 27.3e9, 23e9], OperatingIncome: [10.8e9, 9.8e9, 9.4e9, 9.3e9], EBIT: [10.8e9, 9.8e9, 9.4e9, 9.3e9],
+  InvestedCapital: [45e9, 44e9, 44e9, 40e9], TaxRateForCalcs: [0.25, 0.25, 0.25, 0.25], StockholdersEquity: [20e9, 19e9, 20e9, 18e9],
+  LongTermDebt: [null, null, null, 22e9], TotalDebt: [null, null, null, 28e9], OperatingCashFlow: [9e9, 10e9, 10e9, 9e9], CapitalExpenditure: [-1.5e9, -1.5e9, -1.9e9, -1.6e9], DepreciationAndAmortization: [1.5e9, 1.5e9, 1.5e9, 1.4e9] };
+
+test("earnings from discontinued operations (a demerger gain) are left out", () => {
+  assert.ok(TS_TYPES.includes("NetIncomeDiscontinuousOperations"));
+  const q = buffettQuality(ULVR, { sector: "Consumer Staples" });
+  const e = q.checks.find((c) => c.key === "earnings");
+  // Continuing EPS: 3.36 to 2.59 (Unilever reported 2.59), not 3.36 to 4.32.
+  assert.match(e.value, /EPS 3\.36 to 2\.59, 2 down years \(continuing operations\)/);
+  assert.equal(e.ok, false);
+  assert.equal(q.epsGrowth, 0, "no growth credit from the one-off gain");
+  assert.ok(Math.abs(q.contShare - 5671 / 9469) < 0.01);
+  // The trailing P/E still carries the gain, so the earnings yield is scaled down.
+  const lens = buffettLens(q, 12), plain = buffettLens({ ...q, contShare: undefined }, 12);
+  assert.ok(lens.ivRatio < plain.ivRatio * 0.65);
+  // Without discontinued operations nothing changes.
+  const ko = buffettQuality(parseTimeseries(FX.KO), { sector: "Consumer Staples" });
+  assert.equal(ko.contShare, undefined);
+  assert.doesNotMatch(ko.checks.find((c) => c.key === "earnings").value, /continuing/);
+});
+
+test("accounts cached under an older lens version are fetched again", () => {
+  const cache = { A: { date: "2026-11-10", q: {} }, B: { date: "2026-11-10", v: B_VERSION, q: {} } };
+  assert.deepEqual(pickBuffett(["A", "B"], cache, "2026-11-15"), ["A"]);
 });
 
 // --- Buffett book ----------------------------------------------------------------
