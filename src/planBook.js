@@ -127,11 +127,14 @@ export function stepVariant(v0, ctx, o = PBOOK) {
   return v;
 }
 
-export function stepPlanBook(b, ctx) {
+// start: a dry-run start date (PLAN_START); it must survive the pre-start
+// rebuild, which otherwise resets the rules to PBOOK (found 15 Nov preflight).
+export function stepPlanBook(b, ctx, { start } = {}) {
   // Before the book starts, rebuild it from the current rules (they changed on
   // 11 Nov: the short-term pot); variants added later join the same way, so
   // nothing is ever backfilled.
   if (!Object.values(b.variants ?? {}).some((v) => v.started)) b = newPlanBook();
+  if (start) b = { ...b, rules: { ...b.rules, start } };
   const vs = { ...b.variants };
   for (const x of VARIANTS) if (!vs[x.key] && !Object.values(vs).some((v) => v.started)) vs[x.key] = newPlanVariant(x.key, b.rules);
   return { ...b, variants: Object.fromEntries(Object.entries(vs).map(([k, v]) => [k, stepVariant(v, ctx, b.rules)])) };
