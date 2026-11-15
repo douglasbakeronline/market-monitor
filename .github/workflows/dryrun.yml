@@ -1,5 +1,6 @@
 name: Dry run
-# Track record average edge (15 Nov sprint).
+# Preflight of the paper books' first steps (15 Nov): plan book (forced start
+# 13 Nov), momentum and Buffett books (forced start Nov 2026), real data.
 on:
   push:
     branches: [dryrun]
@@ -18,7 +19,12 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          FORCE_DIGEST=1 DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          PLAN_START=2026-11-13 PAPER_START=2026-11 DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp history/plan-book.json dry-run/plan-book-1.json; cp history/buffett-book.json dry-run/buffett-book-1.json
+          # Second night: Buffett orders fill at the next open, the plan book steps again.
+          PLAN_START=2026-11-13 PAPER_START=2026-11 DRY_RUN=1 node scan.js > dry-run/scan2.log 2>&1; echo "exit=$?" >> dry-run/scan2.log
+          cp history/plan-book.json history/momentum-book.json history/buffett-book.json dry-run/
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
