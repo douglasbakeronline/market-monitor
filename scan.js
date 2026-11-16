@@ -13,7 +13,7 @@ import { fetchQuotes, quoteToFundamentals } from "./src/data/quotes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { fetchFundamentals, fetchEvToEbitda, fetchTimeseries } from "./src/data/fundamentals.js";
 import { pickRefresh, record, prune, evMedians, evPeer, freshEv, withEv } from "./src/evSample.js";
-import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
+import { technicals, swingSignals, swingVerdict, longTerm, longTermLive, longTermScored, reitLongTerm, ruleChangeNote, RULE_NOTE_UNTIL, SCORING_VERSION, daysUntil, earningsFields, resultsEstimate, summarise, sessionsBehind, STALE_SESSIONS, notScored } from "./src/research.js";
 import { sectorMedians, regionMedians, peerFor, sectorValueNote, reitMedian, reitView, withReitScore, withReitHint, isRealEstate, reitPeNote } from "./src/sectorValue.js";
 import { readJson, writeJson } from "./src/state.js";
 import { addSetups, updateTrade, summarise as summarisePaper } from "./src/paperTrades.js";
@@ -186,7 +186,7 @@ async function main() {
     it.sv = peer ? sectorValueNote(fs, peer, old, it.lt, rv) : null;
     if (it.sv && it.lt.reit) withReitScore(it.sv, reitLongTerm(fs, it.t, peer, rv), longTermLive(fs, it.t, peer));
     { const pn = it.sv && !it.lt.reit ? reitPeNote(withReitHint(it.f, it.u.sector), rv, reitMed) : null; if (pn) it.sv.note = `${it.sv.note} ${pn}`.trim(); }
-    it.rc = ruleChangeNote(old, it.lt);
+    it.rc = ruleChangeNote(old, it.lt, today);
     if (it.sv && ep) { it.sv.ev = ep; it.sv.note = `${it.sv.note} ${ep.note}`.trim(); }
   }
 
@@ -537,13 +537,13 @@ async function main() {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
     universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
-    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: ruleChanges(out), coreExtras: coreDates, dataChecks, shortTerm, resultsPreview: resultsAhead, items: out,
+    newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: today <= RULE_NOTE_UNTIL ? ruleChanges(out) : null, coreExtras: coreDates, dataChecks, shortTerm, resultsPreview: resultsAhead, items: out,
   });
   // A small copy for the Dashboard (11 Nov evening), so tonight's orders show
   // right after the evening push rather than after the 08:15 monitor run.
   if (shortTerm) await writeJson("history/short-term.json", { updated: new Date().toISOString(), ...shortTerm }, true).catch((e) => console.warn(`short-term.json: ${e.message}`));
   const rcs = ruleChanges(out);
-  console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
+  if (today <= RULE_NOTE_UNTIL) console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);
 }
 

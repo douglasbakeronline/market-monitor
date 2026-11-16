@@ -55,7 +55,7 @@ export async function runResearch({ regimeKey, state }) {
       if (sectorValue && lt.reit) withReitScore(sectorValue, reitLongTerm(fs, t, peer, rv), longTermLive(fs, t, peer));
       { const pn = sectorValue && !lt.reit ? reitPeNote(f, rv, scanMeta?.reitPocf ?? null) : null; if (pn) sectorValue.note = `${sectorValue.note} ${pn}`.trim(); }
       if (sectorValue && ep) Object.assign(sectorValue, { ev: ep, note: `${sectorValue.note} ${ep.note}`.trim() });
-      const ruleChange = ruleChangeNote(old, lt);
+      const ruleChange = ruleChangeNote(old, lt, today);
       const swing = swingVerdict(t, signals, earningsDays);
       const item = {
         symbol: s.symbol, ticker: s.symbol.replace(/\.L$/, ""), market: marketOf(s.symbol),
