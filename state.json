@@ -1782,7 +1782,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-16T12:00:00.121Z",
+    "fgAt": "2026-11-16T12:00:22.994Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1861,12 +1861,12 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10939.21,
+        "level": 10939.39,
         "date": "2026-11-16",
-        "asOf": "2026-11-16T11:44:59.000Z",
+        "asOf": "2026-11-16T11:45:22.000Z",
         "currency": "GBP",
         "drawdownPct": 0,
-        "peak": 10939.21,
+        "peak": 10939.39,
         "peakDate": "2026-11-16",
         "sma50": 10697.57,
         "sma200": 10556.56,
@@ -1874,7 +1874,7 @@
         "above200": true,
         "rsi14": 61.4,
         "dayPct": 0.3,
-        "weekPct": 1.4,
+        "weekPct": 1.5,
         "monthPct": 0.5,
         "ytdPct": 10.1,
         "fiveDay": [
@@ -1933,11 +1933,11 @@
         ]
       },
       "vix": {
-        "level": 20.01,
-        "dayPct": 3.7,
+        "level": 20,
+        "dayPct": 3.6,
         "date": "2026-11-16"
       },
-      "at": "2026-11-16T12:00:00.121Z"
+      "at": "2026-11-16T12:00:22.994Z"
     },
     "watchlist": [
       {
@@ -2497,7 +2497,7 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 14026,
+        "price": 14024,
         "date": "2026-11-16",
         "dropFromHigh": -0.3,
         "lastChange": 0.3,
@@ -2534,7 +2534,7 @@
           16.21,
           16.49,
           16.93,
-          17.29
+          17.28
         ],
         "rebound": false
       },
@@ -2702,8 +2702,8 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 141.86,
-      "price": "£141.86",
+      "level": 141.9,
+      "price": "£141.90",
       "currency": "GBP",
       "date": "2026-11-16",
       "drawdownPct": -3.6,
