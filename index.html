@@ -479,7 +479,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
-import { PLAN, dripSchedule, moneyCheckVerdict } from "./src/plan.js";
+import { PLAN, dripSchedule, moneyCheckVerdict, pricesAsOfLabel } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
@@ -1033,7 +1033,7 @@ function renderMoneyCheck() {
   const picksLine = cp.picks.length ? `Picks: ${passing.length ? `${passing.join(", ")} ${passing.length === 1 ? "passes" : "pass"} the tranche check` : "none passes the tranche check"}${waiting.length ? `; ${waiting.join(", ")} wait` : ""}. Dip reserve: ${tierHit ? "see the buy tiers" : "no buy tier, so it stays in cash"}.` : "";
   const events = week.length ? `This week: ${week.map((k) => `${esc(k.title)} (${dayMon(k.date)})`).join("; ")}.` : "";
   el.hidden = false;
-  el.innerHTML = `<div class="mc-head"><div class="k">This week's money check</div><span class="small muted">Prices to ${fmtDM(sp?.date ?? d.updated)}</span></div>
+  el.innerHTML = `<div class="mc-head"><div class="k">This week's money check</div><span class="small muted">${esc(pricesAsOfLabel(sp, ftse, fmtDM, d.updated?.slice(0, 10)))}</span></div>
     <p class="mc-verdict">${verdict}</p>
     <div class="mc-chips">${chips}</div>
     <p class="small" style="margin:10px 0 0">${esc(picksLine)} ${events}</p>

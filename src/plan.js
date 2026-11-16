@@ -42,27 +42,27 @@ export const PLAN = {
   // dates join Key dates automatically. `extra`: not in the index scan, so the
   // scan fetches a quote for the date only (TSMC via its US listing, which
   // reports with Taiwan). Display only: the core is never bought or sold on a
-  // signal. Refresh the weights each quarter (stockanalysis.com VWRP holdings).
-  coreHoldingsAsOf: "31 Jul 2026",
+  // signal. Refresh the weights each quarter: `node tools/core-holdings.mjs` on the runners.
+  coreHoldingsAsOf: "30 Sep 2026", // tools/core-holdings.mjs on the runner, 16 Nov 2026
   coreHoldings: [
-    { symbol: "NVDA", name: "Nvidia", weight: 4.5 },
-    { symbol: "AAPL", name: "Apple", weight: 4.3 },
-    { symbol: "MSFT", name: "Microsoft", weight: 3.3 },
-    { symbol: "GOOGL", name: "Alphabet", weight: 3.6 },
-    { symbol: "AMZN", name: "Amazon", weight: 2.5 },
-    { symbol: "AVGO", name: "Broadcom", weight: 1.7 },
-    { symbol: "META", name: "Meta", weight: 1.2 },
-    { symbol: "JPM", name: "JPMorgan Chase", weight: 0.9 },
-    { symbol: "MU", name: "Micron", weight: 0.9 },
-    { symbol: "LLY", name: "Eli Lilly", weight: 0.9 },
-    { symbol: "TSLA", name: "Tesla", weight: 0.9 },
-    { symbol: "AMD", name: "AMD", weight: 0.7 },
-    { symbol: "TSM", name: "TSMC", weight: 1.7, extra: true },
-    { symbol: "005930.KS", name: "Samsung Electronics", weight: 0.8, extra: true },
-    { symbol: "BRK-B", name: "Berkshire Hathaway", weight: 0.7 },
-    { symbol: "000660.KS", name: "SK hynix", weight: 0.6, extra: true },
-    { symbol: "XOM", name: "ExxonMobil", weight: 0.6 },
-    { symbol: "ASML.AS", name: "ASML", weight: 0.6 },
+    { symbol: "NVDA", name: "Nvidia", weight: 5.03 },
+    { symbol: "AAPL", name: "Apple", weight: 4.54 },
+    { symbol: "MSFT", name: "Microsoft", weight: 3.6 },
+    { symbol: "GOOGL", name: "Alphabet", weight: 3.42 },
+    { symbol: "AMZN", name: "Amazon", weight: 2.28 },
+    { symbol: "TSM", name: "TSMC", weight: 1.79, extra: true },
+    { symbol: "AVGO", name: "Broadcom", weight: 1.54 },
+    { symbol: "META", name: "Meta", weight: 1.5 },
+    { symbol: "MU", name: "Micron", weight: 1.13 },
+    { symbol: "TSLA", name: "Tesla", weight: 0.98 },
+    { symbol: "AMD", name: "AMD", weight: 0.94 },
+    { symbol: "LLY", name: "Eli Lilly", weight: 0.87 },
+    { symbol: "005930.KS", name: "Samsung Electronics", weight: 0.87, extra: true },
+    { symbol: "JPM", name: "JPMorgan Chase", weight: 0.83 },
+    { symbol: "000660.KS", name: "SK hynix", weight: 0.71, extra: true },
+    { symbol: "BRK-B", name: "Berkshire Hathaway", weight: 0.71 },
+    { symbol: "ASML.AS", name: "ASML", weight: 0.66 },
+    { symbol: "XOM", name: "ExxonMobil", weight: 0.63 },
     { symbol: "JNJ", name: "Johnson & Johnson", weight: 0.6 },
   ],
   coreSmallDays: 7, // holdings under 1% of VWRP show only in the last week, to keep Key dates short
@@ -272,7 +272,7 @@ export function coreHoldingDates(items = {}, today, plan = PLAN, horizon = 21) {
     if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d) || d < today) return [];
     const inDays = days(today, d);
     if (inDays > (h.weight < 1 && plan.coreSmallDays ? Math.min(horizon, plan.coreSmallDays) : horizon)) return [];
-    const pct = h.weight >= 1 ? `about ${Math.round(h.weight)}%` : `about ${h.weight}%`;
+    const pct = h.weight >= 1 ? `about ${Math.round(h.weight)}%` : `about ${h.weight.toFixed(1)}%`;
     return [{ date: d, symbol: h.symbol, weight: h.weight, auto: true, inDays,
       title: `${h.name} results, ${pct} of VWRP`, note: `VWRP weights as of ${plan.coreHoldingsAsOf}` }];
   });
@@ -323,4 +323,14 @@ export function moneyCheckVerdict(cp, { fmt = dayLabel, tierHit = false } = {}) 
   if (due) return `<b>No rule is triggered.</b> Due ${when(due)} on the plan's scheduled date, with no market condition needed: ${h(due.title)}.${next ? ` After it, the next core purchase is ${fmt(next.date)}.` : ""}`;
   if (next) return `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${fmt(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`;
   return "<b>No rule is triggered</b> and no core purchase is scheduled before the new ISA allowance.";
+}
+
+// Money check header (16 Nov): before New York opens the S&P 500's last close
+// is the previous session while the FTSE 100 is already today's, so one date
+// would mislabel one of them. Name both when they differ.
+export function pricesAsOfLabel(sp, ftse, fmt, fallback) {
+  const a = sp?.date, b = ftse?.date;
+  if (a && b && a !== b) return `S&P 500 to ${fmt(a)}, FTSE 100 to ${fmt(b)}`;
+  const d = a ?? b ?? fallback;
+  return d ? `Prices to ${fmt(d)}` : "";
 }
