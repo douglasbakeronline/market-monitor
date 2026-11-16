@@ -479,7 +479,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
-import { PLAN, dripSchedule } from "./src/plan.js";
+import { PLAN, dripSchedule, moneyCheckVerdict } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
@@ -1015,14 +1015,10 @@ function renderMoneyCheck() {
   const d = LAST_DATA, el = $("moneyCheck");
   if (!d?.copilot || !el) return;
   const cp = d.copilot, pb = cp.pullback, sp = d.markets?.sp, ftse = d.markets?.ftse, vix = d.markets?.vix;
-  const next = pb.nextCore;
   const tierHit = [sp, ftse].some((m) => m?.drawdownPct != null && m.drawdownPct <= -10);
   const passing = cp.picks.filter((p) => p.ok).map((p) => p.ticker), waiting = cp.picks.filter((p) => p.ok === false).map((p) => p.ticker);
   const week = cp.dates.filter((k) => k.inDays != null ? k.inDays <= 7 : true).slice(0, 3);
-  const verdict = pb.triggered ? `<b>The pullback rule has fired:</b> ${esc(pb.index)} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, so the plan says make the core purchase due ${dayMon(next.date)} now.`
-    : tierHit ? "<b>A market is 10% or more below its high:</b> check the buy tiers below; a tier needs fear (F&amp;G 25 or under, or VIX 30 or over) to confirm it."
-    : next ? `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${dayMon(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`
-    : "<b>No rule is triggered</b> and no core purchase is scheduled before the new ISA allowance.";
+  const verdict = moneyCheckVerdict(cp, { fmt: dayMon, tierHit });
   const chip = (label, val, tone) => `<span class="mc-chip ${tone}"><span class="muted">${label}</span> ${val}</span>`;
   const fg = d.score, fgTone = fg <= 25 ? "pos" : fg <= 45 ? "warm" : fg >= 75 ? "neg" : "";
   const chips = [

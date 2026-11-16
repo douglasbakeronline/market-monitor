@@ -225,3 +225,24 @@ test("sell signals on picks: push line and picks line", async () => {
   assert.equal(pickSellLine({ ...it, exit: { kinds: [] } }), null);
   assert.match(picksLine([{ ticker: "META", ok: false, verdict: "Fair", gaps: ["Entry 69, needs 70"], exit: { kinds: ["bigFall"] } }]), /sell signals today: META fell 8%\+ in a day \(display only\)\.$/);
 });
+
+test("money check verdict names a core purchase due this week (16 Nov said none was scheduled)", async () => {
+  const { moneyCheckVerdict } = await import("../src/plan.js");
+  const fmt = (d) => d;
+  const due = copilot({ today: "2026-11-16", sp: sp(-3.3), ftse: ftse(0), items: {} });
+  assert.equal(due.pullback.nextCore, null);
+  const v = moneyCheckVerdict(due, { fmt });
+  assert.match(v, /Due today on the plan's scheduled date.*: Second core purchase \(VWRP\)\./);
+  assert.match(v, /scheduled date/);
+  assert.doesNotMatch(v, /no core purchase is scheduled/);
+  // A few days before, the pullback branch still leads.
+  const before = moneyCheckVerdict(copilot({ today: "2026-11-12", sp: sp(-3), ftse: ftse(0), items: {} }), { fmt });
+  assert.match(before, /next move is the core purchase on 2026-11-16 \(in 4 days\)/);
+  // The day after: nothing left that can come forward.
+  const after = moneyCheckVerdict(copilot({ today: "2026-11-17", sp: sp(-3), ftse: ftse(0), items: {} }), { fmt });
+  assert.match(after, /No rule is triggered/);
+  assert.match(after, /new ISA allowance/);
+  // Pullback and buy tiers keep priority.
+  assert.match(moneyCheckVerdict(copilot({ today: "2026-11-12", sp: sp(-5.5), ftse: ftse(0), items: {} }), { fmt }), /pullback rule has fired/);
+  assert.match(moneyCheckVerdict(due, { fmt, tierHit: true }), /10% or more below its high/);
+});
