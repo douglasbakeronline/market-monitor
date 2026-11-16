@@ -2,6 +2,13 @@
 
 Human-readable record of what changed and why. The weekly review deck is built from this file, the git log and the live data. Newest first. Bot data commits ("Update monitor data", "Update index scan") are not listed.
 
+## Week of 16 November 2026
+
+### Mon 16 Nov (daily run)
+- **ISA card: the April 2027 cash-interest charge is off.** The Dashboard's ISA allowance card said a 22% charge on interest from cash in a stocks and shares ISA was proposed from April 2027 and on the roadmap for a decision. Autumn Budget 2026 dropped it with the cash ISA cut (HMRC newsletter 24, 29 Oct; research log 16 Nov), so the card now says the charge will not go ahead and the dip reserve's interest stays tax-free. The line follows `ISA.cashInterestCharge.status` (`cashChargeNote()` in `src/isa.js`); test in `test/isa.test.js` (failed before the change). Roadmap item 02 (reserve in cash or a money market fund) closed.
+- *Checked:* `npm test` (428 pass); Dashboard rendered at 1280px and 390px, light and dark: no page errors, no overflow. No dry run: browser-only display change, nothing in `monitor.js`, `scan.js` or the alert path.
+- *Roadmap checks:* REIT cash-flow median steady at 16.1x from 32 REITs on the last three scans; the results preview card's eight-name watch list is the top of the scan log's 23 by usual move (`PREVIEW.watchMax`), by design; the pot's five open trades match `history/short-pot.json`.
+
 ## Week of 9 November 2026
 
 ### Sun 15 Nov (build session, 15:41, second item)

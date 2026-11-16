@@ -484,7 +484,7 @@ import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
-import { ISA, isaSummary, mergeCash, taxYearOf } from "./src/isa.js";
+import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
 import { dayLabel } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
@@ -1223,7 +1223,7 @@ function renderIsa() {
     ${s.over ? `<p class="small t-sell" style="margin:8px 0 0"><b>Over the allowance:</b> deposits exceed ${gbp(ISA.allowance)}. If some were transfers in from another ISA they don't count; otherwise check with Trading 212.</p>` : ""}
     ${s.count ? `<p class="small" style="margin:8px 0 0">Dividends this tax year: <b>£${s.dividends.toFixed(2)}</b>${s.dividendsBy.length ? ` (${s.dividendsBy.slice(0, 3).map(([t, a]) => `${esc(t)} £${a.toFixed(2)}`).join(", ")})` : ""} · interest: <b>£${s.interest.toFixed(2)}</b>. The rebalancing rule puts dividends into the pot furthest under target before any selling.</p>` : ""}
     ${!fromLog ? `<form class="pf-form" id="isaForm" style="margin-top:10px"><label>Paid in this tax year (£)<input inputmode="decimal" name="amount" value="${manual ?? ""}"></label></form><div style="margin-top:8px"><button class="btn" id="isaSave" type="button">Save</button> <span class="small muted">or import a Trading 212 export in the trade log to fill this in.</span></div>` : ""}
-    <p class="small muted" style="margin:10px 0 0">Deposits count as new subscriptions; a transfer in from another ISA doesn't use the allowance, so check any large one. Proposed from 6 April 2027 (draft rules, not yet law as far as we know): interest on cash held in a stocks and shares ISA would face a ${charge.rate}% charge. Your dip reserve is cash in the ISA, so this is on the roadmap for a decision before then.</p>`;
+    <p class="small muted" style="margin:10px 0 0">Deposits count as new subscriptions; a transfer in from another ISA doesn't use the allowance, so check any large one. ${esc(cashChargeNote(charge))}</p>`;
   if ($("isaSave")) $("isaSave").onclick = () => { const n = parseFloat(String(new FormData($("isaForm")).get("amount") || "").replace(/[£,\s]/g, "")); try { localStorage.setItem(ISA_MANUAL, JSON.stringify({ taxYear: ty.label, amount: Number.isFinite(n) ? n : 0 })); } catch {} renderIsa(); };
 }
 
