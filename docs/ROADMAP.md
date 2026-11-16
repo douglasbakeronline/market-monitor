@@ -55,6 +55,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 
 ## Done (recent)
 - 16 Nov (11:41): the Dashboard's money check no longer says "no core purchase is scheduled" on the day one is due; it names the purchase due on its scheduled date (`moneyCheckVerdict()` in `src/plan.js`).
+- 16 Nov (11:41): Dashboard copy: VICI's results note starts with a capital, the Waiting card's branch and SEC titles read cleanly, trade log dates no longer run into titles.
 - 16 Nov (daily run): the 2027 cash-interest charge was dropped at Autumn Budget 2026 (research log 16 Nov); the ISA card says so, and the reserve-in-cash-or-money-market-fund item (was 02) is closed. Recheck once in March 2027 that the revoking regulations were made.
 - 15 Nov (15:41): short-term pot sells from a skipped or failed night's scan are carried to the next list (flagged late, due at the next open) instead of vanishing from both the sell and open lists; push slot count and dedup key fixed. A skipped night's buys (never listed) are left out of the book.
 - 15 Nov (10:41): Buffett lens leaves out one-off gains from discontinued operations (Unilever, AXA; NatWest joins the buy zone); paper books preflight (plan book dry-run start fixed).
