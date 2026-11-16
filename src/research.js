@@ -352,7 +352,11 @@ export function reitLongTerm(f, t, peer, rv) {
 
 // What the 10 Nov rule change did to this stock's verdict (null when nothing
 // changed). old = longTerm(f, t) (rule before 10 Nov); live = longTermLive().
-export function ruleChangeNote(old, live) {
+// The note had served its purpose after a few weeks (roadmap: "from 1 Dec"), so
+// from RULE_NOTE_UNTIL + 1 day it stops by itself: pass today (London date).
+export const RULE_NOTE_UNTIL = "2026-11-30";
+export function ruleChangeNote(old, live, today = null) {
+  if (today && today > RULE_NOTE_UNTIL) return null;
   if (!old || !live || old.score == null || live.score == null || live.trust || old.verdict === live.verdict) return null;
   return { verdict: old.verdict, score: old.score, note: `Scoring changed on 10 and 11 Nov (value against sector peers, EV/EBITDA included from 11 Nov; new Entry rule with momentum)${live.reit ? "; REITs are valued on cash flow, not P/E, from 12 Nov" : ""}: ${live.verdict} now, ${old.verdict} (${old.score}) under the old rule.` };
 }

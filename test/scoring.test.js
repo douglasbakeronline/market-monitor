@@ -68,3 +68,12 @@ test("nearGood: one bar missed by 3 points or less, trend not down", async () =>
   assert.equal(nearGood(71, get({ entry: 69, quality: 94, value: 64 })), false, "two bars missed");
   assert.equal(nearGood(77, get({ entry: 69, quality: 94, value: 64 }), true), false, "falling");
 });
+
+test("ruleChangeNote stops by itself after November 2026 (scoring follow-up a)", async () => {
+  const { RULE_NOTE_UNTIL } = await import("../src/research.js");
+  const live = { score: 80, verdict: "Good entry" }, old = { score: 70, verdict: "Fair" };
+  assert.equal(RULE_NOTE_UNTIL, "2026-11-30");
+  assert.ok(ruleChangeNote(old, live, "2026-11-30"), "still shown on 30 Nov");
+  assert.equal(ruleChangeNote(old, live, "2026-12-01"), null, "gone from 1 Dec");
+  assert.ok(ruleChangeNote(old, live), "no date: shown, as before");
+});
