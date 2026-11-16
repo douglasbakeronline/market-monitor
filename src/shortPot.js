@@ -45,15 +45,21 @@ export function shortPot(log = [], opts = {}) {
   const dates = [...new Set([...live.map((t) => t.entryDate), ...live.filter(done).map((t) => t.exitDate)])].sort();
   let equity = o.equity0, peak = o.equity0, paused = false;
   const held = [], taken = [], curve = [];
-  for (const d of dates) {
+  // Close the trades whose exit came at a close before `d` (16 Nov). An exit
+  // at the close of d still held its slot at d's open: freeing it first let
+  // the book enter a signal Douglas was never told to buy (PSA, 16 Nov).
+  const closeBefore = (d) => {
     for (let k = held.length - 1; k >= 0; k--) {
       const h = held[k];
-      if (done(h.t) && h.t.exitDate <= d) {
+      if (done(h.t) && (d == null || h.t.exitDate < d)) {
         const pnl = h.pos * (h.t.netPct / 100);
         equity += pnl; Object.assign(h.rec, { pnl: r2(pnl), netPct: h.t.netPct, vsIdx: h.t.vsIdx ?? null, exitDate: h.t.exitDate, exit: h.t.exit });
-        curve.push({ date: d, equity: r2(equity) }); held.splice(k, 1);
+        curve.push({ date: h.t.exitDate, equity: r2(equity) }); held.splice(k, 1);
       }
     }
+  };
+  for (const d of dates) {
+    closeBefore(d);
     peak = Math.max(peak, equity);
     if (equity <= peak * (1 - o.pauseFall)) paused = true;
     for (const t of [...(byEntry[d] ?? [])].sort(rank)) {
@@ -63,6 +69,9 @@ export function shortPot(log = [], opts = {}) {
       held.push({ t, pos, rec }); taken.push(rec);
     }
   }
+  closeBefore(null); // every exit up to the latest close
+  curve.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  peak = Math.max(peak, equity);
   const open = held.map((h) => ({ ...h.rec, sessions: h.t.sessions ?? 0, openPct: h.t.netPct ?? 0, openPnl: r2(h.pos * ((h.t.netPct ?? 0) / 100)) }));
   const value = equity + open.reduce((a, x) => a + x.openPnl, 0);
   if (value <= peak * (1 - o.pauseFall)) paused = true;

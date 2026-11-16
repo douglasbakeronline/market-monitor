@@ -1,5 +1,5 @@
 name: Dry run
-# Rule-change note expiry and pot signal tags (16 Nov 19:41): research rebuild and scan.
+# Short-term pot slot fix (16 Nov 22:41): scan, then the monitor's push.
 on:
   push:
     branches: [dryrun]
@@ -19,10 +19,9 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          DRY_RUN=1 FORCE_RESEARCH=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          cp research.json dry-run/research.json
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp scan.json dry-run/scan.json
+          cp scan.json history/short-pot.json history/short-term.json history/plan-book.json dry-run/
+          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

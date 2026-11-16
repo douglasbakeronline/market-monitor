@@ -119,3 +119,29 @@ test("potUnlisted + shortPot: a skipped night's signals were never listed, so th
   assert.deepEqual(potUnlisted({ rules: { today: "2026-11-18" }, unlisted: ids }, log, "2026-11-18"), ids, "rerun: unchanged");
   assert.deepEqual(potUnlisted({ rules: { today: "2026-11-19" }, unlisted: [] }, log, "2026-11-18"), [], "a date that went backwards adds nothing");
 });
+
+test("shortPot: a trade that exits at a close frees its slot for the next open, not that day's open (16 Nov)", () => {
+  // 16 Nov: OTIS's exit came at the 16 Nov close, so its slot was still held
+  // at the 16 Nov open. The book used to free it first and enter PSA (a 13 Nov
+  // signal, never listed as a buy: all five slots were held on 13 Nov), then
+  // told Douglas the pot was full when he really held four.
+  const held = ["ABT", "AMCR", "IFF", "BRBY"].map((s) => tr({ kind: "bounce", symbol: s, signalDate: "2026-11-12", status: "open", entryDate: "2026-11-13", entry: 10, netPct: -1, sessions: 2 }));
+  const log = [
+    tr({ kind: "bounce", symbol: "OTIS", signalDate: "2026-11-11", status: "closed", entryDate: "2026-11-12", entry: 10, exitDate: "2026-11-16", exit: 9.9, netPct: -0.89 }),
+    ...held,
+    tr({ kind: "bounce", symbol: "PSA", signalDate: "2026-11-13", status: "open", entryDate: "2026-11-16", entry: 10, netPct: -0.3, sessions: 1, rsi2: 2 }),
+    tr({ kind: "bounce", symbol: "ILMN", signalDate: "2026-11-16", status: "pending", rsi2: 2.8 }),
+    tr({ kind: "bounce", symbol: "VEEV", signalDate: "2026-11-16", status: "pending", rsi2: 3.1 }),
+  ];
+  const p = shortPot(log, { today: "2026-11-16", since: "2026-11-13" });
+  assert.deepEqual(p.open.map((x) => x.symbol).sort(), ["ABT", "AMCR", "BRBY", "IFF"], "PSA never had a slot");
+  assert.deepEqual(p.sells.map((x) => x.symbol), ["OTIS"]);
+  assert.equal(p.free, 1);
+  assert.deepEqual(p.buys.map((x) => x.symbol), ["ILMN"], "OTIS's slot goes to the most oversold of tonight's signals");
+  assert.equal(p.closed, 1);
+  // Same-day round trip (entry at an open, exit at that close) still closes.
+  const q = shortPot([tr({ kind: "bounce", symbol: "S", signalDate: "2026-11-12", status: "closed", entryDate: "2026-11-13", entry: 10, exitDate: "2026-11-13", exit: 10.2, netPct: 1.5 })], { today: "2026-11-13" });
+  assert.equal(q.closed, 1);
+  assert.deepEqual(q.sells.map((x) => x.symbol), ["S"]);
+  assert.equal(q.open.length, 0);
+});
