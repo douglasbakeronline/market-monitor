@@ -126,7 +126,7 @@ async function main() {
   if (fgOk && cap === "close") state.fearLog[usDate] = { ...(state.fearLog[usDate] || {}), close: fg.score };
   const fk = Object.keys(state.fearLog).sort();
   while (fk.length > 30) delete state.fearLog[fk.shift()];
-  const fearSessions = buildFearSessions(fg?.history ?? [], state.fearLog);
+  const fearSessions = buildFearSessions(fg?.history ?? [], state.fearLog, usDate);
 
   // --- 6. Research -------------------------------------------------------------
   const existingResearch = await readJson("research.json", null);

@@ -74,7 +74,7 @@ test("scoreOf reads the score from the label; byScore bands", () => {
 test("byHorizon gives week, month and quarter side by side", () => {
   const log = Array.from({ length: MIN_PER_KIND }, (_, i) => sig("^GSPC", "greed", "Greed", { w1: i ? -1 : 1, m1: -2 }));
   const [g] = byHorizon(log);
-  assert.equal(g.label, "Greed: stop adding");
+  assert.equal(g.label, "Greed: no extra money");
   assert.deepEqual(g.horizons.map((h) => h.key), ["w1", "m1", "m3"]);
   assert.equal(g.horizons[0].hitRate, 80, "for greed a fall is right");
   assert.equal(g.horizons[0].avgReturn, -0.6);

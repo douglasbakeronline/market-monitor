@@ -69,7 +69,7 @@ FORCE_SUMMARY=US NTFY_TOPIC=your-topic node monitor.js   # send a real summary n
 - **Buy tiers:** -10 / -15 / -20 / -30% from the 52-week high, each confirmed by fear (F&G ≤ 25 or VIX ≥ 30). Separate for the S&P 500 and FTSE 100. Re-arm once back within 5% of the high.
 - **Watch:** a tier is hit but fear hasn't confirmed it.
 - **Fear without a dip:** F&G ≤ 30 while the S&P is within 5% of its high.
-- **Greed:** F&G ≥ 76 with the S&P within 3% of its high: stop adding.
+- **Greed:** F&G ≥ 76 with the S&P within 3% of its high: no need to add extra money; scheduled purchases carry on (tested 7 Nov: greed has not warned of weaker markets).
 - **Trim:** F&G ≥ 80, S&P 10%+ above its 200-day and VIX ≤ 15: rebalance, don't dump.
 - **Research:** a stock newly becomes a long-term "Good entry" or a swing "Setup".
 - **Price alerts:** a stock you listed reaches your level; once per crossing, re-armed after a 3% move back.

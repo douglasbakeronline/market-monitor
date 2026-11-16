@@ -1,5 +1,5 @@
 name: Dry run
-# VWRP holdings refresh (tools/core-holdings.mjs on the runner) and money check header (16 Nov).
+# Fear & Greed session row marks today live; greed wording (16 Nov).
 on:
   push:
     branches: [dryrun]
@@ -19,7 +19,6 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          node tools/core-holdings.mjs > dry-run/core-holdings.log 2>&1; echo "exit=$?" >> dry-run/core-holdings.log
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           cp data.json dry-run/data.json

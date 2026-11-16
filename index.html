@@ -405,7 +405,7 @@
     <div class="eyebrow">Sentiment over the past year</div>
     <div class="card"><svg id="chart" class="chart" viewBox="0 0 800 200" role="img" aria-label="Fear and Greed history"></svg></div>
     <div class="card sess" style="margin-top:10px" id="sessions"></div>
-    <p class="cap">Green band: panic, historically a buying zone. Red band: froth, no need to add extra money (scheduled purchases carry on). The session row shows Fear &amp; Greed at each US close; where the monitor captured the open too, the move is open-to-close.</p>
+    <p class="cap">Green band: panic, historically a buying zone. Red band: froth, no need to add extra money (scheduled purchases carry on). The session row shows Fear &amp; Greed at each US close; where the monitor captured the open too, the move is open-to-close. Until the US close, "Today" is the reading so far.</p>
   </section>
 
   <!-- 6. World -->
@@ -504,7 +504,7 @@ const BANDS = [
   { max: 55, name: "Neutral", c: "var(--mid)" }, { max: 75, name: "Greed", c: "var(--greed)" }, { max: 100, name: "Extreme greed", c: "var(--xgreed)" },
 ];
 const band = (s) => BANDS.find((b) => s <= b.max) || BANDS[4];
-const TONE_TAG = { buy: "Buy zone", "buy-lite": "Add steadily", watch: "Watch", caution: "Caution", greed: "Stop adding", sell: "Trim", neutral: "Steady" };
+const TONE_TAG = { buy: "Buy zone", "buy-lite": "Add steadily", watch: "Watch", caution: "Caution", greed: "No extra money", sell: "Trim", neutral: "Steady" };
 const $ = (id) => document.getElementById(id);
 
 function render(d) {
@@ -1411,7 +1411,7 @@ function renderChart(history) {
   let g = `<rect x="${px}" y="${sy(25)}" width="${W - 2 * px}" height="${sy(0) - sy(25)}" fill="var(--zone-buy)"/>` +
     `<rect x="${px}" y="${sy(100)}" width="${W - 2 * px}" height="${sy(75) - sy(100)}" fill="var(--zone-sell)"/>` +
     `<text x="${px + 6}" y="${sy(0) - 6}" fill="var(--buy)" font-size="10" font-weight="700" letter-spacing=".06em">PANIC · BUY ZONE</text>` +
-    `<text x="${px + 6}" y="${sy(100) + 14}" fill="var(--sell)" font-size="10" font-weight="700" letter-spacing=".06em">FROTH · STOP ADDING</text>`;
+    `<text x="${px + 6}" y="${sy(100) + 14}" fill="var(--sell)" font-size="10" font-weight="700" letter-spacing=".06em">FROTH · NO EXTRA MONEY NEEDED</text>`;
   for (const v of [25, 50, 75]) g += `<line x1="${px}" x2="${W - px}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)"/><text x="${W - px}" y="${sy(v) - 3}" text-anchor="end" fill="var(--faint)" font-size="10">${v}</text>`;
   const seen = new Set(), M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   for (const h of history) { const dt = new Date(h.t), k = `${dt.getUTCFullYear()}-${dt.getUTCMonth()}`; if (seen.has(k)) continue; seen.add(k);
@@ -1425,7 +1425,7 @@ function renderChart(history) {
 
 function renderSessions(d) {
   const fs = d.fearSessions || [];
-  $("sessions").innerHTML = `<div class="lbl">Fear &amp; Greed at the close</div><div class="strip">${fs.map((s) => `<div><div class="d">${fmtDay(s.date)}</div><div class="p" style="color:${band(s.close).c}">${s.close}</div><div class="s">${s.open != null ? `open ${s.open} · ` : ""}<span class="${pnClass(s.pct)}">${signPct(s.pct, 0)}</span></div></div>`).join("")}</div>`;
+  $("sessions").innerHTML = `<div class="lbl">Fear &amp; Greed at the close</div><div class="strip">${fs.map((s) => `<div><div class="d">${s.live ? "Today" : fmtDay(s.date)}</div><div class="p" style="color:${band(s.close).c}">${s.close}</div><div class="s">${s.open != null ? `open ${s.open} · ` : ""}<span class="${pnClass(s.pct)}">${signPct(s.pct, 0)}</span></div></div>`).join("")}</div>`;
 }
 
 const WC = ["#c0392b", "#d9792b", "#2f6f9e", "#14855a", "#8a6fc0"];

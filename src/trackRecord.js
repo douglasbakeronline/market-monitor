@@ -7,7 +7,7 @@ const HORIZONS = [["w1", 5], ["m1", 21], ["m3", 63]];
 export const DOWN_IS_GOOD = new Set(["greed", "trim"]);
 
 export const KIND_LABEL = {
-  buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed: stop adding", trim: "Trim",
+  buy: "Buy tier", watch: "Watch tier", "fear-no-dip": "Fear without a dip", greed: "Greed: no extra money", trim: "Trim",
   "research-lt": "Long-term good entry", "research-swing": "Swing setup", smart: "Smart money: new or added",
 };
 

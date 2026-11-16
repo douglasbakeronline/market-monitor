@@ -191,14 +191,17 @@ export function watchItem(w, data) {
 }
 
 // Fear & Greed by US session for the last five trading days.
-export function buildFearSessions(history, fearLog) {
+// `today` (New York date): today's session has no close until the 16:10 slot,
+// so its reading is marked live rather than shown as a close (16 Nov).
+export function buildFearSessions(history, fearLog, today = null) {
   const pts = history.slice(-6), res = [];
   for (let i = Math.max(1, pts.length - 5); i < pts.length; i++) {
     const cur = pts[i], prev = pts[i - 1], date = cur.date ?? utcDate(cur.t), log = fearLog[date] || {};
     const open = log.open ?? null, close = log.close ?? cur.y;
     const basis = open != null ? "oc" : "dod";
     const p = open != null ? ((close - open) / open) * 100 : ((cur.y - prev.y) / prev.y) * 100;
-    res.push({ date, open, close, pct: Math.round(p * 10) / 10, basis });
+    const live = date === today && log.close == null;
+    res.push({ date, open, close, pct: Math.round(p * 10) / 10, basis, ...(live ? { live } : {}) });
   }
   return res;
 }

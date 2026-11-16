@@ -171,6 +171,17 @@ test("fear sessions use the stored open when captured", () => {
   assert.equal(s.at(-1).pct, 20);
 });
 
+test("today's fear session is marked live until its close is captured (16 Nov: shown as a close at midday)", () => {
+  const h = [20, 21, 22, 23, 24, 30].map((y, i) => ({ date: `2026-10-${String(19 + i).padStart(2, "0")}`, y }));
+  const live = buildFearSessions(h, { "2026-10-24": { open: 25 } }, "2026-10-24");
+  assert.equal(live.at(-1).live, true);
+  assert.equal(live.at(-2).live, undefined);
+  const closed = buildFearSessions(h, { "2026-10-24": { open: 25, close: 30 } }, "2026-10-24");
+  assert.equal(closed.at(-1).live, undefined);
+  const missed = buildFearSessions(h, { "2026-10-24": { open: 25 } }, "2026-10-25");
+  assert.equal(missed.at(-1).live, undefined); // a past day with no logged close keeps CNN's close
+});
+
 test("snapshot computes vs-200 and drawdown", () => {
   const closes = Array.from({ length: 260 }, (_, i) => 100 + i * 0.1);
   closes.push(closes.at(-1) * 0.9);
