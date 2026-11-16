@@ -16,124 +16,278 @@
   "variants": {
     "agreed": {
       "key": "agreed",
-      "core": 0,
-      "coreLast": null,
+      "core": 6000,
+      "coreLast": 141.08,
       "reserve": 1500,
       "reserve0": 1500,
-      "picksCash": 1500,
+      "picksCash": 1200,
       "shortPot": 1000,
-      "shortLast": null,
-      "pending": 6000,
-      "picks": {},
+      "shortLast": 0.989801,
+      "pending": 0,
+      "picks": {
+        "HSBA.L": {
+          "ticker": "HSBA",
+          "market": "UK",
+          "value": 99.5,
+          "cost": 100,
+          "last": 1347,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        },
+        "META": {
+          "ticker": "META",
+          "market": "US",
+          "value": 99.85,
+          "cost": 100,
+          "last": 626.41,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        },
+        "NEM": {
+          "ticker": "NEM",
+          "market": "US",
+          "value": 99.85,
+          "cost": 100,
+          "last": 110.31,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        }
+      },
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
-      "value": 10000,
-      "started": null
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 60% of the book"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of HSBA (1% of the book)"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of META (1% of the book)"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of NEM (1% of the book)"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 9999.2
+        }
+      ],
+      "value": 9999.2,
+      "started": "2026-11-16"
     },
     "weakHold": {
       "key": "weakHold",
-      "core": 0,
-      "coreLast": null,
+      "core": 6000,
+      "coreLast": 141.08,
       "reserve": 1500,
       "reserve0": 1500,
-      "picksCash": 1500,
+      "picksCash": 1400,
       "shortPot": 1000,
-      "shortLast": null,
-      "pending": 6000,
-      "picks": {},
+      "shortLast": 0.989801,
+      "pending": 0,
+      "picks": {
+        "NEM": {
+          "ticker": "NEM",
+          "market": "US",
+          "value": 99.85,
+          "cost": 100,
+          "last": 110.31,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        }
+      },
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
-      "value": 10000,
-      "started": null
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 60% of the book"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of NEM (1% of the book)"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 9999.85
+        }
+      ],
+      "value": 9999.85,
+      "started": "2026-11-16"
     },
     "reitValue": {
       "key": "reitValue",
-      "core": 0,
-      "coreLast": null,
+      "core": 6000,
+      "coreLast": 141.08,
       "reserve": 1500,
       "reserve0": 1500,
-      "picksCash": 1500,
+      "picksCash": 1200,
       "shortPot": 1000,
-      "shortLast": null,
-      "pending": 6000,
-      "picks": {},
+      "shortLast": 0.989801,
+      "pending": 0,
+      "picks": {
+        "HSBA.L": {
+          "ticker": "HSBA",
+          "market": "UK",
+          "value": 99.5,
+          "cost": 100,
+          "last": 1347,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        },
+        "META": {
+          "ticker": "META",
+          "market": "US",
+          "value": 99.85,
+          "cost": 100,
+          "last": 626.41,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        },
+        "NEM": {
+          "ticker": "NEM",
+          "market": "US",
+          "value": 99.85,
+          "cost": 100,
+          "last": 110.31,
+          "lastTranche": "2026-11",
+          "tranches": 1
+        }
+      },
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
-      "value": 10000,
-      "started": null
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 60% of the book"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of HSBA (1% of the book)"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of META (1% of the book)"
+        },
+        {
+          "date": "2026-11-16",
+          "what": "Tranche of NEM (1% of the book)"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 9999.2
+        }
+      ],
+      "value": 9999.2,
+      "started": "2026-11-16"
     },
     "vwrp": {
       "key": "vwrp",
-      "core": 0,
-      "coreLast": null,
+      "core": 10000,
+      "coreLast": 141.08,
       "reserve": 0,
       "reserve0": 0,
       "picksCash": 0,
       "shortPot": 0,
       "shortLast": null,
-      "pending": 10000,
+      "pending": 0,
       "picks": {},
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 100% of the book"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 10000
+        }
+      ],
       "value": 10000,
-      "started": null
+      "started": "2026-11-16"
     },
     "buffettPot": {
       "key": "buffettPot",
-      "core": 0,
-      "coreLast": null,
+      "core": 6000,
+      "coreLast": 141.08,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
       "shortPot": 1000,
-      "shortLast": null,
-      "pending": 6000,
+      "shortLast": 0.989801,
+      "pending": 0,
       "picks": {},
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 60% of the book"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 10000
+        }
+      ],
       "value": 10000,
-      "started": null
+      "started": "2026-11-16"
     },
     "momentumPot": {
       "key": "momentumPot",
-      "core": 0,
-      "coreLast": null,
+      "core": 6000,
+      "coreLast": 141.08,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
       "shortPot": 1000,
-      "shortLast": null,
-      "pending": 6000,
+      "shortLast": 0.989801,
+      "pending": 0,
       "picks": {},
       "potLast": null,
       "lastTier": 0,
       "lastTierDate": null,
       "lastDrip": null,
-      "log": [],
-      "curve": [],
+      "log": [
+        {
+          "date": "2026-11-16",
+          "what": "Bought VWRP with 60% of the book"
+        }
+      ],
+      "curve": [
+        {
+          "date": "2026-11-16",
+          "value": 10000
+        }
+      ],
       "value": 10000,
-      "started": null
+      "started": "2026-11-16"
     }
   },
-  "updated": "2026-11-15T16:05:53.507Z"
+  "updated": "2026-11-16T21:23:55.618Z"
 }

@@ -255,3 +255,12 @@ test("money check header names each index's price date when they differ (16 Nov:
   assert.equal(pricesAsOfLabel({ date: "2026-11-13" }, null, fmt), "Prices to 11-13");
   assert.equal(pricesAsOfLabel(null, null, fmt, "2026-11-16"), "Prices to 11-16");
 });
+
+test("pullbackIdleNote: past the line with nothing to bring forward says so", async () => {
+  const { pullbackIdleNote } = await import("../src/plan.js");
+  const base = { nextCore: null, threshold: -5, index: "S&P 500" };
+  assert.match(pullbackIdleNote({ ...base, drawdown: -5.1 }), /^S&P 500 is 5\.1% below its high, past the 5% line, but no core purchase is left to bring forward before the new ISA allowance \(6 Apr 2027\)\. The dip reserve's buy tiers start at 10% below, once fear confirms it\.$/);
+  assert.equal(pullbackIdleNote({ ...base, drawdown: -2 }), "No core purchase left that can come forward before the new ISA allowance (6 Apr 2027).");
+  assert.equal(pullbackIdleNote({ ...base, drawdown: null }), "No core purchase left that can come forward before the new ISA allowance (6 Apr 2027).");
+  assert.equal(pullbackIdleNote({ ...base, nextCore: { date: "2027-05-03" }, drawdown: -6 }), null);
+});

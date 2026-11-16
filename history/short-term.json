@@ -1,49 +1,63 @@
 {
-  "updated": "2026-11-15T16:06:07.405Z",
-  "date": "2026-11-13",
+  "updated": "2026-11-16T21:24:12.352Z",
+  "date": "2026-11-16",
   "drift": [],
   "bounce": [
     {
-      "symbol": "PSA",
-      "ticker": "PSA",
-      "name": "Public Storage",
+      "symbol": "ILMN",
+      "ticker": "ILMN",
+      "name": "Illumina, Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 52,
+      "score": 51,
       "kind": "bounce",
-      "date": "2026-11-13",
-      "price": 332.59,
-      "rsi2": 5.7,
-      "vs200": 8.9,
-      "fall3": -1
+      "date": "2026-11-16",
+      "price": 198,
+      "rsi2": 2.8,
+      "vs200": 10.1,
+      "fall3": -7
     },
     {
-      "symbol": "AMCR",
-      "ticker": "AMCR",
-      "name": "Amcor plc",
+      "symbol": "VEEV",
+      "ticker": "VEEV",
+      "name": "Veeva Systems Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 61,
+      "score": 40,
       "kind": "bounce",
-      "date": "2026-11-13",
-      "price": 43.8,
-      "rsi2": 6.4,
-      "vs200": 1.6,
-      "fall3": -3.1
+      "date": "2026-11-16",
+      "price": 299.28,
+      "rsi2": 3.1,
+      "vs200": 39.8,
+      "fall3": -1.8
     },
     {
-      "symbol": "VRTX",
-      "ticker": "VRTX",
-      "name": "Vertex Pharmaceuticals Incorporated",
+      "symbol": "RVTY",
+      "ticker": "RVTY",
+      "name": "Revvity, Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 53,
+      "score": 46,
       "kind": "bounce",
-      "date": "2026-11-13",
-      "price": 538.6,
-      "rsi2": 7.3,
-      "vs200": 11.4,
-      "fall3": -1.7
+      "date": "2026-11-16",
+      "price": 148.85,
+      "rsi2": 3.4,
+      "vs200": 30.3,
+      "fall3": -5.9
+    },
+    {
+      "symbol": "EMR",
+      "ticker": "EMR",
+      "name": "Emerson Electric Co.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 63,
+      "kind": "bounce",
+      "date": "2026-11-16",
+      "price": 160.65,
+      "rsi2": 3.7,
+      "vs200": 8.6,
+      "fall3": -3.8
     },
     {
       "symbol": "MRNA",
@@ -51,32 +65,18 @@
       "name": "Moderna, Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 50,
+      "score": 51,
       "kind": "bounce",
-      "date": "2026-11-13",
-      "price": 223.37,
-      "rsi2": 7.5,
-      "vs200": 131.7,
-      "fall3": -10.9
-    },
-    {
-      "symbol": "IQV",
-      "ticker": "IQV",
-      "name": "IQVIA Holdings Inc.",
-      "market": "US",
-      "index": "S&P 500",
-      "score": 61,
-      "kind": "bounce",
-      "date": "2026-11-13",
-      "price": 265.12,
-      "rsi2": 7.7,
-      "vs200": 25.6,
-      "fall3": -3.6
+      "date": "2026-11-16",
+      "price": 215.27,
+      "rsi2": 4.2,
+      "vs200": 121.3,
+      "fall3": -13.4
     }
   ],
   "counts": {
     "drift": 0,
-    "bounce": 11
+    "bounce": 26
   },
   "tested": {
     "drift": {
@@ -111,11 +111,12 @@
       "vsIdx": null
     },
     "bounce": {
-      "closed": 1,
-      "open": 8,
-      "win": 100,
-      "avg": 1.41,
-      "vsIdx": 1.04
+      "closed": 2,
+      "open": 11,
+      "win": 50,
+      "avg": 0.26,
+      "vsIdx": 1.41,
+      "sd": 1.63
     }
   },
   "pot": {
@@ -124,31 +125,17 @@
       "equity0": 10000,
       "maxOpen": 5,
       "pauseFall": 0.25,
-      "today": "2026-11-13",
-      "since": null
+      "today": "2026-11-16",
+      "since": "2026-11-13"
     },
     "skipList": [],
     "start": "2026-11-12",
-    "value": 9962.6,
-    "returnPct": -0.37,
+    "value": 9898.01,
+    "returnPct": -1.02,
     "peak": 10000,
-    "fallPct": -0.37,
+    "fallPct": -1.02,
     "paused": false,
     "open": [
-      {
-        "id": "2026-11-11:bounce:OTIS",
-        "kind": "bounce",
-        "symbol": "OTIS",
-        "ticker": "OTIS",
-        "name": "Otis Worldwide Corporation",
-        "market": "US",
-        "entryDate": "2026-11-12",
-        "entry": 78.18,
-        "pos": 2000,
-        "sessions": 2,
-        "openPct": -1.17,
-        "openPnl": -23.4
-      },
       {
         "id": "2026-11-12:drift:BRBY.L",
         "kind": "drift",
@@ -159,9 +146,9 @@
         "entryDate": "2026-11-13",
         "entry": 1170.5,
         "pos": 2000,
-        "sessions": 1,
-        "openPct": 0.74,
-        "openPnl": 14.8
+        "sessions": 2,
+        "openPct": 0.01,
+        "openPnl": 0.2
       },
       {
         "id": "2026-11-12:bounce:ABT",
@@ -173,9 +160,9 @@
         "entryDate": "2026-11-13",
         "entry": 108.2,
         "pos": 2000,
-        "sessions": 1,
-        "openPct": 0,
-        "openPnl": 0
+        "sessions": 2,
+        "openPct": -0.99,
+        "openPnl": -19.8
       },
       {
         "id": "2026-11-12:bounce:AMCR",
@@ -187,9 +174,9 @@
         "entryDate": "2026-11-13",
         "entry": 44.24,
         "pos": 2000,
-        "sessions": 1,
-        "openPct": -1.29,
-        "openPnl": -25.8
+        "sessions": 2,
+        "openPct": -1.36,
+        "openPnl": -27.2
       },
       {
         "id": "2026-11-12:bounce:IFF",
@@ -201,24 +188,49 @@
         "entryDate": "2026-11-13",
         "entry": 81.04,
         "pos": 2000,
+        "sessions": 2,
+        "openPct": -1.6,
+        "openPnl": -32
+      },
+      {
+        "id": "2026-11-13:bounce:PSA",
+        "kind": "bounce",
+        "symbol": "PSA",
+        "ticker": "PSA",
+        "name": "Public Storage",
+        "market": "US",
+        "entryDate": "2026-11-16",
+        "entry": 333.62,
+        "pos": 1996.44,
         "sessions": 1,
-        "openPct": -0.15,
-        "openPnl": -3
+        "openPct": -0.27,
+        "openPnl": -5.39
       }
     ],
     "buys": [],
-    "sells": [],
+    "sells": [
+      {
+        "kind": "bounce",
+        "symbol": "OTIS",
+        "ticker": "OTIS",
+        "name": "Otis Worldwide Corporation",
+        "market": "US",
+        "exitDate": "2026-11-16",
+        "orderDate": "2026-11-16",
+        "netPct": -0.89
+      }
+    ],
     "free": 0,
-    "closed": 0,
-    "winRate": null,
-    "avgNetPct": null,
+    "closed": 1,
+    "winRate": 0,
+    "avgNetPct": -0.89,
     "trades": [
       {
         "kind": "bounce",
         "ticker": "OTIS",
         "market": "US",
         "entryDate": "2026-11-12",
-        "exitDate": null
+        "exitDate": "2026-11-16"
       },
       {
         "kind": "drift",
@@ -247,8 +259,15 @@
         "market": "US",
         "entryDate": "2026-11-13",
         "exitDate": null
+      },
+      {
+        "kind": "bounce",
+        "ticker": "PSA",
+        "market": "US",
+        "entryDate": "2026-11-16",
+        "exitDate": null
       }
     ]
   },
-  "pushedAt": "2026-11-13T21:23:52.890Z"
+  "pushedAt": "2026-11-16T21:24:12.336Z"
 }

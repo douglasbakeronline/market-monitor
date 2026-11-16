@@ -1,34 +1,20 @@
 {
-  "updated": "2026-11-15T16:05:53.367Z",
+  "updated": "2026-11-16T21:23:55.446Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
     "maxOpen": 5,
     "pauseFall": 0.25,
-    "today": "2026-11-13",
-    "since": null
+    "today": "2026-11-16",
+    "since": "2026-11-13"
   },
   "start": "2026-11-12",
-  "value": 9962.6,
-  "returnPct": -0.37,
+  "value": 9898.01,
+  "returnPct": -1.02,
   "peak": 10000,
-  "fallPct": -0.37,
+  "fallPct": -1.02,
   "paused": false,
   "open": [
-    {
-      "id": "2026-11-11:bounce:OTIS",
-      "kind": "bounce",
-      "symbol": "OTIS",
-      "ticker": "OTIS",
-      "name": "Otis Worldwide Corporation",
-      "market": "US",
-      "entryDate": "2026-11-12",
-      "entry": 78.18,
-      "pos": 2000,
-      "sessions": 2,
-      "openPct": -1.17,
-      "openPnl": -23.4
-    },
     {
       "id": "2026-11-12:drift:BRBY.L",
       "kind": "drift",
@@ -39,9 +25,9 @@
       "entryDate": "2026-11-13",
       "entry": 1170.5,
       "pos": 2000,
-      "sessions": 1,
-      "openPct": 0.74,
-      "openPnl": 14.8
+      "sessions": 2,
+      "openPct": 0.01,
+      "openPnl": 0.2
     },
     {
       "id": "2026-11-12:bounce:ABT",
@@ -53,9 +39,9 @@
       "entryDate": "2026-11-13",
       "entry": 108.2,
       "pos": 2000,
-      "sessions": 1,
-      "openPct": 0,
-      "openPnl": 0
+      "sessions": 2,
+      "openPct": -0.99,
+      "openPnl": -19.8
     },
     {
       "id": "2026-11-12:bounce:AMCR",
@@ -67,9 +53,9 @@
       "entryDate": "2026-11-13",
       "entry": 44.24,
       "pos": 2000,
-      "sessions": 1,
-      "openPct": -1.29,
-      "openPnl": -25.8
+      "sessions": 2,
+      "openPct": -1.36,
+      "openPnl": -27.2
     },
     {
       "id": "2026-11-12:bounce:IFF",
@@ -81,9 +67,23 @@
       "entryDate": "2026-11-13",
       "entry": 81.04,
       "pos": 2000,
+      "sessions": 2,
+      "openPct": -1.6,
+      "openPnl": -32
+    },
+    {
+      "id": "2026-11-13:bounce:PSA",
+      "kind": "bounce",
+      "symbol": "PSA",
+      "ticker": "PSA",
+      "name": "Public Storage",
+      "market": "US",
+      "entryDate": "2026-11-16",
+      "entry": 333.62,
+      "pos": 1996.44,
       "sessions": 1,
-      "openPct": -0.15,
-      "openPnl": -3
+      "openPct": -0.27,
+      "openPnl": -5.39
     }
   ],
   "buys": [],
@@ -91,19 +91,52 @@
   "free": 0,
   "skipList": [],
   "unlisted": [],
-  "sells": [],
-  "closed": 0,
-  "winRate": null,
-  "avgNetPct": null,
-  "recent": [],
-  "curve": [],
+  "sells": [
+    {
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "exitDate": "2026-11-16",
+      "orderDate": "2026-11-16",
+      "netPct": -0.89
+    }
+  ],
+  "closed": 1,
+  "winRate": 0,
+  "avgNetPct": -0.89,
+  "recent": [
+    {
+      "id": "2026-11-11:bounce:OTIS",
+      "kind": "bounce",
+      "symbol": "OTIS",
+      "ticker": "OTIS",
+      "name": "Otis Worldwide Corporation",
+      "market": "US",
+      "entryDate": "2026-11-12",
+      "entry": 78.18,
+      "pos": 2000,
+      "pnl": -17.8,
+      "netPct": -0.89,
+      "vsIdx": 1.77,
+      "exitDate": "2026-11-16",
+      "exit": 77.72
+    }
+  ],
+  "curve": [
+    {
+      "date": "2026-11-16",
+      "equity": 9982.2
+    }
+  ],
   "trades": [
     {
       "kind": "bounce",
       "ticker": "OTIS",
       "market": "US",
       "entryDate": "2026-11-12",
-      "exitDate": null
+      "exitDate": "2026-11-16"
     },
     {
       "kind": "drift",
@@ -131,6 +164,13 @@
       "ticker": "IFF",
       "market": "US",
       "entryDate": "2026-11-13",
+      "exitDate": null
+    },
+    {
+      "kind": "bounce",
+      "ticker": "PSA",
+      "market": "US",
+      "entryDate": "2026-11-16",
       "exitDate": null
     }
   ]

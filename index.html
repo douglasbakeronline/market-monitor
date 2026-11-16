@@ -479,7 +479,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
-import { PLAN, dripSchedule, moneyCheckVerdict, pricesAsOfLabel } from "./src/plan.js";
+import { PLAN, dripSchedule, moneyCheckVerdict, pricesAsOfLabel, pullbackIdleNote } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
@@ -586,7 +586,7 @@ function renderPlan(cp) {
     return `<span class="bn"><b>${esc(b.ticker)}</b> <span class="${tone}">${esc(label)}</span></span>`;
   }).join("")}</div>` : "";
   const pb = cp.pullback;
-  if (!pb.nextCore) $("planPb").innerHTML = `<p class="small muted" style="margin:6px 0 0">No core purchase left that can come forward before the new ISA allowance.</p>`;
+  if (!pb.nextCore) $("planPb").innerHTML = `<p class="small muted" style="margin:6px 0 0">${esc(pullbackIdleNote(pb))}</p>`;
   else {
     const fill = Math.max(0, Math.min(100, (pb.drawdown / pb.threshold) * 100));
     $("planPb").innerHTML = `<div class="pb-meter" role="img" aria-label="${esc(pb.index)} ${pb.drawdown}% off its high; rule fires at ${pb.threshold}%"><i style="width:${fill}%;${pb.triggered ? "background:var(--buy)" : ""}"></i><span class="mark" style="left:calc(100% - 2px)"></span></div>
