@@ -132,8 +132,8 @@
     "label": "Swing setup (68)",
     "perf": {
       "now": -7.9,
-      "nowDate": "2026-11-13",
-      "sessions": 10,
+      "nowDate": "2026-11-16",
+      "sessions": 11,
       "spNow": -0.2,
       "idx": "^FTSE",
       "idxNow": 1.6,
@@ -332,8 +332,8 @@
     "label": "Swing setup (76)",
     "perf": {
       "now": -0.1,
-      "nowDate": "2026-11-13",
-      "sessions": 5,
+      "nowDate": "2026-11-16",
+      "sessions": 6,
       "spNow": 2.5,
       "idx": "^FTSE",
       "idxNow": 2.1,
