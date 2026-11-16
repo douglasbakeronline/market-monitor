@@ -334,3 +334,15 @@ export function pricesAsOfLabel(sp, ftse, fmt, fallback) {
   const d = a ?? b ?? fallback;
   return d ? `Prices to ${fmt(d)}` : "";
 }
+
+// The pullback card when no core purchase is left to bring forward (16 Nov):
+// it said only "No core purchase left..." while the S&P 500 sat 5.1% below its
+// high, past the rule's line, which read as if the rule were broken.
+export function pullbackIdleNote(pb, plan = PLAN) {
+  if (!pb || pb.nextCore) return null;
+  const next = plan.schedule.find((s) => s.kind === "core" && s.pullback === false);
+  const when = next ? ` (${new Date(next.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })})` : "";
+  if (pb.drawdown != null && pb.drawdown <= pb.threshold)
+    return `${pb.index} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, past the ${Math.abs(pb.threshold)}% line, but no core purchase is left to bring forward before the new ISA allowance${when}. The dip reserve's buy tiers start at 10% below, once fear confirms it.`;
+  return `No core purchase left that can come forward before the new ISA allowance${when}.`;
+}
