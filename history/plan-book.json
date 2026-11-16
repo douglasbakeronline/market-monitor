@@ -21,8 +21,8 @@
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 1000,
-      "shortLast": 0.989801,
+      "shortPot": 1000.54,
+      "shortLast": 0.99034,
       "pending": 0,
       "picks": {
         "HSBA.L": {
@@ -78,10 +78,10 @@
       "curve": [
         {
           "date": "2026-11-16",
-          "value": 9999.2
+          "value": 9999.74
         }
       ],
-      "value": 9999.2,
+      "value": 9999.74,
       "started": "2026-11-16"
     },
     "weakHold": {
@@ -91,8 +91,8 @@
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1400,
-      "shortPot": 1000,
-      "shortLast": 0.989801,
+      "shortPot": 1000.54,
+      "shortLast": 0.99034,
       "pending": 0,
       "picks": {
         "NEM": {
@@ -122,10 +122,10 @@
       "curve": [
         {
           "date": "2026-11-16",
-          "value": 9999.85
+          "value": 10000.39
         }
       ],
-      "value": 9999.85,
+      "value": 10000.39,
       "started": "2026-11-16"
     },
     "reitValue": {
@@ -135,8 +135,8 @@
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 1000,
-      "shortLast": 0.989801,
+      "shortPot": 1000.54,
+      "shortLast": 0.99034,
       "pending": 0,
       "picks": {
         "HSBA.L": {
@@ -192,10 +192,10 @@
       "curve": [
         {
           "date": "2026-11-16",
-          "value": 9999.2
+          "value": 9999.74
         }
       ],
-      "value": 9999.2,
+      "value": 9999.74,
       "started": "2026-11-16"
     },
     "vwrp": {
@@ -235,8 +235,8 @@
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 1000,
-      "shortLast": 0.989801,
+      "shortPot": 1000.54,
+      "shortLast": 0.99034,
       "pending": 0,
       "picks": {},
       "potLast": null,
@@ -252,10 +252,10 @@
       "curve": [
         {
           "date": "2026-11-16",
-          "value": 10000
+          "value": 10000.54
         }
       ],
-      "value": 10000,
+      "value": 10000.54,
       "started": "2026-11-16"
     },
     "momentumPot": {
@@ -265,8 +265,8 @@
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 1000,
-      "shortLast": 0.989801,
+      "shortPot": 1000.54,
+      "shortLast": 0.99034,
       "pending": 0,
       "picks": {},
       "potLast": null,
@@ -282,12 +282,12 @@
       "curve": [
         {
           "date": "2026-11-16",
-          "value": 10000
+          "value": 10000.54
         }
       ],
-      "value": 10000,
+      "value": 10000.54,
       "started": "2026-11-16"
     }
   },
-  "updated": "2026-11-16T21:23:55.618Z"
+  "updated": "2026-11-16T22:57:30.054Z"
 }

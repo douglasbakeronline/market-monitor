@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16T21:24:12.352Z",
+  "updated": "2026-11-16T22:57:43.505Z",
   "date": "2026-11-16",
   "drift": [],
   "bounce": [
@@ -130,10 +130,10 @@
     },
     "skipList": [],
     "start": "2026-11-12",
-    "value": 9898.01,
-    "returnPct": -1.02,
+    "value": 9903.4,
+    "returnPct": -0.97,
     "peak": 10000,
-    "fallPct": -1.02,
+    "fallPct": -0.97,
     "paused": false,
     "open": [
       {
@@ -191,23 +191,19 @@
         "sessions": 2,
         "openPct": -1.6,
         "openPnl": -32
-      },
-      {
-        "id": "2026-11-13:bounce:PSA",
-        "kind": "bounce",
-        "symbol": "PSA",
-        "ticker": "PSA",
-        "name": "Public Storage",
-        "market": "US",
-        "entryDate": "2026-11-16",
-        "entry": 333.62,
-        "pos": 1996.44,
-        "sessions": 1,
-        "openPct": -0.27,
-        "openPnl": -5.39
       }
     ],
-    "buys": [],
+    "buys": [
+      {
+        "kind": "bounce",
+        "symbol": "ILMN",
+        "ticker": "ILMN",
+        "name": "Illumina, Inc.",
+        "market": "US",
+        "signalDate": "2026-11-16",
+        "signalPrice": 198
+      }
+    ],
     "sells": [
       {
         "kind": "bounce",
@@ -220,7 +216,7 @@
         "netPct": -0.89
       }
     ],
-    "free": 0,
+    "free": 1,
     "closed": 1,
     "winRate": 0,
     "avgNetPct": -0.89,
@@ -259,15 +255,7 @@
         "market": "US",
         "entryDate": "2026-11-13",
         "exitDate": null
-      },
-      {
-        "kind": "bounce",
-        "ticker": "PSA",
-        "market": "US",
-        "entryDate": "2026-11-16",
-        "exitDate": null
       }
     ]
-  },
-  "pushedAt": "2026-11-16T21:24:12.336Z"
+  }
 }
