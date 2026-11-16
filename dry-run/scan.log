@@ -1,12 +1,12 @@
 Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
 Quotes: 663
 Stage 1: 662 scored, 1 failed (2.8 min)
-Stage 2: 161 deepened, 35 of 35 Real Estate (3.9 min)
-EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.9 min)
-Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.9 min)
-REIT cash-flow median: 16.2x from 32 REITs
+Stage 2: 161 deepened, 35 of 35 Real Estate (3.8 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.8 min)
+Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.8 min)
+REIT cash-flow median: 16.1x from 32 REITs
 Paper trades: markets open, not updated.
-Swing book (paper): -2.27% since 2026-11-02 (S&P -1.05%), 4 open, 0 orders for the next session.
+Swing book (paper): -2.27% since 2026-11-02 (S&P -1.11%), 4 open, 0 orders for the next session.
 Swing lab: markets open, not updated.
 Short-term signals: markets open, kept the last list.
 Drift book (paper): 0.16% since 2026-11-11, 3 open, 0 orders, 0 closed.
@@ -14,12 +14,12 @@ Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
 Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
 Plan book (paper): agreed not started, weakHold not started, reitValue not started, vwrp not started, buffettPot not started, momentumPot not started.
 Results check: 10 of 13 with a recent EPS surprise; 0 live events tagged; 11 with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: none.
-Results preview: NVDA 2026-11-17 ±4.4%, SSE 2026-11-18 ±1% this week; 26 other S&P 500 / FTSE 100 names; just reported: TSN 10.4% 0.3x EPS -0.2%.
+Results preview: NVDA 2026-11-17 ±4.4%, SSE 2026-11-18 ±1% this week; 26 other S&P 500 / FTSE 100 names; just reported: TSN 10.1% 0.4x EPS -0.2%.
 Swing lab volume shocks: 0 new (none); 5 open; up 0 and down 0 closed.
 Paper trades: 171 open, 35 closed, -0.43R average.
 Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
 Data checks: all 662 items passed. 
 Short-term push: already sent at 2026-11-13T21:23:52.890Z.
-Scoring (live since 10 Nov): 53 of 161 full-score verdicts differ from the old rule; Good entry lost: DECK, ADBE, COF, PRX.AS, TXT, NWG.L, FCX, GL, SMCI, GLEN.L; gained: SNDK, STX.
-Done: 662 scored, 0 new good entries, 30 new setups, 4.2 min.
+Scoring (live since 10 Nov): 54 of 161 full-score verdicts differ from the old rule; Good entry lost: DECK, ADBE, COF, TXT, NWG.L, FCX, GL, SMCI, GLEN.L; gained: SNDK, STX.
+Done: 662 scored, 0 new good entries, 29 new setups, 4.1 min.
 exit=0
