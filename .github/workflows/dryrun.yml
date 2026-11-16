@@ -1,5 +1,5 @@
 name: Dry run
-# Fear & Greed session row marks today live; greed wording (16 Nov); monitor only, its own dry-run/data.json.
+# Rule-change note expiry and pot signal tags (16 Nov 19:41): research rebuild and scan.
 on:
   push:
     branches: [dryrun]
@@ -19,7 +19,10 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          DRY_RUN=1 FORCE_RESEARCH=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          cp research.json dry-run/research.json
+          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp scan.json dry-run/scan.json
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
