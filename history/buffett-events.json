@@ -1467,5 +1467,18 @@
     "mos": 0.02,
     "left": null,
     "h": {}
+  },
+  {
+    "id": "2026-11-16:zone:JPM",
+    "symbol": "JPM",
+    "ticker": "JPM",
+    "market": "US",
+    "kind": "zone",
+    "date": "2026-11-16",
+    "price": 338.21,
+    "idx": 7416.59,
+    "mos": 0.25,
+    "left": null,
+    "h": {}
   }
 ]
