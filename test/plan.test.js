@@ -118,10 +118,10 @@ test("core holdings' published results dates join Key dates; the manual Nvidia d
   const auto = coreHoldingDates(items, "2026-11-09");
   assert.deepEqual(auto.map((d) => d.symbol), ["NVDA", "AMD"]);
   assert.equal(auto[0].title, "Nvidia results, about 5% of VWRP");
-  assert.equal(auto[1].title, "AMD results, about 0.7% of VWRP");
+  assert.equal(auto[1].title, "AMD results, about 0.9% of VWRP");
   const cp = copilot({ today: "2026-11-09", sp: null, ftse: null, items });
   assert.deepEqual(cp.dates.map((d) => d.date), ["2026-11-12", "2026-11-18"], "sorted; manual 17 Nov Nvidia entry replaced by Yahoo's date");
-  assert.ok(copilotLines(cp).some((l) => /AMD results, about 0\.7% of VWRP \(Thu 12 Nov\)/.test(l)));
+  assert.ok(copilotLines(cp).some((l) => /AMD results, about 0\.9% of VWRP \(Thu 12 Nov\)/.test(l)));
   const none = copilot({ today: "2026-11-09", sp: null, ftse: null, items: {} });
   assert.ok(none.dates.some((d) => d.symbol === "NVDA" && d.date === "2026-11-17"), "manual date kept without scan data");
   assert.deepEqual(coreHoldingDates({}, null), []);
@@ -245,4 +245,13 @@ test("money check verdict names a core purchase due this week (16 Nov said none 
   // Pullback and buy tiers keep priority.
   assert.match(moneyCheckVerdict(copilot({ today: "2026-11-12", sp: sp(-5.5), ftse: ftse(0), items: {} }), { fmt }), /pullback rule has fired/);
   assert.match(moneyCheckVerdict(due, { fmt, tierHit: true }), /10% or more below its high/);
+});
+
+test("money check header names each index's price date when they differ (16 Nov: S&P to Fri, FTSE to today)", async () => {
+  const { pricesAsOfLabel } = await import("../src/plan.js");
+  const fmt = (d) => d.slice(5);
+  assert.equal(pricesAsOfLabel({ date: "2026-11-13" }, { date: "2026-11-16" }, fmt), "S&P 500 to 11-13, FTSE 100 to 11-16");
+  assert.equal(pricesAsOfLabel({ date: "2026-11-16" }, { date: "2026-11-16" }, fmt), "Prices to 11-16");
+  assert.equal(pricesAsOfLabel({ date: "2026-11-13" }, null, fmt), "Prices to 11-13");
+  assert.equal(pricesAsOfLabel(null, null, fmt, "2026-11-16"), "Prices to 11-16");
 });
