@@ -559,7 +559,8 @@ function resultsHint(rc) {
   if (!parts.length) return "";
   const oneOff = rc.surprisePct != null && Math.abs(rc.surprisePct) >= 25 ? " A surprise this large is often a one-off item, so check the release." : "";
   const flag = rc.tone === "watch" ? ` <span class="muted">Weak results and a fall: over ten years this group did only 0.4 points worse than other falls over the next 60 sessions, so no tranche hold (display only).${oneOff}</span>` : rc.tone === "good" ? ` <span class="pos">Strong results and a rise (display only).${oneOff}</span>` : oneOff ? ` <span class="muted">${oneOff.trim()}</span>` : "";
-  return ` <span class="muted">${esc(parts.join("; "))}.</span>${flag}`;
+  const line = parts.join("; ");
+  return ` <span class="muted">${esc(line[0].toUpperCase() + line.slice(1))}.</span>${flag}`;
 }
 // Pick sizes in the tranche check come from the trade log: redraw after it changes.
 const replan = () => { if (LAST_CP) renderPlan(LAST_CP); };
