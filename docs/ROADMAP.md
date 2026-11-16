@@ -54,6 +54,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 16 Nov (19:41): short-term pot card marks each listed signal as a pot buy, already held, on the skip list, or not a pot trade (one line when all slots are held).
 - 16 Nov (14:41): VWRP's top holdings refreshed to 30 Sep (Nvidia 5.0%, Alphabet 3.4%, TSMC 1.8%) with a runner tool for quarterly refreshes (`tools/core-holdings.mjs`).
 - 16 Nov (14:41): the Fear & Greed session row no longer shows today's midday reading as a close ("Today" until the US close); the money check header names both indices' price dates when they differ; the last "stop adding" greed wording (chart band, regime badge, track record label, README) now reads as the 12 Nov decision.
 - 16 Nov (11:41): the Dashboard's money check no longer says "no core purchase is scheduled" on the day one is due; it names the purchase due on its scheduled date (`moneyCheckVerdict()` in `src/plan.js`).

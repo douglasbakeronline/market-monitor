@@ -156,3 +156,19 @@ export function potOrderSize(p, pf) {
   const each = (equity / p.rules.maxOpen) * (real / notional);
   return { real: Math.round(real), each: Math.round(each), basis, saved: pf.saved ?? null };
 }
+
+// Where a listed signal stands with the pot (16 Nov). The card listed every
+// signal under the pot's orders with nothing to say which were trades: with
+// all five slots held it still showed five bounces, one of them a name the pot
+// already held. Signals from a different close than the pot's list get no tag.
+export function signalPotTag(sig, pot) {
+  if (!sig || !pot) return null;
+  if (sig.date && pot.rules?.today && sig.date !== pot.rules.today) return null;
+  const same = (x) => x?.symbol === sig.symbol;
+  if ((pot.buys ?? []).some(same)) return { key: "buy", text: "a pot buy (see the orders above)" };
+  if ((pot.skipList ?? []).some((x) => same(x) && (sig.date ?? "") >= (x.from ?? ""))) return { key: "skip", text: "on your skip list, not a pot trade" };
+  if ((pot.open ?? []).some(same) && !(pot.sells ?? []).some(same)) return { key: "held", text: "already held in the pot" };
+  if (pot.paused) return { key: "paused", text: "not a pot trade: the pot is paused" };
+  if (!pot.free) return { key: "full", text: `not a pot trade: all ${pot.rules?.maxOpen ?? SPOT.maxOpen} slots held` };
+  return { key: "ranked", text: "not a pot trade: the free slots went to higher-ranked signals" };
+}
