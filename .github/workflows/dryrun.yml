@@ -1,5 +1,5 @@
 name: Dry run
-# Short-term pot: a skipped night (prev list 11 Nov): sells caught up, unlisted buys left out (15 Nov).
+# Probe: VWRP holdings sources from the runner (16 Nov).
 on:
   push:
     branches: [dryrun]
@@ -10,7 +10,7 @@ jobs:
   dry:
     if: "!contains(github.event.head_commit.message, 'dry-run output')"
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -18,12 +18,12 @@ jobs:
       - run: |
           set +e
           mkdir -p dry-run
-          cp history/short-pot.json dry-run/short-pot-before.json
-          node -e 'const f="history/short-pot.json",fs=require("fs"),p=JSON.parse(fs.readFileSync(f));p.rules.today="2026-11-11";fs.writeFileSync(f,JSON.stringify(p))'
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp history/short-pot.json dry-run/short-pot-after.json
-          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
+          curl -sSL -A "$UA" -o dry-run/sa.html -w "sa %{http_code} %{size_download}\n" "https://stockanalysis.com/quote/lon/VWRP/holdings/" > dry-run/probe.log 2>&1
+          curl -sSL -A "$UA" -o dry-run/sa-etf.html -w "sa-etf %{http_code} %{size_download}\n" "https://stockanalysis.com/etf/vt/holdings/" >> dry-run/probe.log 2>&1
+          curl -sSL -A "$UA" -o dry-run/vg.json -w "vg %{http_code} %{size_download}\n" "https://www.vanguardinvestor.co.uk/api/funds/9679/portfolio/holdings" >> dry-run/probe.log 2>&1
+          curl -sSL -A "$UA" -o dry-run/vgus.json -w "vgus %{http_code} %{size_download}\n" "https://investor.vanguard.com/investment-products/etfs/profile/api/VT/portfolio-holding/stock" >> dry-run/probe.log 2>&1
+          gzip -k dry-run/*.html
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
           git add -f dry-run && git commit -qm "dry-run output" && git push -q
