@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15T11:17:23.727Z",
+  "updated": "2026-11-15T16:06:07.405Z",
   "date": "2026-11-13",
   "drift": [],
   "bounce": [
@@ -124,7 +124,8 @@
       "equity0": 10000,
       "maxOpen": 5,
       "pauseFall": 0.25,
-      "today": "2026-11-13"
+      "today": "2026-11-13",
+      "since": null
     },
     "skipList": [],
     "start": "2026-11-12",

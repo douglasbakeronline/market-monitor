@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { taxYearOf, isaSummary, mergeCash } from "../src/isa.js";
+import { taxYearOf, isaSummary, mergeCash, cashChargeNote, ISA } from "../src/isa.js";
 import { parseT212 } from "../src/tradeLog.js";
 
 test("tax year runs 6 April to 5 April", () => {
@@ -44,4 +44,16 @@ test("Trading 212 import returns cash movements", () => {
   assert.deepEqual(r.cash.map((e) => [e.kind, e.amount, e.ticker ?? null]), [["deposit", 1000, null], ["withdrawal", 50, null], ["dividend", 0.34, "VICI"], ["interest", 0.12, null]]);
   assert.equal(r.cash[0].id, "t212c-D1");
   assert.equal(r.dividends, 0.34);
+});
+
+test("cash-interest note follows the charge's status (dropped at Autumn Budget 2026)", () => {
+  assert.equal(ISA.cashInterestCharge.status, "dropped");
+  const dropped = cashChargeNote(ISA.cashInterestCharge);
+  assert.match(dropped, /will not go ahead/);
+  assert.match(dropped, /tax-free/);
+  assert.doesNotMatch(dropped, /22%/);
+  const proposed = cashChargeNote({ from: "2027-04-06", rate: 22, status: "proposed" });
+  assert.match(proposed, /22% charge/);
+  assert.match(proposed, /roadmap/);
+  assert.equal(cashChargeNote(null), "");
 });

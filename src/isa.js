@@ -6,10 +6,19 @@
 
 export const ISA = {
   allowance: 20000, // overall annual limit, 2026/27 and (as announced) 2027/28
-  // Proposed from 6 Apr 2027 (draft regulations, consultation closed Aug 2026):
-  // a 22% charge on interest earned on cash held in a stocks and shares ISA.
-  cashInterestCharge: { from: "2027-04-06", rate: 22, status: "proposed" },
+  // Proposed at Autumn Budget 2025 for 6 Apr 2027: a 22% charge on interest
+  // earned on cash held in a stocks and shares ISA. Dropped at Autumn Budget
+  // 2026 with the cash ISA cut and its anti-circumvention rules (HMRC tax-free
+  // savings newsletter 24, 29 Oct 2026; research log 16 Nov 2026).
+  cashInterestCharge: { from: "2027-04-06", rate: 22, status: "dropped", dropped: "2026-10-28" },
 };
+
+// The Dashboard's line on the cash-interest charge, by its status.
+export function cashChargeNote(c) {
+  if (!c) return "";
+  if (c.status === "dropped") return "The charge proposed on interest from cash held in a stocks and shares ISA from April 2027 will not go ahead (Autumn Budget 2026), so interest on your dip reserve stays tax-free.";
+  return `Proposed from 6 April 2027 (draft rules, not yet law as far as we know): interest on cash held in a stocks and shares ISA would face a ${c.rate}% charge. Your dip reserve is cash in the ISA, so this is on the roadmap for a decision before then.`;
+}
 
 // UK tax year label for a date: 6 April to 5 April, e.g. "2026/27".
 export function taxYearOf(ymd) {

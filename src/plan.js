@@ -305,3 +305,22 @@ export function copilotLines(cp) {
   if (cp.dates.length) L.push(`Key dates: ${cp.dates.slice(0, 3).map((d) => `${d.title} (${dayLabel(d.date)})`).join("; ")}.`);
   return L;
 }
+
+// The verdict line of the Dashboard's "This week's money check" (HTML; display
+// only). `fmt` formats a London date for the page. A core purchase due this
+// week on its scheduled date is named first: the pullback rule only looks at
+// later dates, so on 16 Nov the card said no core purchase was scheduled on the
+// day one was due.
+export function moneyCheckVerdict(cp, { fmt = dayLabel, tierHit = false } = {}) {
+  const pb = cp.pullback, next = pb.nextCore;
+  const h = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  // Later in the week the pullback line below still applies (it can bring the
+  // date forward), unless that purchase can't move.
+  const due = (cp.actions ?? []).find((a) => a.kind === "core" && a.status === "due" && (a.inDays === 0 || a.pullback === false));
+  const when = (d) => (d.inDays === 0 ? "today" : `${fmt(d.date)} (in ${d.inDays} day${d.inDays === 1 ? "" : "s"})`);
+  if (pb.triggered) return `<b>The pullback rule has fired:</b> ${h(pb.index)} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, so the plan says make the core purchase due ${fmt(next.date)} now.`;
+  if (tierHit) return "<b>A market is 10% or more below its high:</b> check the buy tiers below; a tier needs fear (F&amp;G 25 or under, or VIX 30 or over) to confirm it.";
+  if (due) return `<b>No rule is triggered.</b> Due ${when(due)} on the plan's scheduled date, with no market condition needed: ${h(due.title)}.${next ? ` After it, the next core purchase is ${fmt(next.date)}.` : ""}`;
+  if (next) return `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${fmt(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`;
+  return "<b>No rule is triggered</b> and no core purchase is scheduled before the new ISA allowance.";
+}
