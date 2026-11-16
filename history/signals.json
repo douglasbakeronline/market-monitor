@@ -131,17 +131,17 @@
     "currency": "GBp",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -7.7,
+      "now": -7.2,
       "nowDate": "2026-11-16",
       "sessions": 11,
       "spNow": -0.2,
       "idx": "^FTSE",
-      "idxNow": 1.7,
+      "idxNow": 2,
       "w1": -7.8,
       "w1Sp": -2.7,
       "w1Idx": -0.5,
-      "vsSp": -7.5,
-      "vsIdx": -9.4
+      "vsSp": -7,
+      "vsIdx": -9.2
     }
   },
   {
@@ -331,17 +331,17 @@
     "currency": "GBp",
     "label": "Swing setup (76)",
     "perf": {
-      "now": 0.1,
+      "now": 0.7,
       "nowDate": "2026-11-16",
       "sessions": 6,
       "spNow": 2.5,
       "idx": "^FTSE",
-      "idxNow": 2.2,
+      "idxNow": 2.5,
       "w1": -0.1,
       "w1Sp": 2.5,
       "w1Idx": 2.1,
-      "vsSp": -2.4,
-      "vsIdx": -2.1
+      "vsSp": -1.8,
+      "vsIdx": -1.8
     }
   },
   {
