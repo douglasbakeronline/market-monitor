@@ -182,6 +182,14 @@ test("today's fear session is marked live until its close is captured (16 Nov: s
   assert.equal(missed.at(-1).live, undefined); // a past day with no logged close keeps CNN's close
 });
 
+test("a session with no open compares with the close shown beside it (17 Nov: Mon 30, Today 31, read +0%)", () => {
+  const h = [40, 38, 37, 31, 31].map((y, i) => ({ date: `2026-11-${String(13 + i).padStart(2, "0")}`, y }));
+  const s = buildFearSessions(h, { "2026-11-16": { open: 37, close: 30 } }, "2026-11-17");
+  assert.equal(s.at(-2).close, 30);
+  assert.equal(s.at(-1).basis, "dod");
+  assert.equal(s.at(-1).pct, 3.3); // 30 to 31, not CNN's later 31 to 31
+});
+
 test("snapshot computes vs-200 and drawdown", () => {
   const closes = Array.from({ length: 260 }, (_, i) => 100 + i * 0.1);
   closes.push(closes.at(-1) * 0.9);

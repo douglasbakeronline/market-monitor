@@ -28,8 +28,9 @@ export function todayItems(d = {}, today, { decisions = null, now = null } = {})
   if (passed.length) {
     const dues = [...new Set(passed.map((x) => x.due))].sort(), last = dues.at(-1);
     const open = dues.length === 1 && last === today ? "today's open" : `the ${dm(last)} open`;
-    const list = passed.map((x) => `${x.side === "sell" ? "sell " : ""}${x.ticker}`);
-    out.push({ tone: "info", text: `Short-term pot orders were due at ${open}: ${list.join(", ")}. Log them if you placed them; the next list follows the evening scan.`, href: "#tlSection" });
+    const side = (k) => passed.filter((x) => x.side === k).map((x) => x.ticker);
+    const list = [["sell", side("sell")], ["buy", side("buy")]].filter(([, t]) => t.length).map(([k, t]) => `${k} ${t.join(", ")}`);
+    out.push({ tone: "info", text: `Short-term pot orders were due at ${open}: ${list.join("; ")}. Log them if you placed them; the next list follows the evening scan.`, href: "#tlSection" });
   }
   for (const a of d?.copilot?.actions ?? []) {
     if (a.status === "done" || a.inDays == null || a.inDays > 1) continue;
