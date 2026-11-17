@@ -131,7 +131,32 @@ export function parse13fInfoFilings(html) {
     .filter((f) => !seen.has(f.period) && seen.add(f.period));
 }
 
-// Holdings JSON ({data: [[ticker, name, class, cusip, value, pct, shares, x, putCall]]})
+// 13F-NT notices (17 Nov): a manager whose holdings are reported by another
+// filer (Pershing Square Capital Management since Q2 2026, reported by
+// Pershing Square Inc.). Manager page HTML -> [{period, filed, cik}] of the
+// reporting filer, newest period first.
+export function parse13fInfoNotices(html) {
+  const out = [];
+  for (const r of String(html || "").split(/<tr[\s>]/i).slice(1)) {
+    if (!/>\s*13F-NT\s*</.test(r)) continue;
+    const cik = (/Reported by\s*<a href="\/manager\/(\d{10})/i.exec(r) || [])[1];
+    const dates = [...r.matchAll(/data-order="(\d{4}-\d{2}-\d{2})"/g)].map((m) => m[1]);
+    if (!cik || dates.length < 2) continue;
+    out.push({ period: dates[0], filed: dates[1], cik });
+  }
+  return out.sort((a, b) => (a.period < b.period ? 1 : a.period > b.period ? -1 : 0));
+}
+
+// The manager's own 13F-HR filings plus the reporting filer's, one per period
+// (the reporting filer's wins a tie), newest first.
+export function mergeFilings(own, other) {
+  const seen = new Set();
+  return [...(other || []), ...(own || [])]
+    .sort((a, b) => (a.period < b.period ? 1 : a.period > b.period ? -1 : 0))
+    .filter((f) => !seen.has(f.period) && seen.add(f.period));
+}
+
+// Holdings JSON ({data:[[ticker, name, class, cusip, value, pct, shares, x, putCall]]})
 // -> rows for aggregate(), plus a CUSIP -> ticker map. Options are excluded.
 export function parse13fInfoData(json) {
   const rows = [], tickers = {};

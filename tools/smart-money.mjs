@@ -5,7 +5,7 @@
 // which republishes the same filings with tickers (8 Nov).
 //   node tools/smart-money.mjs [outFile]
 import { readFile, writeFile } from "node:fs/promises";
-import { MANAGERS, parseInfoTable, aggregate, diff, figiTicker, byTicker, parse13fInfoFilings, parse13fInfoData } from "../src/smartMoney.js";
+import { MANAGERS, parseInfoTable, aggregate, diff, figiTicker, byTicker, parse13fInfoFilings, parse13fInfoData, parse13fInfoNotices, mergeFilings } from "../src/smartMoney.js";
 import { sleep } from "../src/util.js";
 
 // SEC asks automated clients for a name and contact address in the User-Agent
@@ -57,14 +57,27 @@ async function from13fInfo(m) {
   const title = ((/<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html) || [])[1] || "").trim()
     .replace(/&amp;/g, "&").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"');
   if (!m.expect.test(title)) throw new Error(`13f.info page for CIK ${m.cik} is "${title.slice(0, 60)}"`);
-  const filings = parse13fInfoFilings(html).slice(0, 2);
+  let filings = parse13fInfoFilings(html);
+  // 17 Nov: a 13F-NT notice newer than the last 13F-HR means another filer
+  // now reports this manager's holdings (Pershing Square Inc. since Q2 2026).
+  const notice = parse13fInfoNotices(html)[0];
+  let reportedBy = null;
+  if (notice && notice.period > (filings[0]?.period ?? "")) {
+    await sleep(800);
+    const other = await get2(`https://13f.info/manager/${notice.cik}`, "text");
+    const otherTitle = ((/<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(other) || [])[1] || "").trim();
+    if (m.expect.test(otherTitle)) { filings = mergeFilings(filings, parse13fInfoFilings(other)); reportedBy = otherTitle; }
+    else problems.push(`${m.name}: 13F-NT points to CIK ${notice.cik} ("${otherTitle.slice(0, 60)}"), not followed`);
+  }
+  filings = filings.slice(0, 2);
   if (!filings.length) throw new Error("no 13F-HR filings on 13f.info");
+  if (notice && filings[0].period < notice.period) problems.push(`${m.name}: newest 13F-HR is ${filings[0].period}, but a ${notice.period} notice exists`);
   const load = async (f) => { await sleep(800); const { rows, tickers } = parse13fInfoData(await get2(`https://13f.info/data/13f/${f.acc}`)); Object.assign(map, Object.fromEntries(Object.entries(tickers).filter(([c]) => !map[c]))); return aggregate(rows); };
   const cur = await load(filings[0]);
   const prev = filings[1] ? await load(filings[1]).catch(() => null) : null;
   const { holdings, sold } = diff(cur, prev);
   return { key: m.key, name: m.name, filer: title, period: filings[0].period, filed: filings[0].filed,
-    prevPeriod: filings[1]?.period ?? null, positions: holdings.length, holdings, sold, source: "13f.info" };
+    prevPeriod: filings[1]?.period ?? null, positions: holdings.length, holdings, sold, source: "13f.info", ...(reportedBy ? { reportedBy } : {}) };
 }
 
 const useSec = !!process.env.SEC_CONTACT;
