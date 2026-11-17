@@ -118,3 +118,34 @@ test("smartEvent fires once on a new or added position, never on first sight", (
   assert.equal(smartEvent(first.key, { asOf: "Q3 2026", tag: "Held by Akre Capital" }).fire, false, "held only: no event");
   assert.deepEqual(smartEvent(null, null), { key: null, fire: false, label: null });
 });
+
+import { parse13fInfoNotices } from "../src/smartMoney.js";
+
+// 17 Nov: Pershing Square Capital Management has filed 13F-NT notices since
+// Q2 2026; its holdings are reported by Pershing Square Inc. (another CIK).
+const nt = (acc, period, filed, cik, slug) => `<tr class="x"> <td class="px-3" data-order="${period}"> <a href="/13f/${acc}-pershing-square-inc-q3-2026">Q3 2026</a> </td> <td class="px-3 py-2"></td> <td class="px-3 py-2" data-order=""></td> <td class="px-3 py-2 truncate"> Reported by <a href="/manager/${cik}-${slug}">Pershing Square Inc.</a> </td> <td class="px-3 py-2 text-center truncate">13F-NT</td> <td class="px-3 py-2 text-right" data-order="${filed}">11/16/2026</td> <td>000117266126005462</td> </tr>`;
+
+test("parse13fInfoNotices finds the manager a 13F-NT notice points to, newest first", () => {
+  const html = `<h1>Pershing</h1><table><tbody>${[
+    nt("000117266126005427", "2026-09-30", "2026-11-16", "0002026053", "pershing-square-inc"),
+    nt("000117266126003790", "2026-06-30", "2026-08-14", "0002026053", "pershing-square-inc"),
+    row("000117266126002336", "2026-03-31", "2026-05-15", "13F-HR", "q1-2026"),
+  ].join("")}</tbody></table>`;
+  assert.deepEqual(parse13fInfoNotices(html), [
+    { period: "2026-09-30", filed: "2026-11-16", cik: "0002026053" },
+    { period: "2026-06-30", filed: "2026-08-14", cik: "0002026053" },
+  ]);
+  // The HR list is unchanged: notices hold no holdings.
+  assert.deepEqual(parse13fInfoFilings(html).map((f) => f.period), ["2026-03-31"]);
+  assert.deepEqual(parse13fInfoNotices(""), []);
+});
+
+import { mergeFilings } from "../src/smartMoney.js";
+
+test("mergeFilings takes the newest period from either filer, one per period", () => {
+  const own = [{ acc: "a1", period: "2026-03-31" }, { acc: "a0", period: "2025-12-31" }];
+  const other = [{ acc: "b3", period: "2026-09-30" }, { acc: "b2", period: "2026-06-30" }];
+  assert.deepEqual(mergeFilings(own, other).map((f) => f.acc), ["b3", "b2", "a1", "a0"]);
+  assert.deepEqual(mergeFilings(own, [{ acc: "dup", period: "2026-03-31" }]).map((f) => f.acc), ["dup", "a0"]);
+  assert.deepEqual(mergeFilings(own, []).map((f) => f.acc), ["a1", "a0"]);
+});
