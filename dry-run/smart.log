@@ -1,0 +1,83 @@
+{
+ "mapped": 333,
+ "total": 333,
+ "problems": [],
+ "managers": [
+  {
+   "name": "Berkshire Hathaway",
+   "filer": "Berkshire Hathaway Inc",
+   "period": "2026-09-30",
+   "filed": "2026-11-16",
+   "positions": 30,
+   "sold": 0,
+   "top": [
+    "AAPL 25% held",
+    "AXP 15.2% held",
+    "KO 11.3% held",
+    "GOOGL 8.9% held",
+    "BAC 8.2% held"
+   ]
+  },
+  {
+   "name": "Fundsmith",
+   "filer": "Fundsmith LLP",
+   "period": "2026-09-30",
+   "filed": "2026-11-16",
+   "positions": 42,
+   "sold": 1,
+   "top": [
+    "WAT 7.7% held",
+    "V 6.3% added",
+    "MA 6.2% added",
+    "VEEV 6% added",
+    "SYK 5.7% held"
+   ]
+  },
+  {
+   "name": "Akre Capital",
+   "filer": "AKRE CAPITAL MANAGEMENT LLC",
+   "period": "2026-09-30",
+   "filed": "2026-11-13",
+   "positions": 20,
+   "sold": 1,
+   "top": [
+    "MA 22% trimmed",
+    "MCO 10.5% trimmed",
+    "KKR 8.9% trimmed",
+    "BN 8.7% trimmed",
+    "ROP 8% trimmed"
+   ]
+  },
+  {
+   "name": "Pershing Square",
+   "filer": "Pershing Square Capital Management, L.P.",
+   "period": "2026-09-30",
+   "filed": "2026-11-16",
+   "positions": 16,
+   "sold": 1,
+   "top": [
+    "PS 33.5% new",
+    "UBER 7.6% held",
+    "AMZN 6.9% held",
+    "MSFT 6.8% trimmed",
+    "META 6.7% trimmed"
+   ]
+  },
+  {
+   "name": "Dodge & Cox",
+   "filer": "Dodge & Cox",
+   "period": "2026-09-30",
+   "filed": "2026-11-13",
+   "positions": 225,
+   "sold": 3,
+   "top": [
+    "JCI 4.2% held",
+    "SCHW 3.9% held",
+    "MSFT 3.6% held",
+    "RTX 3.3% held",
+    "AMZN 3% added"
+   ]
+  }
+ ]
+}
+exit=0
