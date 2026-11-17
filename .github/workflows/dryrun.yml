@@ -1,5 +1,5 @@
 name: Dry run
-# 13f.info probe (17 Nov): why Pershing Square is stuck at Q1 2026.
+# Smart money (17 Nov): follow 13F-NT notices; real refresh, then the scan's tags.
 on:
   push:
     branches: [dryrun]
@@ -19,7 +19,10 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          node tools/probe-13f.mjs > dry-run/probe.log 2>&1; echo "exit=$?" >> dry-run/probe.log
+          node tools/smart-money.mjs > dry-run/smart.log 2>&1; echo "exit=$?" >> dry-run/smart.log
+          cp data/smart-money.json dry-run/
+          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp scan.json dry-run/
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
