@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16T22:57:33.651Z",
+  "updated": "2026-11-17T04:07:55.108Z",
   "items": {
     "NVDA": {
       "quarter": "2026-07-31",
@@ -14,7 +14,7 @@
         "avgSurprise": 5.1,
         "next": {
           "date": "2026-11-17",
-          "epsEstimate": 2.47121,
+          "epsEstimate": 2.47071,
           "epsLow": 2.25754,
           "epsHigh": 2.7
         }
@@ -136,51 +136,6 @@
       "note": null,
       "tone": "neutral"
     },
-    "NEM": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-23",
-      "actual": 2.2,
-      "estimate": 1.94635,
-      "surprisePct": 13,
-      "reaction": -4.6,
-      "record": {
-        "beats": 4,
-        "of": 4,
-        "avgSurprise": 19.1,
-        "next": {
-          "date": null,
-          "epsEstimate": 1.95825,
-          "epsLow": 1.74,
-          "epsHigh": 2.23
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 3.6,
-        "moves": [
-          {
-            "date": "2026-02-20",
-            "pct": -2.6
-          },
-          {
-            "date": "2026-04-24",
-            "pct": 8.7
-          },
-          {
-            "date": "2026-07-24",
-            "pct": -1.6
-          },
-          {
-            "date": "2026-10-23",
-            "pct": -4.6
-          }
-        ]
-      },
-      "fifth": "middle",
-      "label": "EPS beat the forecast by 13.0%; the price fell 4.6% on the day",
-      "note": null,
-      "tone": "neutral"
-    },
     "SCHW": {
       "quarter": "2026-09-30",
       "date": "2026-10-15",
@@ -223,6 +178,51 @@
       },
       "fifth": "middle",
       "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "NEM": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-23",
+      "actual": 2.2,
+      "estimate": 1.94635,
+      "surprisePct": 13,
+      "reaction": -4.6,
+      "record": {
+        "beats": 4,
+        "of": 4,
+        "avgSurprise": 19.1,
+        "next": {
+          "date": null,
+          "epsEstimate": 1.95825,
+          "epsLow": 1.74,
+          "epsHigh": 2.23
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 3.6,
+        "moves": [
+          {
+            "date": "2026-02-20",
+            "pct": -2.6
+          },
+          {
+            "date": "2026-04-24",
+            "pct": 8.7
+          },
+          {
+            "date": "2026-07-24",
+            "pct": -1.6
+          },
+          {
+            "date": "2026-10-23",
+            "pct": -4.6
+          }
+        ]
+      },
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 13.0%; the price fell 4.6% on the day",
       "note": null,
       "tone": "neutral"
     },

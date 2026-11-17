@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16T22:57:43.505Z",
+  "updated": "2026-11-17T04:08:06.551Z",
   "date": "2026-11-16",
   "drift": [],
   "bounce": [
@@ -23,7 +23,7 @@
       "name": "Veeva Systems Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 40,
+      "score": 41,
       "kind": "bounce",
       "date": "2026-11-16",
       "price": 299.28,
