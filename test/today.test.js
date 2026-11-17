@@ -39,18 +39,28 @@ test("today: pot orders whose open has passed become one reminder to log them (1
   assert.deepEqual(texts("2026-11-13T10:00:00Z", "2026-11-13"), [
     "Sell OTIS at today's open (short-term pot, exit rule met)",
     "Buy ABT at today's open (short-term pot, bounce)",
-    "Short-term pot orders were due at today's open: BRBY. Log them if you placed them; the next list follows the evening scan.",
+    "Short-term pot orders were due at today's open: buy BRBY. Log them if you placed them; the next list follows the evening scan.",
   ]);
   // 19:30 London: all passed, one line linked to the trade log.
   const late = todayItems(d, "2026-11-13", { now: new Date("2026-11-13T19:30:00Z") });
   assert.equal(late.length, 1);
-  assert.equal(late[0].text, "Short-term pot orders were due at today's open: sell OTIS, BRBY, ABT. Log them if you placed them; the next list follows the evening scan.");
+  assert.equal(late[0].text, "Short-term pot orders were due at today's open: sell OTIS; buy BRBY, ABT. Log them if you placed them; the next list follows the evening scan.");
   assert.equal(late[0].href, "#tlSection");
   // A scan that failed: still listed, with the day.
   assert.match(todayItems(d, "2026-11-16", { now: new Date("2026-11-16T19:30:00Z") })[0].text, /due at the Fri 13 Nov open/);
   // Friday's orders over the weekend name Monday.
   const fri = { shortTerm: { date: "2026-11-13", pot: { buys: [{ ticker: "ABT", kind: "bounce", market: "US", signalDate: "2026-11-13" }] } } };
   assert.equal(todayItems(fri, "2026-11-14", { now: new Date("2026-11-14T10:00:00Z") })[0].text, "Buy ABT at the Mon 16 Nov open (short-term pot, bounce)");
+});
+
+test("today: passed orders keep buy and sell apart (17 Nov: 'sell OTIS, ILMN' read as two sells)", () => {
+  const d = { shortTerm: { date: "2026-11-16", pot: { rules: { today: "2026-11-16" },
+    sells: [{ ticker: "OTIS", market: "US", exitDate: "2026-11-16" }], buys: [{ ticker: "ILMN", kind: "bounce", market: "US", signalDate: "2026-11-16" }] } } };
+  const t = todayItems(d, "2026-11-17", { now: new Date("2026-11-17T21:00:00Z") });
+  assert.equal(t[0].text, "Short-term pot orders were due at today's open: sell OTIS; buy ILMN. Log them if you placed them; the next list follows the evening scan.");
+  const sellsOnly = { shortTerm: { date: "2026-11-16", pot: { rules: { today: "2026-11-16" }, buys: [],
+    sells: [{ ticker: "OTIS", market: "US", exitDate: "2026-11-16" }, { ticker: "ABT", market: "US", exitDate: "2026-11-16" }] } } };
+  assert.match(todayItems(sellsOnly, "2026-11-17", { now: new Date("2026-11-17T21:00:00Z") })[0].text, /open: sell OTIS, ABT\./);
 });
 
 test("today: a caught-up sell (15 Nov) is due at the next open, not its own exit's open, and says so", () => {

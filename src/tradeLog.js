@@ -2,6 +2,7 @@
 // Trades are kept in the viewer's browser only (localStorage); nothing here
 // touches the network or the repo. Each trade records the plan rule that
 // triggered it, so the Dashboard can show plan adherence.
+import { nextSession } from "./sessions.js";
 
 // Rules a trade can cite. `pot` is the default pot the trade lands in.
 export const RULES = [
@@ -153,7 +154,10 @@ export function potAdherence(potTrades = [], trades = [], today) {
       .map((x) => ({ x, gap: days(d.date, x.date) })).filter(({ gap }) => gap >= lo && gap <= hi).sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap))[0];
     if (t) used.add(t.x.id);
     const status = t ? (t.gap <= (d.side === "buy" ? POT_MATCH.onTime : POT_MATCH.sellOnTime) ? "on-time" : "late") : days(d.date, today) <= hi ? "pending" : "missed";
-    items.push({ side: d.side, date: d.date, ticker: d.p.ticker, kind: d.p.kind, status, trade: t?.x.id ?? null });
+    // date: the entry open or the exit close (matching windows run from it);
+    // orderDate: the open the order was for (a sell's is the next session).
+    const orderDate = d.side === "sell" ? nextSession(d.date, d.p.market) : d.date;
+    items.push({ side: d.side, date: d.date, orderDate, ticker: d.p.ticker, kind: d.p.kind, status, trade: t?.x.id ?? null });
   }
   const counted = items.filter((i) => i.status !== "pending"), onTime = counted.filter((i) => i.status === "on-time").length;
   const headline = !items.length ? null : !counted.length ? `Short-term pot: ${items.length} order${items.length > 1 ? "s" : ""} not yet logged`

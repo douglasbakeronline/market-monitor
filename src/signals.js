@@ -199,7 +199,10 @@ export function buildFearSessions(history, fearLog, today = null) {
     const cur = pts[i], prev = pts[i - 1], date = cur.date ?? utcDate(cur.t), log = fearLog[date] || {};
     const open = log.open ?? null, close = log.close ?? cur.y;
     const basis = open != null ? "oc" : "dod";
-    const p = open != null ? ((close - open) / open) * 100 : ((cur.y - prev.y) / prev.y) * 100;
+    // Day on day from the close shown in the box beside it (the monitor's logged
+    // close when it has one), so the row reads consistently (17 Nov).
+    const prevDate = prev.date ?? utcDate(prev.t), prevClose = fearLog[prevDate]?.close ?? prev.y;
+    const p = open != null ? ((close - open) / open) * 100 : ((close - prevClose) / prevClose) * 100;
     const live = date === today && log.close == null;
     res.push({ date, open, close, pct: Math.round(p * 10) / 10, basis, ...(live ? { live } : {}) });
   }

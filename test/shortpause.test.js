@@ -80,6 +80,12 @@ test("potAdherence: on time, late, pending and missed", () => {
   // read as a miscount; orders still inside their window now say so.
   const mid = potAdherence(PT, [], "2026-11-18");
   assert.equal(mid.headline, "Short-term pot: 0 of 3 orders logged on time; 1 more still open to log");
+  // 17 Nov: the not-logged list said "sell OTIS Mon 16 Nov", the exit close,
+  // though the order was for the 17 Nov open. Each item carries its open.
+  const od = Object.fromEntries(potAdherence([...PT, { kind: "bounce", ticker: "OTIS", market: "US", entryDate: "2026-11-12", exitDate: "2026-11-13" }], [], "2026-11-25").items.map((i) => [`${i.side}:${i.ticker}`, i.orderDate]));
+  assert.equal(od["sell:BARC"], "2026-11-17", "Mon 16 Nov close, sold at the Tue open");
+  assert.equal(od["sell:OTIS"], "2026-11-16", "a Friday exit sells at Monday's open");
+  assert.equal(od["buy:TTWO"], "2026-11-12", "a buy's date is already its open");
 
 });
 

@@ -1,5 +1,5 @@
 name: Dry run
-# 17 Nov build: scan with London mid-session (part-day bars left out of Just reported), then the monitor.
+# 17 Nov 14:41 build: Today card and trade log pot wording; Fear & Greed day-on-day from the shown close.
 on:
   push:
     branches: [dryrun]
