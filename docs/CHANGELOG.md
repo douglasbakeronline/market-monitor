@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 16 November 2026
 
+### Tue 17 Nov (build session, 22:41)
+- **Trade log hid the one missed pot order.** The pot line read "0 of 1 order logged on time; 6 more still open to log" and then listed only the newest six orders, so OTIS's 12 Nov buy, the missed order the headline counted, was cut and the list showed only orders still inside their window. Missed orders now always lead ("missed: buy OTIS Thu 12 Nov · still to log: ..."), up to eight are shown and any beyond say "and N more" (`potNotLogged()` in `src/tradeLog.js`). Test written first from tonight's case.
+- *Checked:* `npm test` (448 pass); browser-only code (not used by monitor.js or scan.js), so no runner dry run; Dashboard rendered with live data at 1280px and 390px, light and dark: all seven orders listed, no overflow. Also checked the pot book after tonight's scan: ILMN entered at the 17 Nov open (199.73), once; PSA never booked.
+
 ### Tue 17 Nov (build session, 19:41)
 - **Trade log missed a pot buy between its open and the evening scan.** From the 14:30 open until tonight's scan booked it, the not-logged list left out today's ILMN buy, because the pot's trades only gain a buy when the scan records the entry. Listed buys whose open has passed now join the pot trades in the browser (`withPassedBuys()` in `src/tradeLog.js`, entry at the open after the signal close, never twice once the scan books it), for both the adherence line and the Trading 212 import, so a buy placed today and imported before the scan lands in the short-term pot, not "other". Test written first.
 - *Checked:* `npm test` (447 pass); browser-only code (not used by monitor.js or scan.js), so no runner dry run; Dashboard rendered with live data at 19:50 London at 1280px and 390px, light and dark: the line now ends "buy ILMN Tue 17 Nov"; no page errors, no overflow.

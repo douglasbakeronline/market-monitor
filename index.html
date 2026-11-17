@@ -496,7 +496,7 @@ import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize, signalPotTag } from "./src/shortPot.js";
 import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, potNotLogged, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -1277,8 +1277,11 @@ function renderTl(form = false, err = "") {
   // Short-term pot orders (data.json shortTerm.pot.trades) against trades logged under its rule.
   // Listed buys whose open has passed count before the evening scan books them (17 Nov).
   const pAdh = potAdherence(withPassedBuys(LAST_DATA?.shortTerm?.pot?.trades, LAST_DATA?.shortTerm?.pot?.buys), trades, today);
-  const pOpen = pAdh.items.filter((i) => i.status === "missed" || i.status === "pending").slice(-6);
-  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${pOpen.length ? `<span class="muted"> · not logged: ${pOpen.map((i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}${i.status === "missed" ? " (missed)" : ""}`; }).join(", ")}</span>` : ""}</div>` : "";
+  // Missed orders lead (17 Nov: a newest-six list cut the one the headline counted).
+  const pNot = potNotLogged(pAdh.items, 8);
+  const potOrd = (i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}`; };
+  const potList = [pNot.missed.length ? `missed: ${pNot.missed.map(potOrd).join(", ")}` : "", pNot.open.length ? `still to log: ${pNot.open.map(potOrd).join(", ")}` : ""].filter(Boolean).join(" · ") + (pNot.more ? ` and ${pNot.more} more` : "");
+  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${potList ? `<span class="muted"> · ${potList}</span>` : ""}</div>` : "";
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
   const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";
   let body = "";

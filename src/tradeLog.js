@@ -180,6 +180,19 @@ export function potAdherence(potTrades = [], trades = [], today) {
   return { items, onTime, counted: counted.length, headline };
 }
 
+// The pot orders still to log, for the trade log card: missed orders first
+// (they are what the headline counts against), then those still inside their
+// window, keeping the newest of each when there are more than `max`.
+// 17 Nov (22:41): a plain newest-six list cut the one missed order.
+export function potNotLogged(items = [], max = 6) {
+  const missed = items.filter((i) => i.status === "missed");
+  const pending = items.filter((i) => i.status === "pending");
+  const keptMissed = missed.slice(-max);
+  const room = max - keptMissed.length;
+  const open = room > 0 ? pending.slice(-room) : [];
+  return { missed: keptMissed, open, more: missed.length + pending.length - keptMissed.length - open.length };
+}
+
 // Parse an imported backup: an array of trades, or { trades: [...] }.
 export function parseImport(text, today = null) {
   let data;
