@@ -56,7 +56,7 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -3.1,
+      "now": -3,
       "nowDate": "2026-11-17",
       "sessions": 12,
       "spNow": -3.3,
@@ -65,8 +65,8 @@
       "w1": 1.7,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 0.2,
-      "vsIdx": 0.2
+      "vsSp": 0.3,
+      "vsIdx": 0.3
     }
   },
   {
@@ -309,14 +309,14 @@
       "now": 2.4,
       "nowDate": "2026-11-17",
       "sessions": 7,
-      "spNow": -0.6,
+      "spNow": -0.7,
       "idx": "^GSPC",
-      "idxNow": -0.6,
+      "idxNow": -0.7,
       "w1": 4.1,
       "w1Sp": 2.5,
       "w1Idx": 2.5,
-      "vsSp": 3,
-      "vsIdx": 3
+      "vsSp": 3.1,
+      "vsIdx": 3.1
     }
   },
   {
@@ -334,13 +334,13 @@
       "now": -1.3,
       "nowDate": "2026-11-17",
       "sessions": 7,
-      "spNow": -0.6,
+      "spNow": -0.7,
       "idx": "^FTSE",
       "idxNow": 0.1,
       "w1": -0.1,
       "w1Sp": 2.5,
       "w1Idx": 2.1,
-      "vsSp": -0.7,
+      "vsSp": -0.6,
       "vsIdx": -1.4
     }
   },
@@ -409,14 +409,14 @@
       "now": -3.3,
       "nowDate": "2026-11-17",
       "sessions": 5,
-      "spNow": -2.5,
+      "spNow": -2.6,
       "idx": "^GSPC",
-      "idxNow": -2.5,
+      "idxNow": -2.6,
       "w1": -3.3,
-      "w1Sp": -2.5,
-      "w1Idx": -2.5,
-      "vsSp": -0.8,
-      "vsIdx": -0.8
+      "w1Sp": -2.6,
+      "w1Idx": -2.6,
+      "vsSp": -0.7,
+      "vsIdx": -0.7
     }
   },
   {
@@ -497,14 +497,14 @@
     "currency": "USD",
     "label": "Smart money: Berkshire Hathaway (added), Fundsmith, Dodge & Cox",
     "perf": {
-      "now": -1.2,
+      "now": -1.1,
       "nowDate": "2026-11-17",
       "sessions": 1,
       "spNow": -1.2,
       "idx": "^GSPC",
       "idxNow": -1.2,
-      "vsSp": 0,
-      "vsIdx": 0
+      "vsSp": 0.1,
+      "vsIdx": 0.1
     }
   },
   {
@@ -541,14 +541,14 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -0.5,
+      "now": -0.4,
       "nowDate": "2026-11-17",
       "sessions": 1,
       "spNow": -1.2,
       "idx": "^GSPC",
       "idxNow": -1.2,
-      "vsSp": 0.7,
-      "vsIdx": 0.7
+      "vsSp": 0.8,
+      "vsIdx": 0.8
     }
   },
   {
@@ -563,14 +563,14 @@
     "currency": "USD",
     "label": "Smart money: Pershing Square (added), Dodge & Cox (added)",
     "perf": {
-      "now": -0.5,
+      "now": -0.4,
       "nowDate": "2026-11-17",
       "sessions": 1,
       "spNow": -1.2,
       "idx": "^GSPC",
       "idxNow": -1.2,
-      "vsSp": 0.7,
-      "vsIdx": 0.7
+      "vsSp": 0.8,
+      "vsIdx": 0.8
     }
   }
 ]
