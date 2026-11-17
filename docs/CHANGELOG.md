@@ -4,6 +4,10 @@ Human-readable record of what changed and why. The weekly review deck is built f
 
 ## Week of 16 November 2026
 
+### Tue 17 Nov (build session, 19:41)
+- **Trade log missed a pot buy between its open and the evening scan.** From the 14:30 open until tonight's scan booked it, the not-logged list left out today's ILMN buy, because the pot's trades only gain a buy when the scan records the entry. Listed buys whose open has passed now join the pot trades in the browser (`withPassedBuys()` in `src/tradeLog.js`, entry at the open after the signal close, never twice once the scan books it), for both the adherence line and the Trading 212 import, so a buy placed today and imported before the scan lands in the short-term pot, not "other". Test written first.
+- *Checked:* `npm test` (447 pass); browser-only code (not used by monitor.js or scan.js), so no runner dry run; Dashboard rendered with live data at 19:50 London at 1280px and 390px, light and dark: the line now ends "buy ILMN Tue 17 Nov"; no page errors, no overflow.
+
 ### Tue 17 Nov (build session, 14:41)
 - **Today card read a buy as a sell.** Once the open had passed, the Dashboard's Today card said "orders were due at today's open: sell OTIS, ILMN", which reads as two sells; ILMN was a buy. Passed orders are now grouped by side: "sell OTIS; buy ILMN" (a lone buy now says "buy BRBY" too). `todayItems()` in `src/today.js`; test written first from today's case.
 - **Trade log dated a pot sell by its exit close, not its order.** The not-logged list read "sell OTIS Mon 16 Nov", but the order was for the 17 Nov open (exit at the 16 Nov close, sold at the next open). Each pot item now carries `orderDate` (the next session for a sell, holidays and weekends skipped) and the card shows it; matching windows are unchanged. `potAdherence()` in `src/tradeLog.js`; test failed before the change.

@@ -496,7 +496,7 @@ import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize, signalPotTag } from "./src/shortPot.js";
 import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -1275,7 +1275,8 @@ function renderTl(form = false, err = "") {
   const adh = adherence([...PLAN.schedule, ...dripSchedule(PLAN.reserveDrip.start, today, DIPS.map((d) => d.date))], trades, today, DIPS);
   const shown = adh.items.slice(-4).reverse();
   // Short-term pot orders (data.json shortTerm.pot.trades) against trades logged under its rule.
-  const pAdh = potAdherence(LAST_DATA?.shortTerm?.pot?.trades ?? [], trades, today);
+  // Listed buys whose open has passed count before the evening scan books them (17 Nov).
+  const pAdh = potAdherence(withPassedBuys(LAST_DATA?.shortTerm?.pot?.trades, LAST_DATA?.shortTerm?.pot?.buys), trades, today);
   const pOpen = pAdh.items.filter((i) => i.status === "missed" || i.status === "pending").slice(-6);
   const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${pOpen.length ? `<span class="muted"> · not logged: ${pOpen.map((i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}${i.status === "missed" ? " (missed)" : ""}`; }).join(", ")}</span>` : ""}</div>` : "";
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
@@ -1325,7 +1326,7 @@ function renderTl(form = false, err = "") {
   $("tlImport").onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     const text = await f.text(), t212 = isT212Csv(text);
-    const r = t212 ? parseT212(text, { picks: PLAN.picks.map((p) => p.symbol.replace(/\.L$/, "")), short: LAST_DATA?.shortTerm?.pot?.trades ?? [], today }) : parseImport(text, today);
+    const r = t212 ? parseT212(text, { picks: PLAN.picks.map((p) => p.symbol.replace(/\.L$/, "")), short: withPassedBuys(LAST_DATA?.shortTerm?.pot?.trades, LAST_DATA?.shortTerm?.pot?.buys), today }) : parseImport(text, today);
     if (r.error) { $("tlMsg").textContent = r.error; return; }
     const have = new Set(loadTl().map((t) => t.id)), add = r.trades.filter((t) => !have.has(t.id));
     saveTl([...loadTl(), ...add]); renderTl(); renderPf(); replan();

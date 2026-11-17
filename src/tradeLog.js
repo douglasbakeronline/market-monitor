@@ -2,7 +2,7 @@
 // Trades are kept in the viewer's browser only (localStorage); nothing here
 // touches the network or the repo. Each trade records the plan rule that
 // triggered it, so the Dashboard can show plan adherence.
-import { nextSession } from "./sessions.js";
+import { nextSession, orderTiming } from "./sessions.js";
 
 // Rules a trade can cite. `pot` is the default pot the trade lands in.
 export const RULES = [
@@ -135,6 +135,21 @@ export function potTradeFor(potTrades = [], ticker, date, side) {
   return potTrades.find((p) => bare(p.ticker) === k && (side === "buy"
     ? days(p.entryDate, date) >= -POT_MATCH.buyBefore && days(p.entryDate, date) <= POT_MATCH.buyAfter
     : date >= p.entryDate && (p.exitDate == null || days(p.exitDate, date) <= POT_MATCH.sellAfter))) ?? null;
+}
+
+// The pot's trades plus listed buys (pot.buys) whose open has passed but which
+// the evening scan has not booked yet (17 Nov: between an open and the scan,
+// that open's buys were missing from the trade log). Each enters at the open
+// after its signal close, as the scan will book it.
+export function withPassedBuys(potTrades = [], buys = [], now = new Date()) {
+  const out = [...(potTrades ?? [])];
+  for (const b of buys ?? []) {
+    const t = orderTiming(b.signalDate, b.market, now);
+    if (!t || t.state !== "passed") continue;
+    if (out.some((p) => bare(p.ticker) === bare(b.ticker) && p.entryDate === t.due)) continue;
+    out.push({ kind: b.kind, ticker: b.ticker, market: b.market, entryDate: t.due, exitDate: null });
+  }
+  return out;
 }
 
 // Each pot buy and sell due by `today`, matched to a logged trade citing the

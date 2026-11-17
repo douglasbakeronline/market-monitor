@@ -45,7 +45,7 @@ test("shortPotLine: digest line before and after the first trades", () => {
   assert.match(shortPotLine({ rules, start: "2026-11-12", returnPct: -26, open: [], closed: 0, paused: true }), /none closed yet; PAUSED/);
 });
 
-import { potTradeFor, potAdherence, parseT212 } from "../src/tradeLog.js";
+import { potTradeFor, potAdherence, parseT212, withPassedBuys } from "../src/tradeLog.js";
 
 const PT = [
   { kind: "drift", ticker: "TTWO", market: "US", entryDate: "2026-11-12", exitDate: "2026-12-09" },
@@ -87,6 +87,30 @@ test("potAdherence: on time, late, pending and missed", () => {
   assert.equal(od["sell:OTIS"], "2026-11-16", "a Friday exit sells at Monday's open");
   assert.equal(od["buy:TTWO"], "2026-11-12", "a buy's date is already its open");
 
+});
+
+// 17 Nov (19:41): between an open and the evening scan, that open's buys were
+// missing from the trade log's not-logged list (pot.trades only gains them when
+// the scan books the entry). Listed buys whose open has passed now count.
+test("withPassedBuys: a listed buy joins the pot trades once its open has passed", () => {
+  const trades = [{ kind: "bounce", ticker: "OTIS", market: "US", entryDate: "2026-11-12", exitDate: "2026-11-16" }];
+  const buys = [{ kind: "bounce", symbol: "ILMN", ticker: "ILMN", market: "US", signalDate: "2026-11-16" }, { kind: "drift", symbol: "BARC.L", ticker: "BARC", market: "UK", signalDate: "2026-11-16" }];
+  const at = (iso) => new Date(iso);
+  // 17 Nov 10:00 London: BARC's 08:00 open has passed, ILMN's 14:30 has not.
+  assert.deepEqual(withPassedBuys(trades, buys, at("2026-11-17T10:00:00Z")).map((t) => `${t.ticker}@${t.entryDate}`), ["OTIS@2026-11-12", "BARC@2026-11-17"]);
+  // 19:45 London: both opens have passed.
+  const eve = withPassedBuys(trades, buys, at("2026-11-17T19:45:00Z"));
+  assert.deepEqual(eve.map((t) => `${t.ticker}@${t.entryDate}`), ["OTIS@2026-11-12", "ILMN@2026-11-17", "BARC@2026-11-17"]);
+  assert.deepEqual(eve[1], { kind: "bounce", ticker: "ILMN", market: "US", entryDate: "2026-11-17", exitDate: null });
+  // Once the scan has booked it, it is not added twice.
+  const booked = [...trades, { kind: "bounce", ticker: "ILMN", market: "US", entryDate: "2026-11-17", exitDate: null }];
+  assert.equal(withPassedBuys(booked, buys.slice(0, 1), at("2026-11-17T19:45:00Z")).length, 2);
+  // Evening before the open: nothing added; no buys or a missing list is safe.
+  assert.equal(withPassedBuys(trades, buys, at("2026-11-16T22:00:00Z")).length, 1);
+  assert.deepEqual(withPassedBuys(undefined, undefined, at("2026-11-17T19:45:00Z")), []);
+  // The trade log then lists ILMN as an order still open to log.
+  const r = potAdherence(eve, [], "2026-11-17");
+  assert.ok(r.items.some((i) => i.side === "buy" && i.ticker === "ILMN" && i.status === "pending" && i.orderDate === "2026-11-17"));
 });
 
 test("parseT212: pot orders land in the short-term pot", () => {
