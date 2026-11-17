@@ -124,10 +124,13 @@ function moveOn(rows, e) {
 // move, volume against the previous 50 sessions, the surprise, and whether it
 // meets the pot's drift trigger (4%+ on 3x) as it stands. skip: names on the
 // pot's skip list (data/pot-skip.json): never a pot buy, flagged potSkip.
-export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set(), skip = new Set() } = {}) {
+// live: { market: date } of sessions still trading at the scan (liveSession()
+// in src/sessions.js): that part-day bar is left out (17 Nov).
+export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set(), skip = new Set(), live = {} } = {}) {
   const out = [];
   for (const it of items) {
-    const rows = rowsBySymbol[it.symbol], hist = reported[it.symbol];
+    const all = rowsBySymbol[it.symbol], hist = reported[it.symbol];
+    const rows = all?.length && live[it.market] && all.at(-1).date === live[it.market] ? all.slice(0, -1) : all;
     if (!rows?.length || rows.length < 52 || !hist?.length) continue;
     const d = rows.length - 1, last = rows[d].date;
     const ev = hist.find((e) => { const i = rows.findIndex((r) => (e.after === true ? r.date > e.date : r.date >= e.date)); return i === d; });

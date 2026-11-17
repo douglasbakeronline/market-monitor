@@ -112,6 +112,14 @@ test("beat record, pot holdings and just reported", async () => {
   const js = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true }] }, skip: new Set(["Q"]) });
   assert.deepEqual([js[0].potBuy, js[0].potSkip], [false, true], "a skip-list name is never a pot buy");
   assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: false }] } }).length, 0);
+  // 17 Nov: a scan rerun while the market trades has a part-day last bar
+  // (Diploma read 0.1x normal volume at 08:46). It is left out, so the card
+  // keeps its promise of the reaction at the last close.
+  const live = { US: rows[239].date };
+  assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true, surprisePct: 9 }] }, live }).length, 0);
+  const jl = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[237].date, after: true }] }, live });
+  assert.deepEqual([jl[0].date, jl[0].move, jl[0].volX], [rows[238].date, 0, 1], "the last full session counts");
+  assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true }] }, live: { UK: rows[239].date } }).length, 1, "another market's session does not cut");
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-10"] } }).length, 1);
   assert.equal(recentCandidates(items, { today: "2026-11-12", dates: { Q: ["2026-11-01"] } }).length, 0);
 });

@@ -77,3 +77,18 @@ export function openPhrase(signalDate, market, now) {
   if (t.state === "today" || t.due === today) return { state: "today", due: t.due, text: `today's open (${hhmm} London)` };
   return { state: "next", due: t.due, text: t.due === addDays(today, 1) ? "the next open" : `the ${dmy(t.due)} open` };
 }
+
+// The date of a market's session that is still trading at `now` (its daily
+// bar is part-day), else null (17 Nov 2026: a scan rerun at 08:46 London read
+// Diploma's results day at 0.1x normal volume). Hours include the closing
+// auction and a few minutes for the data to settle. European names use
+// London's holiday list (close enough; none is a pot trade).
+const HOURS = {
+  US: { tz: "America/New_York", from: 9 * 60 + 30, to: 16 * 60 + 15 },
+  UK: { tz: "Europe/London", from: 8 * 60, to: 16 * 60 + 45 },
+  EU: { tz: "Europe/Berlin", from: 9 * 60, to: 17 * 60 + 45 },
+};
+export function liveSession(market, now = new Date()) {
+  const h = HOURS[market] ?? HOURS.UK, p = partsIn(h.tz, now);
+  return isSession(p.date, market) && p.min >= h.from && p.min < h.to ? p.date : null;
+}

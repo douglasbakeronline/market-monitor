@@ -157,7 +157,7 @@ export function potAdherence(potTrades = [], trades = [], today) {
   }
   const counted = items.filter((i) => i.status !== "pending"), onTime = counted.filter((i) => i.status === "on-time").length;
   const headline = !items.length ? null : !counted.length ? `Short-term pot: ${items.length} order${items.length > 1 ? "s" : ""} not yet logged`
-    : `Short-term pot: ${onTime} of ${counted.length} order${counted.length > 1 ? "s" : ""} logged on time`;
+    : `Short-term pot: ${onTime} of ${counted.length} order${counted.length > 1 ? "s" : ""} logged on time${items.length > counted.length ? `; ${items.length - counted.length} more still open to log` : ""}`;
   return { items, onTime, counted: counted.length, headline };
 }
 
