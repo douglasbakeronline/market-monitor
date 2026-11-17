@@ -61,3 +61,20 @@ test("openPhrase: the open in words, in London time, for the pot's pushes", asyn
   assert.equal(openPhrase("2026-11-12", "UK", at("2026-11-13T07:30:00Z")).text, "today's open (08:00 London)");
   assert.equal(openPhrase("2026-11-12", "US", null).text, "the next open");
 });
+
+test("liveSession: the date of a session still trading (its bar is part-day), else null", async () => {
+  const { liveSession } = await import("../src/sessions.js");
+  const at = (iso) => new Date(iso);
+  // Tue 17 Nov 2026: the 08:46 London scan rerun (a push) caught London mid-session.
+  assert.equal(liveSession("UK", at("2026-11-17T08:46:00Z")), "2026-11-17");
+  assert.equal(liveSession("US", at("2026-11-17T08:46:00Z")), null); // 03:46 New York
+  assert.equal(liveSession("US", at("2026-11-17T15:00:00Z")), "2026-11-17"); // 10:00 New York
+  assert.equal(liveSession("UK", at("2026-11-17T16:40:00Z")), "2026-11-17"); // closing auction
+  assert.equal(liveSession("UK", at("2026-11-17T17:00:00Z")), null);
+  assert.equal(liveSession("US", at("2026-11-17T21:20:00Z")), null); // the evening scan
+  assert.equal(liveSession("UK", at("2026-11-17T07:30:00Z")), null); // before the open
+  assert.equal(liveSession("UK", at("2026-11-14T10:00:00Z")), null); // Saturday
+  assert.equal(liveSession("US", at("2026-11-26T16:00:00Z")), null); // Thanksgiving
+  assert.equal(liveSession("EU", at("2026-11-17T09:30:00Z")), "2026-11-17"); // 10:30 Frankfurt
+  assert.equal(liveSession("EU", at("2026-11-17T17:00:00Z")), null); // 18:00 Frankfurt
+});

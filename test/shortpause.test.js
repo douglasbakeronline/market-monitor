@@ -76,6 +76,11 @@ test("potAdherence: on time, late, pending and missed", () => {
   const early = potAdherence(PT, [], "2026-11-12");
   assert.equal(early.headline, "Short-term pot: 3 orders not yet logged");
   assert.equal(potAdherence([], [], "2026-11-12").headline, null);
+  // 17 Nov: "0 of 1 order logged on time" then six names listed as not logged
+  // read as a miscount; orders still inside their window now say so.
+  const mid = potAdherence(PT, [], "2026-11-18");
+  assert.equal(mid.headline, "Short-term pot: 0 of 3 orders logged on time; 1 more still open to log");
+
 });
 
 test("parseT212: pot orders land in the short-term pot", () => {
