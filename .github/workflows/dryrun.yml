@@ -1,5 +1,5 @@
 name: Dry run
-# 18 Nov daily run: regime band at the 200-day (monitor only; scan.json from main).
+# 18 Nov 11:41: results days counted from today (monitor only; scan.json from main).
 on:
   push:
     branches: [dryrun]

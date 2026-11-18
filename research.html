@@ -192,6 +192,7 @@ import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
 import { labVerdict, DRIFT, summariseDrift } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
+import { earningsAsOf } from "./src/util.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 import { crowdingNote, movesWith, CROWD, planOverlap, planOverlapNote } from "./src/crowding.js";
 let SELL = null;
@@ -280,7 +281,7 @@ function visible() {
     if (st.filter === "sell") return !!it.exit?.kinds?.length;
     if (st.filter === "plan") return PICKS.has(it.symbol) || BENCH.has(it.symbol);
     if (st.filter === "setup") return it.swing?.verdict?.startsWith("Setup");
-    if (st.filter === "earn") return it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 7;
+    if (st.filter === "earn") { const e = earnNow(it); return e?.days != null && e.days >= 0 && e.days <= 7; }
     // On the scan, "S&P 500" means that index; the Nasdaq 100 extras (also US) have their own chip.
     if (st.filter === "US" && st.source === "scan") return it.index === "S&P 500";
     if (st.filter === "NDX") return st.source !== "scan" || it.index === "Nasdaq 100";
@@ -300,14 +301,20 @@ function daysSince(date, updated) {
   return Math.round((Date.parse(today) - Date.parse(date)) / 86400000);
 }
 
+// Results dates with days counted from today's London date (the data was
+// built the evening before, so its own count can be a day out).
+const earnNow = (it) => earningsAsOf(it.earnings, new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }));
+
 function rowHtml(it, i) {
   const bull = it.signals.filter((s) => s.tone === "bull"), bear = it.signals.filter((s) => s.tone === "bear");
   const lens = st.lens === "lt"
     ? [it.longTerm.pillars.filter((p) => p.score >= 70).map((p) => `<span class="tag bull">${esc(p.label)} ${p.score}</span>`), it.longTerm.pillars.filter((p) => p.score != null && p.score < 40).map((p) => `<span class="tag bear">${esc(p.label)} ${p.score}</span>`)].flat().slice(0, 3)
     : [...bull.map((s) => `<span class="tag bull">${esc(s.label)}</span>`), ...bear.map((s) => `<span class="tag bear">${esc(s.label)}</span>`)].slice(0, 3);
-  const sinceRes = daysSince(it.lastEarnings, st.data?.updated);
-  const earn = it.earnings?.days != null && it.earnings.days >= 0 && it.earnings.days <= 14 ? `<span class="earn">Earnings ${it.earnings.days === 0 ? "today" : fmtDay(it.earnings.date)}</span>`
-    : sinceRes != null && sinceRes >= 0 && sinceRes <= 7 ? `<span class="earn reported">Reported ${fmtDay(it.lastEarnings)}</span>` : "";
+  const en = earnNow(it);
+  const reported = en?.days != null && en.days < 0 && (!it.lastEarnings || en.date > it.lastEarnings) ? en.date : it.lastEarnings;
+  const sinceRes = en?.days != null && en.days < 0 && reported === en.date ? -en.days : daysSince(reported, st.data?.updated);
+  const earn = en?.days != null && en.days >= 0 && en.days <= 14 ? `<span class="earn">Earnings ${en.days === 0 ? "today" : fmtDay(en.date)}</span>`
+    : sinceRes != null && sinceRes >= 0 && sinceRes <= 7 ? `<span class="earn reported">Reported ${fmtDay(reported)}</span>` : "";
   return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
     <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}${it.index ? ` · ${esc(it.index)}` : ""}</div></div>
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
