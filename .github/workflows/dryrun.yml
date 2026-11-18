@@ -1,5 +1,5 @@
 name: Dry run
-# 18 Nov 19:41: Trends theme names (trends.js), plus monitor and scan.
+# 18 Nov 22:41: company names (shortName), monitor plus the pot push text.
 on:
   push:
     branches: [dryrun]
@@ -19,8 +19,8 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          DRY_RUN=1 node trends.js > dry-run/trends.log 2>&1; echo "exit=$?" >> dry-run/trends.log
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
+          node -e 'import("./src/shortTerm.js").then(async (m) => { const fs = await import("node:fs"); const s = JSON.parse(fs.readFileSync("scan.json", "utf8")); const a = m.shortTermAlert({ ...s.shortTerm, pushedAt: null }); console.log(a ? a.title + "\n" + a.body : "no alert"); })' > dry-run/push.log 2>&1; echo "exit=$?" >> dry-run/push.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

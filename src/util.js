@@ -96,14 +96,19 @@ export function earningsAsOf(e, today) {
 }
 
 // Company name without its legal suffix ("Cboe Global Markets, Inc." to
-// "Cboe Global Markets"), for tight lists and push lines.
-const NAME_SUFFIX = /,?\s+((?:&|and)\s+(?:Company|Co\.?)|SA|Oyj|Public Limited Company|Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|LLC|A\/S|Limited|Company|Co\.?|Aktiengesellschaft|AG|SE|N\.V\.|S\.A\.|S\.p\.A\.)$/;
-export function shortName(n) {
+// "Cboe Global Markets") or a leading "The" ("The Walt Disney Company" to
+// "Walt Disney"), for tight lists and push lines. With a ticker, a name that
+// only repeats it ("SSE plc" beside SSE) comes back empty, so rows don't read
+// "SSE SSE".
+const NAME_SUFFIX = /,?\s+((?:&|and)\s+(?:Company|Co\.?)|SA|Oyj|Public Limited Company|Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|LLC|A\/S|Limited|Companies|Company|Co\.?|Aktiengesellschaft|AG|SE|N\.V\.|S\.A\.|S\.p\.A\.)$/;
+export function shortName(n, ticker) {
   let x = String(n ?? "").trim();
   for (let k = 0; k < 3 && NAME_SUFFIX.test(x); k++) {
     const y = x.replace(NAME_SUFFIX, "");
     if (!y.trim() || /^the$/i.test(y.trim())) break; // never strip a name to nothing
     x = y;
   }
+  if (/^the\s+\S/i.test(x)) x = x.replace(/^the\s+/i, "");
+  if (ticker && x.toUpperCase() === String(ticker).replace(/\.[A-Z]{1,2}$/, "").toUpperCase()) return "";
   return x;
 }
