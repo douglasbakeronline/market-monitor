@@ -30,6 +30,7 @@
   .tbl td.nm { white-space: normal; }
   .tbl .tk { font-weight: 650; } .tbl .sub { color: var(--muted); font-size: 11.5px; display: block; }
   .tbl a { color: inherit; text-decoration: none; } .tbl a:hover { text-decoration: underline; }
+  @media (max-width: 420px) { .tbl th, .tbl td { padding-left: 4px; padding-right: 4px; } .tbl th { letter-spacing: .03em; } }
   .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .heat { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
   .cell { border-radius: 10px; padding: 10px 12px; color: #fff; min-height: 76px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -70,14 +71,14 @@
   </section>
 
   <section class="section">
-    <div class="eyebrow">Momentum and movers · S&amp;P 500 and FTSE 100</div>
+    <div class="eyebrow">Momentum and movers · every scanned index</div>
     <div class="lists">
       <div class="card"><div class="k" style="margin-bottom:6px">Strongest over 3 months</div><div class="scroll" id="momentum"></div></div>
       <div class="card"><div class="k" style="margin-bottom:6px">At or near 52-week highs</div><div class="scroll" id="highs"></div></div>
       <div class="card"><div class="k" style="margin-bottom:6px">Biggest gainers, last session</div><div class="scroll" id="gainers"></div></div>
       <div class="card"><div class="k" style="margin-bottom:6px">Biggest fallers, last session</div><div class="scroll" id="losers"></div></div>
     </div>
-    <p class="cap">Strong momentum often persists for months, but it also reverses sharply; trending stocks are a list to research, not to chase. Long-term and swing scores come from the nightly scan. Tap a ticker to open its Finviz page (US) or Yahoo page (UK). * = results due within a week.</p>
+    <p class="cap">Strong momentum often persists for months, but it also reverses sharply; trending stocks are a list to research, not to chase. Long-term and swing scores come from the nightly scan. Tap a ticker to open its Finviz page (US) or Yahoo page (UK and Europe). * = results due within a week.</p>
   </section>
 
   <footer>Data: Yahoo Finance, refreshed each weeknight after the US close. A personal tracker, not financial advice.</footer>
@@ -85,6 +86,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, money, fmtDate, ago, sparkline } from "./assets/site.js";
+import { shortName } from "./src/util.js";
 initTheme();
 const $ = (id) => document.getElementById(id);
 const PERIODS = [["day", "Day"], ["week", "Week"], ["month", "Month"], ["m3", "3 months"], ["ytd", "Year to date"], ["y1", "1 year"]];
@@ -93,12 +95,13 @@ try { period = localStorage.getItem("mm-trend-period") || "m3"; } catch {}
 const open = new Set();
 let D;
 
-const link = (s) => s.symbol?.endsWith(".L") || s.symbol?.startsWith("^") ? `https://finance.yahoo.com/quote/${encodeURIComponent(s.symbol)}` : `https://finviz.com/quote.ashx?t=${encodeURIComponent(s.ticker)}`;
+// Finviz covers US listings only; London, European and index symbols go to Yahoo.
+const link = (s) => /\.[A-Z]{1,3}$/.test(s.symbol || "") || s.symbol?.startsWith("^") ? `https://finance.yahoo.com/quote/${encodeURIComponent(s.symbol)}` : `https://finviz.com/quote.ashx?t=${encodeURIComponent(s.ticker)}`;
 const trendTag = (t) => t === "up" ? `<span class="trend bg-buy">UP</span>` : t === "down" ? `<span class="trend bg-sell">DOWN</span>` : t ? `<span class="trend bg-neutral">MIXED</span>` : "";
 
 function themeCard(th) {
   const s = th.summary, v = s[period], isOpen = open.has(th.key);
-  const rows = th.stocks.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub">${esc((x.name || "").slice(0, 28))}</span></td>
+  const rows = th.stocks.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name))}</span></td>
     <td>${money(x.price, x.currency)}</td><td class="${pnClass(x.day)}">${signPct(x.day)}</td><td class="${pnClass(x.month)}">${signPct(x.month)}</td><td class="${pnClass(x.m3)}">${signPct(x.m3)}</td><td class="${pnClass(x.ytd)}">${signPct(x.ytd)}</td>
     <td>${x.rsi ?? "n/a"}</td><td class="${pnClass(x.offHigh)}">${signPct(x.offHigh)}</td><td>${trendTag(x.trend)}</td></tr>`).join("");
   const etf = th.etf ? `<span>ETF <b>${esc(th.etf.ticker)}</b> <span class="${pnClass(th.etf[period])}">${signPct(th.etf[period])}</span></span>` : "";
@@ -125,7 +128,7 @@ function heatColour(v) {
 function listTable(arr, k) {
   if (!arr?.length) return `<p class="small muted">None right now.</p>`;
   const k2 = k === "day" ? "month" : "month";
-  return `<table class="tbl"><tr><th>Company</th><th>${k === "day" ? "Day" : "3m"}</th><th>Month</th><th>Long-term</th><th>Swing</th></tr>${arr.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub">${esc((x.name || "").slice(0, 22))}</span></td><td class="${pnClass(x[k])}">${signPct(x[k])}</td><td class="${pnClass(x[k2])}">${signPct(x[k2])}</td><td>${x.lt ?? "n/a"}<span class="sub">${esc((x.ltVerdict || "").replace(" entry", ""))}</span></td><td>${x.sw ?? "n/a"}<span class="sub">${esc((x.swVerdict || "").replace(" (earnings risk)", "*"))}</span></td></tr>`).join("")}</table>`;
+  return `<table class="tbl"><tr><th>Company</th><th>${k === "day" ? "Day" : "3m"}</th><th>Month</th><th>Long-term</th><th>Swing</th></tr>${arr.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name))}</span></td><td class="${pnClass(x[k])}">${signPct(x[k])}</td><td class="${pnClass(x[k2])}">${signPct(x[k2])}</td><td>${x.lt ?? "n/a"}<span class="sub">${esc((x.ltVerdict || "").replace(" entry", ""))}</span></td><td>${x.sw ?? "n/a"}<span class="sub">${esc((x.swVerdict || "").replace(" (earnings risk)", "*"))}</span></td></tr>`).join("")}</table>`;
 }
 
 function render() {

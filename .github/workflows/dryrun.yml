@@ -1,5 +1,5 @@
 name: Dry run
-# 18 Nov 11:41: results days counted from today (monitor only; scan.json from main).
+# 18 Nov 11:41 (2): shortName for push lines and Trends; scan + monitor.
 on:
   push:
     branches: [dryrun]
@@ -19,7 +19,7 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          echo "scan skipped (monitor-only change)" > dry-run/scan.log
+          node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
