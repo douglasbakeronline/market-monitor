@@ -192,7 +192,7 @@ import { paperView } from "./src/paperTrades.js";
 import { costR } from "./src/swingRetune.js";
 import { labVerdict, DRIFT, summariseDrift } from "./src/swingLab.js";
 import { PLAN } from "./src/plan.js";
-import { earningsAsOf } from "./src/util.js";
+import { earningsAsOf, shortName } from "./src/util.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 import { crowdingNote, movesWith, CROWD, planOverlap, planOverlapNote } from "./src/crowding.js";
 let SELL = null;
@@ -316,7 +316,7 @@ function rowHtml(it, i) {
   const earn = en?.days != null && en.days >= 0 && en.days <= 14 ? `<span class="earn">Earnings ${en.days === 0 ? "today" : fmtDay(en.date)}</span>`
     : sinceRes != null && sinceRes >= 0 && sinceRes <= 7 ? `<span class="earn reported">Reported ${fmtDay(reported)}</span>` : "";
   return `<div class="row" role="button" tabindex="0" aria-expanded="${st.open.has(it.symbol)}" data-sym="${esc(it.symbol)}">
-    <div><div class="nm">${esc(it.name)}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}${it.index ? ` · ${esc(it.index)}` : ""}</div></div>
+    <div><div class="nm" title="${esc(it.name)}">${esc(shortName(it.name))}</div><div class="tk">${esc(it.ticker)} · ${esc(it.sector ?? it.market)}${it.index ? ` · ${esc(it.index)}` : ""}</div></div>
     <div><div class="px">${money(it.price, it.currency)}</div><div class="sub ${pnClass(it.perf?.day)}">${signPct(it.perf?.day)}</div></div>
     <div class="scorecell lt-only">${ring(it.longTerm.score)}<div>${vtag(it.longTerm.verdict)}<div class="sub">long-term${chg(it.change?.lt)}</div></div></div>
     <div class="scorecell sw-only">${ring(it.swing?.score)}<div>${vtag(it.swing?.verdict ?? "No data")}<div class="sub">swing${chg(it.change?.sw)}</div></div></div>

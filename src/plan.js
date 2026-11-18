@@ -323,6 +323,10 @@ export function moneyCheckVerdict(cp, { fmt = dayLabel, tierHit = false } = {}) 
   if (tierHit) return "<b>A market is 10% or more below its high:</b> check the buy tiers below; a tier needs fear (F&amp;G 25 or under, or VIX 30 or over) to confirm it.";
   if (due) return `<b>No rule is triggered.</b> Due ${when(due)} on the plan's scheduled date, with no market condition needed: ${h(due.title)}.${next ? ` After it, the next core purchase is ${fmt(next.date)}.` : ""}`;
   if (next) return `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${fmt(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`;
+  // 18 Nov: at -6.1% this said "No rule is triggered" beside a pullback card
+  // saying the index was past the line. The line is passed; nothing can move.
+  if (pb.drawdown != null && pb.drawdown <= pb.threshold)
+    return `<b>${h(pb.index)} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, past the pullback rule's ${Math.abs(pb.threshold)}% line,</b> but no core purchase is left to bring forward before the new ISA allowance.`;
   return "<b>No rule is triggered</b> and no core purchase is scheduled before the new ISA allowance.";
 }
 
