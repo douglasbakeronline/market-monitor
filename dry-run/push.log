@@ -1,0 +1,10 @@
+Short-term pot: buy TGT · sell ILMN
+Short-term pot (real money, 10% of the portfolio).
+Buy at the next open, a fifth of the pot each (about 2% of the portfolio):
+- TGT (Target): results drift, +4% on 3.2x volume (results, EPS +27.2% vs forecast). Then hold 20 sessions.
+Sell at the next open (exit rule met at the last close):
+- ILMN (Illumina): back above its 5-day average or 10 sessions up, +4.85% after costs.
+Pot: 5 of 5 slots used after these, -0.87% since 2026-11-12.
+Not taken (no free slot or already held): CTEC, TTWO, VEEV, CTSH, ACN, AMGN, DOC.
+Evidence. Drift: tested avg +1.36% a trade after costs vs +0.78% random, 54% won, ahead in 6 of 9 years; live: none closed yet. Bounce: tested 61% won but avg -0.08% a trade after costs; live 5 closed, 80% won, avg +2.04%.
+exit=0
