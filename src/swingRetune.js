@@ -7,7 +7,18 @@ import { r2 } from "./util.js";
 // Round-trip costs on Trading 212 as a share of the entry price:
 // US shares pay the 0.15% FX fee each way; UK shares pay 0.5% stamp duty on
 // the purchase (no FX). Converted to R by dividing by the risk per share.
-export const COSTS = { US: 0.003, UK: 0.005 };
+export const COSTS = { US: 0.003, UK: 0.005, EU: 0.003 };
+
+// European listings (18 Nov): the 0.15% FX fee each way as for US shares, plus
+// the purchase tax some countries charge whoever the broker: France 0.4%
+// (raised from 0.3% in 2025), Italy 0.1%, Spain 0.2%. Germany, the
+// Netherlands, Finland and (for a non-Belgian broker) Belgium charge none.
+export const PURCHASE_TAX = { PA: 0.004, MI: 0.001, MC: 0.002 };
+export function roundTripCost(symbol, market) {
+  if (market !== "EU") return COSTS[market] ?? 0;
+  const sfx = /\.([A-Z]+)$/.exec(symbol ?? "")?.[1];
+  return COSTS.EU + (PURCHASE_TAX[sfx] ?? 0);
+}
 
 export function costR(t) {
   if (!(t.entry > 0) || !(t.risk > 0)) return 0;
