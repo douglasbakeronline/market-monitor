@@ -14,11 +14,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 172.8000030517578,
-    "sessions": 5,
-    "lastDate": "2026-11-17",
-    "lastPrice": 155.46,
-    "netPct": -10.33,
-    "idxPct": -2.4
+    "sessions": 6,
+    "lastDate": "2026-11-18",
+    "lastPrice": 150.96,
+    "netPct": -12.94,
+    "idxPct": -2.62
   },
   {
     "id": "2026-11-10:AKAM",
@@ -35,11 +35,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 85.0999984741211,
-    "sessions": 5,
-    "lastDate": "2026-11-17",
-    "lastPrice": 84.64,
-    "netPct": -0.84,
-    "idxPct": -2.4
+    "sessions": 6,
+    "lastDate": "2026-11-18",
+    "lastPrice": 91.7,
+    "netPct": 7.46,
+    "idxPct": -2.62
   },
   {
     "id": "2026-11-10:TTWO",
@@ -57,11 +57,11 @@
     "surprisePct": 66.4,
     "entryDate": "2026-11-11",
     "entry": 227.49000549316406,
-    "sessions": 5,
-    "lastDate": "2026-11-17",
-    "lastPrice": 203.93,
-    "netPct": -10.66,
-    "idxPct": -2.4
+    "sessions": 6,
+    "lastDate": "2026-11-18",
+    "lastPrice": 216.61,
+    "netPct": -5.08,
+    "idxPct": -2.62
   },
   {
     "id": "2026-11-12:GPN",
@@ -78,11 +78,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 88.41000366210938,
-    "sessions": 3,
-    "lastDate": "2026-11-17",
-    "lastPrice": 85.32,
-    "netPct": -3.8,
-    "idxPct": -3.32
+    "sessions": 4,
+    "lastDate": "2026-11-18",
+    "lastPrice": 85.62,
+    "netPct": -3.46,
+    "idxPct": -3.54
   },
   {
     "id": "2026-11-12:BRBY.L",
@@ -99,10 +99,52 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 1170.5,
-    "sessions": 3,
-    "lastDate": "2026-11-17",
-    "lastPrice": 1135,
-    "netPct": -3.53,
-    "idxPct": -1.59
+    "sessions": 4,
+    "lastDate": "2026-11-18",
+    "lastPrice": 1158,
+    "netPct": -1.57,
+    "idxPct": -2.87
+  },
+  {
+    "id": "2026-11-18:UNH",
+    "symbol": "UNH",
+    "ticker": "UNH",
+    "name": "UnitedHealth Group Incorporated",
+    "market": "US",
+    "kind": "down",
+    "signalDate": "2026-11-18",
+    "signalPrice": 349.91,
+    "movePct": -10.2,
+    "volX": 3.1,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:TGT",
+    "symbol": "TGT",
+    "ticker": "TGT",
+    "name": "Target Corporation",
+    "market": "US",
+    "kind": "up",
+    "signalDate": "2026-11-18",
+    "signalPrice": 165.93,
+    "movePct": 4,
+    "volX": 3.2,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:CTEC.L",
+    "symbol": "CTEC.L",
+    "ticker": "CTEC",
+    "name": "Convatec Group PLC",
+    "market": "UK",
+    "kind": "up",
+    "signalDate": "2026-11-18",
+    "signalPrice": 270,
+    "movePct": 9.4,
+    "volX": 3.6,
+    "results": false,
+    "status": "pending"
   }
 ]

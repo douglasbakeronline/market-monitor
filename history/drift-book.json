@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-18T03:03:41.626Z",
+  "updated": "2026-11-18T21:23:53.763Z",
   "start": "2026-11-11",
   "equity0": 10000,
   "realised": 10000,
-  "value": 9624.25,
-  "returnPct": -3.76,
+  "value": 10020.25,
+  "returnPct": 0.2,
   "open": [
     {
       "id": "2026-11-10:TTWO",
@@ -18,9 +18,9 @@
       "volX": 3.1,
       "results": true,
       "pos": 2500,
-      "sessions": 5,
-      "openPct": -10.66,
-      "openPnl": -266.5
+      "sessions": 6,
+      "openPct": -5.08,
+      "openPnl": -127
     },
     {
       "id": "2026-11-10:AKAM",
@@ -34,9 +34,9 @@
       "volX": 4.2,
       "results": false,
       "pos": 2500,
-      "sessions": 5,
-      "openPct": -0.84,
-      "openPnl": -21
+      "sessions": 6,
+      "openPct": 7.46,
+      "openPnl": 186.5
     },
     {
       "id": "2026-11-12:BRBY.L",
@@ -50,13 +50,25 @@
       "volX": 3.8,
       "results": false,
       "pos": 2500,
-      "sessions": 3,
-      "openPct": -3.53,
-      "openPnl": -88.25
+      "sessions": 4,
+      "openPct": -1.57,
+      "openPnl": -39.25
     }
   ],
-  "orders": [],
-  "waiting": 0,
+  "orders": [
+    {
+      "symbol": "CTEC.L",
+      "ticker": "CTEC",
+      "name": "Convatec Group PLC",
+      "market": "UK",
+      "signalDate": "2026-11-18",
+      "signalPrice": 270,
+      "movePct": 9.4,
+      "volX": 3.6,
+      "results": false
+    }
+  ],
+  "waiting": 1,
   "closed": 0,
   "winRate": null,
   "avgNetPct": null,
@@ -69,8 +81,8 @@
   "paused": false,
   "sp": {
     "from": "2026-11-10",
-    "to": "2026-11-17",
-    "pct": -2.4
+    "to": "2026-11-18",
+    "pct": -2.62
   },
   "spSeries": [
     {
@@ -92,14 +104,18 @@
     {
       "date": "2026-11-17",
       "pct": -2.4
+    },
+    {
+      "date": "2026-11-18",
+      "pct": -2.62
     }
   ],
   "random": {
     "runs": 200,
-    "mine": -3.76,
-    "median": -3.76,
-    "p10": -3.76,
-    "p90": -3.76,
+    "mine": 0.2,
+    "median": 0.2,
+    "p10": 0.2,
+    "p90": 0.2,
     "beatShare": 0
   }
 }
