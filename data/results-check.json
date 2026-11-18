@@ -1,51 +1,6 @@
 {
-  "updated": "2026-11-17T21:24:09.869Z",
+  "updated": "2026-11-18T03:03:45.936Z",
   "items": {
-    "NVDA": {
-      "quarter": "2026-07-31",
-      "date": "2026-08-27",
-      "actual": 2.22,
-      "estimate": 2.09113,
-      "surprisePct": 6.2,
-      "reaction": 8.7,
-      "record": {
-        "beats": 4,
-        "of": 4,
-        "avgSurprise": 5.1,
-        "next": {
-          "date": "2026-11-17",
-          "epsEstimate": 2.47313,
-          "epsLow": 2.25754,
-          "epsHigh": 2.7
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 4.4,
-        "moves": [
-          {
-            "date": "2025-11-20",
-            "pct": -3.2
-          },
-          {
-            "date": "2026-02-26",
-            "pct": -5.5
-          },
-          {
-            "date": "2026-05-21",
-            "pct": -1.8
-          },
-          {
-            "date": "2026-08-27",
-            "pct": 8.7
-          }
-        ]
-      },
-      "fifth": "middle",
-      "label": "EPS beat the forecast by 6.2%; the price rose 8.7% on the day",
-      "note": null,
-      "tone": "neutral"
-    },
     "LLOY.L": {
       "quarter": "2026-09-30",
       "date": "2026-10-29",
