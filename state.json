@@ -485,8 +485,8 @@
   "lastGood": {
     "fg": {
       "score": 25,
-      "rating": "extreme fear",
-      "asOf": "2026-11-17T20:59:59+00:00",
+      "rating": "fear",
+      "asOf": "2026-11-17T23:59:42+00:00",
       "comparisons": {
         "close": 31,
         "week": 37,
@@ -521,7 +521,7 @@
         {
           "key": "market_volatility_vix",
           "label": "Market volatility",
-          "score": 15,
+          "score": 18,
           "rating": "extreme fear"
         },
         {
@@ -533,16 +533,11 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 49,
+          "score": 50,
           "rating": "neutral"
         }
       ],
       "history": [
-        {
-          "date": "2025-11-17",
-          "t": 1763337600000,
-          "y": 12
-        },
         {
           "date": "2025-11-18",
           "t": 1763424000000,
@@ -1790,19 +1785,19 @@
         },
         {
           "date": "2026-11-17",
-          "t": 1794949199000,
+          "t": 1794959982000,
           "y": 25
         }
       ]
     },
-    "fgAt": "2026-11-17T21:10:47.536Z",
+    "fgAt": "2026-11-18T02:35:13.863Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7340.53,
         "date": "2026-11-17",
-        "asOf": "2026-11-17T21:10:46.000Z",
+        "asOf": "2026-11-17T21:42:12.000Z",
         "currency": "USD",
         "drawdownPct": -6.1,
         "peak": 7818.93,
@@ -1946,11 +1941,11 @@
         ]
       },
       "vix": {
-        "level": 26.15,
-        "dayPct": 14.1,
+        "level": 25.46,
+        "dayPct": 11.1,
         "date": "2026-11-17"
       },
-      "at": "2026-11-17T21:10:47.536Z"
+      "at": "2026-11-18T02:35:13.863Z"
     },
     "watchlist": [
       {
@@ -2418,13 +2413,13 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 416.98,
+        "price": 416.77,
         "date": "2026-11-17",
         "dropFromHigh": -4.5,
-        "lastChange": -2.2,
+        "lastChange": -2.3,
         "previous": 0.2,
-        "week": -1.4,
-        "month": 3.5,
+        "week": -1.5,
+        "month": 3.4,
         "series": [
           0,
           0.81,
@@ -2455,7 +2450,7 @@
           12.96,
           14.42,
           14.61,
-          12.06
+          12
         ],
         "rebound": false
       },
@@ -2464,7 +2459,7 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 329.97,
+        "price": 329.96,
         "date": "2026-11-17",
         "dropFromHigh": -6.3,
         "lastChange": -2.4,
@@ -2746,7 +2741,7 @@
       "2026-10-30:IEX"
     ]
   },
-  "shortSeen": "2026-11-16",
+  "shortSeen": "2026-11-17",
   "shortPotStage": null,
   "resultsSent": {
     "NVDA|2026-11-17": [
