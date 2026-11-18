@@ -2,7 +2,7 @@
 // check against. Percentages and dates only: no amounts, no holdings.
 // Douglas places every trade; this only says what the plan says is due.
 import { flagText } from "./surpriseStudy.js";
-import { addDays } from "./util.js";
+import { addDays, earningsAsOf } from "./util.js";
 import { resultsEstimate } from "./research.js";
 import { SELL_KINDS } from "./sellSignals.js";
 
@@ -85,12 +85,13 @@ export function pickStatus(pick, item, today = null) {
   const verdict = item.longTerm?.verdict ?? null, score = item.longTerm?.score ?? null;
   // A results date in the past (Yahoo keeps it for a day or so after the
   // release) means the results are out: treat it as the latest results date.
-  const rawEd = item.earnings?.days ?? null;
+  const earn = earningsAsOf(item.earnings, today);
+  const rawEd = earn?.days ?? null;
   const ed = rawEd != null && rawEd < 0 ? null : rawEd;
   const resultsSoon = ed != null && ed >= 0 && ed <= PLAN.pickNoResultsDays;
   // No next date published yet: if the latest results came out recently, the
   // next ones are about a quarter away, so the 7-day rule can't bite.
-  const last = rawEd != null && rawEd < 0 && item.earnings?.date ? item.earnings.date : item.lastEarnings ?? null;
+  const last = rawEd != null && rawEd < 0 && earn?.date ? earn.date : item.lastEarnings ?? null;
   const sinceLast = ed == null && last && today ? days(last, today) : null;
   const recentlyReported = sinceLast != null && sinceLast >= 0 && sinceLast <= PLAN.recentResultsDays;
   const good = verdict === "Good entry";

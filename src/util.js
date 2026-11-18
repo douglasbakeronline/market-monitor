@@ -83,3 +83,14 @@ export function isoWeek(date) {
 }
 
 export const sign = (p, dp = 1) => (p == null ? "n/a" : (p >= 0 ? "+" : "") + Number(p).toFixed(dp) + "%");
+
+// Whole calendar days from one YYYY-MM-DD date to another.
+export const daysBetween = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86400000);
+
+// A results date's `days` is counted when research or the scan ran (the
+// evening before); recount it from `today` (London date) so a page or slot
+// the next day doesn't call yesterday's results "today".
+export function earningsAsOf(e, today) {
+  if (!e?.date || !today) return e ?? null;
+  return { ...e, days: daysBetween(today, e.date) };
+}

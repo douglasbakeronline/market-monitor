@@ -30,7 +30,7 @@ import { resultsAlert } from "./src/resultsPreview.js";
 import { shortPotLine } from "./src/shortPot.js";
 import { allowAlert, summaryAllowed } from "./src/alertProfile.js";
 import { SCORING_VERSION } from "./src/research.js";
-import { partsIn, dateIn, isoWeek, sign, addDays } from "./src/util.js";
+import { partsIn, dateIn, isoWeek, sign, addDays, earningsAsOf } from "./src/util.js";
 
 const hoursSince = (iso) => (iso ? (Date.now() - Date.parse(iso)) / 3600000 : Infinity);
 
@@ -314,9 +314,11 @@ function researchHighlights(r) {
     .map((i) => ({ ticker: i.ticker, name: i.name, verdict: i.longTerm.verdict, score: i.longTerm.score }));
   const sw = r.items.filter((i) => i.swing?.verdict?.startsWith("Setup")).sort((a, b) => b.swing.score - a.swing.score).slice(0, 5)
     .map((i) => ({ ticker: i.ticker, name: i.name, verdict: i.swing.verdict, score: i.swing.score }));
-  const earnings = r.items.filter((i) => i.earnings?.days != null && i.earnings.days >= 0 && i.earnings.days <= 7)
-    .sort((a, b) => a.earnings.days - b.earnings.days).map((i) => ({ ticker: i.ticker, date: i.earnings.date, days: i.earnings.days }));
   const today = dateIn("Europe/London");
+  // Days counted from today: research ran the evening before.
+  const earnings = r.items.map((i) => ({ ticker: i.ticker, e: earningsAsOf(i.earnings, today) }))
+    .filter((x) => x.e?.days != null && x.e.days >= 0 && x.e.days <= 7)
+    .sort((a, b) => a.e.days - b.e.days).map((x) => ({ ticker: x.ticker, date: x.e.date, days: x.e.days }));
   const reactions = r.items.filter((i) => i.lastResults && !i.lastResults.pending && Date.parse(today) - Date.parse(i.lastResults.to) <= 3 * 86400000)
     .map((i) => ({ ticker: i.ticker, date: i.lastResults.date, pct: i.lastResults.pct })).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
   const movers = r.items.filter((i) => i.change?.lt != null && Math.abs(i.change.lt) >= 8)

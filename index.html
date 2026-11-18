@@ -488,6 +488,7 @@ import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa
 import { fileWith } from "./src/priceAlerts.js";
 import { dayLabel } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
+import { earningsAsOf } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
@@ -1457,6 +1458,9 @@ function renderWorld(w) {
   $("worldLegend").innerHTML = w.markets.map((m, i) => `<span><i style="background:${WC[i % 5]}"></i>${esc(m.name)}</span>`).join("");
 }
 
+// Recount from today's London date: the page can be read the morning after the last slot.
+const earnSoon = (xs) => (xs || []).map((x) => earningsAsOf(x, new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }))).filter((x) => x.days >= 0 && x.days <= 7);
+
 function renderHighlights(h) {
   if (!h) return;
   $("hlSection").hidden = false;
@@ -1464,7 +1468,7 @@ function renderHighlights(h) {
   $("hl").innerHTML =
     list("Long-term", h.longTerm, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "Nothing scoring well right now.") +
     list("Swing setups", h.swing, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "No setups today.") +
-    list("Earnings in the next week", h.earnings, (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
+    list("Earnings in the next week", earnSoon(h.earnings), (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
 }
 
 const DOWN_GOOD = new Set(["greed", "trim"]);
