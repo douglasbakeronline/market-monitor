@@ -45,7 +45,7 @@ Status: agreed 30 Oct 2026 (13:13): Douglas chose an opportunity reserve over a 
 - Bench: Charles Schwab (SCHW), CF Industries (CF, after 4 Nov results), Lloyds (LLOY.L), NatWest (NWG.L), Amazon (AMZN), Glencore (GLEN.L). Replacements come from sectors the pot doesn't already own.
 
 ## Key dates
-- 3 Nov US midterms; 4 Nov CF results; 5 Nov Bank of England; 17 Nov Nvidia results (5% of VWRP).
+- 3 Nov US midterms; 4 Nov CF results; 5 Nov Bank of England; 17 Nov Nvidia results (5% of VWRP; reported after the US close). Next pick results: STZ about early January, META late January.
 
 ## Things Douglas raised (for research)
 - Presidential cycle: claim seen that the months before midterms are best. Evidence says the opposite: midterm years average ~4.6% vs 11.2% other years; the 12 months after midterms average ~13.9% (Oppenheimer, since 1948). Midterm election 3 Nov 2026. Context only, not a timing rule (small sample, ~19 cycles).
