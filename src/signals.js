@@ -42,13 +42,18 @@ export function deepestTier(dd) {
 }
 
 // --- Regime -----------------------------------------------------------------
+// Points either side of the 200-day average treated as "at" it (display only).
+export const TREND_BAND = 1;
 // One headline that combines price (drawdown), trend (200-day), volatility
 // (VIX) and sentiment (Fear & Greed). Precedence matters: the first match wins.
 export function regime({ sp, vix, fg }) {
   const score = fg?.score ?? null, dd = sp?.drawdownPct ?? null, v = vix?.level ?? null;
+  // Within the band the trend reads as undecided, so a 0.1% cross does not
+  // flip the headline (and every push title) back and forth (18 Nov).
+  const near200 = sp?.vs200Pct != null && Math.abs(sp.vs200Pct) < TREND_BAND;
   const factors = [
     sp && { key: "drawdown", label: "Drawdown", value: `${dd.toFixed(1)}%`, tone: dd <= -10 ? "buy" : dd <= -5 ? "watch" : "neutral", note: `S&P 500 vs its 52-week high (${Math.round(sp.peak).toLocaleString("en-GB")}).` },
-    sp && sp.vs200Pct != null && { key: "trend", label: "Trend", value: `${sp.vs200Pct >= 0 ? "+" : ""}${sp.vs200Pct.toFixed(1)}% vs 200-day`, tone: sp.above200 ? (sp.vs200Pct >= 10 ? "greed" : "neutral") : "caution", note: sp.above200 ? "Above its 200-day average: the long-term trend is up." : "Below its 200-day average: the long-term trend is down." },
+    sp && sp.vs200Pct != null && { key: "trend", label: "Trend", value: `${sp.vs200Pct >= 0 ? "+" : ""}${sp.vs200Pct.toFixed(1)}% vs 200-day`, tone: near200 ? "neutral" : sp.above200 ? (sp.vs200Pct >= 10 ? "greed" : "neutral") : "caution", note: near200 ? `At its 200-day average (within ${TREND_BAND}%): the long-term trend is undecided.` : sp.above200 ? "Above its 200-day average: the long-term trend is up." : "Below its 200-day average: the long-term trend is down." },
     v != null && { key: "vix", label: "Volatility", value: `VIX ${v.toFixed(1)}`, tone: v >= 30 ? "buy" : v >= 20 ? "watch" : v <= 13 ? "greed" : "neutral", note: v >= 30 ? "Panic-level volatility; historically near bottoms." : v >= 20 ? "Elevated: investors are paying up for protection." : v <= 13 ? "Very calm; complacency can build here." : "Normal range." },
     score != null && { key: "sentiment", label: "Sentiment", value: `F&G ${score}`, tone: score <= 25 ? "buy" : score <= 44 ? "watch" : score >= 76 ? "greed" : "neutral", note: `CNN Fear & Greed: ${ratingFor(score)}.` },
   ].filter(Boolean);
@@ -68,8 +73,12 @@ export function regime({ sp, vix, fg }) {
     return { ...base, key: "euphoric", tone: "greed", label: "Euphoric", action: "No need to add extra money now; keep scheduled purchases going." };
   if (score <= CONFIG.fearNoDip.maxScore && dd > CONFIG.fearNoDip.minDrawdown)
     return { ...base, key: "fear-no-dip", tone: "watch", label: "Nervous, but no dip yet", action: "Sentiment has cracked before prices have. Get your shopping list ready; don't chase." };
+  if (dd <= -5 && near200)
+    return { ...base, key: "pullback", tone: "buy-lite", label: "Pullback, testing the 200-day", action: "Prices are back at their long-term average. Regular long-term adds carry on as planned." };
   if (dd <= -5 && sp.above200)
     return { ...base, key: "pullback", tone: "buy-lite", label: "Pullback in an uptrend", action: "A reasonable moment for regular long-term adds." };
+  if (near200)
+    return { ...base, key: "at200", tone: "neutral", label: "At the 200-day: trend undecided", action: "Nothing to do. Keep regular investing going." };
   if (sp.above200 === false)
     return { ...base, key: "downtrend", tone: "caution", label: "Below the 200-day: trend is down", action: "Be patient. Prefer staged buys over lump sums." };
   return { ...base, key: "healthy", tone: "neutral", label: "Healthy uptrend", action: "Nothing to do. Keep regular investing going." };

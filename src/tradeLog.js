@@ -2,7 +2,7 @@
 // Trades are kept in the viewer's browser only (localStorage); nothing here
 // touches the network or the repo. Each trade records the plan rule that
 // triggered it, so the Dashboard can show plan adherence.
-import { nextSession } from "./sessions.js";
+import { nextSession, orderTiming } from "./sessions.js";
 
 // Rules a trade can cite. `pot` is the default pot the trade lands in.
 export const RULES = [
@@ -137,6 +137,21 @@ export function potTradeFor(potTrades = [], ticker, date, side) {
     : date >= p.entryDate && (p.exitDate == null || days(p.exitDate, date) <= POT_MATCH.sellAfter))) ?? null;
 }
 
+// The pot's trades plus listed buys (pot.buys) whose open has passed but which
+// the evening scan has not booked yet (17 Nov: between an open and the scan,
+// that open's buys were missing from the trade log). Each enters at the open
+// after its signal close, as the scan will book it.
+export function withPassedBuys(potTrades = [], buys = [], now = new Date()) {
+  const out = [...(potTrades ?? [])];
+  for (const b of buys ?? []) {
+    const t = orderTiming(b.signalDate, b.market, now);
+    if (!t || t.state !== "passed") continue;
+    if (out.some((p) => bare(p.ticker) === bare(b.ticker) && p.entryDate === t.due)) continue;
+    out.push({ kind: b.kind, ticker: b.ticker, market: b.market, entryDate: t.due, exitDate: null });
+  }
+  return out;
+}
+
 // Each pot buy and sell due by `today`, matched to a logged trade citing the
 // short-term pot rule. Buys are on time within a day of the entry open; sells
 // within 3 days of the exit close (the next open, allowing a weekend).
@@ -163,6 +178,19 @@ export function potAdherence(potTrades = [], trades = [], today) {
   const headline = !items.length ? null : !counted.length ? `Short-term pot: ${items.length} order${items.length > 1 ? "s" : ""} not yet logged`
     : `Short-term pot: ${onTime} of ${counted.length} order${counted.length > 1 ? "s" : ""} logged on time${items.length > counted.length ? `; ${items.length - counted.length} more still open to log` : ""}`;
   return { items, onTime, counted: counted.length, headline };
+}
+
+// The pot orders still to log, for the trade log card: missed orders first
+// (they are what the headline counts against), then those still inside their
+// window, keeping the newest of each when there are more than `max`.
+// 17 Nov (22:41): a plain newest-six list cut the one missed order.
+export function potNotLogged(items = [], max = 6) {
+  const missed = items.filter((i) => i.status === "missed");
+  const pending = items.filter((i) => i.status === "pending");
+  const keptMissed = missed.slice(-max);
+  const room = max - keptMissed.length;
+  const open = room > 0 ? pending.slice(-room) : [];
+  return { missed: keptMissed, open, more: missed.length + pending.length - keptMissed.length - open.length };
 }
 
 // Parse an imported backup: an array of trades, or { trades: [...] }.

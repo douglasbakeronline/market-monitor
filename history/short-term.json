@@ -1,82 +1,82 @@
 {
-  "updated": "2026-11-17T11:58:19.019Z",
-  "date": "2026-11-16",
+  "updated": "2026-11-18T03:03:59.790Z",
+  "date": "2026-11-17",
   "drift": [],
   "bounce": [
-    {
-      "symbol": "ILMN",
-      "ticker": "ILMN",
-      "name": "Illumina, Inc.",
-      "market": "US",
-      "index": "S&P 500",
-      "score": 51,
-      "kind": "bounce",
-      "date": "2026-11-16",
-      "price": 198,
-      "rsi2": 2.8,
-      "vs200": 10.1,
-      "fall3": -7
-    },
     {
       "symbol": "VEEV",
       "ticker": "VEEV",
       "name": "Veeva Systems Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 41,
+      "score": 44,
       "kind": "bounce",
-      "date": "2026-11-16",
-      "price": 299.28,
-      "rsi2": 3.1,
-      "vs200": 39.8,
-      "fall3": -1.8
+      "date": "2026-11-17",
+      "price": 288.41,
+      "rsi2": 0.4,
+      "vs200": 34.5,
+      "fall3": -4.6
     },
     {
-      "symbol": "RVTY",
-      "ticker": "RVTY",
-      "name": "Revvity, Inc.",
+      "symbol": "DOC",
+      "ticker": "DOC",
+      "name": "Healthpeak Properties, Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 46,
+      "score": 66,
       "kind": "bounce",
-      "date": "2026-11-16",
-      "price": 148.85,
-      "rsi2": 3.4,
-      "vs200": 30.3,
+      "date": "2026-11-17",
+      "price": 19.46,
+      "rsi2": 1.5,
+      "vs200": 0.9,
+      "fall3": -3.3
+    },
+    {
+      "symbol": "CTSH",
+      "ticker": "CTSH",
+      "name": "Cognizant Technology Solutions Corporation",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 77,
+      "kind": "bounce",
+      "date": "2026-11-17",
+      "price": 60,
+      "rsi2": 1.7,
+      "vs200": 3.9,
       "fall3": -5.9
     },
     {
-      "symbol": "EMR",
-      "ticker": "EMR",
-      "name": "Emerson Electric Co.",
+      "symbol": "IQV",
+      "ticker": "IQV",
+      "name": "IQVIA Holdings Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 63,
+      "score": 62,
       "kind": "bounce",
-      "date": "2026-11-16",
-      "price": 160.65,
-      "rsi2": 3.7,
-      "vs200": 8.6,
-      "fall3": -3.8
+      "date": "2026-11-17",
+      "price": 257.6,
+      "rsi2": 1.8,
+      "vs200": 21.9,
+      "fall3": -5
     },
     {
-      "symbol": "MRNA",
-      "ticker": "MRNA",
-      "name": "Moderna, Inc.",
+      "symbol": "CCL",
+      "ticker": "CCL",
+      "name": "Carnival Corporation Ltd.",
       "market": "US",
       "index": "S&P 500",
-      "score": 51,
+      "score": 69,
       "kind": "bounce",
-      "date": "2026-11-16",
-      "price": 215.27,
-      "rsi2": 4.2,
-      "vs200": 121.3,
-      "fall3": -13.4
+      "date": "2026-11-17",
+      "price": 28.16,
+      "rsi2": 2,
+      "vs200": 3.9,
+      "fall3": -4
     }
   ],
   "counts": {
     "drift": 0,
-    "bounce": 26
+    "bounce": 92
   },
   "tested": {
     "drift": {
@@ -112,7 +112,7 @@
     },
     "bounce": {
       "closed": 2,
-      "open": 11,
+      "open": 14,
       "win": 50,
       "avg": 0.26,
       "vsIdx": 1.41,
@@ -125,15 +125,15 @@
       "equity0": 10000,
       "maxOpen": 5,
       "pauseFall": 0.25,
-      "today": "2026-11-16",
-      "since": "2026-11-13"
+      "today": "2026-11-17",
+      "since": "2026-11-16"
     },
     "skipList": [],
     "start": "2026-11-12",
-    "value": 9903.4,
-    "returnPct": -0.97,
+    "value": 9776.16,
+    "returnPct": -2.24,
     "peak": 10000,
-    "fallPct": -0.97,
+    "fallPct": -2.24,
     "paused": false,
     "open": [
       {
@@ -146,9 +146,9 @@
         "entryDate": "2026-11-13",
         "entry": 1170.5,
         "pos": 2000,
-        "sessions": 2,
-        "openPct": 0.01,
-        "openPnl": 0.2
+        "sessions": 3,
+        "openPct": -3.53,
+        "openPnl": -70.6
       },
       {
         "id": "2026-11-12:bounce:ABT",
@@ -160,9 +160,9 @@
         "entryDate": "2026-11-13",
         "entry": 108.2,
         "pos": 2000,
-        "sessions": 2,
-        "openPct": -0.99,
-        "openPnl": -19.8
+        "sessions": 3,
+        "openPct": -3.53,
+        "openPnl": -70.6
       },
       {
         "id": "2026-11-12:bounce:AMCR",
@@ -174,9 +174,9 @@
         "entryDate": "2026-11-13",
         "entry": 44.24,
         "pos": 2000,
-        "sessions": 2,
-        "openPct": -1.36,
-        "openPnl": -27.2
+        "sessions": 3,
+        "openPct": -2.09,
+        "openPnl": -41.8
       },
       {
         "id": "2026-11-12:bounce:IFF",
@@ -188,35 +188,28 @@
         "entryDate": "2026-11-13",
         "entry": 81.04,
         "pos": 2000,
-        "sessions": 2,
-        "openPct": -1.6,
-        "openPnl": -32
-      }
-    ],
-    "buys": [
+        "sessions": 3,
+        "openPct": -2.29,
+        "openPnl": -45.8
+      },
       {
+        "id": "2026-11-16:bounce:ILMN",
         "kind": "bounce",
         "symbol": "ILMN",
         "ticker": "ILMN",
         "name": "Illumina, Inc.",
         "market": "US",
-        "signalDate": "2026-11-16",
-        "signalPrice": 198
+        "entryDate": "2026-11-17",
+        "entry": 199.73,
+        "pos": 1996.44,
+        "sessions": 1,
+        "openPct": 1.14,
+        "openPnl": 22.76
       }
     ],
-    "sells": [
-      {
-        "kind": "bounce",
-        "symbol": "OTIS",
-        "ticker": "OTIS",
-        "name": "Otis Worldwide Corporation",
-        "market": "US",
-        "exitDate": "2026-11-16",
-        "orderDate": "2026-11-16",
-        "netPct": -0.89
-      }
-    ],
-    "free": 1,
+    "buys": [],
+    "sells": [],
+    "free": 0,
     "closed": 1,
     "winRate": 0,
     "avgNetPct": -0.89,
@@ -255,7 +248,15 @@
         "market": "US",
         "entryDate": "2026-11-13",
         "exitDate": null
+      },
+      {
+        "kind": "bounce",
+        "ticker": "ILMN",
+        "market": "US",
+        "entryDate": "2026-11-17",
+        "exitDate": null
       }
     ]
-  }
+  },
+  "pushedAt": "2026-11-17T21:24:22.827Z"
 }

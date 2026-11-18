@@ -16,39 +16,39 @@
   "variants": {
     "agreed": {
       "key": "agreed",
-      "core": 6000,
-      "coreLast": 141.08,
+      "core": 5863.06,
+      "coreLast": 137.86,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 1000.54,
-      "shortLast": 0.99034,
+      "shortPot": 987.68,
+      "shortLast": 0.977616,
       "pending": 0,
       "picks": {
         "HSBA.L": {
           "ticker": "HSBA",
           "market": "UK",
-          "value": 99.5,
+          "value": 97.49,
           "cost": 100,
-          "last": 1347,
+          "last": 1319.8,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "META": {
           "ticker": "META",
           "market": "US",
-          "value": 99.85,
+          "value": 98.65,
           "cost": 100,
-          "last": 626.41,
+          "last": 618.87,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 99.85,
+          "value": 100.71,
           "cost": 100,
-          "last": 110.31,
+          "last": 111.26,
           "lastTranche": "2026-11",
           "tranches": 1
         }
@@ -79,28 +79,32 @@
         {
           "date": "2026-11-16",
           "value": 9999.74
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9847.59
         }
       ],
-      "value": 9999.74,
+      "value": 9847.59,
       "started": "2026-11-16"
     },
     "weakHold": {
       "key": "weakHold",
-      "core": 6000,
-      "coreLast": 141.08,
+      "core": 5863.06,
+      "coreLast": 137.86,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1400,
-      "shortPot": 1000.54,
-      "shortLast": 0.99034,
+      "shortPot": 987.68,
+      "shortLast": 0.977616,
       "pending": 0,
       "picks": {
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 99.85,
+          "value": 100.71,
           "cost": 100,
-          "last": 110.31,
+          "last": 111.26,
           "lastTranche": "2026-11",
           "tranches": 1
         }
@@ -123,46 +127,50 @@
         {
           "date": "2026-11-16",
           "value": 10000.39
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9851.45
         }
       ],
-      "value": 10000.39,
+      "value": 9851.45,
       "started": "2026-11-16"
     },
     "reitValue": {
       "key": "reitValue",
-      "core": 6000,
-      "coreLast": 141.08,
+      "core": 5863.06,
+      "coreLast": 137.86,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 1000.54,
-      "shortLast": 0.99034,
+      "shortPot": 987.68,
+      "shortLast": 0.977616,
       "pending": 0,
       "picks": {
         "HSBA.L": {
           "ticker": "HSBA",
           "market": "UK",
-          "value": 99.5,
+          "value": 97.49,
           "cost": 100,
-          "last": 1347,
+          "last": 1319.8,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "META": {
           "ticker": "META",
           "market": "US",
-          "value": 99.85,
+          "value": 98.65,
           "cost": 100,
-          "last": 626.41,
+          "last": 618.87,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 99.85,
+          "value": 100.71,
           "cost": 100,
-          "last": 110.31,
+          "last": 111.26,
           "lastTranche": "2026-11",
           "tranches": 1
         }
@@ -193,15 +201,19 @@
         {
           "date": "2026-11-16",
           "value": 9999.74
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9847.59
         }
       ],
-      "value": 9999.74,
+      "value": 9847.59,
       "started": "2026-11-16"
     },
     "vwrp": {
       "key": "vwrp",
-      "core": 10000,
-      "coreLast": 141.08,
+      "core": 9771.76,
+      "coreLast": 137.86,
       "reserve": 0,
       "reserve0": 0,
       "picksCash": 0,
@@ -223,20 +235,24 @@
         {
           "date": "2026-11-16",
           "value": 10000
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9771.76
         }
       ],
-      "value": 10000,
+      "value": 9771.76,
       "started": "2026-11-16"
     },
     "buffettPot": {
       "key": "buffettPot",
-      "core": 6000,
-      "coreLast": 141.08,
+      "core": 5863.06,
+      "coreLast": 137.86,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 1000.54,
-      "shortLast": 0.99034,
+      "shortPot": 987.68,
+      "shortLast": 0.977616,
       "pending": 0,
       "picks": {},
       "potLast": null,
@@ -253,20 +269,24 @@
         {
           "date": "2026-11-16",
           "value": 10000.54
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9850.74
         }
       ],
-      "value": 10000.54,
+      "value": 9850.74,
       "started": "2026-11-16"
     },
     "momentumPot": {
       "key": "momentumPot",
-      "core": 6000,
-      "coreLast": 141.08,
+      "core": 5863.06,
+      "coreLast": 137.86,
       "reserve": 1500,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 1000.54,
-      "shortLast": 0.99034,
+      "shortPot": 987.68,
+      "shortLast": 0.977616,
       "pending": 0,
       "picks": {},
       "potLast": null,
@@ -283,11 +303,15 @@
         {
           "date": "2026-11-16",
           "value": 10000.54
+        },
+        {
+          "date": "2026-11-17",
+          "value": 9850.74
         }
       ],
-      "value": 10000.54,
+      "value": 9850.74,
       "started": "2026-11-16"
     }
   },
-  "updated": "2026-11-17T11:58:04.265Z"
+  "updated": "2026-11-18T03:03:41.705Z"
 }

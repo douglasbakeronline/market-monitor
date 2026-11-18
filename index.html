@@ -471,7 +471,7 @@
   <section class="section" id="wlSection" hidden>
     <div class="eyebrow">Rebound watch</div>
     <div class="card" id="watchlist" style="padding:6px 14px"></div>
-    <p class="cap">Big names at least 8% below their 10-day high. "Rebound" marks those that also rose last session: a prompt to research, not a buy signal. One up day after a fall is often a dead-cat bounce.</p>
+    <p class="cap">Big names and how far each sits below its highest close of the last 10 sessions (not the 52-week high used above), deepest first. "Rebound" marks one at least 8% below that also rose last session: a prompt to research, not a buy signal. One up day after a fall is often a dead-cat bounce.</p>
   </section>
 
   <footer>Data: CNN Fear &amp; Greed, Yahoo Finance. Updated eight times each weekday from the UK open to the US close, plus a Sunday digest. A personal tracker, not financial advice.</footer>
@@ -496,7 +496,7 @@ import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize, signalPotTag } from "./src/shortPot.js";
 import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, potNotLogged, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -1275,9 +1275,13 @@ function renderTl(form = false, err = "") {
   const adh = adherence([...PLAN.schedule, ...dripSchedule(PLAN.reserveDrip.start, today, DIPS.map((d) => d.date))], trades, today, DIPS);
   const shown = adh.items.slice(-4).reverse();
   // Short-term pot orders (data.json shortTerm.pot.trades) against trades logged under its rule.
-  const pAdh = potAdherence(LAST_DATA?.shortTerm?.pot?.trades ?? [], trades, today);
-  const pOpen = pAdh.items.filter((i) => i.status === "missed" || i.status === "pending").slice(-6);
-  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${pOpen.length ? `<span class="muted"> · not logged: ${pOpen.map((i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}${i.status === "missed" ? " (missed)" : ""}`; }).join(", ")}</span>` : ""}</div>` : "";
+  // Listed buys whose open has passed count before the evening scan books them (17 Nov).
+  const pAdh = potAdherence(withPassedBuys(LAST_DATA?.shortTerm?.pot?.trades, LAST_DATA?.shortTerm?.pot?.buys), trades, today);
+  // Missed orders lead (17 Nov: a newest-six list cut the one the headline counted).
+  const pNot = potNotLogged(pAdh.items, 8);
+  const potOrd = (i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}`; };
+  const potList = [pNot.missed.length ? `missed: ${pNot.missed.map(potOrd).join(", ")}` : "", pNot.open.length ? `still to log: ${pNot.open.map(potOrd).join(", ")}` : ""].filter(Boolean).join(" · ") + (pNot.more ? ` and ${pNot.more} more` : "");
+  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${potList ? `<span class="muted"> · ${potList}</span>` : ""}</div>` : "";
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
   const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";
   let body = "";
@@ -1325,7 +1329,7 @@ function renderTl(form = false, err = "") {
   $("tlImport").onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     const text = await f.text(), t212 = isT212Csv(text);
-    const r = t212 ? parseT212(text, { picks: PLAN.picks.map((p) => p.symbol.replace(/\.L$/, "")), short: LAST_DATA?.shortTerm?.pot?.trades ?? [], today }) : parseImport(text, today);
+    const r = t212 ? parseT212(text, { picks: PLAN.picks.map((p) => p.symbol.replace(/\.L$/, "")), short: withPassedBuys(LAST_DATA?.shortTerm?.pot?.trades, LAST_DATA?.shortTerm?.pot?.buys), today }) : parseImport(text, today);
     if (r.error) { $("tlMsg").textContent = r.error; return; }
     const have = new Set(loadTl().map((t) => t.id)), add = r.trades.filter((t) => !have.has(t.id));
     saveTl([...loadTl(), ...add]); renderTl(); renderPf(); replan();
@@ -1587,7 +1591,7 @@ function renderWatchlist(list) {
   $("watchlist").innerHTML = sorted.map((w, i) => `
     <div class="wl-row" role="button" tabindex="0" aria-expanded="false" data-i="${i}">
       <span><span class="nm">${esc(w.name)}</span><span class="sym">${esc(w.symbol)}</span><span class="caret">▶</span></span>
-      <span class="hide-s ${w.dropFromHigh <= -8 ? "neg" : "muted"}">${signPct(w.dropFromHigh)} off high</span>
+      <span class="hide-s ${w.dropFromHigh <= -8 ? "neg" : "muted"}">${signPct(w.dropFromHigh)} off 10-day high</span>
       <span class="hide-s ${pnClass(w.lastChange)}">${signPct(w.lastChange)} last</span>
       <span class="pill ${w.rebound ? "bg-buy" : "plain"}">${w.rebound ? "Rebound" : "Watching"}</span>
     </div>

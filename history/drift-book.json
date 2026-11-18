@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-17T11:58:04.037Z",
+  "updated": "2026-11-18T03:03:41.626Z",
   "start": "2026-11-11",
   "equity0": 10000,
   "realised": 10000,
-  "value": 9803.25,
-  "returnPct": -1.97,
+  "value": 9624.25,
+  "returnPct": -3.76,
   "open": [
     {
       "id": "2026-11-10:TTWO",
@@ -18,9 +18,9 @@
       "volX": 3.1,
       "results": true,
       "pos": 2500,
-      "sessions": 4,
-      "openPct": -6.46,
-      "openPnl": -161.5
+      "sessions": 5,
+      "openPct": -10.66,
+      "openPnl": -266.5
     },
     {
       "id": "2026-11-10:AKAM",
@@ -34,9 +34,9 @@
       "volX": 4.2,
       "results": false,
       "pos": 2500,
-      "sessions": 4,
-      "openPct": -1.42,
-      "openPnl": -35.5
+      "sessions": 5,
+      "openPct": -0.84,
+      "openPnl": -21
     },
     {
       "id": "2026-11-12:BRBY.L",
@@ -50,9 +50,9 @@
       "volX": 3.8,
       "results": false,
       "pos": 2500,
-      "sessions": 2,
-      "openPct": 0.01,
-      "openPnl": 0.25
+      "sessions": 3,
+      "openPct": -3.53,
+      "openPnl": -88.25
     }
   ],
   "orders": [],
@@ -69,8 +69,8 @@
   "paused": false,
   "sp": {
     "from": "2026-11-10",
-    "to": "2026-11-16",
-    "pct": -1.39
+    "to": "2026-11-17",
+    "pct": -2.4
   },
   "spSeries": [
     {
@@ -88,14 +88,18 @@
     {
       "date": "2026-11-16",
       "pct": -1.39
+    },
+    {
+      "date": "2026-11-17",
+      "pct": -2.4
     }
   ],
   "random": {
     "runs": 200,
-    "mine": -1.97,
-    "median": -1.97,
-    "p10": -1.97,
-    "p90": -1.97,
+    "mine": -3.76,
+    "median": -3.76,
+    "p10": -3.76,
+    "p90": -3.76,
     "beatShare": 0
   }
 }
