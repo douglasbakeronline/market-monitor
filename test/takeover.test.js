@@ -20,7 +20,7 @@ test("shortTermAlert: a 12%+ jump asks to check for a takeover offer; the order 
   assert.doesNotMatch(shortTermAlert(st(6)).body, /takeover/);
   // Without a pot (paper list) the note shows on the signal line too.
   const b = shortTermAlert({ ...st(30), pot: null });
-  assert.match(b.body, /- X \(X\): results drift.*takeover/);
+  assert.match(b.body, /- X: results drift.*takeover/); // name only repeats the ticker (18 Nov)
 });
 
 test("newerShort: the scan's copy wins when at least as new", async () => {

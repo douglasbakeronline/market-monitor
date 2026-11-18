@@ -101,7 +101,7 @@ const trendTag = (t) => t === "up" ? `<span class="trend bg-buy">UP</span>` : t 
 
 function themeCard(th) {
   const s = th.summary, v = s[period], isOpen = open.has(th.key);
-  const rows = th.stocks.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name))}</span></td>
+  const rows = th.stocks.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name, x.ticker))}</span></td>
     <td>${money(x.price, x.currency)}</td><td class="${pnClass(x.day)}">${signPct(x.day)}</td><td class="${pnClass(x.month)}">${signPct(x.month)}</td><td class="${pnClass(x.m3)}">${signPct(x.m3)}</td><td class="${pnClass(x.ytd)}">${signPct(x.ytd)}</td>
     <td>${x.rsi ?? "n/a"}</td><td class="${pnClass(x.offHigh)}">${signPct(x.offHigh)}</td><td>${trendTag(x.trend)}</td></tr>`).join("");
   const etf = th.etf ? `<span>ETF <b>${esc(th.etf.ticker)}</b> <span class="${pnClass(th.etf[period])}">${signPct(th.etf[period])}</span></span>` : "";
@@ -128,7 +128,7 @@ function heatColour(v) {
 function listTable(arr, k) {
   if (!arr?.length) return `<p class="small muted">None right now.</p>`;
   const k2 = k === "day" ? "month" : "month";
-  return `<table class="tbl"><tr><th>Company</th><th>${k === "day" ? "Day" : "3m"}</th><th>Month</th><th>Long-term</th><th>Swing</th></tr>${arr.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name))}</span></td><td class="${pnClass(x[k])}">${signPct(x[k])}</td><td class="${pnClass(x[k2])}">${signPct(x[k2])}</td><td>${x.lt ?? "n/a"}<span class="sub">${esc((x.ltVerdict || "").replace(" entry", ""))}</span></td><td>${x.sw ?? "n/a"}<span class="sub">${esc((x.swVerdict || "").replace(" (earnings risk)", "*"))}</span></td></tr>`).join("")}</table>`;
+  return `<table class="tbl"><tr><th>Company</th><th>${k === "day" ? "Day" : "3m"}</th><th>Month</th><th>Long-term</th><th>Swing</th></tr>${arr.map((x) => `<tr><td class="nm"><a href="${link(x)}" target="_blank" rel="noopener"><span class="tk">${esc(x.ticker)}</span></a><span class="sub" title="${esc(x.name || "")}">${esc(shortName(x.name, x.ticker))}</span></td><td class="${pnClass(x[k])}">${signPct(x[k])}</td><td class="${pnClass(x[k2])}">${signPct(x[k2])}</td><td>${x.lt ?? "n/a"}<span class="sub">${esc((x.ltVerdict || "").replace(" entry", ""))}</span></td><td>${x.sw ?? "n/a"}<span class="sub">${esc((x.swVerdict || "").replace(" (earnings risk)", "*"))}</span></td></tr>`).join("")}</table>`;
 }
 
 function render() {
