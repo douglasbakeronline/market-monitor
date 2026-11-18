@@ -1,51 +1,6 @@
 {
-  "updated": "2026-11-18T03:03:45.936Z",
+  "updated": "2026-11-18T19:54:14.587Z",
   "items": {
-    "LLOY.L": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-29",
-      "actual": 0.02842,
-      "estimate": 0.0269,
-      "surprisePct": 5.7,
-      "reaction": -5,
-      "record": {
-        "beats": 3,
-        "of": 4,
-        "avgSurprise": 4.8,
-        "next": {
-          "date": null,
-          "epsEstimate": 0.0255,
-          "epsLow": 0.025,
-          "epsHigh": 0.026
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 2.7,
-        "moves": [
-          {
-            "date": "2026-01-29",
-            "pct": 0.9
-          },
-          {
-            "date": "2026-04-29",
-            "pct": -1.5
-          },
-          {
-            "date": "2026-07-30",
-            "pct": 3.9
-          },
-          {
-            "date": "2026-10-29",
-            "pct": -5
-          }
-        ]
-      },
-      "fifth": "middle",
-      "label": "EPS beat the forecast by 5.7%; the price fell 5.0% on the day",
-      "note": null,
-      "tone": "neutral"
-    },
     "META": {
       "quarter": "2026-09-30",
       "date": "2026-10-22",
@@ -91,51 +46,6 @@
       "note": "Weak results and a falling price. Over ten years (2017 to 2026, about 5,600 results-day falls) this group did only 0.4 points worse than other falls against the index over the next 60 sessions, and was behind in 6 of 10 years: a pointer, not a reason to skip a tranche. A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
       "tone": "watch"
     },
-    "SCHW": {
-      "quarter": "2026-09-30",
-      "date": "2026-10-15",
-      "actual": 1.69,
-      "estimate": 1.65538,
-      "surprisePct": 2.1,
-      "reaction": -2.7,
-      "record": {
-        "beats": 3,
-        "of": 4,
-        "avgSurprise": 2.2,
-        "next": {
-          "date": "2027-01-21",
-          "epsEstimate": 1.7161,
-          "epsLow": 1.67,
-          "epsHigh": 1.77421
-        }
-      },
-      "moves": {
-        "n": 4,
-        "typical": 2.6,
-        "moves": [
-          {
-            "date": "2026-01-21",
-            "pct": 0.8
-          },
-          {
-            "date": "2026-04-16",
-            "pct": -7.6
-          },
-          {
-            "date": "2026-07-21",
-            "pct": -2.5
-          },
-          {
-            "date": "2026-10-15",
-            "pct": -2.7
-          }
-        ]
-      },
-      "fifth": "middle",
-      "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
-      "note": null,
-      "tone": "neutral"
-    },
     "NEM": {
       "quarter": "2026-09-30",
       "date": "2026-10-23",
@@ -178,6 +88,96 @@
       },
       "fifth": "middle",
       "label": "EPS beat the forecast by 13.0%; the price fell 4.6% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "LLOY.L": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-29",
+      "actual": 0.02842,
+      "estimate": 0.0269,
+      "surprisePct": 5.7,
+      "reaction": -5,
+      "record": {
+        "beats": 3,
+        "of": 4,
+        "avgSurprise": 4.8,
+        "next": {
+          "date": null,
+          "epsEstimate": 0.0255,
+          "epsLow": 0.025,
+          "epsHigh": 0.026
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 2.7,
+        "moves": [
+          {
+            "date": "2026-01-29",
+            "pct": 0.9
+          },
+          {
+            "date": "2026-04-29",
+            "pct": -1.5
+          },
+          {
+            "date": "2026-07-30",
+            "pct": 3.9
+          },
+          {
+            "date": "2026-10-29",
+            "pct": -5
+          }
+        ]
+      },
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 5.7%; the price fell 5.0% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "SCHW": {
+      "quarter": "2026-09-30",
+      "date": "2026-10-15",
+      "actual": 1.69,
+      "estimate": 1.65538,
+      "surprisePct": 2.1,
+      "reaction": -2.7,
+      "record": {
+        "beats": 3,
+        "of": 4,
+        "avgSurprise": 2.2,
+        "next": {
+          "date": "2027-01-21",
+          "epsEstimate": 1.7161,
+          "epsLow": 1.67,
+          "epsHigh": 1.77421
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 2.6,
+        "moves": [
+          {
+            "date": "2026-01-21",
+            "pct": 0.8
+          },
+          {
+            "date": "2026-04-16",
+            "pct": -7.6
+          },
+          {
+            "date": "2026-07-21",
+            "pct": -2.5
+          },
+          {
+            "date": "2026-10-15",
+            "pct": -2.7
+          }
+        ]
+      },
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 2.1%; the price fell 2.7% on the day",
       "note": null,
       "tone": "neutral"
     },
