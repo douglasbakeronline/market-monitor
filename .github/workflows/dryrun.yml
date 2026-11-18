@@ -1,5 +1,5 @@
 name: Dry run
-# 18 Nov 14:41: Euro Stoxx 50 drift backtest (pre-registered in src/euDrift.js); scan + monitor.
+# 18 Nov 14:41 (2): Euro Stoxx 50 drift backtest, extremes listed (same rule); tests only.
 on:
   push:
     branches: [dryrun]
@@ -20,8 +20,6 @@ jobs:
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
           node tools/eu-drift.mjs > dry-run/eu-drift.json 2> dry-run/eu-drift.log; echo "exit=$?" >> dry-run/eu-drift.log
-          node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

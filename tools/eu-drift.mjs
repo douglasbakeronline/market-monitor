@@ -36,5 +36,6 @@ const byCountry = Object.fromEntries([...new Set(sig.map((t) => t.symbol.split("
 console.log(JSON.stringify({
   universe: universe.length, fetched: universe.length - missing.length, missing, range, from: dates[0], to: dates.at(-1),
   euBar: EU_BAR, drift: euDriftCheck(trades), driftVsIndex: vsIdx.length ? Math.round((vsIdx.reduce((a, t) => a + t.net - t.idx, 0) / vsIdx.length) * 100) / 100 : null,
-  byCountry, labBar: LAB_BAR, lab,
+  byCountry, extremes: [...sig].sort((a, b) => b.net - a.net).filter((_, i, a) => i < 5 || i >= a.length - 3).map((t) => ({ symbol: t.symbol, date: t.date, net: Math.round(t.net * 10) / 10 })),
+  labBar: LAB_BAR, lab,
 }, null, 1));
