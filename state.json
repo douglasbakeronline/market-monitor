@@ -11,7 +11,7 @@
   "trimActive": false,
   "fearNoDipActive": false,
   "summarySent": {
-    "UK": "2026-11-17",
+    "UK": "2026-11-18",
     "US": "2026-11-17"
   },
   "digestSent": "2026-W46",
@@ -485,13 +485,13 @@
   "lastGood": {
     "fg": {
       "score": 25,
-      "rating": "fear",
-      "asOf": "2026-11-17T23:59:42+00:00",
+      "rating": "extreme fear",
+      "asOf": "2026-11-18T01:59:47+00:00",
       "comparisons": {
-        "close": 31,
-        "week": 37,
+        "close": 25,
+        "week": 36,
         "month": 18,
-        "year": 12
+        "year": 9
       },
       "components": [
         {
@@ -503,13 +503,13 @@
         {
           "key": "stock_price_strength",
           "label": "Stock price strength",
-          "score": 37,
+          "score": 34,
           "rating": "fear"
         },
         {
           "key": "stock_price_breadth",
           "label": "Stock price breadth",
-          "score": 45,
+          "score": 38,
           "rating": "fear"
         },
         {
@@ -1785,19 +1785,24 @@
         },
         {
           "date": "2026-11-17",
-          "t": 1794959982000,
+          "t": 1794873600000,
+          "y": 24
+        },
+        {
+          "date": "2026-11-18",
+          "t": 1794967187000,
           "y": 25
         }
       ]
     },
-    "fgAt": "2026-11-18T02:35:13.863Z",
+    "fgAt": "2026-11-18T08:15:00.293Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7340.53,
         "date": "2026-11-17",
-        "asOf": "2026-11-17T21:42:12.000Z",
+        "asOf": "2026-11-17T21:00:00.000Z",
         "currency": "USD",
         "drawdownPct": -6.1,
         "peak": 7818.93,
@@ -1945,7 +1950,7 @@
         "dayPct": 11.1,
         "date": "2026-11-17"
       },
-      "at": "2026-11-18T02:35:13.863Z"
+      "at": "2026-11-18T08:15:00.293Z"
     },
     "watchlist": [
       {
@@ -2551,13 +2556,13 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3673.5,
-        "date": "2026-11-17",
-        "dropFromHigh": -4.9,
-        "lastChange": -0.9,
+        "price": 3663,
+        "date": "2026-11-18",
+        "dropFromHigh": -5.2,
+        "lastChange": -1.1,
         "previous": -0.4,
-        "week": 1.4,
-        "month": -6.6,
+        "week": 1.1,
+        "month": -6.8,
         "series": [
           0,
           3.63,
@@ -2588,7 +2593,7 @@
           0.47,
           1.96,
           1.58,
-          0.7
+          0.41
         ],
         "rebound": false
       },
@@ -2597,13 +2602,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1319.8,
-        "date": "2026-11-17",
-        "dropFromHigh": -2.6,
-        "lastChange": -2,
+        "price": 1318.6,
+        "date": "2026-11-18",
+        "dropFromHigh": -2.7,
+        "lastChange": -2.1,
         "previous": -0.5,
-        "week": -1.6,
-        "month": -5.5,
+        "week": -1.7,
+        "month": -5.6,
         "series": [
           0,
           -1.95,
@@ -2634,7 +2639,7 @@
           -3.84,
           -3.81,
           -4.33,
-          -6.26
+          -6.35
         ],
         "rebound": false
       }
@@ -2744,10 +2749,6 @@
   "shortSeen": "2026-11-17",
   "shortPotStage": null,
   "resultsSent": {
-    "NVDA|2026-11-17": [
-      "week",
-      "eve"
-    ],
     "SSE.L|2026-11-18": [
       "week",
       "eve"
