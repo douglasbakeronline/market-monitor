@@ -84,9 +84,9 @@
    {
     "year": "2026",
     "n": 7,
-    "avg": 2.48,
+    "avg": 2.51,
     "base": -0.12,
-    "edge": 2.6
+    "edge": 2.63
    }
   ],
   "yearsAhead": 2,
@@ -110,7 +110,7 @@
   },
   "pass": false
  },
- "driftVsIndex": 1.48,
+ "driftVsIndex": 1.49,
  "byCountry": {
   "AS": {
    "n": 10,
@@ -138,9 +138,51 @@
   },
   "PA": {
    "n": 23,
-   "avg": 2.87
+   "avg": 2.88
   }
  },
+ "extremes": [
+  {
+   "symbol": "ARGX.BR",
+   "date": "2017-11-30",
+   "net": 101.2
+  },
+  {
+   "symbol": "NOKIA.HE",
+   "date": "2026-04-23",
+   "net": 46.4
+  },
+  {
+   "symbol": "RHM.DE",
+   "date": "2025-02-17",
+   "net": 41.3
+  },
+  {
+   "symbol": "SAN.MC",
+   "date": "2020-11-09",
+   "net": 33
+  },
+  {
+   "symbol": "ENR.DE",
+   "date": "2024-09-13",
+   "net": 26.1
+  },
+  {
+   "symbol": "UCG.MI",
+   "date": "2020-02-06",
+   "net": -27.1
+  },
+  {
+   "symbol": "ARGX.BR",
+   "date": "2018-09-14",
+   "net": -28.7
+  },
+  {
+   "symbol": "AIR.PA",
+   "date": "2020-03-03",
+   "net": -47.8
+  }
+ ],
  "labBar": {
   "minEdge": 0.4,
   "minTrades": 300,
@@ -227,7 +269,7 @@
    "avg": 0.55,
    "base": 0.71,
    "edge": -0.16,
-   "t": -0.43,
+   "t": -0.42,
    "yearsAhead": 3,
    "yearsCounted": 8,
    "labChecks": {
