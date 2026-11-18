@@ -74,7 +74,7 @@ export function parseYahoo(res) {
   // "live" means the latest bar may still be moving (today, market open or
   // just closed). The caller treats the last bar as "latest", not "close".
   const asOf = m.regularMarketTime ? new Date(m.regularMarketTime * 1000).toISOString() : (rows.length ? rows[rows.length - 1].date + "T21:00:00Z" : null);
-  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null, splits };
+  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null, longName: m.longName || null, splits };
 }
 
 const m0 = (res) => (res.meta?.symbol ? ` for ${res.meta.symbol}` : "");

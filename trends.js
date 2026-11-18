@@ -1,13 +1,14 @@
 // Trends: themes (AI, semis, software, infrastructure...), momentum leaders and
 // a sector heatmap. Writes trends.json for the Trends page. Runs after the scan.
 //   node trends.js        DRY_RUN=1 node trends.js
-import { THEMES, BENCHMARK } from "./src/themes.js";
+import { THEMES, BENCHMARK, themeName } from "./src/themes.js";
 import { fetchDaily } from "./src/data/prices.js";
 import { technicals } from "./src/research.js";
 import { readJson, writeJson } from "./src/state.js";
 import { r1, r2, sleep, median, pct } from "./src/util.js";
 
 const cache = new Map();
+let scanNames = null; // symbol to the nightly scan's company name, set in main()
 async function load(sym) {
   if (cache.has(sym)) return cache.get(sym);
   let out = null;
@@ -17,7 +18,7 @@ async function load(sym) {
     if (t) {
       const y = d.rows.at(-1).date.slice(0, 4);
       const prev = [...d.rows].reverse().find((r) => r.date.slice(0, 4) < y);
-      out = { symbol: sym, ticker: sym.replace(/\.L$/, ""), name: d.name || sym, currency: d.currency, price: r2(t.last), date: t.date,
+      out = { symbol: sym, ticker: sym.replace(/\.L$/, ""), name: themeName(sym, d, scanNames), currency: d.currency, price: r2(t.last), date: t.date,
         day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), ytd: prev ? r1(pct(t.last, prev.close)) : null,
         vs50: r1(t.vs50), vs200: r1(t.vs200), rsi: r1(t.rsi), offHigh: r1(t.offHigh), volRatio: r2(t.volRatio),
         newHigh: !!t.breakout, trend: t.sma50 && t.sma200 ? (t.last > t.sma50 && t.sma50 > t.sma200 ? "up" : t.last < t.sma50 && t.sma50 < t.sma200 ? "down" : "mixed") : null,
@@ -31,6 +32,8 @@ async function load(sym) {
 
 async function main() {
   const t0 = Date.now();
+  const scan = await readJson("scan.json", null);
+  scanNames = new Map((scan?.items ?? []).filter((i) => i.name).map((i) => [i.symbol, i.name]));
   const bench = await load(BENCHMARK);
   const themes = [];
   for (const th of THEMES) {
@@ -47,7 +50,6 @@ async function main() {
   themes.sort((a, b) => (b.summary.m3 ?? -999) - (a.summary.m3 ?? -999));
 
   // Market-wide lists from the nightly scan (S&P 500 + FTSE 100).
-  const scan = await readJson("scan.json", null);
   const items = scan?.items ?? [];
   const pick = (i) => ({ symbol: i.symbol, ticker: i.ticker, name: i.name, sector: i.sector, index: i.index, price: i.price, currency: i.currency,
     day: i.perf?.day, month: i.perf?.month, m3: i.perf?.m3, y1: i.perf?.y1, rsi: i.tech?.rsi, offHigh: i.tech?.offHigh, volRatio: i.tech?.volRatio,
