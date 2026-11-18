@@ -10,10 +10,10 @@
     "label": "HEADS-UP · Fear without a dip",
     "id": "2026-10-26:fear-no-dip:^GSPC",
     "perf": {
-      "now": -3.6,
+      "now": -4.4,
       "nowDate": "2026-11-17",
       "sessions": 16,
-      "spNow": -3.6,
+      "spNow": -4.4,
       "w1": -1.8,
       "w1Sp": -1.8,
       "vsSp": 0
@@ -31,17 +31,17 @@
     "label": "Long-term good entry (75)",
     "id": "2026-10-29:research-lt:AMZN",
     "perf": {
-      "now": 6,
+      "now": 5.8,
       "nowDate": "2026-11-17",
       "sessions": 13,
-      "spNow": -4.1,
+      "spNow": -4.9,
       "idx": "^GSPC",
-      "idxNow": -4.1,
+      "idxNow": -4.9,
       "w1": 6.7,
       "w1Sp": -4.7,
       "w1Idx": -4.7,
-      "vsSp": 10.1,
-      "vsIdx": 10.1
+      "vsSp": 10.7,
+      "vsIdx": 10.7
     }
   },
   {
@@ -56,17 +56,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -2,
+      "now": -3,
       "nowDate": "2026-11-17",
       "sessions": 12,
-      "spNow": -2.3,
+      "spNow": -3.2,
       "idx": "^GSPC",
-      "idxNow": -2.3,
+      "idxNow": -3.2,
       "w1": 1.7,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 0.3,
-      "vsIdx": 0.3
+      "vsSp": 0.2,
+      "vsIdx": 0.2
     }
   },
   {
@@ -81,17 +81,17 @@
     "currency": "USD",
     "label": "Long-term good entry (83)",
     "perf": {
-      "now": -24.1,
+      "now": -24,
       "nowDate": "2026-11-17",
       "sessions": 12,
-      "spNow": -2.3,
+      "spNow": -3.2,
       "idx": "^GSPC",
-      "idxNow": -2.3,
+      "idxNow": -3.2,
       "w1": -8.8,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": -21.8,
-      "vsIdx": -21.8
+      "vsSp": -20.8,
+      "vsIdx": -20.8
     }
   },
   {
@@ -106,17 +106,17 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": 2.6,
+      "now": 0.8,
       "nowDate": "2026-11-17",
       "sessions": 12,
-      "spNow": -2.3,
+      "spNow": -3.2,
       "idx": "^GSPC",
-      "idxNow": -2.3,
+      "idxNow": -3.2,
       "w1": 2.2,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 4.9,
-      "vsIdx": 4.9
+      "vsSp": 4,
+      "vsIdx": 4
     }
   },
   {
@@ -131,17 +131,17 @@
     "currency": "GBp",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -8.3,
-      "nowDate": "2026-11-17",
+      "now": -9.5,
+      "nowDate": "2026-11-18",
       "sessions": 12,
-      "spNow": -2.3,
+      "spNow": -3.2,
       "idx": "^FTSE",
-      "idxNow": 0.3,
+      "idxNow": -0.7,
       "w1": -7.8,
       "w1Sp": -2.7,
       "w1Idx": -0.5,
-      "vsSp": -6,
-      "vsIdx": -8.6
+      "vsSp": -6.3,
+      "vsIdx": -8.8
     }
   },
   {
@@ -156,17 +156,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 4.4,
+      "now": 4,
       "nowDate": "2026-11-17",
       "sessions": 11,
-      "spNow": -1.8,
+      "spNow": -2.7,
       "idx": "^GSPC",
-      "idxNow": -1.8,
+      "idxNow": -2.7,
       "w1": 3.7,
       "w1Sp": 0.1,
       "w1Idx": 0.1,
-      "vsSp": 6.2,
-      "vsIdx": 6.2
+      "vsSp": 6.7,
+      "vsIdx": 6.7
     }
   },
   {
@@ -181,17 +181,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -1.8,
+      "now": -2.8,
       "nowDate": "2026-11-17",
       "sessions": 10,
-      "spNow": -2.2,
+      "spNow": -3,
       "idx": "^GSPC",
-      "idxNow": -2.2,
+      "idxNow": -3,
       "w1": 2.3,
       "w1Sp": -0.6,
       "w1Idx": -0.6,
-      "vsSp": 0.4,
-      "vsIdx": 0.4
+      "vsSp": 0.2,
+      "vsIdx": 0.2
     }
   },
   {
@@ -231,17 +231,17 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": 1.1,
+      "now": 0.7,
       "nowDate": "2026-11-17",
       "sessions": 9,
-      "spNow": -3.7,
+      "spNow": -4.5,
       "idx": "^GSPC",
-      "idxNow": -3.7,
+      "idxNow": -4.5,
       "w1": 1.8,
       "w1Sp": -0.9,
       "w1Idx": -0.9,
-      "vsSp": 4.8,
-      "vsIdx": 4.8
+      "vsSp": 5.2,
+      "vsIdx": 5.2
     }
   },
   {
@@ -256,17 +256,17 @@
     "currency": "USD",
     "label": "Swing setup (74)",
     "perf": {
-      "now": -2.9,
+      "now": -3.1,
       "nowDate": "2026-11-17",
       "sessions": 9,
-      "spNow": -3.7,
+      "spNow": -4.5,
       "idx": "^GSPC",
-      "idxNow": -3.7,
+      "idxNow": -4.5,
       "w1": 0.1,
       "w1Sp": -0.9,
       "w1Idx": -0.9,
-      "vsSp": 0.8,
-      "vsIdx": 0.8
+      "vsSp": 1.4,
+      "vsIdx": 1.4
     }
   },
   {
@@ -306,17 +306,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 3.2,
+      "now": 2.8,
       "nowDate": "2026-11-17",
       "sessions": 7,
-      "spNow": 0.4,
+      "spNow": -0.5,
       "idx": "^GSPC",
-      "idxNow": 0.4,
+      "idxNow": -0.5,
       "w1": 4.1,
       "w1Sp": 2.5,
       "w1Idx": 2.5,
-      "vsSp": 2.8,
-      "vsIdx": 2.8
+      "vsSp": 3.3,
+      "vsIdx": 3.3
     }
   },
   {
@@ -331,17 +331,17 @@
     "currency": "GBp",
     "label": "Swing setup (76)",
     "perf": {
-      "now": -0.5,
-      "nowDate": "2026-11-17",
+      "now": -1.8,
+      "nowDate": "2026-11-18",
       "sessions": 7,
-      "spNow": 0.4,
+      "spNow": -0.5,
       "idx": "^FTSE",
-      "idxNow": 0.9,
+      "idxNow": -0.2,
       "w1": -0.1,
       "w1Sp": 2.5,
       "w1Idx": 2.1,
-      "vsSp": -0.9,
-      "vsIdx": -1.4
+      "vsSp": -1.3,
+      "vsIdx": -1.6
     }
   },
   {
@@ -356,17 +356,17 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -6.1,
+      "now": -7.1,
       "nowDate": "2026-11-17",
       "sessions": 6,
-      "spNow": -1.9,
+      "spNow": -2.8,
       "idx": "^GSPC",
-      "idxNow": -1.9,
+      "idxNow": -2.8,
       "w1": -5,
       "w1Sp": -1.8,
       "w1Idx": -1.8,
-      "vsSp": -4.2,
-      "vsIdx": -4.2
+      "vsSp": -4.3,
+      "vsIdx": -4.3
     }
   },
   {
@@ -381,17 +381,17 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": -2.1,
+      "now": -3.6,
       "nowDate": "2026-11-17",
       "sessions": 6,
-      "spNow": -1.9,
+      "spNow": -2.8,
       "idx": "^GSPC",
-      "idxNow": -1.9,
+      "idxNow": -2.8,
       "w1": -1.1,
       "w1Sp": -1.8,
       "w1Idx": -1.8,
-      "vsSp": -0.2,
-      "vsIdx": -0.2
+      "vsSp": -0.8,
+      "vsIdx": -0.8
     }
   },
   {
@@ -406,17 +406,17 @@
     "currency": "USD",
     "label": "Long-term good entry (77)",
     "perf": {
-      "now": -3.2,
+      "now": -3.5,
       "nowDate": "2026-11-17",
       "sessions": 5,
-      "spNow": -1.6,
+      "spNow": -2.4,
       "idx": "^GSPC",
-      "idxNow": -1.6,
-      "w1": -3.2,
-      "w1Sp": -1.6,
-      "w1Idx": -1.6,
-      "vsSp": -1.6,
-      "vsIdx": -1.6
+      "idxNow": -2.4,
+      "w1": -3.5,
+      "w1Sp": -2.4,
+      "w1Idx": -2.4,
+      "vsSp": -1.1,
+      "vsIdx": -1.1
     }
   },
   {
@@ -478,11 +478,11 @@
       "now": -9,
       "nowDate": "2026-11-17",
       "sessions": 4,
-      "spNow": -2.8,
+      "spNow": -3.7,
       "idx": "^GSPC",
-      "idxNow": -2.8,
-      "vsSp": -6.2,
-      "vsIdx": -6.2
+      "idxNow": -3.7,
+      "vsSp": -5.3,
+      "vsIdx": -5.3
     }
   },
   {
@@ -497,14 +497,14 @@
     "currency": "USD",
     "label": "Smart money: Berkshire Hathaway (added), Fundsmith, Dodge & Cox",
     "perf": {
-      "now": -0.8,
+      "now": -1.2,
       "nowDate": "2026-11-17",
       "sessions": 1,
-      "spNow": -0.2,
+      "spNow": -1,
       "idx": "^GSPC",
-      "idxNow": -0.2,
-      "vsSp": -0.6,
-      "vsIdx": -0.6
+      "idxNow": -1,
+      "vsSp": -0.2,
+      "vsIdx": -0.2
     }
   },
   {
@@ -541,14 +541,14 @@
     "currency": "USD",
     "label": "Swing setup (70)",
     "perf": {
-      "now": 0.3,
+      "now": 0.1,
       "nowDate": "2026-11-17",
       "sessions": 1,
-      "spNow": -0.2,
+      "spNow": -1,
       "idx": "^GSPC",
-      "idxNow": -0.2,
-      "vsSp": 0.5,
-      "vsIdx": 0.5
+      "idxNow": -1,
+      "vsSp": 1.1,
+      "vsIdx": 1.1
     }
   },
   {
@@ -563,14 +563,14 @@
     "currency": "USD",
     "label": "Smart money: Pershing Square (added), Dodge & Cox (added)",
     "perf": {
-      "now": 0.3,
+      "now": 0.1,
       "nowDate": "2026-11-17",
       "sessions": 1,
-      "spNow": -0.2,
+      "spNow": -1,
       "idx": "^GSPC",
-      "idxNow": -0.2,
-      "vsSp": 0.5,
-      "vsIdx": 0.5
+      "idxNow": -1,
+      "vsSp": 1.1,
+      "vsIdx": 1.1
     }
   }
 ]
