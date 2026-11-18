@@ -36,11 +36,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 1170.5,
-    "lastDate": "2026-11-17",
-    "last": 1135,
-    "netPct": -3.53,
-    "vsIdx": -1.94,
-    "sessions": 3
+    "lastDate": "2026-11-18",
+    "last": 1158,
+    "netPct": -1.57,
+    "vsIdx": 1.3,
+    "sessions": 4
   },
   {
     "id": "2026-11-12:bounce:ABT",
@@ -55,11 +55,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 108.2,
-    "lastDate": "2026-11-17",
-    "last": 104.71,
-    "netPct": -3.53,
-    "vsIdx": -0.21,
-    "sessions": 3
+    "lastDate": "2026-11-18",
+    "last": 104.48,
+    "netPct": -3.74,
+    "vsIdx": -0.2,
+    "sessions": 4
   },
   {
     "id": "2026-11-12:bounce:AMCR",
@@ -74,11 +74,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 44.24,
-    "lastDate": "2026-11-17",
-    "last": 43.45,
-    "netPct": -2.09,
-    "vsIdx": 1.23,
-    "sessions": 3
+    "lastDate": "2026-11-18",
+    "last": 43.7,
+    "netPct": -1.52,
+    "vsIdx": 2.02,
+    "sessions": 4
   },
   {
     "id": "2026-11-12:bounce:SBRY.L",
@@ -114,11 +114,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 81.04,
-    "lastDate": "2026-11-17",
-    "last": 79.43,
-    "netPct": -2.29,
-    "vsIdx": 1.03,
-    "sessions": 3
+    "lastDate": "2026-11-18",
+    "last": 80.08,
+    "netPct": -1.48,
+    "vsIdx": 2.06,
+    "sessions": 4
   },
   {
     "id": "2026-11-13:bounce:PSA",
@@ -133,11 +133,11 @@
     "status": "open",
     "entryDate": "2026-11-16",
     "entry": 333.62,
-    "lastDate": "2026-11-17",
-    "last": 330.18,
-    "netPct": -1.33,
-    "vsIdx": 1.59,
-    "sessions": 2
+    "lastDate": "2026-11-18",
+    "last": 330.99,
+    "netPct": -1.09,
+    "vsIdx": 2.06,
+    "sessions": 3
   },
   {
     "id": "2026-11-13:bounce:VRTX",
@@ -152,11 +152,11 @@
     "status": "open",
     "entryDate": "2026-11-16",
     "entry": 547.86,
-    "lastDate": "2026-11-17",
-    "last": 534.2,
-    "netPct": -2.79,
-    "vsIdx": 0.13,
-    "sessions": 2
+    "lastDate": "2026-11-18",
+    "last": 536.45,
+    "netPct": -2.38,
+    "vsIdx": 0.77,
+    "sessions": 3
   },
   {
     "id": "2026-11-13:bounce:MRNA",
@@ -171,11 +171,11 @@
     "status": "open",
     "entryDate": "2026-11-16",
     "entry": 216.74,
-    "lastDate": "2026-11-17",
-    "last": 206.8,
-    "netPct": -4.89,
-    "vsIdx": -1.96,
-    "sessions": 2
+    "lastDate": "2026-11-18",
+    "last": 196.79,
+    "netPct": -9.5,
+    "vsIdx": -6.36,
+    "sessions": 3
   },
   {
     "id": "2026-11-13:bounce:IQV",
@@ -190,11 +190,11 @@
     "status": "open",
     "entryDate": "2026-11-16",
     "entry": 266.02,
-    "lastDate": "2026-11-17",
-    "last": 257.6,
-    "netPct": -3.47,
-    "vsIdx": -0.54,
-    "sessions": 2
+    "lastDate": "2026-11-18",
+    "last": 257.84,
+    "netPct": -3.37,
+    "vsIdx": -0.23,
+    "sessions": 3
   },
   {
     "id": "2026-11-16:bounce:ILMN",
@@ -206,14 +206,16 @@
     "signalDate": "2026-11-16",
     "signalPrice": 198,
     "rsi2": 2.8,
-    "status": "open",
+    "status": "closed",
     "entryDate": "2026-11-17",
     "entry": 199.73,
-    "lastDate": "2026-11-17",
-    "last": 202.61,
-    "netPct": 1.14,
-    "vsIdx": 2.17,
-    "sessions": 1
+    "lastDate": "2026-11-18",
+    "last": 210.01,
+    "netPct": 4.85,
+    "vsIdx": 6.1,
+    "sessions": 2,
+    "exitDate": "2026-11-18",
+    "exit": 210.01
   },
   {
     "id": "2026-11-16:bounce:VEEV",
@@ -228,11 +230,11 @@
     "status": "open",
     "entryDate": "2026-11-17",
     "entry": 297.76,
-    "lastDate": "2026-11-17",
-    "last": 288.41,
-    "netPct": -3.44,
-    "vsIdx": -2.41,
-    "sessions": 1
+    "lastDate": "2026-11-18",
+    "last": 277.2,
+    "netPct": -7.2,
+    "vsIdx": -5.95,
+    "sessions": 2
   },
   {
     "id": "2026-11-16:bounce:RVTY",
@@ -244,14 +246,16 @@
     "signalDate": "2026-11-16",
     "signalPrice": 148.85,
     "rsi2": 3.4,
-    "status": "open",
+    "status": "closed",
     "entryDate": "2026-11-17",
     "entry": 149.22,
-    "lastDate": "2026-11-17",
-    "last": 147.79,
-    "netPct": -1.26,
-    "vsIdx": -0.23,
-    "sessions": 1
+    "lastDate": "2026-11-18",
+    "last": 152.43,
+    "netPct": 1.85,
+    "vsIdx": 3.1,
+    "sessions": 2,
+    "exitDate": "2026-11-18",
+    "exit": 152.43
   },
   {
     "id": "2026-11-16:bounce:EMR",
@@ -266,11 +270,11 @@
     "status": "open",
     "entryDate": "2026-11-17",
     "entry": 160.76,
-    "lastDate": "2026-11-17",
-    "last": 159.15,
-    "netPct": -1.3,
-    "vsIdx": -0.28,
-    "sessions": 1
+    "lastDate": "2026-11-18",
+    "last": 162,
+    "netPct": 0.47,
+    "vsIdx": 1.72,
+    "sessions": 2
   },
   {
     "id": "2026-11-17:bounce:DOC",
@@ -282,7 +286,14 @@
     "signalDate": "2026-11-17",
     "signalPrice": 19.46,
     "rsi2": 1.5,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-18",
+    "entry": 19.25,
+    "lastDate": "2026-11-18",
+    "last": 19.34,
+    "netPct": 0.17,
+    "vsIdx": 0.4,
+    "sessions": 1
   },
   {
     "id": "2026-11-17:bounce:CTSH",
@@ -294,7 +305,14 @@
     "signalDate": "2026-11-17",
     "signalPrice": 60,
     "rsi2": 1.7,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-18",
+    "entry": 59.9,
+    "lastDate": "2026-11-18",
+    "last": 57.95,
+    "netPct": -3.56,
+    "vsIdx": -3.33,
+    "sessions": 1
   },
   {
     "id": "2026-11-17:bounce:CCL",
@@ -306,6 +324,84 @@
     "signalDate": "2026-11-17",
     "signalPrice": 28.16,
     "rsi2": 2,
+    "status": "closed",
+    "entryDate": "2026-11-18",
+    "entry": 28.05,
+    "lastDate": "2026-11-18",
+    "last": 28.97,
+    "netPct": 2.98,
+    "vsIdx": 3.21,
+    "sessions": 1,
+    "exitDate": "2026-11-18",
+    "exit": 28.97
+  },
+  {
+    "id": "2026-11-18:drift:CTEC.L",
+    "kind": "drift",
+    "symbol": "CTEC.L",
+    "ticker": "CTEC",
+    "name": "Convatec Group PLC",
+    "market": "UK",
+    "signalDate": "2026-11-18",
+    "signalPrice": 270,
+    "movePct": 9.4,
+    "volX": 3.6,
+    "results": false,
+    "surprisePct": null,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:drift:TTWO",
+    "kind": "drift",
+    "symbol": "TTWO",
+    "ticker": "TTWO",
+    "name": "Take-Two Interactive Software, Inc.",
+    "market": "US",
+    "signalDate": "2026-11-18",
+    "signalPrice": 216.61,
+    "movePct": 6.2,
+    "volX": 4,
+    "results": false,
+    "surprisePct": null,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:drift:TGT",
+    "kind": "drift",
+    "symbol": "TGT",
+    "ticker": "TGT",
+    "name": "Target Corporation",
+    "market": "US",
+    "signalDate": "2026-11-18",
+    "signalPrice": 165.93,
+    "movePct": 4,
+    "volX": 3.2,
+    "results": true,
+    "surprisePct": 27.2,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:bounce:ACN",
+    "kind": "bounce",
+    "symbol": "ACN",
+    "ticker": "ACN",
+    "name": "Accenture plc",
+    "market": "US",
+    "signalDate": "2026-11-18",
+    "signalPrice": 227.49,
+    "rsi2": 0.8,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:bounce:AMGN",
+    "kind": "bounce",
+    "symbol": "AMGN",
+    "ticker": "AMGN",
+    "name": "Amgen Inc.",
+    "market": "US",
+    "signalDate": "2026-11-18",
+    "signalPrice": 443.89,
+    "rsi2": 0.8,
     "status": "pending"
   }
 ]

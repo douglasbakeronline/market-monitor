@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-18T19:54:09.355Z",
+  "updated": "2026-11-18T21:23:53.215Z",
   "start": "2026-11-02",
   "equity0": 10000,
-  "realised": 9691.66,
-  "value": 9595.2,
-  "returnPct": -4.05,
+  "realised": 9416.98,
+  "value": 9491.59,
+  "returnPct": -5.08,
   "paused": false,
   "open": [
     {
@@ -21,48 +21,10 @@
       "target": 2022.16,
       "riskAmt": 92.38,
       "posValue": 2500,
-      "lastPrice": 1943,
-      "lastDate": "2026-11-17",
-      "openR": 0.86,
-      "openPnl": 79.45
-    },
-    {
-      "id": "2026-10-30:DE",
-      "symbol": "DE",
-      "ticker": "DE",
-      "name": "Deere & Company",
-      "market": "US",
-      "currency": "USD",
-      "score": 78,
-      "entryDate": "2026-11-02",
-      "entry": 669.34,
-      "stop": 638.09,
-      "target": 731.84,
-      "riskAmt": 116.72,
-      "posValue": 2500,
-      "lastPrice": 649.23,
-      "lastDate": "2026-11-17",
-      "openR": -0.64,
-      "openPnl": -74.7
-    },
-    {
-      "id": "2026-10-30:MRK",
-      "symbol": "MRK",
-      "ticker": "MRK",
-      "name": "Merck & Co., Inc.",
-      "market": "US",
-      "currency": "USD",
-      "score": 78,
-      "entryDate": "2026-11-02",
-      "entry": 148.82,
-      "stop": 140.31,
-      "target": 165.84,
-      "riskAmt": 142.96,
-      "posValue": 2500,
-      "lastPrice": 143.37,
-      "lastDate": "2026-11-17",
-      "openR": -0.64,
-      "openPnl": -91.49
+      "lastPrice": 1942,
+      "lastDate": "2026-11-18",
+      "openR": 0.85,
+      "openPnl": 78.52
     },
     {
       "id": "2026-11-04:CL",
@@ -78,16 +40,63 @@
       "target": 111.46,
       "riskAmt": 138.83,
       "posValue": 2422.92,
-      "lastPrice": 99.61,
-      "lastDate": "2026-11-17",
-      "openR": -0.07,
-      "openPnl": -9.72
+      "lastPrice": 98.85,
+      "lastDate": "2026-11-18",
+      "openR": -0.2,
+      "openPnl": -27.77
+    },
+    {
+      "id": "2026-11-17:DHR",
+      "symbol": "DHR",
+      "ticker": "DHR",
+      "name": "Danaher Corporation",
+      "market": "US",
+      "currency": "USD",
+      "score": 76,
+      "entryDate": "2026-11-18",
+      "entry": 227,
+      "stop": 213.32,
+      "target": 254.36,
+      "riskAmt": 141.88,
+      "posValue": 2354.25,
+      "why": [
+        "Uptrend",
+        "Below lower Bollinger",
+        "Pullback to 50-day"
+      ],
+      "lastPrice": 228.58,
+      "lastDate": "2026-11-18",
+      "openR": 0.12,
+      "openPnl": 17.03
+    },
+    {
+      "id": "2026-11-17:PKG",
+      "symbol": "PKG",
+      "ticker": "PKG",
+      "name": "Packaging Corporation of America",
+      "market": "US",
+      "currency": "USD",
+      "score": 70,
+      "entryDate": "2026-11-18",
+      "entry": 242.27,
+      "stop": 232.23,
+      "target": 262.35,
+      "riskAmt": 97.56,
+      "posValue": 2354.25,
+      "why": [
+        "Uptrend",
+        "Pullback to 50-day"
+      ],
+      "lastPrice": 243,
+      "lastDate": "2026-11-18",
+      "openR": 0.07,
+      "openPnl": 6.83
     }
   ],
   "orders": [],
   "waiting": 6,
-  "skipped": 205,
-  "closed": 2,
+  "skipped": 209,
+  "closed": 4,
   "winRate": 0,
   "avgNetR": -1.05,
   "recent": [
@@ -130,6 +139,46 @@
       "exitDate": "2026-11-05",
       "exit": 222.28,
       "reason": "stop"
+    },
+    {
+      "id": "2026-10-30:MRK",
+      "symbol": "MRK",
+      "ticker": "MRK",
+      "name": "Merck & Co., Inc.",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 148.82,
+      "stop": 140.31,
+      "target": 165.84,
+      "riskAmt": 142.96,
+      "posValue": 2500,
+      "pnl": -150.46,
+      "netR": -1.05,
+      "exitDate": "2026-11-18",
+      "exit": 140.31,
+      "reason": "stop"
+    },
+    {
+      "id": "2026-10-30:DE",
+      "symbol": "DE",
+      "ticker": "DE",
+      "name": "Deere & Company",
+      "market": "US",
+      "currency": "USD",
+      "score": 78,
+      "entryDate": "2026-11-02",
+      "entry": 669.34,
+      "stop": 638.09,
+      "target": 731.84,
+      "riskAmt": 116.72,
+      "posValue": 2500,
+      "pnl": -124.22,
+      "netR": -1.06,
+      "exitDate": "2026-11-18",
+      "exit": 638.09,
+      "reason": "stop"
     }
   ],
   "curve": [
@@ -140,6 +189,14 @@
     {
       "date": "2026-11-05",
       "equity": 9691.66
+    },
+    {
+      "date": "2026-11-18",
+      "equity": 9541.2
+    },
+    {
+      "date": "2026-11-18",
+      "equity": 9416.98
     }
   ],
   "rules": {
@@ -152,7 +209,7 @@
   "sp": {
     "from": "2026-10-30",
     "to": "2026-11-18",
-    "pct": -3.47
+    "pct": -3.38
   },
   "spSeries": [
     {
@@ -205,19 +262,19 @@
     },
     {
       "date": "2026-11-18",
-      "pct": -3.47
+      "pct": -3.38
     }
   ],
   "random": {
     "runs": 200,
-    "mine": -4.05,
-    "median": -0.93,
-    "p10": -4.33,
-    "p90": 2.23,
+    "mine": -5.08,
+    "median": -1.23,
+    "p10": -5.24,
+    "p90": 1.73,
     "beatShare": 12
   },
   "everySetup": {
-    "closed": 49,
-    "avgNetR": -0.57
+    "closed": 70,
+    "avgNetR": -0.63
   }
 }
