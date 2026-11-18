@@ -92,13 +92,13 @@ export function simulate(rows, ind, d, exit, { stop = false } = {}) {
 
 // Net return of a trade in percent after Trading 212 costs (US: FX fee both
 // ways; UK: stamp duty on the purchase).
-export const netPct = (t, market) => ((t.exit / t.entry - 1) - (COSTS[market] ?? 0)) * 100;
+export const netPct = (t, market, cost = COSTS[market] ?? 0) => ((t.exit / t.entry - 1) - cost) * 100;
 
 // Run every strategy (and its random baseline) over one stock. One open trade
 // per strategy at a time. The baseline enters on a pseudo-random ~1 in 10 of
 // the days it could, with the same exit; "cond" baselines for dip also
 // require the uptrend, to test whether the dip itself adds anything.
-export function runStock(rows, market, { index = null, seed = 1 } = {}) {
+export function runStock(rows, market, { index = null, seed = 1, cost = COSTS[market] ?? 0 } = {}) {
   const ind = prepare(rows);
   const out = [];
   let x = seed >>> 0;
@@ -108,7 +108,7 @@ export function runStock(rows, market, { index = null, seed = 1 } = {}) {
     const a = index.get(rows[t.entryIdx - 1].date), b = index.get(rows[t.exitIdx].date);
     return a && b ? (b / a - 1) * 100 : null;
   };
-  const push = (strategy, kind, stop, d, t) => out.push({ strategy, kind, stop, market, date: rows[d].date, year: rows[t.entryIdx].date.slice(0, 4), days: t.exitIdx - t.entryIdx + 1, net: netPct(t, market), idx: idxRet(t), stopped: t.stopped });
+  const push = (strategy, kind, stop, d, t) => out.push({ strategy, kind, stop, market, date: rows[d].date, year: rows[t.entryIdx].date.slice(0, 4), days: t.exitIdx - t.entryIdx + 1, net: netPct(t, market, cost), idx: idxRet(t), stopped: t.stopped });
   for (const s of STRATEGIES) {
     for (const stop of [false, true]) {
       const free = { sig: 252, rnd: 252, cond: 252 };
