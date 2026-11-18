@@ -1,5 +1,5 @@
 name: Dry run
-# 17 Nov 14:41 build: Today card and trade log pot wording; Fear & Greed day-on-day from the shown close.
+# 18 Nov daily run: regime band at the 200-day (monitor only; scan.json from main).
 on:
   push:
     branches: [dryrun]
@@ -19,8 +19,7 @@ jobs:
           set +e
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
-          DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
-          cp scan.json dry-run/
+          echo "scan skipped (monitor-only change)" > dry-run/scan.log
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
