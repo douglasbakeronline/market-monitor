@@ -264,3 +264,16 @@ test("pullbackIdleNote: past the line with nothing to bring forward says so", as
   assert.equal(pullbackIdleNote({ ...base, drawdown: null }), "No core purchase left that can come forward before the new ISA allowance (6 Apr 2027).");
   assert.equal(pullbackIdleNote({ ...base, nextCore: { date: "2027-05-03" }, drawdown: -6 }), null);
 });
+
+test("money check verdict past the 5% line with nothing to bring forward (18 Nov said 'No rule is triggered' at -6.1%)", async () => {
+  const { moneyCheckVerdict } = await import("../src/plan.js");
+  const fmt = (d) => d;
+  const cp = copilot({ today: "2026-11-18", sp: sp(-6.1), ftse: ftse(-2.4), items: {} });
+  assert.equal(cp.pullback.nextCore, null);
+  const v = moneyCheckVerdict(cp, { fmt });
+  assert.doesNotMatch(v, /No rule is triggered/);
+  assert.match(v, /S&amp;P 500 is 6\.1% below its high, past the pullback rule's 5% line/);
+  assert.match(v, /no core purchase is left to bring forward before the new ISA allowance/);
+  // Inside the line, the old wording stands.
+  assert.match(moneyCheckVerdict(copilot({ today: "2026-11-18", sp: sp(-3), ftse: ftse(0), items: {} }), { fmt }), /No rule is triggered/);
+});

@@ -488,7 +488,7 @@ import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa
 import { fileWith } from "./src/priceAlerts.js";
 import { dayLabel } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
-import { earningsAsOf } from "./src/util.js";
+import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
 import { fundingCheck } from "./src/swingBook.js";
@@ -717,7 +717,7 @@ function renderShortTerm(st) {
   if (!el || !st?.date) return;
   const T = st.tested ?? {}, L = st.live ?? {}, sg = (x) => (x == null ? "n/a" : signPct(x));
   const live = (l) => (l?.closed ? `live: ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}${l.vsIdx != null ? ` (${sg(l.vsIdx)} vs index)` : ""}` : `live: none closed yet${l?.open ? `, ${l.open} open` : ""}`);
-  const SUF = /,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company|Co\.)$/, short = (n) => { let x = String(n ?? ""); for (let k = 0; k < 3 && SUF.test(x); k++) x = x.replace(SUF, ""); return x; };
+  const short = shortName;
   const group = (name, tag, rule, t, l, list, row, fired) => `<div class="st-group">
       <div class="st-head"><b>${esc(name)}</b><span class="st-rec">${esc(tag)}</span></div>
       <div class="small muted">${esc(rule)}</div>
@@ -794,10 +794,10 @@ function renderResultsAhead(p) {
   const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`;
   const when = (r) => `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
   const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
-  const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(r.name ?? "")}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
+  const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(shortName(r.name))}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
   const jtag = (j) => (j.potSkip ? `<span class="sub muted">On your skip list, so never a pot trade.</span>` : j.potBuy ? `<span class="sub t-buy">Meets the pot's drift rule: a buy at the next open (see the pot card).</span>`
     : j.pot && j.move >= 4 ? `<span class="sub muted">Up 4%+ but under 3\u00d7 normal volume, so not a pot trade.</span>` : "");
-  const jrow = (j) => `<div class="st-row"><span><b>${esc(j.ticker)}</b> <span class="muted">${esc(j.name ?? "")}</span><span class="sub">${j.surprisePct != null ? `EPS ${sg(j.surprisePct)} vs forecast` : "No EPS forecast on record"}${j.volX != null ? ` · ${j.volX}\u00d7 normal volume` : ""}</span>${jtag(j)}</span><span class="num ${pnClass(j.move)}">${sg(j.move)}<span class="sub">on results</span></span></div>`;
+  const jrow = (j) => `<div class="st-row"><span><b>${esc(j.ticker)}</b> <span class="muted">${esc(shortName(j.name))}</span><span class="sub">${j.surprisePct != null ? `EPS ${sg(j.surprisePct)} vs forecast` : "No EPS forecast on record"}${j.volX != null ? ` · ${j.volX}\u00d7 normal volume` : ""}</span>${jtag(j)}</span><span class="num ${pnClass(j.move)}">${sg(j.move)}<span class="sub">on results</span></span></div>`;
   el.innerHTML = `<div class="k">Next ${p.days ?? 7} days · from the ${esc(fmtDM(p.date))} scan</div>
     ${J.length ? `<div class="st-group">
       <div class="st-head"><b>Just reported</b><span class="st-rec">reaction at the last close</span></div>
@@ -846,7 +846,7 @@ function renderBuff(b, j, ev) {
     ${lensRecordHtml(ev)}
     ${b?.positions?.length ? `<div class="k" style="margin-top:12px">Holding</div>${b.positions.map((p) => row(fmtDM(p.entryDate), p.ticker, `${esc(p.market)} · ${esc(p.sector ?? "")}${p.mos != null ? ` · bought ${mosTxt(p.mos)}` : ""}`, `<span class="${pnClass(p.last / p.entry - 1)}">${signPct((p.amount * p.last / p.entry / p.cost - 1) * 100)}</span>`)).join("")}` : ""}
     ${b?.pending?.length ? `<div class="book-orders"><b>Next session:</b> ${b.pending.map((o) => o.side === "buy" ? `buy <b>${esc(o.ticker)}</b> (${mosTxt(o.mos)})` : `sell <b>${esc(o.ticker)}</b> (${esc(o.why)})`).join("; ")}.</div>` : ""}
-    ${preview.length ? `<div class="k" style="margin-top:12px">If the first review were tonight</div>${preview.map((o) => row("", o.ticker, `${esc(o.name ?? "")} · ${esc(o.market)} · ${esc(o.sector ?? "")}`, `<span class="pos">${mosTxt(o.mos)}</span>`)).join("")}` : ""}
+    ${preview.length ? `<div class="k" style="margin-top:12px">If the first review were tonight</div>${preview.map((o) => row("", o.ticker, `${esc(shortName(o.name))} · ${esc(o.market)} · ${esc(o.sector ?? "")}`, `<span class="pos">${mosTxt(o.mos)}</span>`)).join("")}` : ""}
     ${b?.trades?.some((t) => t.side === "sell") ? `<div class="k" style="margin-top:12px">Sold</div>${b.trades.filter((t) => t.side === "sell").slice(-6).reverse().map((t) => row(fmtDM(t.date), t.ticker, esc(t.why), `<span class="${pnClass(t.pct)}">${signPct(t.pct)}</span>`)).join("")}` : ""}
     <p class="small muted" style="margin:10px 0 0">Warren Buffett's way, as a paper test. Each month it buys only companies that pass every quality test (high and steady returns on capital, pricing power, steady earnings, little debt, real cash earnings, no dilution) <b>and</b> trade 25%+ below a cautious value of their owner earnings; biggest discount first, 10% of the book each, at most 10 holdings and 3 per sector. It sells only if the business fails a test or the price runs 50% above value, never because the price fell. The tests can't be backtested (only four years of accounts are free), so this is how we find out. Each company's tests are on the Research page.</p>`;
 }
