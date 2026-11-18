@@ -116,6 +116,28 @@ test("regime precedence", () => {
   assert.equal(regime({ sp: null, vix: null, fg: { score: 55 } }).key, "unknown");
 });
 
+test("regime: within 1% of the 200-day the trend reads as undecided, not a flip (18 Nov: S&P 0.1% below)", () => {
+  const vix = { level: 25.5 }, fg = { score: 35 };
+  // 18 Nov 08:15: 6.1% off high, 0.1% below the 200-day. Was "Below the 200-day: trend is down".
+  const r = regime({ sp: snap({ drawdownPct: -6.1, above200: false, vs200Pct: -0.1 }), vix, fg });
+  assert.equal(r.key, "pullback");
+  assert.match(r.label, /200-day/);
+  const t = r.factors.find((f) => f.key === "trend");
+  assert.equal(t.tone, "neutral");
+  assert.match(t.note, /within 1%/);
+  // Just above, same reading.
+  assert.equal(regime({ sp: snap({ drawdownPct: -6.1, above200: true, vs200Pct: 0.4 }), vix, fg }).label, r.label);
+  // No dip, within the band, below: undecided, not "healthy uptrend" or "downtrend".
+  const u = regime({ sp: snap({ drawdownPct: -3, above200: false, vs200Pct: -0.6 }), vix: { level: 18 }, fg: { score: 50 } });
+  assert.equal(u.key, "at200");
+  // Clearly below (more than 1%): downtrend as before.
+  assert.equal(regime({ sp: snap({ drawdownPct: -6.1, above200: false, vs200Pct: -1.2 }), vix, fg }).key, "downtrend");
+  // Just above with no dip: undecided too (the band is symmetric).
+  assert.equal(regime({ sp: snap({ drawdownPct: -2, vs200Pct: 0.5 }), vix: { level: 15 }, fg: { score: 55 } }).key, "at200");
+  // Clean uptrend unchanged.
+  assert.equal(regime({ sp: snap({ drawdownPct: -2, vs200Pct: 1.5 }), vix: { level: 15 }, fg: { score: 55 } }).key, "healthy");
+});
+
 test("buy alert fires once per deeper tier and re-arms after recovery", () => {
   const fg = { score: 20 };
   let st = {};
