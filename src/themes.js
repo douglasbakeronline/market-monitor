@@ -19,3 +19,11 @@ export const THEMES = [
     stocks: ["LLY", "NVO", "ISRG", "VRTX", "REGN", "AZN.L"] },
 ];
 export const BENCHMARK = "^GSPC";
+
+// Display name for a theme row (18 Nov): the nightly scan's name where the
+// stock is in it, else Yahoo's full name, else its short name, which Yahoo
+// cuts at about 31 characters and, for London lines, gives as the share-class
+// name ("ASTRAZENECA PLC ORD SHS $0.25"). The page shortens it further.
+export function themeName(sym, d, scanNames) {
+  return scanNames?.get?.(sym) || d?.longName || d?.name || sym;
+}

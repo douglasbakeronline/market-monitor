@@ -97,7 +97,7 @@ export function earningsAsOf(e, today) {
 
 // Company name without its legal suffix ("Cboe Global Markets, Inc." to
 // "Cboe Global Markets"), for tight lists and push lines.
-const NAME_SUFFIX = /,?\s+((?:&|and)\s+(?:Company|Co\.?)|SA|Oyj|Public Limited Company|Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Limited|Company|Co\.?|Aktiengesellschaft|AG|SE|N\.V\.|S\.A\.|S\.p\.A\.)$/;
+const NAME_SUFFIX = /,?\s+((?:&|and)\s+(?:Company|Co\.?)|SA|Oyj|Public Limited Company|Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|LLC|A\/S|Limited|Company|Co\.?|Aktiengesellschaft|AG|SE|N\.V\.|S\.A\.|S\.p\.A\.)$/;
 export function shortName(n) {
   let x = String(n ?? "").trim();
   for (let k = 0; k < 3 && NAME_SUFFIX.test(x); k++) {
