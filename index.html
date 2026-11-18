@@ -486,7 +486,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { dayLabel } from "./src/resultsPreview.js";
+import { dayLabel, withReported } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
@@ -1468,7 +1468,7 @@ function renderHighlights(h) {
   $("hl").innerHTML =
     list("Long-term", h.longTerm, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "Nothing scoring well right now.") +
     list("Swing setups", h.swing, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "No setups today.") +
-    list("Earnings in the next week", earnSoon(h.earnings), (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
+    list("Earnings in the next week", withReported(earnSoon(h.earnings), LAST_DATA?.resultsPreview?.just), (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.reported ? `reported ${x.days === 0 ? "today" : fmtDay(x.date)}` : x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
 }
 
 const DOWN_GOOD = new Set(["greed", "trim"]);

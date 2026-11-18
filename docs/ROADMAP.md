@@ -56,7 +56,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
-- 18 Nov (22:41): company names without a leading "The" or a name that only repeats the ticker ("Walt Disney", not "The Walt Disney"; "SSE", not "SSE SSE") on the Dashboard, Trends and the pot push.
+- 18 Nov (22:41): company names without a leading "The" or a name that only repeats the ticker ("Walt Disney", not "The Walt Disney"; "SSE", not "SSE SSE") on the Dashboard, Trends and the pot push; the research-list card says "reported today" once the scan has the reaction.
 - 18 Nov (19:41): Trends theme company names from the scan or Yahoo's full name (no more cut-off or share-class names such as "ASTRAZENECA PLC ORD SHS $0.25").
 - 18 Nov (14:41): swing lab follow-up (b): drift on Euro Stoxx 50 names backtested, pre-registered (fails on sample size, 139 trades; research log); European costs with purchase tax in `roundTripCost()`.
 - 18 Nov (14:41): the money check no longer says "No rule is triggered" past the pullback line with nothing left to bring forward; company names without legal suffixes in Results ahead, the Buffett preview, the pot card and the Index scan.
