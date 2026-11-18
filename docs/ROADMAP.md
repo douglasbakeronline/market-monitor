@@ -56,6 +56,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 18 Nov (11:41): Trends movers heading, European links and company names (legal suffixes dropped, shared with push lines); tables fit at 390px.
 - 18 Nov (11:41): results "days to go" recounted from the London date where they are read (Dashboard, tranche check, Research page), not frozen at the evening research run (the Dashboard said Nvidia reports "today" the day after).
 - 18 Nov (daily run): the regime headline treats 1% either side of the S&P 500's 200-day average as "at the 200-day", so a 0.1% cross no longer flips it (and every push title). Checked 18 Nov (11:41): the 08:15 and 10:15 runs read "Pullback, testing the 200-day".
 - 17 Nov (22:41): the trade log's pot line lists missed orders first; a newest-six list had cut OTIS's missed 12 Nov buy, the one order the headline counted.

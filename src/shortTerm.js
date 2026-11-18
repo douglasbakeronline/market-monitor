@@ -15,7 +15,7 @@
 // against its home index, so the live record can confirm or overturn the
 // backtest. Each alert shows both.
 import { sma, rsi } from "./indicators.js";
-import { r1, r2 } from "./util.js";
+import { r1, r2, shortName } from "./util.js";
 import { COSTS } from "./swingRetune.js";
 import { driftToday } from "./swingLab.js";
 import { openPhrase } from "./sessions.js";
@@ -178,8 +178,7 @@ const sgn = (x) => `${x > 0 ? "+" : ""}${x}%`;
 const sg = (x) => (x == null ? "n/a" : `${x > 0 ? "+" : ""}${x}%`);
 const liveTxt = (l) => (l?.closed ? `live ${l.closed} closed, ${l.win}% won, avg ${sg(l.avg)}` : "live: none closed yet");
 
-const SUFFIX = /,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings|plc|PLC|Ltd\.?|Company)$/;
-const short = (n) => { let x = String(n ?? ""); for (let k = 0; k < 3 && SUFFIX.test(x); k++) x = x.replace(SUFFIX, ""); return x; };
+const short = shortName;
 const exitRule = (kind) => (kind === "drift" ? "hold 20 sessions" : "sell at the first close above its 5-day average, or after 10 sessions");
 
 // The push (alert kind "short"), once per scan date. st: scan.json shortTerm,
