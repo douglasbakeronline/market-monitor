@@ -9,7 +9,9 @@ export const PROFILES = {
   // and the ranked short-term signals (Douglas, 11 Nov).
   // Results ahead for the research list (Douglas, 12 Nov: "a better signal on
   // upcoming results").
-  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "swing", "short", "results"],
+  // Research list good entries and swing setups (Douglas, 19 Nov: "alerts to
+  // buy for all stocks that market monitor is recommending").
+  "plan-swing": ["health", "buy", "crash", "pullback", "price", "research-pick", "research", "swing", "short", "results"],
 };
 
 export function allowAlert(a, profile = "all") {
