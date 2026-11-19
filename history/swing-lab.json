@@ -14,11 +14,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 172.8000030517578,
-    "sessions": 6,
-    "lastDate": "2026-11-18",
-    "lastPrice": 150.96,
-    "netPct": -12.94,
-    "idxPct": -2.62
+    "sessions": 7,
+    "lastDate": "2026-11-19",
+    "lastPrice": 145.98,
+    "netPct": -15.82,
+    "idxPct": -4.59
   },
   {
     "id": "2026-11-10:AKAM",
@@ -35,11 +35,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 85.0999984741211,
-    "sessions": 6,
-    "lastDate": "2026-11-18",
-    "lastPrice": 91.7,
-    "netPct": 7.46,
-    "idxPct": -2.62
+    "sessions": 7,
+    "lastDate": "2026-11-19",
+    "lastPrice": 91.71,
+    "netPct": 7.47,
+    "idxPct": -4.59
   },
   {
     "id": "2026-11-10:TTWO",
@@ -57,11 +57,11 @@
     "surprisePct": 66.4,
     "entryDate": "2026-11-11",
     "entry": 227.49000549316406,
-    "sessions": 6,
-    "lastDate": "2026-11-18",
-    "lastPrice": 216.61,
-    "netPct": -5.08,
-    "idxPct": -2.62
+    "sessions": 7,
+    "lastDate": "2026-11-19",
+    "lastPrice": 208.65,
+    "netPct": -8.58,
+    "idxPct": -4.59
   },
   {
     "id": "2026-11-12:GPN",
@@ -78,11 +78,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 88.41000366210938,
-    "sessions": 4,
-    "lastDate": "2026-11-18",
-    "lastPrice": 85.62,
-    "netPct": -3.46,
-    "idxPct": -3.54
+    "sessions": 5,
+    "lastDate": "2026-11-19",
+    "lastPrice": 83.52,
+    "netPct": -5.83,
+    "idxPct": -5.49
   },
   {
     "id": "2026-11-12:BRBY.L",
@@ -99,11 +99,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 1170.5,
-    "sessions": 4,
-    "lastDate": "2026-11-18",
-    "lastPrice": 1158,
-    "netPct": -1.57,
-    "idxPct": -2.87
+    "sessions": 5,
+    "lastDate": "2026-11-19",
+    "lastPrice": 1170,
+    "netPct": -0.54,
+    "idxPct": -3.78
   },
   {
     "id": "2026-11-18:UNH",
@@ -117,7 +117,14 @@
     "movePct": -10.2,
     "volX": 3.1,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-19",
+    "entry": 351.1300048828125,
+    "sessions": 1,
+    "lastDate": "2026-11-19",
+    "lastPrice": 330.48,
+    "netPct": -6.18,
+    "idxPct": -2.02
   },
   {
     "id": "2026-11-18:TGT",
@@ -131,8 +138,15 @@
     "movePct": 4,
     "volX": 3.2,
     "results": false,
-    "status": "pending",
-    "surprisePct": 27.2
+    "status": "open",
+    "surprisePct": 27.2,
+    "entryDate": "2026-11-19",
+    "entry": 166.97000122070312,
+    "sessions": 1,
+    "lastDate": "2026-11-19",
+    "lastPrice": 167.46,
+    "netPct": -0.01,
+    "idxPct": -2.02
   },
   {
     "id": "2026-11-18:CTEC.L",
@@ -146,6 +160,56 @@
     "movePct": 9.4,
     "volX": 3.6,
     "results": false,
+    "status": "open",
+    "entryDate": "2026-11-19",
+    "entry": 271.20001220703125,
+    "sessions": 1,
+    "lastDate": "2026-11-19",
+    "lastPrice": 268.2,
+    "netPct": -1.61,
+    "idxPct": -0.93
+  },
+  {
+    "id": "2026-11-19:INVP.L",
+    "symbol": "INVP.L",
+    "ticker": "INVP",
+    "name": "Investec Group",
+    "market": "UK",
+    "kind": "down",
+    "signalDate": "2026-11-19",
+    "signalPrice": 549.5,
+    "movePct": -8.3,
+    "volX": 3.7,
+    "results": false,
     "status": "pending"
+  },
+  {
+    "id": "2026-11-19:WSM",
+    "symbol": "WSM",
+    "ticker": "WSM",
+    "name": "Williams-Sonoma, Inc.",
+    "market": "US",
+    "kind": "down",
+    "signalDate": "2026-11-19",
+    "signalPrice": 220.66,
+    "movePct": -15.2,
+    "volX": 4,
+    "results": false,
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-19:PANW",
+    "symbol": "PANW",
+    "ticker": "PANW",
+    "name": "Palo Alto Networks, Inc.",
+    "market": "US",
+    "kind": "up",
+    "signalDate": "2026-11-19",
+    "signalPrice": 361.73,
+    "movePct": 6.4,
+    "volX": 3,
+    "results": true,
+    "status": "pending",
+    "surprisePct": 8.2
   }
 ]

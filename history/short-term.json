@@ -1,49 +1,21 @@
 {
-  "updated": "2026-11-19T02:46:10.555Z",
-  "date": "2026-11-18",
+  "updated": "2026-11-19T21:24:10.208Z",
+  "date": "2026-11-19",
   "drift": [
     {
-      "symbol": "CTEC.L",
-      "ticker": "CTEC",
-      "name": "Convatec Group PLC",
-      "market": "UK",
-      "index": "FTSE 100",
-      "score": 49,
-      "kind": "drift",
-      "date": "2026-11-18",
-      "price": 270,
-      "movePct": 9.4,
-      "volX": 3.6,
-      "results": false
-    },
-    {
-      "symbol": "TTWO",
-      "ticker": "TTWO",
-      "name": "Take-Two Interactive Software, Inc.",
+      "symbol": "PANW",
+      "ticker": "PANW",
+      "name": "Palo Alto Networks, Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 45,
+      "score": 33,
       "kind": "drift",
-      "date": "2026-11-18",
-      "price": 216.61,
-      "movePct": 6.2,
-      "volX": 4,
-      "results": false
-    },
-    {
-      "symbol": "TGT",
-      "ticker": "TGT",
-      "name": "Target Corporation",
-      "market": "US",
-      "index": "S&P 500",
-      "score": 60,
-      "kind": "drift",
-      "date": "2026-11-18",
-      "price": 165.93,
-      "movePct": 4,
-      "volX": 3.2,
+      "date": "2026-11-19",
+      "price": 361.73,
+      "movePct": 6.4,
+      "volX": 3,
       "results": true,
-      "surprisePct": 27.2
+      "surprisePct": 8.2
     }
   ],
   "bounce": [
@@ -53,27 +25,13 @@
       "name": "Veeva Systems Inc.",
       "market": "US",
       "index": "S&P 500",
-      "score": 46,
+      "score": 47,
       "kind": "bounce",
-      "date": "2026-11-18",
-      "price": 277.2,
-      "rsi2": 0.2,
-      "vs200": 29,
-      "fall3": -8.1
-    },
-    {
-      "symbol": "CTSH",
-      "ticker": "CTSH",
-      "name": "Cognizant Technology Solutions Corporation",
-      "market": "US",
-      "index": "S&P 500",
-      "score": 79,
-      "kind": "bounce",
-      "date": "2026-11-18",
-      "price": 57.95,
-      "rsi2": 0.7,
-      "vs200": 0.5,
-      "fall3": -8
+      "date": "2026-11-19",
+      "price": 262.92,
+      "rsi2": 0.1,
+      "vs200": 22.2,
+      "fall3": -12.1
     },
     {
       "symbol": "ACN",
@@ -81,13 +39,13 @@
       "name": "Accenture plc",
       "market": "US",
       "index": "S&P 500",
-      "score": 67,
+      "score": 70,
       "kind": "bounce",
-      "date": "2026-11-18",
-      "price": 227.49,
-      "rsi2": 0.8,
-      "vs200": 19.7,
-      "fall3": -9.2
+      "date": "2026-11-19",
+      "price": 218.58,
+      "rsi2": 0.4,
+      "vs200": 15.1,
+      "fall3": -11.8
     },
     {
       "symbol": "AMGN",
@@ -97,30 +55,44 @@
       "index": "S&P 500",
       "score": 59,
       "kind": "bounce",
-      "date": "2026-11-18",
-      "price": 443.89,
-      "rsi2": 0.8,
-      "vs200": 16,
-      "fall3": -4.7
+      "date": "2026-11-19",
+      "price": 438.82,
+      "rsi2": 0.5,
+      "vs200": 14.6,
+      "fall3": -5.1
     },
     {
-      "symbol": "DOC",
-      "ticker": "DOC",
-      "name": "Healthpeak Properties, Inc.",
+      "symbol": "PKG",
+      "ticker": "PKG",
+      "name": "Packaging Corporation of America",
       "market": "US",
       "index": "S&P 500",
-      "score": 67,
+      "score": 60,
       "kind": "bounce",
-      "date": "2026-11-18",
-      "price": 19.34,
-      "rsi2": 1.1,
-      "vs200": 0.2,
-      "fall3": -3.2
+      "date": "2026-11-19",
+      "price": 236.96,
+      "rsi2": 0.6,
+      "vs200": 2.4,
+      "fall3": -5.4
+    },
+    {
+      "symbol": "MRK",
+      "ticker": "MRK",
+      "name": "Merck & Co., Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 62,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 132.81,
+      "rsi2": 0.7,
+      "vs200": 2.8,
+      "fall3": -8.1
     }
   ],
   "counts": {
-    "drift": 3,
-    "bounce": 77
+    "drift": 1,
+    "bounce": 128
   },
   "tested": {
     "drift": {
@@ -149,14 +121,14 @@
   "live": {
     "drift": {
       "closed": 0,
-      "open": 4,
+      "open": 5,
       "win": null,
       "avg": null,
       "vsIdx": null
     },
     "bounce": {
       "closed": 5,
-      "open": 13,
+      "open": 15,
       "win": 80,
       "avg": 2.04,
       "vsIdx": 3.04,
@@ -171,15 +143,15 @@
       "equity0": 10000,
       "maxOpen": 5,
       "pauseFall": 0.25,
-      "today": "2026-11-18",
-      "since": "2026-11-17"
+      "today": "2026-11-19",
+      "since": "2026-11-18"
     },
     "skipList": [],
     "start": "2026-11-12",
-    "value": 9912.83,
-    "returnPct": -0.87,
+    "value": 9829.63,
+    "returnPct": -1.7,
     "peak": 10079.03,
-    "fallPct": -1.65,
+    "fallPct": -2.47,
     "paused": false,
     "open": [
       {
@@ -192,9 +164,9 @@
         "entryDate": "2026-11-13",
         "entry": 1170.5,
         "pos": 2000,
-        "sessions": 4,
-        "openPct": -1.57,
-        "openPnl": -31.4
+        "sessions": 5,
+        "openPct": -0.54,
+        "openPnl": -10.8
       },
       {
         "id": "2026-11-12:bounce:ABT",
@@ -206,9 +178,9 @@
         "entryDate": "2026-11-13",
         "entry": 108.2,
         "pos": 2000,
-        "sessions": 4,
-        "openPct": -3.74,
-        "openPnl": -74.8
+        "sessions": 5,
+        "openPct": -4.3,
+        "openPnl": -86
       },
       {
         "id": "2026-11-12:bounce:AMCR",
@@ -220,9 +192,9 @@
         "entryDate": "2026-11-13",
         "entry": 44.24,
         "pos": 2000,
-        "sessions": 4,
-        "openPct": -1.52,
-        "openPnl": -30.4
+        "sessions": 5,
+        "openPct": -4.32,
+        "openPnl": -86.4
       },
       {
         "id": "2026-11-12:bounce:IFF",
@@ -234,35 +206,28 @@
         "entryDate": "2026-11-13",
         "entry": 81.04,
         "pos": 2000,
-        "sessions": 4,
-        "openPct": -1.48,
-        "openPnl": -29.6
-      }
-    ],
-    "buys": [
+        "sessions": 5,
+        "openPct": -3.3,
+        "openPnl": -66
+      },
       {
+        "id": "2026-11-18:drift:TGT",
         "kind": "drift",
         "symbol": "TGT",
         "ticker": "TGT",
         "name": "Target Corporation",
         "market": "US",
-        "signalDate": "2026-11-18",
-        "signalPrice": 165.93
+        "entryDate": "2026-11-19",
+        "entry": 166.97,
+        "pos": 2015.81,
+        "sessions": 1,
+        "openPct": -0.01,
+        "openPnl": -0.2
       }
     ],
-    "sells": [
-      {
-        "kind": "bounce",
-        "symbol": "ILMN",
-        "ticker": "ILMN",
-        "name": "Illumina, Inc.",
-        "market": "US",
-        "exitDate": "2026-11-18",
-        "orderDate": "2026-11-18",
-        "netPct": 4.85
-      }
-    ],
-    "free": 1,
+    "buys": [],
+    "sells": [],
+    "free": 0,
     "closed": 2,
     "winRate": 50,
     "avgNetPct": 1.98,
@@ -272,44 +237,60 @@
         "ticker": "OTIS",
         "market": "US",
         "entryDate": "2026-11-12",
-        "exitDate": "2026-11-16"
+        "exitDate": "2026-11-16",
+        "entry": 78.18,
+        "exit": 77.72
       },
       {
         "kind": "drift",
         "ticker": "BRBY",
         "market": "UK",
         "entryDate": "2026-11-13",
-        "exitDate": null
+        "exitDate": null,
+        "entry": 1170.5
       },
       {
         "kind": "bounce",
         "ticker": "ABT",
         "market": "US",
         "entryDate": "2026-11-13",
-        "exitDate": null
+        "exitDate": null,
+        "entry": 108.2
       },
       {
         "kind": "bounce",
         "ticker": "AMCR",
         "market": "US",
         "entryDate": "2026-11-13",
-        "exitDate": null
+        "exitDate": null,
+        "entry": 44.24
       },
       {
         "kind": "bounce",
         "ticker": "IFF",
         "market": "US",
         "entryDate": "2026-11-13",
-        "exitDate": null
+        "exitDate": null,
+        "entry": 81.04
       },
       {
         "kind": "bounce",
         "ticker": "ILMN",
         "market": "US",
         "entryDate": "2026-11-17",
-        "exitDate": "2026-11-18"
+        "exitDate": "2026-11-18",
+        "entry": 199.73,
+        "exit": 210.01
+      },
+      {
+        "kind": "drift",
+        "ticker": "TGT",
+        "market": "US",
+        "entryDate": "2026-11-19",
+        "exitDate": null,
+        "entry": 166.97
       }
     ]
   },
-  "pushedAt": "2026-11-18T21:24:13.260Z"
+  "pushedAt": "2026-11-19T21:24:10.191Z"
 }
