@@ -15,16 +15,34 @@ import { dateIn } from "../util.js";
 const INDEX = { "^GSPC": ".SPX", "^FTSE": ".FTSE", "^VIX": ".VIX", "^STOXX50E": ".STOXX50E", "^N225": ".N225", "^HSI": ".HSI", "^NDX": ".NDX", "^DJI": ".DJI" };
 const TZ = { ".FTSE": "Europe/London", ".STOXX50E": "Europe/Berlin", ".N225": "Asia/Tokyo", ".HSI": "Asia/Hong_Kong" };
 
-// Yahoo symbol to CNBC symbol, or null where we have not checked a mapping
-// (European listings): those stay Yahoo only.
+// European listings (19 Nov): Yahoo's exchange suffix to CNBC's country code
+// and the exchange's zone. Checked on the runner with tools/cnbc-eu-probe.mjs:
+// 49 of the 50 Euro Stoxx 50 names matched Yahoo's closes exactly over 60
+// sessions, all in EUR. Nordea (NDA-FI.HE) had no working spelling, so a base
+// with a hyphen stays Yahoo only, as do exchanges not listed here.
+const EU = { PA: ["FR", "Europe/Paris"], DE: ["DE", "Europe/Berlin"], AS: ["NL", "Europe/Amsterdam"], MI: ["IT", "Europe/Rome"], MC: ["ES", "Europe/Madrid"], BR: ["BE", "Europe/Brussels"], HE: ["FI", "Europe/Helsinki"] };
+const euParts = (symbol) => { const m = /^([A-Z0-9]+)\.([A-Z]{2})$/.exec(symbol ?? ""); return m && EU[m[2]] ? { base: m[1], cc: EU[m[2]][0], tz: EU[m[2]][1] } : null; };
+
+// Yahoo symbol to CNBC symbol, or null where we have not checked a mapping.
 export function cnbcSymbol(symbol) {
   if (!symbol) return null;
   if (INDEX[symbol]) return INDEX[symbol];
   if (symbol.startsWith("^")) return null;
+  const eu = euParts(symbol);
+  if (eu) return `${eu.base}-${eu.cc}`;
   const uk = /^([A-Z0-9]+)(?:-([A-Z]))?\.L$/.exec(symbol);
   if (uk) return `${uk[1]}${uk[2] ? `.${uk[2]}` : ""}-GB`;
   if (/^[A-Z]+(?:-[A-Z])?$/.test(symbol)) return symbol.replace("-", ".");
   return null;
+}
+
+// The exchange's zone, which decides whether the last bar is today's.
+export function cnbcTz(symbol) {
+  const cs = INDEX[symbol];
+  if (cs && TZ[cs]) return TZ[cs];
+  const eu = euParts(symbol);
+  if (eu) return eu.tz;
+  return /\.L$/.test(symbol ?? "") ? "Europe/London" : "America/New_York";
 }
 
 const isWeekend = (date) => [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay());
@@ -85,9 +103,11 @@ export async function fetchCnbc(symbol, { now = new Date() } = {}) {
     const uk = /\.L$/.test(symbol);
     // A UK price in unknown units (pence or pounds) could be 100 times out: refuse it.
     if (uk && !/^(GBP|GBp)$/.test(currency ?? "")) throw new Error(`CNBC gave no currency for ${symbol}`);
+    // European listings were checked in euros only: refuse anything else.
+    if (euParts(symbol) && currency !== "EUR") throw new Error(`CNBC gave ${currency ?? "no currency"} for ${symbol}`);
     if (rows.length < 30) throw new Error(`CNBC gave ${rows.length} bars for ${symbol}`);
     failures = 0;
-    const tz = TZ[cs] ?? (uk ? "Europe/London" : "America/New_York");
+    const tz = cnbcTz(symbol);
     const last = rows.at(-1).date;
     return {
       symbol, currency, tz, rows,

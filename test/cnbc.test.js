@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { cnbcSymbol, parseCnbcBars, quoteBar, yahooCurrency, backupNote, resetCnbcFailures } from "../src/data/cnbc.js";
 import { CONFIG } from "../src/config.js";
 
-test("cnbcSymbol maps the monitor's indices, UK and US symbols; European listings stay Yahoo only", () => {
+test("cnbcSymbol maps the monitor's indices, UK, US and European symbols", () => {
   assert.equal(cnbcSymbol("^GSPC"), ".SPX");
   assert.equal(cnbcSymbol("^FTSE"), ".FTSE");
   assert.equal(cnbcSymbol("^VIX"), ".VIX");
@@ -12,7 +12,19 @@ test("cnbcSymbol maps the monitor's indices, UK and US symbols; European listing
   assert.equal(cnbcSymbol("BT-A.L"), "BT.A-GB");
   assert.equal(cnbcSymbol("AAPL"), "AAPL");
   assert.equal(cnbcSymbol("BRK-B"), "BRK.B");
-  assert.equal(cnbcSymbol("MC.PA"), null);
+  // European listings, checked on the runner 19 Nov: 49 of 50 Euro Stoxx 50
+  // names matched Yahoo's closes exactly over 60 sessions.
+  assert.equal(cnbcSymbol("MC.PA"), "MC-FR");
+  assert.equal(cnbcSymbol("SAP.DE"), "SAP-DE");
+  assert.equal(cnbcSymbol("MUV2.DE"), "MUV2-DE");
+  assert.equal(cnbcSymbol("ASML.AS"), "ASML-NL");
+  assert.equal(cnbcSymbol("ENEL.MI"), "ENEL-IT");
+  assert.equal(cnbcSymbol("ITX.MC"), "ITX-ES");
+  assert.equal(cnbcSymbol("ABI.BR"), "ABI-BE");
+  assert.equal(cnbcSymbol("NOKIA.HE"), "NOKIA-FI");
+  // Nordea had no CNBC spelling that worked; other exchanges are unchecked.
+  assert.equal(cnbcSymbol("NDA-FI.HE"), null);
+  assert.equal(cnbcSymbol("NESN.SW"), null);
   assert.equal(cnbcSymbol("^RUT"), null);
   assert.equal(cnbcSymbol(null), null);
   for (const w of CONFIG.world) assert.ok(cnbcSymbol(w.symbol), `world index ${w.symbol} has a mapping`);
@@ -112,4 +124,15 @@ test("fetchDaily backup: a UK fund in pounds stays in pounds; a UK price with no
     cur = null;
     await assert.rejects(fetchDaily("AZN.L", { range: "2y" }), /403/, "falls through to the Yahoo error");
   } finally { restore(); resetCnbcFailures(); }
+});
+
+test("cnbcTz: European listings use their exchange's zone for the live bar", async () => {
+  const { cnbcTz } = await import("../src/data/cnbc.js");
+  assert.equal(cnbcTz("MC.PA"), "Europe/Paris");
+  assert.equal(cnbcTz("SAP.DE"), "Europe/Berlin");
+  assert.equal(cnbcTz("NOKIA.HE"), "Europe/Helsinki");
+  assert.equal(cnbcTz("AZN.L"), "Europe/London");
+  assert.equal(cnbcTz("AAPL"), "America/New_York");
+  assert.equal(cnbcTz("^FTSE"), "Europe/London");
+  assert.equal(cnbcTz("^GSPC"), "America/New_York");
 });
