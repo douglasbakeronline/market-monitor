@@ -1,5 +1,5 @@
 name: Dry run
-# 18 Nov 22:41: company names (shortName), monitor plus the pot push text.
+# 19 Nov daily run: pot trades carry entry/exit prices (potFills); monitor, a pot replay on real signals, tests.
 on:
   push:
     branches: [dryrun]
@@ -21,6 +21,7 @@ jobs:
           mkdir -p dry-run
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node -e 'import("./src/shortTerm.js").then(async (m) => { const fs = await import("node:fs"); const s = JSON.parse(fs.readFileSync("scan.json", "utf8")); const a = m.shortTermAlert({ ...s.shortTerm, pushedAt: null }); console.log(a ? a.title + "\n" + a.body : "no alert"); })' > dry-run/push.log 2>&1; echo "exit=$?" >> dry-run/push.log
+          node -e 'Promise.all([import("./src/shortPot.js"), import("node:fs")]).then(([m, fs]) => { const sl = JSON.parse(fs.readFileSync("history/short-signals.json", "utf8")); const prev = JSON.parse(fs.readFileSync("history/short-pot.json", "utf8")); const p = m.shortPot(sl, { today: prev.rules.today, since: prev.rules.since, unlisted: prev.unlisted, skip: [] }); const strip = (x) => JSON.stringify({ ...x, updated: null, trades: null }); console.log(JSON.stringify(p.trades)); console.log("unchanged apart from trades:", strip(p) === strip(prev)); })' > dry-run/pot.log 2>&1; echo "exit=$?" >> dry-run/pot.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
