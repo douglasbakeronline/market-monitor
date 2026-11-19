@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T21:23:53.215Z",
+  "updated": "2026-11-19T02:45:54.604Z",
   "start": "2026-11-02",
   "equity0": 10000,
   "realised": 9416.98,
@@ -94,7 +94,7 @@
     }
   ],
   "orders": [],
-  "waiting": 6,
+  "waiting": 8,
   "skipped": 209,
   "closed": 4,
   "winRate": 0,

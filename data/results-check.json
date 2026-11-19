@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T21:23:58.469Z",
+  "updated": "2026-11-19T02:45:58.781Z",
   "items": {
     "META": {
       "quarter": "2026-09-30",
@@ -429,6 +429,51 @@
       "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
       "note": null,
       "tone": "neutral"
+    },
+    "TGT": {
+      "quarter": "2026-10-31",
+      "date": "2026-11-18",
+      "actual": 2.65,
+      "estimate": 2.08282,
+      "surprisePct": 27.2,
+      "reaction": 4,
+      "record": {
+        "beats": 4,
+        "of": 4,
+        "avgSurprise": 33.3,
+        "next": {
+          "date": "2026-11-18",
+          "epsEstimate": 2.71822,
+          "epsLow": 2.53,
+          "epsHigh": 2.90126
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 4.2,
+        "moves": [
+          {
+            "date": "2026-03-03",
+            "pct": 6.7
+          },
+          {
+            "date": "2026-05-20",
+            "pct": -3.9
+          },
+          {
+            "date": "2026-08-19",
+            "pct": 4.3
+          },
+          {
+            "date": "2026-11-18",
+            "pct": 4
+          }
+        ]
+      },
+      "fifth": "top",
+      "label": "EPS beat the forecast by 27.2% (top fifth); the price rose 4.0% on the day",
+      "note": "Strong results and a rising price. Over ten years, results-day jumps of 4%+ with a 5%+ beat did 0.8 points better than random holds over the next 20 sessions, but in only 6 of 10 years: context, not a rule. A surprise this large is often a one-off item (tax, write-down or a gain), so check the results release before reading much into it.",
+      "tone": "good"
     }
   }
 }

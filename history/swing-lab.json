@@ -131,7 +131,8 @@
     "movePct": 4,
     "volX": 3.2,
     "results": false,
-    "status": "pending"
+    "status": "pending",
+    "surprisePct": 27.2
   },
   {
     "id": "2026-11-18:CTEC.L",
