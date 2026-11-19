@@ -490,7 +490,7 @@
     "fg": {
       "score": 27,
       "rating": "fear",
-      "asOf": "2026-11-19T11:38:16+00:00",
+      "asOf": "2026-11-19T11:43:16+00:00",
       "comparisons": {
         "close": 25,
         "week": 40,
@@ -1794,12 +1794,12 @@
         },
         {
           "date": "2026-11-19",
-          "t": 1795088296000,
+          "t": 1795088596000,
           "y": 27
         }
       ]
     },
-    "fgAt": "2026-11-19T11:56:25.725Z",
+    "fgAt": "2026-11-19T11:59:35.766Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1878,19 +1878,19 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10515.21,
+        "level": 10514.01,
         "date": "2026-11-19",
-        "asOf": "2026-11-19T11:41:24.000Z",
+        "asOf": "2026-11-19T11:44:35.000Z",
         "currency": "GBP",
         "drawdownPct": -3.6,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10689.73,
+        "sma50": 10689.71,
         "sma200": 10559.92,
         "vs200Pct": -0.4,
         "above200": false,
         "rsi14": 38.8,
-        "dayPct": -0.3,
+        "dayPct": -0.4,
         "weekPct": -3.2,
         "monthPct": -2.2,
         "ytdPct": 5.9,
@@ -1913,7 +1913,7 @@
           },
           {
             "date": "2026-11-19",
-            "pct": -0.34
+            "pct": -0.35
           }
         ],
         "series": [
@@ -1946,15 +1946,15 @@
           3.12,
           1.31,
           -0.01,
-          -0.35
+          -0.36
         ]
       },
       "vix": {
-        "level": 22.01,
-        "dayPct": -10.4,
+        "level": 21.98,
+        "dayPct": -10.5,
         "date": "2026-11-19"
       },
-      "at": "2026-11-19T11:56:25.725Z"
+      "at": "2026-11-19T11:59:35.766Z"
     },
     "watchlist": [
       {
@@ -2514,13 +2514,13 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13485,
+        "price": 13474,
         "date": "2026-11-19",
-        "dropFromHigh": -4.1,
-        "lastChange": -1.2,
+        "dropFromHigh": -4.2,
+        "lastChange": -1.3,
         "previous": -1.1,
-        "week": -3.2,
-        "month": 6.9,
+        "week": -3.3,
+        "month": 6.8,
         "series": [
           0,
           0.23,
@@ -2551,7 +2551,7 @@
           16.97,
           15.04,
           13.74,
-          12.39
+          12.3
         ],
         "rebound": false
       },
@@ -2560,7 +2560,7 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3563.5,
+        "price": 3564,
         "date": "2026-11-19",
         "dropFromHigh": -5.8,
         "lastChange": -0.9,
@@ -2597,7 +2597,7 @@
           -2.32,
           -3.16,
           -5.22,
-          -6.06
+          -6.05
         ],
         "rebound": false
       },
@@ -2606,13 +2606,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1298.2,
+        "price": 1299.4,
         "date": "2026-11-19",
-        "dropFromHigh": -4.2,
-        "lastChange": 0.5,
+        "dropFromHigh": -4.1,
+        "lastChange": 0.6,
         "previous": -2.1,
-        "week": -4.1,
-        "month": -7.2,
+        "week": -4,
+        "month": -7.1,
         "series": [
           0,
           2.34,
@@ -2643,7 +2643,7 @@
           -3.5,
           -5.44,
           -7.42,
-          -6.99
+          -6.91
         ],
         "rebound": false
       }
@@ -2719,19 +2719,19 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 139.36,
-      "price": "£139.36",
+      "level": 139.44,
+      "price": "£139.44",
       "currency": "GBP",
       "date": "2026-11-19",
       "drawdownPct": -5.3,
       "peak": 147.18,
       "peakDate": "2026-10-06",
       "tag": null,
-      "dayPct": 1,
-      "weekPct": -2.7,
-      "monthPct": -3,
-      "ytdPct": 10,
-      "vs200Pct": 0.9,
+      "dayPct": 1.1,
+      "weekPct": -2.6,
+      "monthPct": -2.9,
+      "ytdPct": 10.1,
+      "vs200Pct": 1,
       "above200": true,
       "spGap": 1,
       "note": "VWRP is 5.3% below its 52-week high in pounds, a smaller fall than the S&P 500's 6.3% in dollars (other markets or the pound cushioned it)."
