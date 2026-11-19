@@ -9,6 +9,8 @@
 //     universe), biggest usual movers first.
 //   - resultsAlert(): the morning push (kind "results"), once when a focus name
 //     enters the window and again the day before it reports.
+import { nextSession } from "./sessions.js";
+
 export const PREVIEW = { days: 7, watchMax: 8, keep: 4 };
 const POT_INDEX = new Set(["S&P 500", "FTSE 100"]);
 const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
@@ -97,9 +99,10 @@ export function resultsPreview(items = [], { today, focus = new Set(), held = ne
     const plain = (dates[it.symbol] ?? []).filter((d) => d < today && !timed.some((e) => e.date === d)).map((d) => (afterClose.has(it.symbol) ? { date: d, after: true } : (known[it.symbol] ?? []).includes(d) ? { date: d, after: false } : d));
     const moves = typicalMove(rowsBySymbol[it.symbol], [...timed, ...plain]);
     const rc = it.resultsCheck, rec = beatRecord(timed, today);
+    const after = resultsTiming(it.symbol, nd.date, reported[it.symbol] ?? [], { afterClose });
     rows.push({
       symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, index: it.index,
-      date: nd.date, estimated: nd.estimated, days: inDays, focus: isFocus, pot, held: held.has(it.symbol),
+      date: nd.date, estimated: nd.estimated, after, days: inDays, focus: isFocus, pot, held: held.has(it.symbol),
       typical: moves?.typical ?? null, moves: moves?.moves ?? [],
       record: rec ? { n: rec.n, beats: rec.beats, median: rec.median } : null,
       last: rc?.surprisePct != null ? { surprisePct: rc.surprisePct, reaction: rc.reaction ?? null, date: rc.date ?? null }
@@ -111,6 +114,31 @@ export function resultsPreview(items = [], { today, focus = new Set(), held = ne
   const others = rows.filter((r) => !r.focus && r.pot);
   const watch = [...others].sort((a, b) => (b.typical ?? -1) - (a.typical ?? -1) || byDate(a, b)).slice(0, PREVIEW.watchMax);
   return { date: today, days, focus: focusRows, watch, potCount: others.length };
+}
+
+// Before the open (false) or after the close (true) for the results on `date`,
+// null when unsure (19 Nov: the Dashboard said "KEYS today" at noon for
+// results due after the US close, so the move, and any pot signal, comes the
+// next session). London reports by 07:00 RNS unless hand-checked as an
+// after-close reporter. Elsewhere the habit of the last timed results decides
+// when they all agree (two or more), since Yahoo's stamp for a coming date can
+// be a placeholder; the stamp alone only with no habit; a clash is unknown.
+export function resultsTiming(symbol, date, hist = [], { afterClose = new Set() } = {}) {
+  if (afterClose.has(symbol)) return true;
+  if (/\.L$/.test(symbol)) return false;
+  const past = (hist ?? []).filter((e) => e.date < date && e.after != null).slice(-4);
+  const own = (hist ?? []).find((e) => e.date === date && e.after != null)?.after ?? null;
+  const habit = past.length >= 2 && past.every((e) => e.after === past[0].after) ? past[0].after : null;
+  if (habit != null) return own == null || own === habit ? habit : null;
+  return past.length ? null : own;
+}
+
+// "today, after the close (moves tomorrow)", "Tue 24 Nov, before the open".
+export function whenLabel(r, today) {
+  const day = `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
+  if (r.after === false) return `${day}, before the open`;
+  if (r.after === true) return `${day}, after the close (moves ${dayLabel(nextSession(r.date, r.market ?? (/\.L$/.test(r.symbol ?? "") ? "UK" : "US")), today)})`;
+  return day;
 }
 
 // The close-to-close move on an event's reaction session.
@@ -164,7 +192,7 @@ const sp = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%
 
 // One line per company, plain enough for a phone.
 export function previewLine(r, today) {
-  const when = `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
+  const when = whenLabel(r, today);
   const usual = r.typical == null ? "no past results day in the data yet"
     : r.moves.length === 1 ? `moved ${sp(r.moves[0].pct)} on its last results day (the only one on record so far)`
     : `usually moves ±${r.typical.toFixed(1)}% on results (last ${r.moves.length}: ${r.moves.map((m) => sp(m.pct)).join(", ")})`;

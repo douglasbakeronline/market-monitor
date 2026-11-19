@@ -420,7 +420,7 @@
       <svg id="worldChart" class="chart" viewBox="0 0 800 222" style="margin-top:14px" role="img" aria-label="World markets, last 30 sessions"></svg>
       <div class="legend" id="worldLegend"></div>
     </div>
-    <p class="cap">Last 30 sessions, each index rebased to 0% so they compare like-for-like. The score adds up day and week moves across all five: -10 is a sell-off everywhere, +10 a rally everywhere. "Off high" is the fall from the past year's highest close: 10% marks a correction, 20% a bear market.</p>
+    <p class="cap">Last 30 sessions, each index rebased to 0% so they compare like-for-like. The score adds up day and week moves across all five: −10 is a sell-off everywhere, +10 a rally everywhere. "Off high" is the fall from the past year's highest close: 10% marks a correction, 20% a bear market.</p>
   </section>
 
   <!-- 7. Research highlights -->
@@ -486,7 +486,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { dayLabel, withReported } from "./src/resultsPreview.js";
+import { whenLabel, withReported } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
@@ -792,7 +792,7 @@ function renderResultsAhead(p) {
   const done = new Set(J.map((j) => j.symbol)), live = (xs) => (xs ?? []).filter((r) => r.date >= today && !done.has(r.symbol));
   const F = live(p.focus), W = live(p.watch);
   const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v).toFixed(1)}%`;
-  const when = (r) => `${dayLabel(r.date, today)}${r.estimated ? " (estimated date)" : ""}`;
+  const when = (r) => whenLabel(r, today);
   const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
   const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(shortName(r.name, r.ticker))}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
   const jtag = (j) => (j.potSkip ? `<span class="sub muted">On your skip list, so never a pot trade.</span>` : j.potBuy ? `<span class="sub t-buy">Meets the pot's drift rule: a buy at the next open (see the pot card).</span>`
@@ -1397,7 +1397,7 @@ function renderMarkets(d) {
     if (!snap) return `<div class="card muted">No data.</div>`;
     const tone = st?.type === "buy" ? "buy" : st?.type === "watch" ? "watch" : "neutral";
     const tag = st?.tier ? st.tier : "No tier";
-    const next = st?.nextTier ? `${st.nextTier.distance.toFixed(1)} pts to ${esc(st.nextTier.label)}` : "Deepest tier reached";
+    const next = st?.nextTier ? `${Math.abs(st.nextTier.distance).toFixed(1)} more points to ${esc(minus(st.nextTier.label))}` : "Deepest tier reached";
     return `<div class="card mkt">
       <div class="row"><div class="k" style="margin-right:auto">${esc(snap.name)}</div><span class="pill bg-${tone}">${esc(tag)}</span></div>
       <div class="row" style="margin-top:8px"><span class="big ${snap.drawdownPct <= -10 ? "neg" : ""}">${minus(snap.drawdownPct.toFixed(1))}%</span><span class="lvl">off high · ${num(snap.level, 0)} vs ${num(snap.peak, 0)} on ${fmtDM(snap.peakDate)}</span></div>
@@ -1444,7 +1444,7 @@ const WC = ["#c0392b", "#d9792b", "#2f6f9e", "#14855a", "#8a6fc0"];
 function renderWorld(w) {
   if (!w?.markets?.length) return;
   $("worldSection").hidden = false;
-  $("worldScore").textContent = (w.score > 0 ? "+" : "") + w.score;
+  $("worldScore").textContent = (w.score > 0 ? "+" : "") + minus(String(w.score));
   $("worldScore").className = "world-score " + (w.score >= 2 ? "pos" : w.score <= -2 ? "neg" : "muted");
   $("worldVerdict").textContent = w.label;
   $("worldSub").textContent = `${w.above200} of ${w.markets.length} markets above their 200-day average`;
@@ -1596,7 +1596,7 @@ function renderWatchlist(list) {
   const sorted = list.slice().sort((a, b) => (b.rebound - a.rebound) || (a.dropFromHigh - b.dropFromHigh));
   $("watchlist").innerHTML = sorted.map((w, i) => `
     <div class="wl-row" role="button" tabindex="0" aria-expanded="false" data-i="${i}">
-      <span><span class="nm">${esc(w.name)}</span><span class="sym">${esc(w.symbol)}</span><span class="caret">▶</span></span>
+      <span><span class="nm">${esc(w.name)}</span>${w.name === w.symbol ? "" : `<span class="sym">${esc(w.symbol)}</span>`}<span class="caret">▶</span></span>
       <span class="hide-s ${w.dropFromHigh <= -8 ? "neg" : "muted"}">${signPct(w.dropFromHigh)} off 10-day high</span>
       <span class="hide-s ${pnClass(w.lastChange)}">${signPct(w.lastChange)} last</span>
       <span class="pill ${w.rebound ? "bg-buy" : "plain"}">${w.rebound ? "Rebound" : "Watching"}</span>
