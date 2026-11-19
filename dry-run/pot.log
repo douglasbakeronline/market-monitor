@@ -1,3 +1,0 @@
-[{"kind":"bounce","ticker":"OTIS","market":"US","entryDate":"2026-11-12","exitDate":"2026-11-16","entry":78.18,"exit":77.72},{"kind":"drift","ticker":"BRBY","market":"UK","entryDate":"2026-11-13","exitDate":null,"entry":1170.5},{"kind":"bounce","ticker":"ABT","market":"US","entryDate":"2026-11-13","exitDate":null,"entry":108.2},{"kind":"bounce","ticker":"AMCR","market":"US","entryDate":"2026-11-13","exitDate":null,"entry":44.24},{"kind":"bounce","ticker":"IFF","market":"US","entryDate":"2026-11-13","exitDate":null,"entry":81.04},{"kind":"bounce","ticker":"ILMN","market":"US","entryDate":"2026-11-17","exitDate":"2026-11-18","entry":199.73,"exit":210.01}]
-unchanged apart from trades: false
-exit=0
