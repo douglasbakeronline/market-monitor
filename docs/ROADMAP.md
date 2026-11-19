@@ -58,6 +58,7 @@ In progress (19 Nov 11:41): backup prices for European listings (Later: backup p
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 19 Nov (11:41): pot card shows each holding's sell date (drift at the open after its 20th session, bounces by the 10th at the latest).
 - 19 Nov (11:41): Dashboard bench chips say why a Fair name is not a good entry ("LLOY Fair 77 · trend still down").
 - 19 Nov (daily run): trade log compares real pot fills with the book (buys against the open, sells against the exit close); pot trades carry `entry` and `exit` (research log 19 Nov: the open's cost is untested).
 - 18 Nov (22:41): company names without a leading "The" or a name that only repeats the ticker ("Walt Disney", not "The Walt Disney"; "SSE", not "SSE SSE") on the Dashboard, Trends and the pot push; the research-list card says "reported today" once the scan has the reaction.
