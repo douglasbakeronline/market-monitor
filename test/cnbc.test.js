@@ -10,6 +10,13 @@ test("cnbcSymbol maps the monitor's indices, UK, US and European symbols", () =>
   assert.equal(cnbcSymbol("VWRP.L"), "VWRP-GB");
   assert.equal(cnbcSymbol("AZN.L"), "AZN-GB");
   assert.equal(cnbcSymbol("BT-A.L"), "BT.A-GB");
+  // London's one- and two-letter tickers carry a trailing dot (BA., RR.); on
+  // CNBC "RR-GB", "SN-GB" and "AV-GB" are other, dollar-priced instruments
+  // (runner, 19 Nov).
+  assert.equal(cnbcSymbol("BA.L"), "BA.-GB");
+  assert.equal(cnbcSymbol("RR.L"), "RR.-GB");
+  assert.equal(cnbcSymbol("SN.L"), "SN.-GB");
+  assert.equal(cnbcSymbol("III.L"), "III-GB");
   assert.equal(cnbcSymbol("AAPL"), "AAPL");
   assert.equal(cnbcSymbol("BRK-B"), "BRK.B");
   // European listings, checked on the runner 19 Nov: 49 of 50 Euro Stoxx 50
