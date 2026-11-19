@@ -57,6 +57,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
+- 19 Nov (17:35): research alerts back on the phone under the plan-swing profile (a Research list stock newly a long-term good entry or a swing setup; about 6 in the last three weeks). Douglas asked for buy alerts on everything the monitor recommends. ANT price alerts added 19 Nov (138f356).
 - 19 Nov (14:41): Results ahead and the results push say whether results come before the open or after the close, and which session moves ("KEYS today, after the close (moves tomorrow)"); buy-tier distance, risk-score minus and rebound-watch name fixes.
 - 19 Nov (11:41): backup prices (CNBC) for European listings, and the right CNBC spelling for London's two-letter tickers (BA., RR., SN. and five more had no backup).
 - 19 Nov (11:41): pot card shows each holding's sell date (drift at the open after its 20th session, bounces by the 10th at the latest).
