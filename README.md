@@ -36,7 +36,7 @@ Alerts between 22:00 and 07:00 London are held until the morning (except "monito
 | Index and stock prices (daily, 10 years for the S&P) | Yahoo Finance | No |
 | Fundamentals, analyst targets, earnings dates (US and UK) | Yahoo Finance | No |
 | Backup fundamentals for US stocks | Finnhub | Optional: `FINNHUB_KEY` |
-| Backup prices when Yahoo fails (indices, VIX, VWRP, watchlist; about two years) | CNBC chart and quote feeds | No |
+| Backup prices when Yahoo fails (indices, VIX, VWRP, watchlist; US, UK and euro-area listings; about two years) | CNBC chart and quote feeds | No |
 | Last-resort backup prices for US stocks | Alpha Vantage | Optional: `ALPHAVANTAGE_KEY` |
 
 If data can't be fetched, the dashboard keeps the last good values, marks them stale, pauses price-based signals (they never fire or reset on missing data) and sends one "monitor problem" alert.
