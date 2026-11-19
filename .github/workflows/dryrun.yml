@@ -1,5 +1,5 @@
 name: Dry run
-# 19 Nov 11:41 build: CNBC spellings for European listings against Yahoo (tools/cnbc-eu-probe.mjs); monitor, tests.
+# 19 Nov 11:41 build: European backup prices through fetchDaily (Yahoo forced off) against Yahoo; trends with backup only; monitor; tests.
 on:
   push:
     branches: [dryrun]
@@ -20,7 +20,10 @@ jobs:
           rm -f dry-run/*.html dry-run/*.gz dry-run/*.json dry-run/probe.log
           mkdir -p dry-run
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          node tools/cnbc-eu-probe.mjs > dry-run/cnbc-eu.log 2>&1; echo "exit=$?" >> dry-run/cnbc-eu.log
+          PRICES_FORCE_BACKUP=1 node -e 'import("./src/data/prices.js").then(async ({ fetchDaily }) => { const y = new Map(); for (const s of ["ASML.AS", "MC.PA", "SAP.DE", "ENEL.MI", "ITX.MC", "ABI.BR", "NOKIA.HE", "NDA-FI.HE", "^STOXX50E", "VWRP.L", "AAPL"]) { try { const d = await fetchDaily(s, { range: "2y" }); const l = d.rows.at(-1); console.log(s, d.source, d.currency, d.tz, d.rows.length, "bars", l.date, l.close, "live", d.live); } catch (e) { console.log(s, "failed:", e.message); } } })' > dry-run/backup.log 2>&1; echo "exit=$?" >> dry-run/backup.log
+          node -e 'import("./src/data/prices.js").then(async ({ fetchDaily }) => { for (const s of ["ASML.AS", "MC.PA", "SAP.DE", "ENEL.MI", "ITX.MC", "ABI.BR", "NOKIA.HE"]) { const d = await fetchDaily(s, { range: "2y", backup: false }); const l = d.rows.at(-1); console.log(s, d.source, d.currency, d.tz, d.rows.length, "bars", l.date, l.close, "live", d.live); } })' > dry-run/yahoo.log 2>&1; echo "exit=$?" >> dry-run/yahoo.log
+          PRICES_FORCE_BACKUP=1 DRY_RUN=1 node trends.js > dry-run/trends-backup.log 2>&1; echo "exit=$?" >> dry-run/trends-backup.log
+          git checkout -- trends.json 2>/dev/null || true
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"
