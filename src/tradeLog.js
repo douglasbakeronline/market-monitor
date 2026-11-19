@@ -172,12 +172,40 @@ export function potAdherence(potTrades = [], trades = [], today) {
     // date: the entry open or the exit close (matching windows run from it);
     // orderDate: the open the order was for (a sell's is the next session).
     const orderDate = d.side === "sell" ? nextSession(d.date, d.p.market) : d.date;
-    items.push({ side: d.side, date: d.date, orderDate, ticker: d.p.ticker, kind: d.p.kind, status, trade: t?.x.id ?? null });
+    // ref: the book's price for this side (entry open, or exit close), for potFills().
+    const ref = d.side === "buy" ? d.p.entry : d.p.exit;
+    items.push({ side: d.side, date: d.date, orderDate, ticker: d.p.ticker, kind: d.p.kind, status, trade: t?.x.id ?? null, ...(ref > 0 ? { ref } : {}) });
   }
   const counted = items.filter((i) => i.status !== "pending"), onTime = counted.filter((i) => i.status === "on-time").length;
   const headline = !items.length ? null : !counted.length ? `Short-term pot: ${items.length} order${items.length > 1 ? "s" : ""} not yet logged`
     : `Short-term pot: ${onTime} of ${counted.length} order${counted.length > 1 ? "s" : ""} logged on time${items.length > counted.length ? `; ${items.length - counted.length} more still open to log` : ""}`;
   return { items, onTime, counted: counted.length, headline };
+}
+
+// Real fills against the book (19 Nov, research log): the backtests assume a
+// buy fills at the official open, and the book sells at the exit close while
+// Douglas sells at the next open. Each logged pot trade with a price is
+// compared with the book's price for its side; positive = cost (paid more on
+// a buy, got less on a sell). Prices as Trading 212 shows them (pence for
+// London, the share's own currency otherwise), the same units as the book.
+export function potFills(items = [], trades = []) {
+  const byId = new Map(trades.map((x) => [x.id, x]));
+  const acc = { buy: [], sell: [] };
+  for (const i of items) {
+    const x = i.trade ? byId.get(i.trade) : null;
+    if (!x || !(x.price > 0) || !(i.ref > 0)) continue;
+    acc[i.side].push(i.side === "buy" ? (x.price / i.ref - 1) * 100 : (i.ref / x.price - 1) * 100);
+  }
+  const sum = (a) => (a.length ? { n: a.length, avg: Math.round((a.reduce((s, v) => s + v, 0) / a.length) * 100) / 100 } : { n: 0, avg: null });
+  const buy = sum(acc.buy), sell = sum(acc.sell);
+  const n = (k) => `${k} order${k > 1 ? "s" : ""}`;
+  const word = (v) => `${Math.abs(v).toFixed(2)}% ${v >= 0 ? "more" : "less"}`;
+  const parts = [];
+  if (buy.n) parts.push(`buys paid ${word(buy.avg)} than the open (${n(buy.n)})`);
+  // A sell's cost reads the other way: getting more than the book is a gain.
+  if (sell.n) parts.push(`sells got ${Math.abs(sell.avg).toFixed(2)}% ${sell.avg >= 0 ? "less" : "more"} than the exit close (${n(sell.n)}; sold a session later, as agreed)`);
+  const line = parts.length ? `Fills against the book: ${parts.join("; ")}. Tested costs assume fills at the open.` : null;
+  return { buy, sell, line };
 }
 
 // The pot orders still to log, for the trade log card: missed orders first

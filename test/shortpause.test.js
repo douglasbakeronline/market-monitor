@@ -55,7 +55,7 @@ const PT = [
 
 test("shortPot: exposes the trades it took for the trade log", () => {
   const p = shortPot([tr({ kind: "drift", symbol: "A", signalDate: "2026-11-11", status: "closed", entryDate: "2026-11-12", entry: 10, exitDate: "2026-11-13", exit: 12, netPct: 5 })]);
-  assert.deepEqual(p.trades, [{ kind: "drift", ticker: "A", market: "US", entryDate: "2026-11-12", exitDate: "2026-11-13" }]);
+  assert.deepEqual(p.trades, [{ kind: "drift", ticker: "A", market: "US", entryDate: "2026-11-12", exitDate: "2026-11-13", entry: 10, exit: 12 }]);
 });
 
 test("potTradeFor: buys near the entry open, sells after entry up to a week past the exit", () => {

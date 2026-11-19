@@ -148,3 +148,13 @@ test("hand-checked dates read as that session (07:00 RNS), not the bigger of two
   // A hand-checked after-close reporter still reacts the next session.
   assert.equal(resultsPreview(items, { ...opts, known: { "SSE.L": [rows[100].date] }, afterClose: new Set(["SSE.L"]) }).focus[0].typical, 9);
 });
+
+// 18 Nov (22:41): at 23:00 the Dashboard's research-list card still read
+// "SSE today" while Results ahead listed SSE under Just reported.
+test("withReported marks a list date the scan already saw reported", async () => {
+  const { withReported } = await import("../src/resultsPreview.js");
+  const just = [{ ticker: "SSE", date: "2026-11-18" }, { ticker: "HD", date: "2026-11-17" }];
+  const out = withReported([{ ticker: "SSE", date: "2026-11-18", days: 0 }, { ticker: "SSE", date: "2027-05-20", days: 183 }, { ticker: "NVDA", date: "2026-11-19", days: 1 }], just);
+  assert.deepEqual(out.map((x) => !!x.reported), [true, false, false]);
+  assert.deepEqual(withReported([{ ticker: "SSE", date: "2026-11-18" }], null).map((x) => !!x.reported), [false]);
+});

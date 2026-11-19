@@ -97,7 +97,8 @@ export function shortPot(log = [], opts = {}) {
     avgNetPct: closed.length ? r2(closed.reduce((a, x) => a + x.netPct, 0) / closed.length) : null,
     recent: closed.slice(-8).reverse(), curve,
     // Every trade the pot took (newest 200), so the trade log can match them.
-    trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null })),
+    // entry (the open) and exit (the exit close) let the trade log compare real fills (potFills, 19 Nov).
+    trades: taken.slice(-200).map((x) => ({ kind: x.kind, ticker: x.ticker, market: x.market, entryDate: x.entryDate, exitDate: x.exitDate ?? null, entry: x.entry, ...(x.exit != null ? { exit: x.exit } : {}) })),
   };
 }
 

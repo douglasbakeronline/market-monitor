@@ -486,7 +486,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
 import { fileWith } from "./src/priceAlerts.js";
-import { dayLabel } from "./src/resultsPreview.js";
+import { dayLabel, withReported } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
@@ -497,7 +497,7 @@ import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize, signalPotTag } from "./src/shortPot.js";
 import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
-import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, potNotLogged, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
+import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, potNotLogged, potFills, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
 const BANDS = [
@@ -1282,7 +1282,9 @@ function renderTl(form = false, err = "") {
   const pNot = potNotLogged(pAdh.items, 8);
   const potOrd = (i) => { const od = i.orderDate ?? i.date; return `${i.side} ${esc(i.ticker)} ${fmtDay(od)} ${MON[+od.slice(5, 7) - 1]}`; };
   const potList = [pNot.missed.length ? `missed: ${pNot.missed.map(potOrd).join(", ")}` : "", pNot.open.length ? `still to log: ${pNot.open.map(potOrd).join(", ")}` : ""].filter(Boolean).join(" · ") + (pNot.more ? ` and ${pNot.more} more` : "");
-  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${potList ? `<span class="muted"> · ${potList}</span>` : ""}</div>` : "";
+  // Real fills against the book's prices (19 Nov; needs a price on the logged trade, as a Trading 212 import has).
+  const fills = potFills(pAdh.items, trades);
+  const potLine = pAdh.headline ? `<div class="small" style="margin-top:8px"><b>${esc(pAdh.headline)}</b>${potList ? `<span class="muted"> · ${potList}</span>` : ""}</div>${fills.line ? `<div class="small muted" style="margin-top:4px">${esc(fills.line)}</div>` : ""}` : "";
   const head = `<div class="tl-head"><div style="flex:1;min-width:200px"><div class="k">Plan adherence</div><div class="label">${esc(trades.length ? adh.headline : "Nothing logged yet")}</div>${adh.offPlan ? `<div class="small muted">${adh.offPlan} off-plan trade${adh.offPlan > 1 ? "s" : ""} logged</div>` : ""}</div>${form ? "" : `<button class="btn primary" id="tlAdd" type="button">Log a trade</button>`}</div>`;
   const sched = shown.length ? `<ul class="tl-sched">${shown.map((i) => { const [l, c] = ADH[i.status]; return `<li><span class="dt">${fmtDay(i.date)} ${MON[+i.date.slice(5, 7) - 1]}</span><span>${esc(i.title)}${i.tickers.length ? `<span class="sub">${esc(i.tickers.join(", "))}</span>` : ""}</span><span class="pill ${c}">${l}</span></li>`; }).join("")}</ul>` : "";
   let body = "";
@@ -1468,7 +1470,7 @@ function renderHighlights(h) {
   $("hl").innerHTML =
     list("Long-term", h.longTerm, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "Nothing scoring well right now.") +
     list("Swing setups", h.swing, (x) => `<li><span><b>${esc(x.ticker)}</b> <span class="muted">${esc(x.verdict)}</span></span><span>${x.score}</span></li>`, "No setups today.") +
-    list("Earnings in the next week", earnSoon(h.earnings), (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
+    list("Earnings in the next week", withReported(earnSoon(h.earnings), LAST_DATA?.resultsPreview?.just), (x) => `<li><span><b>${esc(x.ticker)}</b></span><span class="muted">${x.reported ? `reported ${x.days === 0 ? "today" : fmtDay(x.date)}` : x.days === 0 ? "today" : fmtDay(x.date)}</span></li>`, "None in the next 7 days.");
 }
 
 const DOWN_GOOD = new Set(["greed", "trim"]);

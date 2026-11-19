@@ -5154,5 +5154,39 @@
       "Golden cross"
     ],
     "status": "pending"
+  },
+  {
+    "id": "2026-11-18:EXPN.L",
+    "symbol": "EXPN.L",
+    "ticker": "EXPN",
+    "name": "Experian plc",
+    "market": "UK",
+    "currency": "GBp",
+    "signalDate": "2026-11-18",
+    "signalPrice": 2866,
+    "stop": 2680.53,
+    "score": 66,
+    "why": [
+      "Uptrend",
+      "High-volume up day"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "2026-11-18:TGT",
+    "symbol": "TGT",
+    "ticker": "TGT",
+    "name": "Target Corporation",
+    "market": "US",
+    "currency": "USD",
+    "signalDate": "2026-11-18",
+    "signalPrice": 165.93,
+    "stop": 154.87,
+    "score": 66,
+    "why": [
+      "Uptrend",
+      "High-volume up day"
+    ],
+    "status": "pending"
   }
 ]

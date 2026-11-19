@@ -145,6 +145,14 @@ export function justReported(items = [], { rowsBySymbol = {}, reported = {}, foc
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Marks results dates the scan already saw reported (its "Just reported"
+// list), so the Dashboard's research-list card stops saying "today" once the
+// reaction is in (18 Nov: "SSE today" at 23:00, beside SSE under Just reported).
+export function withReported(list = [], just = []) {
+  const seen = new Set((just ?? []).map((j) => `${j.ticker}|${j.date}`));
+  return (list ?? []).map((x) => (seen.has(`${x.ticker}|${x.date}`) ? { ...x, reported: true } : x));
+}
+
 export const dayLabel = (date, today) => {
   const n = dayDiff(date, today);
   if (n === 0) return "today";
