@@ -1799,7 +1799,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-19T11:54:17.094Z",
+    "fgAt": "2026-11-19T11:56:25.725Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1878,18 +1878,18 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10516.72,
+        "level": 10515.21,
         "date": "2026-11-19",
-        "asOf": "2026-11-19T11:39:16.000Z",
+        "asOf": "2026-11-19T11:41:24.000Z",
         "currency": "GBP",
         "drawdownPct": -3.6,
         "peak": 10910.6,
         "peakDate": "2026-02-27",
-        "sma50": 10689.76,
-        "sma200": 10559.93,
+        "sma50": 10689.73,
+        "sma200": 10559.92,
         "vs200Pct": -0.4,
         "above200": false,
-        "rsi14": 38.9,
+        "rsi14": 38.8,
         "dayPct": -0.3,
         "weekPct": -3.2,
         "monthPct": -2.2,
@@ -1913,7 +1913,7 @@
           },
           {
             "date": "2026-11-19",
-            "pct": -0.33
+            "pct": -0.34
           }
         ],
         "series": [
@@ -1946,15 +1946,15 @@
           3.12,
           1.31,
           -0.01,
-          -0.34
+          -0.35
         ]
       },
       "vix": {
-        "level": 21.99,
-        "dayPct": -10.5,
+        "level": 22.01,
+        "dayPct": -10.4,
         "date": "2026-11-19"
       },
-      "at": "2026-11-19T11:54:17.094Z"
+      "at": "2026-11-19T11:56:25.725Z"
     },
     "watchlist": [
       {
@@ -2514,9 +2514,9 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13479.09,
+        "price": 13485,
         "date": "2026-11-19",
-        "dropFromHigh": -4.2,
+        "dropFromHigh": -4.1,
         "lastChange": -1.2,
         "previous": -1.1,
         "week": -3.2,
@@ -2551,7 +2551,7 @@
           16.97,
           15.04,
           13.74,
-          12.34
+          12.39
         ],
         "rebound": false
       },
@@ -2560,13 +2560,13 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3561,
+        "price": 3563.5,
         "date": "2026-11-19",
-        "dropFromHigh": -5.9,
-        "lastChange": -1,
+        "dropFromHigh": -5.8,
+        "lastChange": -0.9,
         "previous": -2.1,
         "week": -2.8,
-        "month": -8.9,
+        "month": -8.8,
         "series": [
           0,
           1.12,
@@ -2597,7 +2597,7 @@
           -2.32,
           -3.16,
           -5.22,
-          -6.13
+          -6.06
         ],
         "rebound": false
       },
@@ -2606,13 +2606,13 @@
         "yahoo": "HSBA.L",
         "name": "HSBC",
         "currency": "GBp",
-        "price": 1299.2,
+        "price": 1298.2,
         "date": "2026-11-19",
         "dropFromHigh": -4.2,
         "lastChange": 0.5,
         "previous": -2.1,
-        "week": -4,
-        "month": -7.1,
+        "week": -4.1,
+        "month": -7.2,
         "series": [
           0,
           2.34,
@@ -2643,7 +2643,7 @@
           -3.5,
           -5.44,
           -7.42,
-          -6.92
+          -6.99
         ],
         "rebound": false
       }
@@ -2719,8 +2719,8 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 139.32,
-      "price": "£139.32",
+      "level": 139.36,
+      "price": "£139.36",
       "currency": "GBP",
       "date": "2026-11-19",
       "drawdownPct": -5.3,
