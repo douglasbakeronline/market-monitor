@@ -490,7 +490,7 @@
     "fg": {
       "score": 25,
       "rating": "extreme fear",
-      "asOf": "2026-11-18T20:59:58+00:00",
+      "asOf": "2026-11-18T23:59:50+00:00",
       "comparisons": {
         "close": 25,
         "week": 36,
@@ -525,7 +525,7 @@
         {
           "key": "market_volatility_vix",
           "label": "Market volatility",
-          "score": 28,
+          "score": 29,
           "rating": "fear"
         },
         {
@@ -537,16 +537,11 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 42,
+          "score": 41,
           "rating": "fear"
         }
       ],
       "history": [
-        {
-          "date": "2025-11-18",
-          "t": 1763424000000,
-          "y": 9
-        },
         {
           "date": "2025-11-19",
           "t": 1763510400000,
@@ -1794,19 +1789,19 @@
         },
         {
           "date": "2026-11-18",
-          "t": 1795035598000,
+          "t": 1795046390000,
           "y": 25
         }
       ]
     },
-    "fgAt": "2026-11-18T21:10:53.325Z",
+    "fgAt": "2026-11-19T02:35:17.064Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7323.63,
         "date": "2026-11-18",
-        "asOf": "2026-11-18T21:10:52.000Z",
+        "asOf": "2026-11-18T21:57:25.000Z",
         "currency": "USD",
         "drawdownPct": -6.3,
         "peak": 7818.93,
@@ -1950,11 +1945,11 @@
         ]
       },
       "vix": {
-        "level": 24.39,
-        "dayPct": -4.2,
+        "level": 24.56,
+        "dayPct": -3.5,
         "date": "2026-11-18"
       },
-      "at": "2026-11-18T21:10:53.325Z"
+      "at": "2026-11-19T02:35:17.064Z"
     },
     "watchlist": [
       {
@@ -2422,12 +2417,12 @@
         "yahoo": "V",
         "name": "Visa",
         "currency": "USD",
-        "price": 415.1,
+        "price": 415.22,
         "date": "2026-11-18",
         "dropFromHigh": -4.9,
         "lastChange": -0.4,
         "previous": -2.3,
-        "week": -2.5,
+        "week": -2.4,
         "month": 2.1,
         "series": [
           0,
@@ -2459,7 +2454,7 @@
           13.51,
           13.69,
           11.11,
-          10.66
+          10.7
         ],
         "rebound": false
       },
@@ -2468,9 +2463,9 @@
         "yahoo": "JPM",
         "name": "JPMorgan",
         "currency": "USD",
-        "price": 324.13,
+        "price": 324.11,
         "date": "2026-11-18",
-        "dropFromHigh": -7.9,
+        "dropFromHigh": -8,
         "lastChange": -1.8,
         "previous": -2.4,
         "week": -5.6,
@@ -2505,7 +2500,7 @@
           4.46,
           2.05,
           -0.44,
-          -2.2
+          -2.21
         ],
         "rebound": false
       },
@@ -2737,7 +2732,16 @@
       "note": "VWRP is 6.3% below its 52-week high in pounds, about the same as the S&P 500's 6.3% in dollars."
     }
   },
-  "pending": [],
+  "pending": [
+    {
+      "kind": "swing",
+      "priority": "default",
+      "tags": "checkered_flag",
+      "title": "Swing trade (paper): closed MRK, DE",
+      "body": "MRK: -1.05R after costs (stop hit).\nDE: -1.06R after costs (stop hit).\nPaper only. Book -5.08% since 2 Nov (S&P -3.38%); 4 open.",
+      "heldAt": "02:35"
+    }
+  ],
   "crashDate": {
     "US": "2026-11-05"
   },
@@ -2747,10 +2751,12 @@
     "orders": [],
     "closed": [
       "2026-11-04:DASH",
-      "2026-10-30:IEX"
+      "2026-10-30:IEX",
+      "2026-10-30:MRK",
+      "2026-10-30:DE"
     ]
   },
-  "shortSeen": "2026-11-17",
+  "shortSeen": "2026-11-18",
   "shortPotStage": null,
   "resultsSent": {
     "SSE.L|2026-11-18": [
