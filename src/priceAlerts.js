@@ -56,7 +56,7 @@ const fmtLevel = (v) => (Number.isInteger(v) ? String(v) : fmt(v)); // a level a
 // state: { [id]: { active, at, price } }. Returns { alerts, state, view }.
 // `prices` maps symbol to latestPrice() output (or null).
 export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
-  const state = {}, alerts = [], view = [];
+  const state = {}, alerts = [], view = [], fired = [];
   for (const a of parsed.alerts) {
     const p = prices[a.symbol] ?? null;
     const was = prevState[a.id] ?? { active: false };
@@ -64,6 +64,7 @@ export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
     if (p) {
       if (!was.active && crossed(a, p.price)) {
         s = { active: true, at: now.toISOString(), price: p.price };
+        fired.push({ id: a.id, symbol: a.symbol, dir: a.dir, level: a.level, price: p.price, at: s.at });
         const label = a.name || a.symbol;
         alerts.push({
           kind: "price", priority: "high", tags: a.dir === "below" ? "chart_with_downwards_trend" : "chart_with_upwards_trend",
@@ -78,8 +79,26 @@ export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
     const dist = p ? Math.round((p.price / a.level - 1) * 1000) / 10 : null;
     view.push({ id: a.id, symbol: a.symbol, name: a.name, note: a.note, dir: a.dir, level: a.level, price: p?.price ?? null, date: p?.date ?? null, distPct: dist, active: !!s.active, firedAt: s.active ? s.at ?? null : null });
   }
-  return { alerts, state, view, invalid: parsed.invalid };
+  return { alerts, state, view, invalid: parsed.invalid, fired };
 }
+
+// Reached log: every fire, kept after the level re-arms (state forgets it
+// then), newest last, capped. Lives in state.json as `priceAlertLog`.
+export const LOG_MAX = 40;
+export function withReached(log, fired = []) {
+  return [...(Array.isArray(log) ? log : []), ...(fired ?? [])].slice(-LOG_MAX);
+}
+// Decorate view rows with their latest fire: lastAt (London-agnostic ISO
+// date), lastPrice and the move since then from today's price.
+withReached.view = (view = [], log = []) => view.map((v) => {
+  const hit = (log ?? []).findLast((e) => e.id === v.id);
+  const since = hit && v.price > 0 && hit.price > 0 ? Math.round((v.price / hit.price - 1) * 1000) / 10 : null;
+  return { ...v, lastAt: hit ? hit.at.slice(0, 10) : null, lastPrice: hit ? hit.price : null, sincePct: since };
+});
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const dayMonth = (iso) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;
+const sinceText = (a) => (a.lastAt ? ` (${dayMonth(a.lastAt)} at ${fmt(a.lastPrice)}${!a.sincePct ? "" : `, ${a.sincePct > 0 ? "+" : ""}${a.sincePct}% since`})` : "");
 
 // The move still needed from today's price to reach the level, in percent
 // (positive while armed and short of it). Measured from the price, so "6.9%
@@ -148,7 +167,7 @@ export function digestLine(view = [], within = 10, max = 3) {
     .filter((x) => x.togo > 0 && x.togo <= within).sort((x, y) => x.togo - y.togo).slice(0, max);
   if (!reached.length && !near.length) return view.length ? `Price alerts: ${view.length} set, none within ${within}% of its level.` : null;
   const parts = [];
-  if (reached.length) parts.push(`reached: ${reached.map(fmtL).join(", ")}`);
+  if (reached.length) parts.push(`reached: ${reached.map((a) => fmtL(a) + sinceText(a)).join(", ")}`);
   if (near.length) parts.push(`closest: ${near.map(({ a, togo }) => `${fmtL(a)} (${togo.toFixed(1)}% to go)`).join(", ")}`);
   return `Price alerts ${parts.join("; ")}.`;
 }

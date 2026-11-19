@@ -17,7 +17,7 @@ import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals,
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines, picksWeekLine, PLAN } from "./src/plan.js";
-import { parseAlerts, latestPrice, checkAlerts, digestLine as alertDigestLine } from "./src/priceAlerts.js";
+import { parseAlerts, latestPrice, checkAlerts, withReached, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag, fillCloses } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
 import { checksDigestLine } from "./src/dataChecks.js";
@@ -108,6 +108,8 @@ async function main() {
   const paPrices = Object.fromEntries(paSymbols.map((s) => [s, latestPrice((wlData[s] ?? paData[s])?.rows, now)]));
   const pa = checkAlerts(paParsed, paPrices, state.priceAlerts ?? {}, now);
   state.priceAlerts = pa.state;
+  state.priceAlertLog = withReached(state.priceAlertLog, pa.fired);
+  pa.view = withReached.view(pa.view, state.priceAlertLog);
   if (paParsed.alerts.length) console.log(`Price alerts: ${paParsed.alerts.length} checked, ${pa.alerts.length} fired`);
 
   // --- 4. Regime, status, context ---------------------------------------------
