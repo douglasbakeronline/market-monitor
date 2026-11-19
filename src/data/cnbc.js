@@ -31,7 +31,9 @@ export function cnbcSymbol(symbol) {
   const eu = euParts(symbol);
   if (eu) return `${eu.base}-${eu.cc}`;
   const uk = /^([A-Z0-9]+)(?:-([A-Z]))?\.L$/.exec(symbol);
-  if (uk) return `${uk[1]}${uk[2] ? `.${uk[2]}` : ""}-GB`;
+  // London's one- and two-letter tickers end in a dot ("BA.", "RR."); without
+  // it CNBC finds other, dollar-priced instruments (19 Nov, runner).
+  if (uk) return `${uk[1]}${uk[2] ? `.${uk[2]}` : uk[1].length <= 2 ? "." : ""}-GB`;
   if (/^[A-Z]+(?:-[A-Z])?$/.test(symbol)) return symbol.replace("-", ".");
   return null;
 }
