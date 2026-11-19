@@ -2,16 +2,19 @@
 // follow-up b). Run on a dry-run runner (Yahoo and CNBC are blocked from the
 // sandbox): for every European name in scan.json, try CNBC symbol spellings
 // and compare the last 60 common closes with Yahoo's. Prints one line per name
-// and a summary per exchange; maps nothing by itself.
+// and a summary per exchange; maps nothing by itself. --uk checks London
+// listings instead (spellings "BA-GB" and "BA.-GB").
 import { readFileSync } from "node:fs";
 import { fetchDaily } from "../src/data/prices.js";
 import { fetchJson } from "../src/data/http.js";
 import { parseCnbcBars } from "../src/data/cnbc.js";
 
-const CAND = { PA: ["FR", "PA"], DE: ["DE", "XE", "GY"], AS: ["NL", "AE", "AS"], MI: ["IT", "MI"], MC: ["ES", "MC"], BR: ["BE", "BR"], HE: ["FI", "HE"] };
+const CAND = { L: ["GB", ".-GB"], PA: ["FR", "PA"], DE: ["DE", "XE", "GY"], AS: ["NL", "AE", "AS"], MI: ["IT", "MI"], MC: ["ES", "MC"], BR: ["BE", "BR"], HE: ["FI", "HE"] };
 const scan = JSON.parse(readFileSync("scan.json", "utf8"));
-const eu = scan.items.map((i) => i.symbol).filter((s) => /\.(PA|DE|AS|MI|MC|BR|HE)$/.test(s));
-const only = process.argv[2] ? process.argv[2].split(",") : null;
+const uk = process.argv.includes("--uk");
+const eu = scan.items.map((i) => i.symbol).filter((s) => (uk ? /\.L$/ : /\.(PA|DE|AS|MI|MC|BR|HE)$/).test(s));
+const arg = process.argv.slice(2).find((a) => !a.startsWith("--"));
+const only = arg ? arg.split(",") : null;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const byEx = {};
 for (const sym of only ?? eu) {
@@ -22,7 +25,8 @@ for (const sym of only ?? eu) {
   let found = null;
   const tried = [];
   for (const cc of CAND[ex]) {
-    const cs = `${base.replace(/-.*$/, "")}-${cc}`;
+    const b = ex === "L" ? base.replace("-", ".") : base.replace(/-.*$/, "");
+    const cs = cc.startsWith(".") ? `${b}${cc}` : `${b}-${cc}`;
     try {
       const j = await fetchJson(`https://ts-api.cnbc.com/harmony/app/charts/1Y.json?symbol=${encodeURIComponent(cs)}`, { tries: 1 });
       const rows = parseCnbcBars(j);
