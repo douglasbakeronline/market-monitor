@@ -57,7 +57,7 @@ Working plan for Market Monitor. Claude develops this autonomously (Douglas gran
 - 5 Nov: NVDA, ALL, MRO, NVR checked: stops (2×ATR), 52-week ranges and yields consistent; NVDA's forward P/E of 12.6 (trailing 25.3) is Yahoo's next-year estimate, plausible given +106% revenue growth. Found and fixed: 1-year return missing for every US stock (251 sessions in a "1y" download). The scan's "-1 days" results date was fixed the same evening.
 
 ## Done (recent)
-- 19 Nov (22:41): price alerts keep a reached log (`priceAlertLog` in state.json): the card shows "last hit" under a re-armed level and the move since a reached one; the digest says when.
+- 19 Nov (22:41): price alerts keep a reached log (`priceAlertLog` in state.json): the card shows "last hit" under a re-armed level and the move since a reached one; the digest says when; a level firing again says when it was last reached.
 - 19 Nov (19:41): price alerts: the Dashboard's "Make the file" builder kept one entry per stock, so any change would have collapsed the three ANT tiers into one (below 83 with tier 1's note); tiers now stay separate entries. "% to go" is measured from today's price (ANT below 90: 6.9%, was 7.4%). Whole levels read "90", not "90.0".
 - 19 Nov (17:35): research alerts back on the phone under the plan-swing profile (a Research list stock newly a long-term good entry or a swing setup; about 6 in the last three weeks). Douglas asked for buy alerts on everything the monitor recommends. ANT price alerts added 19 Nov (138f356).
 - 19 Nov (14:41): Results ahead and the results push say whether results come before the open or after the close, and which session moves ("KEYS today, after the close (moves tomorrow)"); buy-tier distance, risk-score minus and rebound-watch name fixes.

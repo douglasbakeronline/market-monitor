@@ -53,9 +53,13 @@ export function latestPrice(rows, now = new Date()) {
 const fmt = (v) => (v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2));
 const fmtLevel = (v) => (Number.isInteger(v) ? String(v) : fmt(v)); // a level as written: 90, not 90.0
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const dayMonth = (iso) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;
+
 // state: { [id]: { active, at, price } }. Returns { alerts, state, view }.
-// `prices` maps symbol to latestPrice() output (or null).
-export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
+// `prices` maps symbol to latestPrice() output (or null); `log` is the
+// reached log, so a level firing again says when it was last reached.
+export function checkAlerts(parsed, prices, prevState = {}, now = new Date(), log = []) {
   const state = {}, alerts = [], view = [], fired = [];
   for (const a of parsed.alerts) {
     const p = prices[a.symbol] ?? null;
@@ -70,6 +74,7 @@ export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
           kind: "price", priority: "high", tags: a.dir === "below" ? "chart_with_downwards_trend" : "chart_with_upwards_trend",
           title: `${label} ${a.dir === "below" ? "at or below" : "at or above"} ${fmtLevel(a.level)}`,
           body: [`${label} (${a.symbol}) is ${fmt(p.price)}${p.dayPct == null ? "" : ` (${p.dayPct > 0 ? "+" : ""}${p.dayPct}% today)`}, your alert level was ${fmtLevel(a.level)}.`,
+            ((h) => (h ? `Last reached ${dayMonth(h.at)} at ${fmt(h.price)}.` : null))((log ?? []).findLast((e) => e.id === a.id)),
             a.note ? `Your note: ${a.note}` : null,
             "Check the Research page and the plan before acting (no trade within 7 days before results)."].filter(Boolean).join("\n"),
         });
@@ -96,8 +101,6 @@ withReached.view = (view = [], log = []) => view.map((v) => {
   return { ...v, lastAt: hit ? hit.at.slice(0, 10) : null, lastPrice: hit ? hit.price : null, sincePct: since };
 });
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const dayMonth = (iso) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;
 const sinceText = (a) => (a.lastAt ? ` (${dayMonth(a.lastAt)} at ${fmt(a.lastPrice)}${!a.sincePct ? "" : `, ${a.sincePct > 0 ? "+" : ""}${a.sincePct}% since`})` : "");
 
 // The move still needed from today's price to reach the level, in percent

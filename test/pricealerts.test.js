@@ -139,3 +139,11 @@ test("digestLine: no 'since' while the price is where it fired", () => {
   const view = [{ id: "A<9", symbol: "A", dir: "below", level: 9, price: 8, active: true, lastAt: "2026-11-19", lastPrice: 8, sincePct: 0 }];
   assert.equal(digestLine(view), "Price alerts reached: A below 9 (19 Nov at 8.00).");
 });
+
+test("checkAlerts: a level firing again says when it was last reached", () => {
+  const parsed = parseAlerts([{ symbol: "VICI", below: 28 }]);
+  const log = [{ id: "VICI<28", symbol: "VICI", dir: "below", level: 28, price: 27.6, at: "2026-11-02T15:00:00Z" }];
+  const r = checkAlerts(parsed, { VICI: P(27.9) }, {}, NOW, log);
+  assert.match(r.alerts[0].body, /Last reached 2 Nov at 27\.6\./);
+  assert.doesNotMatch(checkAlerts(parsed, { VICI: P(27.9) }, {}, NOW).alerts[0].body, /Last reached/);
+});

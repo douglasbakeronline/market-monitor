@@ -106,7 +106,7 @@ async function main() {
   const paMissing = paSymbols.filter((s) => !wlData[s]);
   const paData = paMissing.length ? await fetchMany(paMissing, { range: "5d" }) : {};
   const paPrices = Object.fromEntries(paSymbols.map((s) => [s, latestPrice((wlData[s] ?? paData[s])?.rows, now)]));
-  const pa = checkAlerts(paParsed, paPrices, state.priceAlerts ?? {}, now);
+  const pa = checkAlerts(paParsed, paPrices, state.priceAlerts ?? {}, now, state.priceAlertLog);
   state.priceAlerts = pa.state;
   state.priceAlertLog = withReached(state.priceAlertLog, pa.fired);
   pa.view = withReached.view(pa.view, state.priceAlertLog);
