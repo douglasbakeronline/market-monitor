@@ -11,7 +11,7 @@
   "trimActive": false,
   "fearNoDipActive": false,
   "summarySent": {
-    "UK": "2026-11-18",
+    "UK": "2026-11-19",
     "US": "2026-11-18"
   },
   "digestSent": "2026-W46",
@@ -488,14 +488,14 @@
   "health": {},
   "lastGood": {
     "fg": {
-      "score": 25,
+      "score": 24,
       "rating": "extreme fear",
-      "asOf": "2026-11-18T23:59:50+00:00",
+      "asOf": "2026-11-19T01:59:54+00:00",
       "comparisons": {
         "close": 25,
-        "week": 36,
-        "month": 18,
-        "year": 9
+        "week": 40,
+        "month": 20,
+        "year": 8
       },
       "components": [
         {
@@ -507,13 +507,13 @@
         {
           "key": "stock_price_strength",
           "label": "Stock price strength",
-          "score": 34,
+          "score": 32,
           "rating": "fear"
         },
         {
           "key": "stock_price_breadth",
           "label": "Stock price breadth",
-          "score": 40,
+          "score": 35,
           "rating": "fear"
         },
         {
@@ -1789,19 +1789,24 @@
         },
         {
           "date": "2026-11-18",
-          "t": 1795046390000,
-          "y": 25
+          "t": 1794960000000,
+          "y": 24
+        },
+        {
+          "date": "2026-11-19",
+          "t": 1795053594000,
+          "y": 24
         }
       ]
     },
-    "fgAt": "2026-11-19T02:35:17.064Z",
+    "fgAt": "2026-11-19T08:15:00.374Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7323.63,
         "date": "2026-11-18",
-        "asOf": "2026-11-18T21:57:25.000Z",
+        "asOf": "2026-11-18T21:00:00.000Z",
         "currency": "USD",
         "drawdownPct": -6.3,
         "peak": 7818.93,
@@ -1949,7 +1954,7 @@
         "dayPct": -3.5,
         "date": "2026-11-18"
       },
-      "at": "2026-11-19T02:35:17.064Z"
+      "at": "2026-11-19T08:15:00.374Z"
     },
     "watchlist": [
       {
@@ -2644,22 +2649,22 @@
       }
     ],
     "context": {
-      "score": 25,
+      "score": 24,
       "band": [
-        20,
-        30
+        19,
+        29
       ],
       "since": "2020-07-15",
-      "days": 221,
-      "episodes": 23,
+      "days": 199,
+      "episodes": 24,
       "horizons": [
         {
           "key": "m1",
           "label": "1 month",
           "similar": {
-            "n": 212,
-            "median": 1.9,
-            "positive": 71
+            "n": 191,
+            "median": 2,
+            "positive": 72
           },
           "baseline": {
             "n": 1574,
@@ -2671,9 +2676,9 @@
           "key": "m3",
           "label": "3 months",
           "similar": {
-            "n": 203,
-            "median": 4,
-            "positive": 67
+            "n": 183,
+            "median": 4.1,
+            "positive": 68
           },
           "baseline": {
             "n": 1532,
@@ -2685,9 +2690,9 @@
           "key": "m6",
           "label": "6 months",
           "similar": {
-            "n": 194,
-            "median": 6.9,
-            "positive": 76
+            "n": 176,
+            "median": 7.1,
+            "positive": 75
           },
           "baseline": {
             "n": 1469,
@@ -2699,9 +2704,9 @@
           "key": "y1",
           "label": "1 year",
           "similar": {
-            "n": 182,
-            "median": 14,
-            "positive": 62
+            "n": 164,
+            "median": 14.2,
+            "positive": 61
           },
           "baseline": {
             "n": 1344,
@@ -2732,16 +2737,7 @@
       "note": "VWRP is 6.3% below its 52-week high in pounds, about the same as the S&P 500's 6.3% in dollars."
     }
   },
-  "pending": [
-    {
-      "kind": "swing",
-      "priority": "default",
-      "tags": "checkered_flag",
-      "title": "Swing trade (paper): closed MRK, DE",
-      "body": "MRK: -1.05R after costs (stop hit).\nDE: -1.06R after costs (stop hit).\nPaper only. Book -5.08% since 2 Nov (S&P -3.38%); 4 open.",
-      "heldAt": "02:35"
-    }
-  ],
+  "pending": [],
   "crashDate": {
     "US": "2026-11-05"
   },
@@ -2758,10 +2754,5 @@
   },
   "shortSeen": "2026-11-18",
   "shortPotStage": null,
-  "resultsSent": {
-    "SSE.L|2026-11-18": [
-      "week",
-      "eve"
-    ]
-  }
+  "resultsSent": {}
 }
