@@ -18,7 +18,7 @@ import { sma, rsi } from "./indicators.js";
 import { r1, r2, shortName } from "./util.js";
 import { COSTS } from "./swingRetune.js";
 import { driftToday } from "./swingLab.js";
-import { openPhrase } from "./sessions.js";
+import { openPhrase, isSession, nextSession } from "./sessions.js";
 
 export const ST = { maxDrift: 5, maxBounce: 5, rsi2Below: 10, bounceMax: 10, driftHold: 20 };
 export const ST_LABEL = { drift: "Results drift", bounce: "Bounce in an uptrend" };
@@ -280,4 +280,34 @@ export function shortPauseAlert(pot, seen = null) {
       body: [`Heads-up: the real-money short-term pot is ${fall.toFixed(1)}% below its high. It pauses new trades at ${pause}%. No action needed; trades follow their rules.`,
         held ? `Held: ${held}.` : null].filter(Boolean).join("\n") };
   return { alert, stage };
+}
+
+// When a held pot trade sells (19 Nov 2026): the pot card listed holdings with
+// only their sessions so far. Counted on the exchange calendar from the entry
+// session (session 1): drift sells at the open after its 20th close; a bounce
+// at the latest at the open after its 10th, sooner if it closes above its
+// 5-day average (early: true).
+export function exitBy(o) {
+  if (!o?.entryDate) return null;
+  const n = o.kind === "drift" ? ST.driftHold : ST.bounceMax;
+  let d = isSession(o.entryDate, o.market) ? o.entryDate : nextSession(o.entryDate, o.market);
+  for (let k = 1; k < n; k++) d = nextSession(d, o.market);
+  return { lastClose: d, sellOpen: nextSession(d, o.market), early: o.kind !== "drift" };
+}
+
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], MONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const dayDM = (ymd) => { const d = new Date(`${ymd}T12:00:00Z`); return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MONS[d.getUTCMonth()]}`; };
+const pct1 = (x) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x ?? 0).toFixed(1)}%`;
+
+// The pot card's "Held:" line, with each trade's sell date.
+export function heldLine(open = []) {
+  if (!open.length) return null;
+  const parts = open.map((o, i) => {
+    const x = exitBy(o), s = o.sessions ?? 0, unit = i === 0 ? " sessions" : "";
+    const span = o.kind === "drift" ? `${s} of ${ST.driftHold}${unit}` : `${s} of up to ${ST.bounceMax}${unit}`;
+    const when = x ? `, sells ${x.early ? "by" : "at"} the ${dayDM(x.sellOpen)} open` : "";
+    return `${o.ticker} ${pct1(o.openPct)} (${span}${when})`;
+  });
+  const early = open.some((o) => o.kind !== "drift") ? " A bounce sells sooner, at the open after its first close above its 5-day average." : "";
+  return `Held: ${parts.join(", ")}.${early}`;
 }

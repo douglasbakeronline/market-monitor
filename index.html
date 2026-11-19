@@ -496,7 +496,7 @@ import { review as buffReview, newBuffettBook } from "./src/buffettBook.js";
 import { summariseLensEvents } from "./src/buffett.js";
 import { topUpToTarget, monthsOfTopUps, pickSizes, pickSizeLine, rebalancesInYear, coreEstimate, lookThrough, coreValueFromLog, REBALANCE } from "./src/rebalance.js";
 import { potOrderSize, signalPotTag } from "./src/shortPot.js";
-import { bigJump, BIG_JUMP, newerShort, liveVerdict } from "./src/shortTerm.js";
+import { bigJump, BIG_JUMP, newerShort, liveVerdict, heldLine } from "./src/shortTerm.js";
 import { RULES, POT_KEYS, normaliseTrade, sortTrades, potTotals, adherence, potAdherence, potNotLogged, potFills, withPassedBuys, parseImport, dipEvents, isT212Csv, parseT212 } from "./src/tradeLog.js";
 initTheme();
 
@@ -757,7 +757,7 @@ function renderShortTerm(st) {
       ${!(P.buys ?? []).length && !(P.sells ?? []).length ? `<div class="st-row"><span class="muted">${P.paused ? "No new buys until the pot is reviewed." : anyOpen ? "Nothing to buy or sell at the next open." : "Nothing was due at today's opens. The next list follows the evening scan."}</span><span></span></div>` : ""}
       ${orders.length && !anyOpen ? `<div class="small muted" style="margin-top:4px">These were for that open, which has passed. Log them in the trade log if you placed them; the next list follows the evening scan.</div>` : ""}
       ${(P.buys ?? []).length && anyOpen ? sizeNote : ""}
-      ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">Held: ${P.open.map((o) => `${esc(o.ticker)} ${signPct(o.openPct)} (${o.sessions} session${o.sessions === 1 ? "" : "s"})`).join(", ")}.</div>` : ""}
+      ${(P.open ?? []).length ? `<div class="small muted" style="margin-top:6px">${esc(heldLine(P.open))}</div>` : ""}
       ${(P.skipList ?? []).length ? `<div class="small muted" style="margin-top:4px">Never bought (your skip list): ${P.skipList.map((x) => esc(String(x.symbol).replace(/\.L$/, ""))).join(", ")}. Their signals still count in each setup's live record.</div>` : ""}
       ${P.start && P.fallPct != null && !P.paused ? `<div class="small muted" style="margin-top:4px">${Math.abs(P.fallPct) < 0.05 ? "At its high" : `${Math.abs(P.fallPct).toFixed(1)}% below its high`}; new trades pause at ${Math.round((P.rules?.pauseFall ?? 0.25) * 100)}% below (a heads-up push comes at 15%).</div>` : ""}
     </div>`;
