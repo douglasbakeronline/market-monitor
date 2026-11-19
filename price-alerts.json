@@ -1,8 +1,30 @@
 {
   "note": "Price alerts checked at every monitor slot. One entry per stock, or one per level for staged tiers: symbol (Yahoo format: US plain, UK with .L), below and/or above (in the quote currency: pence for .L shares, as Trading 212 shows them), optional name and note. Example: { \"symbol\": \"HSBA.L\", \"name\": \"HSBC\", \"below\": 1000, \"note\": \"second tranche\" }. Each level alerts once, then re-arms after the price moves 3% back.",
   "alerts": [
-    { "symbol": "ANT", "name": "Anthropic", "below": 90, "above": 112, "note": "Below 90: tier 1 of 3, up to £200. Above 112: back over the opening high (111.50), a strength check, not a buy signal on its own." },
-    { "symbol": "ANT", "name": "Anthropic", "below": 85, "note": "Tier 2 of 3, up to £200. Only if tier 1 was bought and the price has steadied." },
-    { "symbol": "ANT", "name": "Anthropic", "below": 83, "note": "Tier 3 of 3, up to £200. Back at the 19 Nov 2026 IPO price." }
+    {
+      "symbol": "ANT",
+      "name": "Anthropic",
+      "below": 90,
+      "above": 112,
+      "note": "Below 90: tier 1 of 3, up to \u00a3200. Above 112: back over the opening high (111.50), a strength check, not a buy signal on its own."
+    },
+    {
+      "symbol": "ANT",
+      "name": "Anthropic",
+      "below": 85,
+      "note": "Tier 2 of 3, up to \u00a3200. Only if tier 1 was bought and the price has steadied."
+    },
+    {
+      "symbol": "ANT",
+      "name": "Anthropic",
+      "below": 83,
+      "note": "Tier 3 of 3, up to \u00a3200. Back at the 19 Nov 2026 IPO price."
+    },
+    {
+      "symbol": "ANT",
+      "name": "Anthropic",
+      "below": 1000,
+      "note": "Dry run only."
+    }
   ]
 }

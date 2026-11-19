@@ -1,5 +1,5 @@
 name: Dry run
-# 19 Nov 19:41 build: price alert tiers and "% to go"; monitor, tests, digest line.
+# 19 Nov 22:41 build: price alerts reached log (a dryrun-only ANT below 1000 alert fires).
 on:
   push:
     branches: [dryrun]
@@ -20,8 +20,7 @@ jobs:
           rm -rf dry-run
           mkdir -p dry-run
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
-          cp data.json dry-run/data.json
-          node --input-type=module -e 'import { parseAlerts, checkAlerts, digestLine, fileWith, latestPrice } from "./src/priceAlerts.js"; import fs from "fs"; const d = JSON.parse(fs.readFileSync("data.json")); const v = d.priceAlerts.items; console.log(JSON.stringify(v.map((a) => [a.id, a.price]))); console.log(digestLine(v, 20)); const f = JSON.parse(fs.readFileSync("price-alerts.json")).alerts; console.log("roundtrip", JSON.stringify(fileWith(v)) === JSON.stringify(f));' > dry-run/alerts.log 2>&1
+          node --input-type=module -e 'import fs from "fs"; const s = JSON.parse(fs.readFileSync("dry-run/state.json")); console.log(JSON.stringify(s.priceAlertLog)); const d = JSON.parse(fs.readFileSync("dry-run/data.json")); console.log(JSON.stringify(d.priceAlerts.items.map((a) => [a.id, a.price, a.active, a.lastAt, a.lastPrice, a.sincePct]))); import("./src/priceAlerts.js").then((m) => console.log(m.digestLine(d.priceAlerts.items, 20)));' > dry-run/alerts.log 2>&1
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

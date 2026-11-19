@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseAlerts, latestPrice, checkAlerts, fileWith, toGo, REARM_PCT } from "../src/priceAlerts.js";
+import { parseAlerts, latestPrice, checkAlerts, fileWith, toGo, withReached, digestLine, REARM_PCT } from "../src/priceAlerts.js";
 
 const NOW = new Date("2026-11-09T12:00:00Z");
 const P = (price, date = "2026-11-09") => ({ price, date, dayPct: null });
@@ -106,4 +106,31 @@ test("fileWith: staged tiers for one stock stay separate entries", () => {
   // Two entries with different notes are not merged even if their directions fit.
   const two = checkAlerts(parseAlerts([{ symbol: "X", below: 10, note: "a" }, { symbol: "X", above: 20, note: "b" }]), {}, {}, NOW).view;
   assert.equal(fileWith(two).length, 2);
+});
+
+test("withReached: fires are logged and survive re-arming; the view says when and how far since", () => {
+  const parsed = parseAlerts([{ symbol: "ANT", name: "Anthropic", below: 90 }, { symbol: "ANT", below: 85 }]);
+  const T1 = new Date("2026-11-20T15:00:00Z"), T2 = new Date("2026-11-24T15:00:00Z");
+  let r = checkAlerts(parsed, { ANT: P(89, "2026-11-20") }, {}, T1);
+  assert.deepEqual(r.fired, [{ id: "ANT<90", symbol: "ANT", dir: "below", level: 90, price: 89, at: T1.toISOString() }]);
+  let log = withReached([], r.fired);
+  assert.equal(log.length, 1);
+  // Re-armed at 93 (3%+ back over 90): state forgets, the log does not.
+  r = checkAlerts(parsed, { ANT: P(93, "2026-11-24") }, r.state, T2);
+  assert.equal(r.view[0].active, false);
+  log = withReached(log, r.fired);
+  const v = withReached.view(r.view, log);
+  assert.deepEqual([v[0].lastAt, v[0].lastPrice, v[0].sincePct], ["2026-11-20", 89, 4.5]);
+  assert.equal(v[1].lastAt, null, "a level never reached has no history");
+  // Cap keeps the newest.
+  const many = Array.from({ length: 50 }, (_, i) => ({ id: `X<${i}`, symbol: "X", dir: "below", level: i, price: i, at: T1.toISOString() }));
+  assert.equal(withReached(log, many).length, 40);
+  assert.equal(withReached(log, many).at(-1).id, "X<49");
+  assert.deepEqual(withReached(null, []), []);
+});
+
+test("digestLine: a reached level says when and the move since", () => {
+  const view = withReached.view([{ id: "ANT<90", symbol: "ANT", name: "Anthropic", dir: "below", level: 90, price: 92, active: true }],
+    [{ id: "ANT<90", symbol: "ANT", dir: "below", level: 90, price: 88, at: "2026-11-20T15:00:00Z" }]);
+  assert.equal(digestLine(view), "Price alerts reached: Anthropic below 90 (20 Nov at 88.0, +4.5% since).");
 });
