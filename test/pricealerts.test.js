@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseAlerts, latestPrice, checkAlerts, fileWith, REARM_PCT } from "../src/priceAlerts.js";
+import { parseAlerts, latestPrice, checkAlerts, fileWith, toGo, REARM_PCT } from "../src/priceAlerts.js";
 
 const NOW = new Date("2026-11-09T12:00:00Z");
 const P = (price, date = "2026-11-09") => ({ price, date, dayPct: null });
@@ -70,7 +70,39 @@ test("digestLine: reached and closest armed alerts", async () => {
   assert.equal(digestLine([]), null);
   const parsed = parseAlerts([{ symbol: "VICI", name: "VICI", below: 24 }, { symbol: "NEM", above: 130 }, { symbol: "META", below: 300 }, { symbol: "HSBA.L", name: "HSBC", below: 1400 }]);
   const r = checkAlerts(parsed, { VICI: P(24.8), NEM: P(121), META: P(600), "HSBA.L": P(1320) }, {}, NOW);
-  assert.equal(digestLine(r.view), "Price alerts reached: HSBC below 1400; closest: VICI below 24.0 (3.3% to go), NEM above 130 (6.9% to go).");
+  assert.equal(digestLine(r.view), "Price alerts reached: HSBC below 1400; closest: VICI below 24.0 (3.2% to go), NEM above 130 (7.4% to go).");
   const quiet = checkAlerts(parseAlerts([{ symbol: "META", below: 300 }]), { META: P(600) }, {}, NOW);
   assert.equal(digestLine(quiet.view), "Price alerts: 1 set, none within 10% of its level.");
+});
+
+test("toGo: the move still needed from today's price, not from the level", () => {
+  // ANT at 96.7 (19 Nov): a fall of 6.9% reaches 90, a rise of 15.8% reaches 112.
+  assert.equal(toGo({ dir: "below", level: 90, price: 96.7 }), 6.9);
+  assert.equal(toGo({ dir: "above", level: 112, price: 96.7 }), 15.8);
+  assert.equal(toGo({ dir: "below", level: 100, price: 95 }), -5.3, "past the level reads negative");
+  assert.equal(toGo({ dir: "below", level: 90, price: null }), null);
+});
+
+test("fileWith: staged tiers for one stock stay separate entries", () => {
+  const file = [
+    { symbol: "ANT", name: "Anthropic", below: 90, above: 112, note: "tier 1" },
+    { symbol: "ANT", name: "Anthropic", below: 85, note: "tier 2" },
+    { symbol: "ANT", name: "Anthropic", below: 83, note: "tier 3" },
+    { symbol: "VICI", below: 28 },
+  ];
+  const view = checkAlerts(parseAlerts(file), {}, {}, NOW).view;
+  assert.deepEqual(fileWith(view), file, "round trip keeps every tier and note");
+  // A level that matches an existing tier updates that tier's note only.
+  const upd = fileWith(view, { symbol: "ANT", dir: "below", level: 85, note: "tier 2, steadied" });
+  assert.deepEqual(upd.filter((e) => e.symbol === "ANT").map((e) => [e.below, e.note]), [[90, "tier 1"], [85, "tier 2, steadied"], [83, "tier 3"]]);
+  // A new level where tiers exist is added as another tier.
+  const add = parseAlerts(fileWith(view, { symbol: "ANT", dir: "below", level: 80, note: "tier 4" }));
+  assert.deepEqual(add.alerts.map((a) => a.id), ["ANT<90", "ANT>112", "ANT<85", "ANT<83", "ANT<80", "VICI<28"]);
+  // One level in that direction is still replaced, as before.
+  const rep = parseAlerts(fileWith(view, { symbol: "ANT", dir: "above", level: 120 }));
+  assert.deepEqual(rep.alerts.map((a) => a.id), ["ANT<90", "ANT>120", "ANT<85", "ANT<83", "VICI<28"]);
+  assert.deepEqual(fileWith(view, null, "ANT"), [{ symbol: "VICI", below: 28 }]);
+  // Two entries with different notes are not merged even if their directions fit.
+  const two = checkAlerts(parseAlerts([{ symbol: "X", below: 10, note: "a" }, { symbol: "X", above: 20, note: "b" }]), {}, {}, NOW).view;
+  assert.equal(fileWith(two).length, 2);
 });

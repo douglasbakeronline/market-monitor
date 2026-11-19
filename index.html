@@ -485,7 +485,7 @@ const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) =>
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
-import { fileWith } from "./src/priceAlerts.js";
+import { fileWith, toGo } from "./src/priceAlerts.js";
 import { whenLabel, withReported } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
@@ -1533,14 +1533,14 @@ function renderTrackMore(tr, tone) {
 
 // --- Price alerts (levels live in price-alerts.json, edited on GitHub) ---------------
 const PA_EDIT = "https://github.com/douglasbakeronline/market-monitor/edit/main/price-alerts.json";
-const PA_NOTE = "Price alerts checked at every monitor slot. One entry per stock: symbol (Yahoo format: US plain, UK with .L), below and/or above (in the quote currency: pence for .L shares, as Trading 212 shows them), optional name and note. Example: { \"symbol\": \"HSBA.L\", \"name\": \"HSBC\", \"below\": 1000, \"note\": \"second tranche\" }. Each level alerts once, then re-arms after the price moves 3% back.";
+const PA_NOTE = "Price alerts checked at every monitor slot. One entry per stock, or one per level for staged tiers: symbol (Yahoo format: US plain, UK with .L), below and/or above (in the quote currency: pence for .L shares, as Trading 212 shows them), optional name and note. Example: { \"symbol\": \"HSBA.L\", \"name\": \"HSBC\", \"below\": 1000, \"note\": \"second tranche\" }. Each level alerts once, then re-arms after the price moves 3% back.";
 const lvl = (v) => (v >= 100 ? num(v, 0) : v >= 10 ? num(v, 1) : num(v, 2));
 function renderPriceAlerts(pa) {
   if (!pa) return;
   $("paSection").hidden = false;
   const items = pa.items || [];
   const rows = items.map((a) => {
-    const togo = a.distPct == null ? null : a.dir === "below" ? a.distPct : -a.distPct; // % still to move
+    const togo = toGo(a); // % the price still has to move from today
     const status = a.active ? `<span class="pill bg-watch">Reached<span class="pa-when">${a.firedAt ? ` ${fmtDM(a.firedAt.slice(0, 10))}` : ""}</span></span>` : `<span class="pill plain">Armed</span>`;
     return `<div class="pa-row"><span><b>${esc(a.name || a.symbol)}</b>${a.name ? ` <span class="muted small">${esc(a.symbol)}</span>` : ""}${a.note ? `<span class="note">${esc(a.note)}</span>` : ""}</span>
       <span class="num">${a.dir === "below" ? "Below" : "Above"} ${lvl(a.level)}<span class="sub">alert level</span></span>
@@ -1557,7 +1557,7 @@ function renderPriceAlerts(pa) {
         <label>Name (optional)<input name="name" placeholder="HSBC"></label>
         <label class="wide">Note (optional, public)<input name="note" maxlength="140" placeholder="second tranche"></label>
       </form>
-      ${items.length ? `<p class="small muted" style="margin:8px 0 0">To delete an alert, put its symbol in the box and leave the level blank.</p>` : ""}
+      ${items.length ? `<p class="small muted" style="margin:8px 0 0">A new level replaces that stock's level in the same direction; where it already has two or more (staged tiers), it is added as another tier, and the same level as a tier updates its note. To delete a stock's alerts, put its symbol in the box and leave the level blank.</p>` : ""}
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn primary" id="paMake" type="button">Make the file</button></div>
       <div id="paOut" hidden><p class="small" style="margin:10px 0 0">Copy this, open <a href="${PA_EDIT}" target="_blank" rel="noopener">price-alerts.json on GitHub ↗</a>, replace everything with it and commit. The next monitor run picks it up.</p>
         <textarea class="pa-out" id="paText" readonly></textarea>

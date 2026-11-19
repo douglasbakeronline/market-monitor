@@ -80,28 +80,61 @@ export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
   return { alerts, state, view, invalid: parsed.invalid };
 }
 
+// The move still needed from today's price to reach the level, in percent
+// (positive while armed and short of it). Measured from the price, so "6.9%
+// to go" means a 6.9% fall or rise from here. Null without a price.
+export function toGo(a) {
+  if (!(a?.price > 0) || !(a.level > 0)) return null;
+  const pct = a.dir === "below" ? (1 - a.level / a.price) * 100 : (a.level / a.price - 1) * 100;
+  return Math.round(pct * 10) / 10;
+}
+
 // Rebuild the file's alerts list from the Dashboard view (one row per
 // direction) plus an optional new or changed entry, for copy and paste into
-// price-alerts.json on GitHub. A new level for the same symbol and direction
-// replaces the old one; `remove` drops a symbol entirely.
+// price-alerts.json on GitHub. Rows rejoin their file entry: same symbol and
+// note, direction still free (so staged tiers, several entries for one stock,
+// stay separate). A new level matching an existing one updates its note; where
+// the stock has one level in that direction it is replaced; where it has two
+// or more (tiers) it is added as another tier. `remove` drops a symbol.
 export function fileWith(view = [], add = null, remove = null) {
-  const by = new Map();
+  const out = [];
+  const fits = (e, dir, level) => e[dir] == null && (dir === "below" ? e.above == null || level < e.above : e.below == null || level > e.below);
+  const place = (symbol, name, dir, level, note) => {
+    let e = out.find((x) => x.symbol === symbol && (x.note ?? null) === (note ?? null) && fits(x, dir, level));
+    if (!e) {
+      e = { symbol, ...(name ? { name } : {}) };
+      out.push(e);
+    }
+    e[dir] = level;
+    if (note) { delete e.note; e.note = note; }
+    return e;
+  };
   for (const v of view) {
     if (!v?.symbol || v.symbol === remove) continue;
-    const e = by.get(v.symbol) ?? { symbol: v.symbol, ...(v.name ? { name: v.name } : {}) };
-    e[v.dir] = v.level;
-    if (v.note && !e.note) e.note = v.note;
-    by.set(v.symbol, e);
+    place(v.symbol, v.name, v.dir, v.level, v.note ?? null);
   }
   if (add?.symbol && Number(add.level) > 0 && (add.dir === "below" || add.dir === "above")) {
-    const sym = String(add.symbol).trim().toUpperCase();
-    const e = by.get(sym) ?? { symbol: sym };
-    if (add.name) e.name = add.name;
-    e[add.dir] = Number(add.level);
-    if (add.note) e.note = add.note;
-    by.set(sym, e);
+    const sym = String(add.symbol).trim().toUpperCase(), level = Number(add.level), dir = add.dir;
+    const same = out.filter((e) => e.symbol === sym && e[dir] != null);
+    const hit = same.find((e) => e[dir] === level) ?? (same.length === 1 ? same[0] : null);
+    if (hit) {
+      hit[dir] = level;
+      if (add.name) hit.name = add.name;
+      if (add.note) { delete hit.note; hit.note = add.note; }
+    } else {
+      const e = same.length ? null : out.find((x) => x.symbol === sym && fits(x, dir, level));
+      if (e) {
+        e[dir] = level;
+        if (add.name) e.name = add.name;
+        if (add.note) { delete e.note; e.note = add.note; }
+      } else {
+        const name = add.name || out.find((x) => x.symbol === sym)?.name;
+        const at = out.findLastIndex((x) => x.symbol === sym); // beside its other tiers
+        out.splice(at < 0 ? out.length : at + 1, 0, { symbol: sym, ...(name ? { name } : {}), [dir]: level, ...(add.note ? { note: add.note } : {}) });
+      }
+    }
   }
-  return [...by.values()];
+  return out;
 }
 
 // One digest line: the armed alerts closest to their level (within `within`
@@ -109,8 +142,8 @@ export function fileWith(view = [], add = null, remove = null) {
 export function digestLine(view = [], within = 10, max = 3) {
   const fmtL = (a) => `${a.name || a.symbol} ${a.dir} ${fmt(a.level)}`;
   const reached = view.filter((a) => a.active);
-  const near = view.filter((a) => !a.active && a.distPct != null)
-    .map((a) => ({ a, togo: a.dir === "below" ? a.distPct : -a.distPct }))
+  const near = view.filter((a) => !a.active && a.price != null)
+    .map((a) => ({ a, togo: toGo(a) }))
     .filter((x) => x.togo > 0 && x.togo <= within).sort((x, y) => x.togo - y.togo).slice(0, max);
   if (!reached.length && !near.length) return view.length ? `Price alerts: ${view.length} set, none within ${within}% of its level.` : null;
   const parts = [];
