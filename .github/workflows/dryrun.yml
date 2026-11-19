@@ -1,5 +1,5 @@
 name: Dry run
-# 19 Nov 22:41 build: price alerts reached log (a dryrun-only ANT below 1000 alert fires).
+# 19 Nov 22:41 build: price alert re-fire says when last reached (seeded log; dryrun-only ANT below 1000).
 on:
   push:
     branches: [dryrun]
@@ -19,6 +19,7 @@ jobs:
           set +e
           rm -rf dry-run
           mkdir -p dry-run
+          node -e 'const fs=require("fs");const s=JSON.parse(fs.readFileSync("state.json"));s.priceAlertLog=[{id:"ANT<1000",symbol:"ANT",dir:"below",level:1000,price:95.5,at:"2026-11-12T15:00:00Z"}];fs.writeFileSync("state.json",JSON.stringify(s));'
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --input-type=module -e 'import fs from "fs"; const s = JSON.parse(fs.readFileSync("dry-run/state.json")); console.log(JSON.stringify(s.priceAlertLog)); const d = JSON.parse(fs.readFileSync("dry-run/data.json")); console.log(JSON.stringify(d.priceAlerts.items.map((a) => [a.id, a.price, a.active, a.lastAt, a.lastPrice, a.sincePct]))); import("./src/priceAlerts.js").then((m) => console.log(m.digestLine(d.priceAlerts.items, 20)));' > dry-run/alerts.log 2>&1
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
