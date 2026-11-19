@@ -1799,7 +1799,7 @@
         }
       ]
     },
-    "fgAt": "2026-11-19T12:00:00.424Z",
+    "fgAt": "2026-11-19T12:00:22.315Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
@@ -1878,9 +1878,9 @@
       "ftse": {
         "name": "FTSE 100",
         "symbol": "^FTSE",
-        "level": 10513.34,
+        "level": 10513.38,
         "date": "2026-11-19",
-        "asOf": "2026-11-19T11:45:00.000Z",
+        "asOf": "2026-11-19T11:45:21.000Z",
         "currency": "GBP",
         "drawdownPct": -3.6,
         "peak": 10910.6,
@@ -1950,11 +1950,11 @@
         ]
       },
       "vix": {
-        "level": 21.97,
+        "level": 21.98,
         "dayPct": -10.5,
         "date": "2026-11-19"
       },
-      "at": "2026-11-19T12:00:00.424Z"
+      "at": "2026-11-19T12:00:22.315Z"
     },
     "watchlist": [
       {
@@ -2560,10 +2560,10 @@
         "yahoo": "SHEL.L",
         "name": "Shell",
         "currency": "GBp",
-        "price": 3564.5,
+        "price": 3565,
         "date": "2026-11-19",
         "dropFromHigh": -5.8,
-        "lastChange": -0.9,
+        "lastChange": -0.8,
         "previous": -2.1,
         "week": -2.7,
         "month": -8.8,
@@ -2597,7 +2597,7 @@
           -2.32,
           -3.16,
           -5.22,
-          -6.04
+          -6.02
         ],
         "rebound": false
       },
@@ -2719,19 +2719,19 @@
     "coreFund": {
       "symbol": "VWRP.L",
       "name": "VWRP",
-      "level": 139.34,
-      "price": "£139.34",
+      "level": 139.4,
+      "price": "£139.40",
       "currency": "GBP",
       "date": "2026-11-19",
       "drawdownPct": -5.3,
       "peak": 147.18,
       "peakDate": "2026-10-06",
       "tag": null,
-      "dayPct": 1,
-      "weekPct": -2.7,
-      "monthPct": -3,
-      "ytdPct": 10,
-      "vs200Pct": 0.9,
+      "dayPct": 1.1,
+      "weekPct": -2.6,
+      "monthPct": -2.9,
+      "ytdPct": 10.1,
+      "vs200Pct": 1,
       "above200": true,
       "spGap": 1,
       "note": "VWRP is 5.3% below its 52-week high in pounds, a smaller fall than the S&P 500's 6.3% in dollars (other markets or the pound cushioned it)."
