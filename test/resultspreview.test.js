@@ -158,3 +158,31 @@ test("withReported marks a list date the scan already saw reported", async () =>
   assert.deepEqual(out.map((x) => !!x.reported), [true, false, false]);
   assert.deepEqual(withReported([{ ticker: "SSE", date: "2026-11-18" }], null).map((x) => !!x.reported), [false]);
 });
+
+test("timing of the next results: before the open or after the close (19 Nov)", async () => {
+  const { resultsTiming } = await import("../src/resultsPreview.js");
+  const past = (after) => ["2026-02-18", "2026-05-20", "2026-08-19"].map((date) => ({ date, after }));
+  // The habit of the last timed results (all agree) decides; the stamp for the
+  // date itself only when there is no habit; a disagreement is unknown.
+  assert.equal(resultsTiming("KEYS", "2026-11-19", past(true)), true);
+  assert.equal(resultsTiming("WMT", "2026-11-19", [...past(false), { date: "2026-11-19", after: false }]), false);
+  assert.equal(resultsTiming("X", "2026-11-19", [{ date: "2026-11-19", after: true }]), true);
+  assert.equal(resultsTiming("X", "2026-11-19", [...past(false), { date: "2026-11-19", after: true }]), null);
+  assert.equal(resultsTiming("X", "2026-11-19", [{ date: "2026-05-20", after: true }, { date: "2026-08-19", after: false }]), null);
+  assert.equal(resultsTiming("X", "2026-11-19", [{ date: "2026-08-19", after: true }]), null); // one past date is no habit
+  assert.equal(resultsTiming("X", "2026-11-19", []), null);
+  // London reports by 07:00 RNS; hand-checked after-close reporters are after.
+  assert.equal(resultsTiming("HLMA.L", "2026-11-19", []), false);
+  assert.equal(resultsTiming("HLMA.L", "2026-11-19", [], { afterClose: new Set(["HLMA.L"]) }), true);
+  // Preview rows carry it; the card and push say it.
+  const items = [{ symbol: "KEYS", ticker: "KEYS", name: "Keysight", index: "S&P 500", market: "US", earnings: { date: "2026-11-19" } }];
+  const p = resultsPreview(items, { today: "2026-11-19", rowsBySymbol: { KEYS: bars(240) }, reported: { KEYS: past(true) } });
+  assert.equal(p.watch[0].after, true);
+  const { whenLabel } = await import("../src/resultsPreview.js");
+  assert.equal(whenLabel({ date: "2026-11-19", after: true }, "2026-11-19"), "today, after the close (moves tomorrow)");
+  assert.equal(whenLabel({ date: "2026-11-20", after: true }, "2026-11-19"), "tomorrow, after the close (moves Mon 23 Nov)");
+  assert.equal(whenLabel({ date: "2026-11-24", after: false }, "2026-11-19"), "Tue 24 Nov, before the open");
+  assert.equal(whenLabel({ date: "2026-11-24", after: null, estimated: true }, "2026-11-19"), "Tue 24 Nov (estimated date)");
+  assert.equal(previewLine({ ticker: "KEYS", date: "2026-11-20", after: true, typical: null, moves: [] }, "2026-11-19"),
+    "KEYS tomorrow, after the close (moves Mon 23 Nov): no past results day in the data yet.");
+});
