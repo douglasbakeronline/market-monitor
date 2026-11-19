@@ -1,18 +1,18 @@
 {
-  "updated": "2026-11-19T02:45:55.034Z",
+  "updated": "2026-11-19T21:23:51.538Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
     "maxOpen": 5,
     "pauseFall": 0.25,
-    "today": "2026-11-18",
-    "since": "2026-11-17"
+    "today": "2026-11-19",
+    "since": "2026-11-18"
   },
   "start": "2026-11-12",
-  "value": 9912.83,
-  "returnPct": -0.87,
+  "value": 9829.63,
+  "returnPct": -1.7,
   "peak": 10079.03,
-  "fallPct": -1.65,
+  "fallPct": -2.47,
   "paused": false,
   "open": [
     {
@@ -25,9 +25,9 @@
       "entryDate": "2026-11-13",
       "entry": 1170.5,
       "pos": 2000,
-      "sessions": 4,
-      "openPct": -1.57,
-      "openPnl": -31.4
+      "sessions": 5,
+      "openPct": -0.54,
+      "openPnl": -10.8
     },
     {
       "id": "2026-11-12:bounce:ABT",
@@ -39,9 +39,9 @@
       "entryDate": "2026-11-13",
       "entry": 108.2,
       "pos": 2000,
-      "sessions": 4,
-      "openPct": -3.74,
-      "openPnl": -74.8
+      "sessions": 5,
+      "openPct": -4.3,
+      "openPnl": -86
     },
     {
       "id": "2026-11-12:bounce:AMCR",
@@ -53,9 +53,9 @@
       "entryDate": "2026-11-13",
       "entry": 44.24,
       "pos": 2000,
-      "sessions": 4,
-      "openPct": -1.52,
-      "openPnl": -30.4
+      "sessions": 5,
+      "openPct": -4.32,
+      "openPnl": -86.4
     },
     {
       "id": "2026-11-12:bounce:IFF",
@@ -67,38 +67,31 @@
       "entryDate": "2026-11-13",
       "entry": 81.04,
       "pos": 2000,
-      "sessions": 4,
-      "openPct": -1.48,
-      "openPnl": -29.6
-    }
-  ],
-  "buys": [
+      "sessions": 5,
+      "openPct": -3.3,
+      "openPnl": -66
+    },
     {
+      "id": "2026-11-18:drift:TGT",
       "kind": "drift",
       "symbol": "TGT",
       "ticker": "TGT",
       "name": "Target Corporation",
       "market": "US",
-      "signalDate": "2026-11-18",
-      "signalPrice": 165.93
+      "entryDate": "2026-11-19",
+      "entry": 166.97,
+      "pos": 2015.81,
+      "sessions": 1,
+      "openPct": -0.01,
+      "openPnl": -0.2
     }
   ],
-  "skipped": 4,
-  "free": 1,
+  "buys": [],
+  "skipped": 3,
+  "free": 0,
   "skipList": [],
   "unlisted": [],
-  "sells": [
-    {
-      "kind": "bounce",
-      "symbol": "ILMN",
-      "ticker": "ILMN",
-      "name": "Illumina, Inc.",
-      "market": "US",
-      "exitDate": "2026-11-18",
-      "orderDate": "2026-11-18",
-      "netPct": 4.85
-    }
-  ],
+  "sells": [],
   "closed": 2,
   "winRate": 50,
   "avgNetPct": 1.98,
@@ -152,42 +145,58 @@
       "ticker": "OTIS",
       "market": "US",
       "entryDate": "2026-11-12",
-      "exitDate": "2026-11-16"
+      "exitDate": "2026-11-16",
+      "entry": 78.18,
+      "exit": 77.72
     },
     {
       "kind": "drift",
       "ticker": "BRBY",
       "market": "UK",
       "entryDate": "2026-11-13",
-      "exitDate": null
+      "exitDate": null,
+      "entry": 1170.5
     },
     {
       "kind": "bounce",
       "ticker": "ABT",
       "market": "US",
       "entryDate": "2026-11-13",
-      "exitDate": null
+      "exitDate": null,
+      "entry": 108.2
     },
     {
       "kind": "bounce",
       "ticker": "AMCR",
       "market": "US",
       "entryDate": "2026-11-13",
-      "exitDate": null
+      "exitDate": null,
+      "entry": 44.24
     },
     {
       "kind": "bounce",
       "ticker": "IFF",
       "market": "US",
       "entryDate": "2026-11-13",
-      "exitDate": null
+      "exitDate": null,
+      "entry": 81.04
     },
     {
       "kind": "bounce",
       "ticker": "ILMN",
       "market": "US",
       "entryDate": "2026-11-17",
-      "exitDate": "2026-11-18"
+      "exitDate": "2026-11-18",
+      "entry": 199.73,
+      "exit": 210.01
+    },
+    {
+      "kind": "drift",
+      "ticker": "TGT",
+      "market": "US",
+      "entryDate": "2026-11-19",
+      "exitDate": null,
+      "entry": 166.97
     }
   ]
 }

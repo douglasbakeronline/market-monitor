@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-19T02:45:55.059Z",
+  "updated": "2026-11-19T21:23:51.582Z",
   "start": "2026-11-11",
   "equity0": 10000,
   "realised": 10000,
-  "value": 10020.25,
-  "returnPct": 0.2,
+  "value": 9918.5,
+  "returnPct": -0.81,
   "open": [
     {
       "id": "2026-11-10:TTWO",
@@ -18,9 +18,9 @@
       "volX": 3.1,
       "results": true,
       "pos": 2500,
-      "sessions": 6,
-      "openPct": -5.08,
-      "openPnl": -127
+      "sessions": 7,
+      "openPct": -8.58,
+      "openPnl": -214.5
     },
     {
       "id": "2026-11-10:AKAM",
@@ -34,9 +34,9 @@
       "volX": 4.2,
       "results": false,
       "pos": 2500,
-      "sessions": 6,
-      "openPct": 7.46,
-      "openPnl": 186.5
+      "sessions": 7,
+      "openPct": 7.47,
+      "openPnl": 186.75
     },
     {
       "id": "2026-11-12:BRBY.L",
@@ -50,24 +50,28 @@
       "volX": 3.8,
       "results": false,
       "pos": 2500,
-      "sessions": 4,
-      "openPct": -1.57,
-      "openPnl": -39.25
-    }
-  ],
-  "orders": [
+      "sessions": 5,
+      "openPct": -0.54,
+      "openPnl": -13.5
+    },
     {
+      "id": "2026-11-18:CTEC.L",
       "symbol": "CTEC.L",
       "ticker": "CTEC",
       "name": "Convatec Group PLC",
       "market": "UK",
-      "signalDate": "2026-11-18",
-      "signalPrice": 270,
+      "entryDate": "2026-11-19",
+      "entry": 271.20001220703125,
       "movePct": 9.4,
       "volX": 3.6,
-      "results": false
+      "results": false,
+      "pos": 2500,
+      "sessions": 1,
+      "openPct": -1.61,
+      "openPnl": -40.25
     }
   ],
+  "orders": [],
   "waiting": 1,
   "closed": 0,
   "winRate": null,
@@ -81,8 +85,8 @@
   "paused": false,
   "sp": {
     "from": "2026-11-10",
-    "to": "2026-11-18",
-    "pct": -2.62
+    "to": "2026-11-19",
+    "pct": -4.59
   },
   "spSeries": [
     {
@@ -108,14 +112,18 @@
     {
       "date": "2026-11-18",
       "pct": -2.62
+    },
+    {
+      "date": "2026-11-19",
+      "pct": -4.59
     }
   ],
   "random": {
     "runs": 200,
-    "mine": 0.2,
-    "median": 0.2,
-    "p10": 0.2,
-    "p90": 0.2,
+    "mine": -0.81,
+    "median": -0.41,
+    "p10": -0.81,
+    "p90": -0.41,
     "beatShare": 0
   }
 }

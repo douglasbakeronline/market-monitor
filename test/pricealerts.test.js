@@ -31,7 +31,8 @@ test("checkAlerts: fires once, holds while beyond, re-arms after the band", () =
   assert.equal(r.view[0].distPct, 3.6);
   r = checkAlerts(parsed, { VICI: P(27.9) }, r.state, NOW);
   assert.equal(r.alerts.length, 1);
-  assert.match(r.alerts[0].title, /VICI at or below 28/);
+  assert.match(r.alerts[0].title, /VICI at or below 28$/);
+  assert.match(r.alerts[0].body, /alert level was 28\./);
   assert.match(r.alerts[0].body, /add a tranche/);
   assert.equal(r.view[0].active, true);
   r = checkAlerts(parsed, { VICI: P(28.5) }, r.state, NOW); // back over, inside the band
@@ -70,7 +71,7 @@ test("digestLine: reached and closest armed alerts", async () => {
   assert.equal(digestLine([]), null);
   const parsed = parseAlerts([{ symbol: "VICI", name: "VICI", below: 24 }, { symbol: "NEM", above: 130 }, { symbol: "META", below: 300 }, { symbol: "HSBA.L", name: "HSBC", below: 1400 }]);
   const r = checkAlerts(parsed, { VICI: P(24.8), NEM: P(121), META: P(600), "HSBA.L": P(1320) }, {}, NOW);
-  assert.equal(digestLine(r.view), "Price alerts reached: HSBC below 1400; closest: VICI below 24.0 (3.2% to go), NEM above 130 (7.4% to go).");
+  assert.equal(digestLine(r.view), "Price alerts reached: HSBC below 1400; closest: VICI below 24 (3.2% to go), NEM above 130 (7.4% to go).");
   const quiet = checkAlerts(parseAlerts([{ symbol: "META", below: 300 }]), { META: P(600) }, {}, NOW);
   assert.equal(digestLine(quiet.view), "Price alerts: 1 set, none within 10% of its level.");
 });

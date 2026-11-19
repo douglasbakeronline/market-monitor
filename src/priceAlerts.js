@@ -51,6 +51,7 @@ export function latestPrice(rows, now = new Date()) {
 }
 
 const fmt = (v) => (v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2));
+const fmtLevel = (v) => (Number.isInteger(v) ? String(v) : fmt(v)); // a level as written: 90, not 90.0
 
 // state: { [id]: { active, at, price } }. Returns { alerts, state, view }.
 // `prices` maps symbol to latestPrice() output (or null).
@@ -66,8 +67,8 @@ export function checkAlerts(parsed, prices, prevState = {}, now = new Date()) {
         const label = a.name || a.symbol;
         alerts.push({
           kind: "price", priority: "high", tags: a.dir === "below" ? "chart_with_downwards_trend" : "chart_with_upwards_trend",
-          title: `${label} ${a.dir === "below" ? "at or below" : "at or above"} ${fmt(a.level)}`,
-          body: [`${label} (${a.symbol}) is ${fmt(p.price)}${p.dayPct == null ? "" : ` (${p.dayPct > 0 ? "+" : ""}${p.dayPct}% today)`}, your alert level was ${fmt(a.level)}.`,
+          title: `${label} ${a.dir === "below" ? "at or below" : "at or above"} ${fmtLevel(a.level)}`,
+          body: [`${label} (${a.symbol}) is ${fmt(p.price)}${p.dayPct == null ? "" : ` (${p.dayPct > 0 ? "+" : ""}${p.dayPct}% today)`}, your alert level was ${fmtLevel(a.level)}.`,
             a.note ? `Your note: ${a.note}` : null,
             "Check the Research page and the plan before acting (no trade within 7 days before results)."].filter(Boolean).join("\n"),
         });
@@ -140,7 +141,7 @@ export function fileWith(view = [], add = null, remove = null) {
 // One digest line: the armed alerts closest to their level (within `within`
 // percent), and any that are currently reached. Null when there are none.
 export function digestLine(view = [], within = 10, max = 3) {
-  const fmtL = (a) => `${a.name || a.symbol} ${a.dir} ${fmt(a.level)}`;
+  const fmtL = (a) => `${a.name || a.symbol} ${a.dir} ${fmtLevel(a.level)}`;
   const reached = view.filter((a) => a.active);
   const near = view.filter((a) => !a.active && a.price != null)
     .map((a) => ({ a, togo: toGo(a) }))
