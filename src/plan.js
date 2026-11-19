@@ -198,6 +198,18 @@ export function picksLine(picks = []) {
   return `Picks: ${[pass.length ? `${pass.join(", ")} ${pass.length === 1 ? "passes" : "pass"}` : "none pass", wait.length ? `wait: ${wait.join(", ")}` : "", sells.length ? `sell signals today: ${sells.join("; ")} (display only)` : "", flags.length ? `last results: ${flags.join("; ")} (display only)` : ""].filter(Boolean).join("; ")}.`;
 }
 
+// A bench name's chip on the Dashboard: the verdict and score, and for a name
+// that is neither a good entry nor close, what stands in the way (a "Fair 77"
+// beside "Good entry 73" otherwise reads as a contradiction).
+export function benchLabel(b) {
+  if (b.verdict === "Good entry") return `Good entry ${b.score}`;
+  if (b.near) return `Close · ${b.gaps?.[0] ?? ""}`;
+  if (!b.verdict) return "No data";
+  const head = `${b.verdict}${b.score != null ? ` ${b.score}` : ""}`;
+  const why = (b.gaps ?? []).map((g) => g.replace(/^score \d+, /, "").replace(/ \(.*\)$/, ""));
+  return why.length ? `${head} · ${why.join("; ")}` : head;
+}
+
 // One line for the Monday push and the digest.
 export function benchLine(bench = []) {
   const good = bench.filter((b) => b.verdict === "Good entry").map((b) => `${b.ticker} ${b.score}`);

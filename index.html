@@ -48,7 +48,7 @@
   .pf-bar i { display: block; height: 100%; }
   .pf-row { display: grid; grid-template-columns: 1fr 60px 60px 70px; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-2); align-items: center; }
   .bench { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .bench .bn { font-size: 12px; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .bench .bn { font-size: 12px; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; white-space: normal; max-width: 100%; }
   .lt-row .sub { display: block; font-size: 12px; color: var(--ink-2); }
   .pf-row.sub { color: var(--ink-2); font-size: 12px; border-top: 0; padding-top: 0; }
   .pf-row.sub span:first-child { padding-left: 15px; }
@@ -479,7 +479,7 @@
 
 <script type="module">
 import { initTheme, esc, signPct, pnClass, num, fmtDay, fmtDM, ago, fmtDate, sparkline, minus } from "./assets/site.js";
-import { PLAN, dripSchedule, moneyCheckVerdict, pricesAsOfLabel, pullbackIdleNote } from "./src/plan.js";
+import { PLAN, benchLabel, dripSchedule, moneyCheckVerdict, pricesAsOfLabel, pullbackIdleNote } from "./src/plan.js";
 import { SELL_KINDS } from "./src/sellSignals.js";
 const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) => [k, v.label]));
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
@@ -583,7 +583,7 @@ function renderPlan(cp) {
   const bench = cp.bench ?? [];
   $("planBench").innerHTML = bench.length ? `<div class="k" style="margin-top:14px">Bench <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· replacements if a pick is dropped</span></div><div class="bench">${bench.map((b) => {
     const tone = b.verdict === "Good entry" ? "pos" : b.near ? "t-watch" : "muted";
-    const label = b.verdict === "Good entry" ? `Good entry ${b.score}` : b.near ? `Close · ${b.gaps[0] ?? ""}` : b.verdict ? `${b.verdict}${b.score != null ? ` ${b.score}` : ""}` : "No data";
+    const label = benchLabel(b);
     return `<span class="bn"><b>${esc(b.ticker)}</b> <span class="${tone}">${esc(label)}</span></span>`;
   }).join("")}</div>` : "";
   const pb = cp.pullback;

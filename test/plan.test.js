@@ -277,3 +277,16 @@ test("money check verdict past the 5% line with nothing to bring forward (18 Nov
   // Inside the line, the old wording stands.
   assert.match(moneyCheckVerdict(copilot({ today: "2026-11-18", sp: sp(-3), ftse: ftse(0), items: {} }), { fmt }), /No rule is triggered/);
 });
+
+test("benchLabel: a Fair bench name says what stands between it and a good entry", async () => {
+  const { benchLabel } = await import("../src/plan.js");
+  // Lloyds, 19 Nov: score 77 but "Fair", which read as a contradiction beside "Good entry 73".
+  assert.equal(benchLabel({ verdict: "Fair", score: 77, near: false, gaps: ["trend still down (below the 50-day, which is below the 200-day)"] }), "Fair 77 · trend still down");
+  assert.equal(benchLabel({ verdict: "Fair", score: 76, near: false, gaps: ["Entry 66, needs 70", "trend still down"] }), "Fair 76 · Entry 66, needs 70; trend still down");
+  // The score is already shown, so its gap says only the bar.
+  assert.equal(benchLabel({ verdict: "Fair", score: 64, near: false, gaps: ["score 64, needs 72", "Entry 58, needs 70"] }), "Fair 64 · needs 72; Entry 58, needs 70");
+  assert.equal(benchLabel({ verdict: "Fair", score: 71, near: true, gaps: ["score 71, needs 72"] }), "Close · score 71, needs 72");
+  assert.equal(benchLabel({ verdict: "Good entry", score: 73, near: false, gaps: [] }), "Good entry 73");
+  assert.equal(benchLabel({ verdict: "Avoid", score: 40, near: false, gaps: [] }), "Avoid 40");
+  assert.equal(benchLabel({ verdict: null, score: null, near: false, gaps: [] }), "No data");
+});
