@@ -1,0 +1,22 @@
+Prices: ASML.AS from the backup source (CNBC, 510 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+ASML.AS cnbc EUR Europe/Amsterdam 510 bars 2026-11-19 1321.2 live true
+Prices: MC.PA from the backup source (CNBC, 510 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+MC.PA cnbc EUR Europe/Paris 510 bars 2026-11-19 394.3 live true
+Prices: SAP.DE from the backup source (CNBC, 506 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+SAP.DE cnbc EUR Europe/Berlin 506 bars 2026-11-19 188.66 live true
+Prices: ENEL.MI from the backup source (CNBC, 505 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+ENEL.MI cnbc EUR Europe/Rome 505 bars 2026-11-19 9.48 live true
+Prices: ITX.MC from the backup source (CNBC, 510 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+ITX.MC cnbc EUR Europe/Madrid 510 bars 2026-11-19 59.22 live true
+Prices: ABI.BR from the backup source (CNBC, 510 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+ABI.BR cnbc EUR Europe/Brussels 510 bars 2026-11-19 73.34 live true
+Prices: NOKIA.HE from the backup source (CNBC, 499 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+NOKIA.HE cnbc EUR Europe/Helsinki 499 bars 2026-11-19 7.11 live true
+NDA-FI.HE failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+Prices: ^STOXX50E from the backup source (CNBC, 512 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+^STOXX50E cnbc EUR Europe/Berlin 512 bars 2026-11-19 6193.19 live true
+Prices: VWRP.L from the backup source (CNBC, 506 bars to 2026-11-19); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+VWRP.L cnbc GBP Europe/London 506 bars 2026-11-19 139.38 live true
+Prices: AAPL from the backup source (CNBC, 500 bars to 2026-11-18); Yahoo failed: Yahoo skipped (PRICES_FORCE_BACKUP)
+AAPL cnbc USD America/New_York 500 bars 2026-11-18 352.45 live false
+exit=0
