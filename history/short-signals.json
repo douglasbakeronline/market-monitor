@@ -350,11 +350,11 @@
     "surprisePct": null,
     "status": "open",
     "entryDate": "2026-11-19",
-    "entry": 271.2,
+    "entry": 268.2,
     "lastDate": "2026-11-19",
     "last": 268.2,
-    "netPct": -1.61,
-    "vsIdx": -0.67,
+    "netPct": -0.5,
+    "vsIdx": 0.43,
     "sessions": 1
   },
   {
@@ -372,11 +372,11 @@
     "surprisePct": null,
     "status": "open",
     "entryDate": "2026-11-19",
-    "entry": 213.87,
+    "entry": 214.73,
     "lastDate": "2026-11-19",
     "last": 208.65,
-    "netPct": -2.74,
-    "vsIdx": -0.72,
+    "netPct": -3.13,
+    "vsIdx": -1.11,
     "sessions": 1
   },
   {

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T21:23:56.425Z",
+  "updated": "2026-11-20T02:31:36.129Z",
   "items": {
     "META": {
       "quarter": "2026-09-30",
@@ -427,6 +427,51 @@
       },
       "fifth": "bottom",
       "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "WSM": {
+      "quarter": "2026-10-31",
+      "date": "2026-11-19",
+      "actual": 2.38,
+      "estimate": 2.212,
+      "surprisePct": 7.6,
+      "reaction": -15.2,
+      "record": {
+        "beats": 4,
+        "of": 4,
+        "avgSurprise": 14.3,
+        "next": {
+          "date": "2026-11-19",
+          "epsEstimate": 3.32629,
+          "epsLow": 3.08,
+          "epsHigh": 3.49633
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 3.8,
+        "moves": [
+          {
+            "date": "2026-03-18",
+            "pct": 1.1
+          },
+          {
+            "date": "2026-05-21",
+            "pct": 6.5
+          },
+          {
+            "date": "2026-08-26",
+            "pct": 1.1
+          },
+          {
+            "date": "2026-11-19",
+            "pct": -15.2
+          }
+        ]
+      },
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 7.6%; the price fell 15.2% on the day",
       "note": null,
       "tone": "neutral"
     },
