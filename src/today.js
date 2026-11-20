@@ -34,6 +34,11 @@ export function todayItems(d = {}, today, { decisions = null, now = null } = {})
   }
   for (const a of d?.copilot?.actions ?? []) {
     if (a.status === "done" || a.inDays == null || a.inDays > 1) continue;
+    if (a.kind === "tier") {
+      const what = a.drawdown <= -30 ? "what is left of" : a.drawdown <= -15 ? "another third of" : "a third of";
+      out.push({ tone: "buy", text: `Buy tier confirmed ${a.inDays === 0 ? "today" : dm(a.date)}: ${a.title.replace(/^Buy tier confirmed: /, "")}. Plan: ${what} the dip reserve into VWRP; log it once placed`, href: "#planSection" });
+      continue;
+    }
     out.push({ tone: "plan", text: `${a.inDays <= 0 ? "Today" : "Tomorrow"}: ${a.title}`, href: "#planSection" });
   }
   const rp = d?.resultsPreview;
