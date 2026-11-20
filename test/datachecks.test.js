@@ -43,3 +43,13 @@ test("digest names picks and list stocks first", () => {
   assert.match(line, /Check before acting: HSBA \(dividend yield looks wrong\), L \(one-day move over 35%\)\./);
   assert.match(checksDigestLine(runDataChecks([{ ...ok, symbol: "Q", pe: 1 }], { asOf: "2026-11-10" }), []), /None is a pick/);
 });
+
+test("a forward P/E far below the trailing one is flagged (Micron, 20 Nov)", () => {
+  const dc = runDataChecks([
+    { ...ok, symbol: "MU", pe: 3.3, peTrailing: 9.3 },
+    { ...ok, symbol: "NVDA", pe: 12.6, peTrailing: 25.3 },
+    { ...ok, symbol: "NONE", pe: 3.3 },
+    { ...ok, symbol: "TRUST", pe: 3.3, peTrailing: 30, longTerm: { score: null } },
+  ], { asOf: "2026-11-10" });
+  assert.deepEqual(dc.flags.map((f) => [f.symbol, f.key, f.detail]), [["MU", "peGap", "forward P/E 3.3 against 9.3 trailing (earnings 2.8x next year? often a stale or cyclical-peak estimate)"]]);
+});

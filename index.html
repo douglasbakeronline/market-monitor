@@ -485,7 +485,7 @@ const SELL_LABEL = Object.fromEntries(Object.entries(SELL_KINDS).map(([k, v]) =>
 import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
-import { fileWith, toGo } from "./src/priceAlerts.js";
+import { fileWith, toGo, afterText, homeMarket } from "./src/priceAlerts.js";
 import { whenLabel, withReported } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
@@ -1543,7 +1543,7 @@ function renderPriceAlerts(pa) {
     const sameNote = i > 0 && a.note && items[i - 1].symbol === a.symbol && items[i - 1].note === a.note; // both levels of one entry: say it once
     const togo = toGo(a); // % the price still has to move from today
     const status = a.active ? `<span class="pill bg-watch">Reached<span class="pa-when">${a.firedAt ? ` ${fmtDM(a.firedAt.slice(0, 10))}` : ""}</span></span>` : `<span class="pill plain">Armed</span>`;
-    return `<div class="pa-row"><span><b>${esc(a.name || a.symbol)}</b>${a.name ? ` <span class="muted small">${esc(a.symbol)}</span>` : ""}${a.note ? `<span class="note">${sameNote ? `<span class="muted">Same note as above.</span>` : esc(a.note)}</span>` : ""}</span>
+    return `<div class="pa-row"><span><b>${esc(a.name || a.symbol)}</b>${a.name ? ` <span class="muted small">${esc(a.symbol)}</span>` : ""}${a.note ? `<span class="note">${sameNote ? `<span class="muted">Same note as above.</span>` : esc(a.note)}</span>` : ""}${a.after?.w1 ? `<span class="note muted">${esc(afterText(a.after, homeMarket(a.symbol)))}</span>` : ""}</span>
       <span class="num">${a.dir === "below" ? "Below" : "Above"} ${Number.isInteger(a.level) ? num(a.level, 0) : lvl(a.level)}<span class="sub">${!a.active && a.lastAt ? `last hit ${fmtDM(a.lastAt)} at ${lvl(a.lastPrice)}` : "alert level"}</span></span>
       <span class="num">${a.price == null ? `<span class="muted">n/a</span>` : lvl(a.price)}<span class="sub">${a.price == null ? "no price" : togo != null && togo > 0 ? `${minus(togo.toFixed(1))}% to go` : a.active && a.sincePct ? `${signPct(a.sincePct)} since ${lvl(a.lastPrice)}` : "now"}</span></span>
       ${status}</div>`;

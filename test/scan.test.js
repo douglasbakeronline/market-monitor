@@ -58,3 +58,14 @@ test("a results date already past moves to lastEarnings (no '-1 days')", async (
   assert.deepEqual(earningsFields(null, "2026-10-22", "2026-11-05"), { earnings: null, lastEarnings: "2026-10-22" });
   assert.deepEqual(earningsFields(null, null, "2026-11-05"), { earnings: null, lastEarnings: null });
 });
+
+test("latest results fall back to the dates already seen (KeyCorp, 20 Nov)", async () => {
+  const { earningsFields } = await import("../src/research.js");
+  // Yahoo's quote gives one timestamp: once the next date is out, the last is blank.
+  assert.deepEqual(earningsFields("2027-01-20", null, "2026-11-20", ["2026-07-17", "2026-10-16"]), { earnings: { date: "2027-01-20", days: 61 }, lastEarnings: "2026-10-16" });
+  // A later Yahoo date wins; future or empty known dates are ignored.
+  assert.deepEqual(earningsFields("2027-01-20", "2026-10-17", "2026-11-20", ["2026-10-16", "2027-01-20"]), { earnings: { date: "2027-01-20", days: 61 }, lastEarnings: "2026-10-17" });
+  assert.deepEqual(earningsFields(null, null, "2026-11-20", ["2026-10-16"]), { earnings: null, lastEarnings: "2026-10-16" });
+  assert.deepEqual(earningsFields("2026-11-19", null, "2026-11-20", ["2026-08-01"]), { earnings: null, lastEarnings: "2026-11-19" });
+  assert.deepEqual(earningsFields("2027-01-20", null, "2026-11-20", null), { earnings: { date: "2027-01-20", days: 61 }, lastEarnings: null });
+});

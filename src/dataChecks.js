@@ -45,6 +45,14 @@ export const CHECKS = [
     if (pe < 2) return `P/E ${pe} (under 2: check for a one-off gain or a currency mix-up)`;
     return null;
   } },
+  // The scan shows Yahoo's forward P/E where it has one. Micron read 3.3
+  // against 9.3 trailing (data notes 8 and 20 Nov): earnings expected to grow
+  // 2.5x or more in a year is rare, so check the estimate before trusting Value.
+  { key: "peGap", label: "Forward P/E far below trailing", test: (it) => {
+    const f = it.pe, t = it.peTrailing;
+    if (!(f > 0) || !(t > 0) || it.longTerm?.score == null) return null;
+    return f < t * 0.4 ? `forward P/E ${f} against ${t} trailing (earnings ${(t / f).toFixed(1)}x next year? often a stale or cyclical-peak estimate)` : null;
+  } },
   { key: "target", label: "Analyst target far from price", test: (it) => {
     const t = it.target?.mean, p = it.price;
     if (!(t > 0) || !(p > 0) || !((it.target?.analysts ?? 0) >= 3)) return null;

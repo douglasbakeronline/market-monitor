@@ -17,7 +17,7 @@ import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals,
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
 import { copilot, pullbackAlert, copilotLines, picksWeekLine, PLAN } from "./src/plan.js";
-import { parseAlerts, latestPrice, checkAlerts, withReached, digestLine as alertDigestLine } from "./src/priceAlerts.js";
+import { parseAlerts, latestPrice, checkAlerts, withReached, followUp, followUpDue, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag, fillCloses } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
 import { checksDigestLine } from "./src/dataChecks.js";
@@ -109,6 +109,15 @@ async function main() {
   const pa = checkAlerts(paParsed, paPrices, state.priceAlerts ?? {}, now, state.priceAlertLog);
   state.priceAlerts = pa.state;
   state.priceAlertLog = withReached(state.priceAlertLog, pa.fired);
+  // Follow-through: the move a week and a month after each fire, fetched only when one is due.
+  const paDue = followUpDue(state.priceAlertLog, now);
+  if (paDue.length) {
+    try {
+      const fu = await fetchMany(paDue, { range: "6mo" });
+      state.priceAlertLog = followUp(state.priceAlertLog, Object.fromEntries(paDue.map((s) => [s, fu[s]?.rows])), { US: spData?.rows ?? null, UK: series["^FTSE"]?.rows ?? null }, dateIn("Europe/London", now));
+      console.log(`Price alerts: follow-through checked for ${paDue.join(", ")}`);
+    } catch (e) { console.warn(`Price alert follow-through failed: ${e.message}`); }
+  }
   pa.view = withReached.view(pa.view, state.priceAlertLog);
   if (paParsed.alerts.length) console.log(`Price alerts: ${paParsed.alerts.length} checked, ${pa.alerts.length} fired`);
 
