@@ -335,9 +335,9 @@
     "risk": 26.17999999999995,
     "target": 388.51,
     "sessions": 15,
-    "lastPrice": 357.78,
+    "lastPrice": 357.71,
     "lastDate": "2026-11-20",
-    "openR": 0.83
+    "openR": 0.82
   },
   {
     "id": "2026-10-30:HSX.L",
@@ -1019,9 +1019,9 @@
     "risk": 16.370000000000005,
     "target": 448.25,
     "sessions": 15,
-    "lastPrice": 402.43,
+    "lastPrice": 401.87,
     "lastDate": "2026-11-20",
-    "openR": -0.8
+    "openR": -0.83
   },
   {
     "id": "2026-10-30:MRK",
@@ -1784,7 +1784,7 @@
     "risk": 12.509999999999991,
     "target": 151.65,
     "sessions": 13,
-    "lastPrice": 117.77,
+    "lastPrice": 117.73,
     "lastDate": "2026-11-20",
     "openR": -0.71
   },
@@ -2572,9 +2572,9 @@
     "risk": 5.730000000000004,
     "target": 111.46,
     "sessions": 12,
-    "lastPrice": 98.73,
+    "lastPrice": 98.71,
     "lastDate": "2026-11-20",
-    "openR": -0.22
+    "openR": -0.23
   },
   {
     "id": "2026-11-04:CCEP.L",
@@ -3073,9 +3073,9 @@
     "risk": 8.340000000000003,
     "target": 118.35,
     "sessions": 10,
-    "lastPrice": 95.73,
+    "lastPrice": 95.67,
     "lastDate": "2026-11-20",
-    "openR": -0.71
+    "openR": -0.72
   },
   {
     "id": "2026-11-06:RMD",
@@ -3676,7 +3676,7 @@
     "risk": 24.310000000000002,
     "target": 308.62,
     "sessions": 8,
-    "lastPrice": 239.66,
+    "lastPrice": 239.62,
     "lastDate": "2026-11-20",
     "openR": -0.84
   },
@@ -3859,9 +3859,9 @@
     "risk": 8.47999999999999,
     "target": 205.03,
     "sessions": 8,
-    "lastPrice": 184.25,
+    "lastPrice": 184.21,
     "lastDate": "2026-11-20",
-    "openR": -0.45
+    "openR": -0.46
   },
   {
     "id": "2026-11-10:RKT.L",
@@ -5177,7 +5177,7 @@
     "risk": 11.439999999999998,
     "target": 278.31,
     "sessions": 3,
-    "lastPrice": 255.75,
+    "lastPrice": 255.76,
     "lastDate": "2026-11-20",
     "openR": 0.03
   },
@@ -5255,7 +5255,7 @@
     "risk": 20.200000000000017,
     "target": 268.61,
     "sessions": 2,
-    "lastPrice": 221.22,
+    "lastPrice": 221.17,
     "lastDate": "2026-11-20",
     "openR": -0.35
   },
@@ -5584,7 +5584,7 @@
     "risk": 22.29000000000002,
     "target": 440.58,
     "sessions": 1,
-    "lastPrice": 393.43,
+    "lastPrice": 393.24,
     "lastDate": "2026-11-20",
     "openR": -0.12
   },

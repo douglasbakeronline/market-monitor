@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20T21:23:43.886Z",
+  "updated": "2026-11-20T23:04:42.395Z",
   "items": {
     "META": {
       "quarter": "2026-09-30",
@@ -329,9 +329,9 @@
         "avgSurprise": 11.2,
         "next": {
           "date": null,
-          "epsEstimate": 0.16868,
+          "epsEstimate": 0.16888,
           "epsLow": 0.161,
-          "epsHigh": 0.1756
+          "epsHigh": 0.1764
         }
       },
       "moves": {
