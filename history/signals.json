@@ -131,17 +131,17 @@
     "currency": "GBp",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -12.6,
+      "now": -12.4,
       "nowDate": "2026-11-20",
       "sessions": 15,
       "spNow": -5.3,
       "idx": "^FTSE",
-      "idxNow": -3.5,
+      "idxNow": -3.2,
       "w1": -7.8,
       "w1Sp": -2.7,
       "w1Idx": -0.5,
-      "vsSp": -7.3,
-      "vsIdx": -9.1
+      "vsSp": -7.1,
+      "vsIdx": -9.2
     }
   },
   {
@@ -331,17 +331,17 @@
     "currency": "GBp",
     "label": "Swing setup (76)",
     "perf": {
-      "now": -5.3,
+      "now": -5,
       "nowDate": "2026-11-20",
       "sessions": 10,
       "spNow": -2.7,
       "idx": "^FTSE",
-      "idxNow": -3,
+      "idxNow": -2.6,
       "w1": -0.1,
       "w1Sp": 2.5,
       "w1Idx": 2.1,
-      "vsSp": -2.6,
-      "vsIdx": -2.3
+      "vsSp": -2.3,
+      "vsIdx": -2.4
     }
   },
   {
@@ -660,14 +660,14 @@
     "currency": "GBp",
     "label": "Long-term good entry (72)",
     "perf": {
-      "now": -1.3,
+      "now": -1.1,
       "nowDate": "2026-11-20",
       "sessions": 1,
       "spNow": 0,
       "idx": "^FTSE",
-      "idxNow": -0.9,
-      "vsSp": -1.3,
-      "vsIdx": -0.4
+      "idxNow": -0.6,
+      "vsSp": -1.1,
+      "vsIdx": -0.5
     }
   },
   {
