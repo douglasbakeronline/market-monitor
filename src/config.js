@@ -27,10 +27,13 @@ export const CONFIG = {
   peakLookbackDays: 252,
 
   buyTiers: [
-    { drawdown: -10, label: "Correction (-10%)", note: "Watchlist. Consider a small add." },
-    { drawdown: -15, label: "Meaningful dip (-15%)", note: "Add. This is where it gets interesting." },
-    { drawdown: -20, label: "Bear territory (-20%)", note: "Large add. These don't come often." },
-    { drawdown: -30, label: "Deep bear (-30%)", note: "Back up the truck (within your plan)." },
+    // Notes follow the agreed plan (STRATEGY-NOTES, 30 Oct and 10 Nov): a third
+    // of the dip reserve into VWRP at each confirmed tier (20 Nov: these read
+    // "Consider a small add" and "Back up the truck", which the plan never said).
+    { drawdown: -10, label: "Correction (-10%)", note: "Plan: move a third of the dip reserve into VWRP. A reserve drip due in the next 30 days is skipped." },
+    { drawdown: -15, label: "Meaningful dip (-15%)", note: "Plan: move another third of the dip reserve (of its size before the first tier, or what is left) into VWRP." },
+    { drawdown: -20, label: "Bear territory (-20%)", note: "Plan: move another third of the dip reserve (of its size before the first tier, or what is left) into VWRP." },
+    { drawdown: -30, label: "Deep bear (-30%)", note: "Plan: move what is left of the dip reserve into VWRP." },
   ],
   buyFearConfirm: 25,      // F&G at or below this confirms a buy tier
   buyVixConfirm: 30,       // ...or VIX at or above this

@@ -66,7 +66,7 @@ export function regime({ sp, vix, fg }) {
   const t = CONFIG.trim;
 
   if (tier && panic) return { ...base, key: "capitulation", tone: "buy", label: `Capitulation · ${tier.label}`, action: tier.note };
-  if (tier) return { ...base, key: "correction", tone: "watch", label: `${tier.label}, no panic yet`, action: "Prices are down but fear isn't extreme. Scale in slowly; save bigger adds for when fear confirms." };
+  if (tier) return { ...base, key: "correction", tone: "watch", label: `${tier.label}, no panic yet`, action: "Prices are down but fear isn't extreme. The dip reserve waits for fear to confirm the tier (F&G 25 or under, or VIX 30 or over); scheduled purchases carry on." };
   if (t.enabled && score >= t.minScore && (sp.vs200Pct ?? 0) >= t.minAbove200Pct && (v == null || v <= t.maxVix))
     return { ...base, key: "overheated", tone: "sell", label: "Overheated", action: "Extreme greed, stretched prices, calm volatility. Rebalance reminder: bring back any pot 5 or more points off its target weight, new money first. Not a sell or hold-cash signal." };
   if (score >= CONFIG.greedScore && dd >= CONFIG.greedMaxDrawdown)
@@ -119,7 +119,7 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
       } else if (tier && !panic && fgOk && tier.drawdown < lastWatch && tier.drawdown < lastBuy) {
         alerts.push({ kind: "watch", market, priority: "default", tags: "yellow_circle",
           title: `WATCH · ${snap.name} ${tier.label}`,
-          body: `${snap.name} ${dd.toFixed(1)}% off its high, but sentiment isn't panicking (F&G ${score}). Scale in slowly; wait for fear to confirm bigger adds.` });
+          body: `${snap.name} ${dd.toFixed(1)}% off its high, but sentiment isn't panicking (F&G ${score}). The dip reserve waits for fear to confirm the tier (F&G 25 or under, or VIX 30 or over).` });
         ns.watchTier[market] = tier.drawdown;
       }
       if (dd >= CONFIG.buyResetDrawdown) { ns.buyTier[market] = 0; ns.watchTier[market] = 0; }
@@ -167,13 +167,13 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
       const next = CONFIG.buyTiers.find((t) => snap.drawdownPct > t.drawdown);
       alerts.push({ kind: "crash", priority: "urgent", tags: "rotating_light",
         title: `CRASH WATCH · ${snap.name} ${snap.dayPct.toFixed(1)}% today`,
-        body: `${snap.name} is down ${Math.abs(snap.dayPct).toFixed(1)}% today and ${Math.abs(snap.drawdownPct).toFixed(1)}% below its 52-week high.${fgOk ? ` Fear & Greed ${score}.` : ""}${vix?.level ? ` VIX ${vix.level.toFixed(1)}.` : ""}\nPlan: do not sell the core. Check stop orders are in place on swing trades; no new swing trades today.${next ? ` Next buy tier: ${next.label} (${Math.abs(next.drawdown - snap.drawdownPct).toFixed(1)} points away).` : ""} A buy-tier alert follows if one is confirmed.` });
+        body: `${snap.name} is down ${Math.abs(snap.dayPct).toFixed(1)}% today and ${Math.abs(snap.drawdownPct).toFixed(1)}% below its 52-week high.${fgOk ? ` Fear & Greed ${score}.` : ""}${vix?.level ? ` VIX ${vix.level.toFixed(1)}.` : ""}\nPlan: do not sell the core. The short-term pot keeps to its own rules.${next ? ` Next buy tier: ${next.label} (${Math.abs(next.drawdown - snap.drawdownPct).toFixed(1)} points away).` : ""} A buy-tier alert follows if one is confirmed.` });
       ns.crashDate[market] = snap.date;
     }
     if (vix?.level >= c.vixLevel && (vix.dayPct ?? 0) >= c.vixJump && ns.vixSpikeDate !== vix.date) {
       alerts.push({ kind: "crash", priority: "urgent", tags: "rotating_light",
         title: `CRASH WATCH · VIX spike to ${vix.level.toFixed(1)}`,
-        body: `The VIX (fear gauge) jumped ${vix.dayPct.toFixed(0)}% today to ${vix.level.toFixed(1)}. Markets are panicking.\nPlan: do not sell the core; check swing stops; watch for buy-tier alerts.` });
+        body: `The VIX (fear gauge) jumped ${vix.dayPct.toFixed(0)}% today to ${vix.level.toFixed(1)}. Markets are panicking.\nPlan: do not sell the core; a buy-tier alert follows if a market reaches a tier.` });
       ns.vixSpikeDate = vix.date;
     }
   }

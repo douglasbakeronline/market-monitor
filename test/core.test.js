@@ -299,3 +299,28 @@ test("yearChange: exact 252-session lookback, else first bar when the data spans
   // Six months of data: no 1-year figure
   assert.equal(yearChange(rowsFrom(Array.from({ length: 130 }, () => 100))), null);
 });
+
+// 20 Nov: with the S&P 500 1.8 points from the first tier, the pushes said
+// "Watchlist. Consider a small add." and "check stop orders on swing trades",
+// neither of which is the agreed plan (a third of the dip reserve into VWRP at
+// each confirmed tier; the short-term pot uses no stop orders).
+test("buy tier alert and regime say what the agreed plan does", () => {
+  const r = evaluateAlerts({ markets: { US: snap({ drawdownPct: -10.4 }) }, fg: { score: 19 }, vix: null, pricesOk: true, fgOk: true }, {});
+  const b = r.alerts.find((a) => a.kind === "buy");
+  assert.match(b.body, /a third of the dip reserve into VWRP/);
+  assert.doesNotMatch(b.body, /small add/);
+  const deeper = evaluateAlerts({ markets: { US: snap({ drawdownPct: -15.2 }) }, fg: { score: 19 }, vix: null, pricesOk: true, fgOk: true }, r.state).alerts.find((a) => a.kind === "buy");
+  assert.match(deeper.body, /another third of the dip reserve/);
+  const g = regime({ sp: snap({ drawdownPct: -10.4, vs200Pct: -3, above200: false }), fg: { score: 19 }, vix: { level: 28 } });
+  assert.match(g.action, /a third of the dip reserve into VWRP/);
+  const w = regime({ sp: snap({ drawdownPct: -10.4, vs200Pct: -3, above200: false }), fg: { score: 40 }, vix: { level: 22 } });
+  assert.match(w.action, /waits for fear to confirm/);
+});
+
+test("crash watch no longer mentions swing stop orders", () => {
+  const m = { US: snap({ dayPct: -3.4, drawdownPct: -9, date: "2026-11-20" }) };
+  const r = evaluateAlerts({ markets: m, fg: { score: 19 }, vix: { level: 34, dayPct: 25, date: "2026-11-20" }, pricesOk: true, fgOk: true }, {});
+  const c = r.alerts.filter((a) => a.kind === "crash");
+  assert.equal(c.length, 2);
+  for (const a of c) { assert.doesNotMatch(a.body, /stop/i); assert.match(a.body, /do not sell the core/); }
+});
