@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T21:24:10.208Z",
+  "updated": "2026-11-20T02:31:47.463Z",
   "date": "2026-11-19",
   "drift": [
     {
@@ -13,7 +13,7 @@
       "date": "2026-11-19",
       "price": 361.73,
       "movePct": 6.4,
-      "volX": 3,
+      "volX": 3.1,
       "results": true,
       "surprisePct": 8.2
     }
@@ -92,7 +92,7 @@
   ],
   "counts": {
     "drift": 1,
-    "bounce": 128
+    "bounce": 129
   },
   "tested": {
     "drift": {

@@ -195,7 +195,8 @@
     "movePct": -15.2,
     "volX": 4,
     "results": false,
-    "status": "pending"
+    "status": "pending",
+    "surprisePct": 7.6
   },
   {
     "id": "2026-11-19:PANW",
