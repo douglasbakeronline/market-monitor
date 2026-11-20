@@ -290,3 +290,39 @@ test("benchLabel: a Fair bench name says what stands between it and a good entry
   assert.equal(benchLabel({ verdict: "Avoid", score: 40, near: false, gaps: [] }), "Avoid 40");
   assert.equal(benchLabel({ verdict: null, score: null, near: false, gaps: [] }), "No data");
 });
+
+test("a confirmed buy tier is a plan action for a week (20 Nov: S&P 500 −10% confirmed, the card said nothing due)", async () => {
+  const { tierEventsFrom, moneyCheckVerdict } = await import("../src/plan.js");
+  const { CONFIG } = await import("../src/config.js");
+  const signals = [
+    { kind: "buy", date: "2026-11-20", name: "S&P 500", ticker: "S&P 500", label: "BUY · S&P 500 Correction (-10%)" },
+    { kind: "buy", date: "2026-10-01", name: "FTSE 100", label: "BUY · FTSE 100 Correction (-10%)" },
+    { kind: "greed", date: "2026-11-20", label: "x" },
+  ];
+  const ev = tierEventsFrom(signals, CONFIG.buyTiers);
+  assert.deepEqual(ev.map((e) => [e.date, e.index, e.tier]), [["2026-11-20", "S&P 500", "Correction (-10%)"], ["2026-10-01", "FTSE 100", "Correction (-10%)"]]);
+  assert.match(ev[0].note, /^Plan: move a third of the dip reserve into VWRP\./);
+  const cp = copilot({ today: "2026-11-20", sp: sp(-11), ftse: ftse(-5.2), items: {}, tiers: ev.map((e) => e.date), tierEvents: ev });
+  const a = cp.actions.find((x) => x.kind === "tier");
+  assert.ok(a, "tier action listed");
+  assert.equal(a.status, "go");
+  assert.equal(a.title, "Buy tier confirmed: S&P 500 Correction (−10%)");
+  assert.match(a.detail, /^Confirmed Fri 20 Nov, with fear confirming\. Plan: move a third of the dip reserve into VWRP\./);
+  assert.equal(cp.actions.filter((x) => x.kind === "tier").length, 1, "the October tier is long past");
+  assert.match(cp.headline, /^1 plan action this week/);
+  assert.ok(copilotLines(cp).some((l) => /^Plan Fri 20 Nov: Buy tier confirmed: S&P 500 Correction \(−10%\)/.test(l)));
+  // Still listed six days on, gone after a week.
+  assert.ok(copilot({ today: "2026-11-26", sp: sp(-11), ftse: ftse(-5), items: {}, tierEvents: ev }).actions.some((x) => x.kind === "tier"));
+  assert.ok(!copilot({ today: "2026-11-27", sp: sp(-11), ftse: ftse(-5), items: {}, tierEvents: ev }).actions.some((x) => x.kind === "tier"));
+  // The money check leads with it, not "a tier needs fear to confirm it".
+  const v = moneyCheckVerdict(cp, { fmt: (d) => d, tierHit: true });
+  assert.match(v, /^<b>A buy tier is confirmed:<\/b> S&amp;P 500 Correction \(−10%\) on 2026-11-20\. Plan: move a third of the dip reserve into VWRP\./);
+  assert.doesNotMatch(v, /needs fear/);
+});
+
+test("pullbackIdleNote at a buy tier points to the tiers, not 'start at 10% below'", async () => {
+  const { pullbackIdleNote } = await import("../src/plan.js");
+  const n = pullbackIdleNote({ nextCore: null, threshold: -5, index: "S&P 500", drawdown: -11 });
+  assert.match(n, /past the 5% line, but no core purchase is left/);
+  assert.match(n, /The dip reserve follows the buy tiers instead \(10% or more below, once fear confirms it\)\.$/);
+});

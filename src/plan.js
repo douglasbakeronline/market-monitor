@@ -218,9 +218,26 @@ export function benchLine(bench = []) {
   return `Bench: ${[good.length ? `good entry ${good.join(", ")}` : "", near.length ? `close: ${near.join(", ")}` : ""].filter(Boolean).join("; ")}.`;
 }
 
+// Confirmed buy tiers from history/signals.json (kind "buy", label
+// "BUY · S&P 500 Correction (-10%)"), with the tier's plan note from
+// CONFIG.buyTiers. Newest first.
+export function tierEventsFrom(signals = [], buyTiers = []) {
+  return (signals ?? []).filter((x) => x?.kind === "buy" && x.date).map((x) => {
+    const t = buyTiers.find((b) => String(x.label ?? "").endsWith(b.label)) ?? null;
+    return { date: x.date, index: x.name ?? x.ticker ?? "Index", tier: t?.label ?? null, drawdown: t?.drawdown ?? null, note: t?.note ?? null };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+// How long a confirmed tier stays on the plan card: the monitor cannot see
+// the trade log (browser only), so it stays a week, like any action.
+export const TIER_ACTION_DAYS = 7;
+const minus = (s) => String(s ?? "").replace(/\(-/g, "(\u2212");
+
 // What does the plan say for the coming week? `today` is a London date.
 // tiers: dates of confirmed buy tiers (for the reserve drip).
-export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }) {
+// tierEvents: tierEventsFrom() output; a tier confirmed in the last week is an
+// action (20 Nov: the S&P 500's -10% tier fired and the card said nothing was due).
+export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [], tierEvents = [] }) {
   const end = addDays(today, 7);
   const nextCore = plan.schedule.find((s) => s.kind === "core" && s.pullback !== false && s.date > today) ?? null;
   const worst = [sp, ftse].filter((m) => m?.drawdownPct != null).sort((a, b) => a.drawdownPct - b.drawdownPct)[0] ?? null;
@@ -245,6 +262,11 @@ export function copilot({ today, sp, ftse, items = {}, plan = PLAN, tiers = [] }
     } else a.status = s.kind === "swing" ? "info" : s.paused ? "hold" : "due";
     return a;
   });
+  const tierActs = (tierEvents ?? []).filter((t) => t.date <= today && days(t.date, today) < TIER_ACTION_DAYS).map((t) => ({
+    date: t.date, kind: "tier", inDays: days(today, t.date), status: "go", index: t.index, tier: t.tier, drawdown: t.drawdown,
+    title: `Buy tier confirmed: ${t.index}${t.tier ? ` ${minus(t.tier)}` : ""}`,
+    detail: `Confirmed ${dayLabel(t.date)}, with fear confirming. ${t.note ?? "Plan: move a third of the dip reserve into VWRP."} Log it in the trade log once placed.` }));
+  actions.unshift(...tierActs);
   if (pullback.triggered) actions.unshift({ date: today, kind: "pullback", inDays: 0, status: "go",
     title: "Pullback rule: bring the next core purchase forward",
     detail: `${pullback.index} is ${Math.abs(pullback.drawdown).toFixed(1)}% below its high (rule: ${Math.abs(plan.pullbackPct)}% or more). The plan says make the core purchase due ${dayLabel(pullback.nextCore.date)} now.` });
@@ -332,6 +354,8 @@ export function moneyCheckVerdict(cp, { fmt = dayLabel, tierHit = false } = {}) 
   const due = (cp.actions ?? []).find((a) => a.kind === "core" && a.status === "due" && (a.inDays === 0 || a.pullback === false));
   const when = (d) => (d.inDays === 0 ? "today" : `${fmt(d.date)} (in ${d.inDays} day${d.inDays === 1 ? "" : "s"})`);
   if (pb.triggered) return `<b>The pullback rule has fired:</b> ${h(pb.index)} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, so the plan says make the core purchase due ${fmt(next.date)} now.`;
+  const tier = (cp.actions ?? []).find((a) => a.kind === "tier");
+  if (tier) return `<b>A buy tier is confirmed:</b> ${h(tier.title.replace(/^Buy tier confirmed: /, ""))} on ${fmt(tier.date)}. ${h(tier.detail.replace(/^Confirmed [^.]*\. /, "").replace(/ Log it in the trade log once placed\.$/, ""))}`;
   if (tierHit) return "<b>A market is 10% or more below its high:</b> check the buy tiers below; a tier needs fear (F&amp;G 25 or under, or VIX 30 or over) to confirm it.";
   if (due) return `<b>No rule is triggered.</b> Due ${when(due)} on the plan's scheduled date, with no market condition needed: ${h(due.title)}.${next ? ` After it, the next core purchase is ${fmt(next.date)}.` : ""}`;
   if (next) return `<b>No rule is triggered.</b> The plan's next move is the core purchase on ${fmt(next.date)}${next.inDays != null ? ` (in ${next.inDays} day${next.inDays === 1 ? "" : "s"})` : ""}; it comes forward only if the S&amp;P 500 or FTSE 100 closes 5% or more below its high first.`;
@@ -360,6 +384,6 @@ export function pullbackIdleNote(pb, plan = PLAN) {
   const next = plan.schedule.find((s) => s.kind === "core" && s.pullback === false);
   const when = next ? ` (${new Date(next.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })})` : "";
   if (pb.drawdown != null && pb.drawdown <= pb.threshold)
-    return `${pb.index} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, past the ${Math.abs(pb.threshold)}% line, but no core purchase is left to bring forward before the new ISA allowance${when}. The dip reserve's buy tiers start at 10% below, once fear confirms it.`;
+    return `${pb.index} is ${Math.abs(pb.drawdown).toFixed(1)}% below its high, past the ${Math.abs(pb.threshold)}% line, but no core purchase is left to bring forward before the new ISA allowance${when}. ${pb.drawdown <= -10 ? "The dip reserve follows the buy tiers instead (10% or more below, once fear confirms it)." : "The dip reserve's buy tiers start at 10% below, once fear confirms it."}`;
   return `No core purchase left that can come forward before the new ISA allowance${when}.`;
 }

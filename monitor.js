@@ -16,7 +16,7 @@ import { notify } from "./src/notify.js";
 import { logSignals, evaluate as evaluateSignals, summarise as summariseSignals, byKind as signalsByKind, byMarket as signalsByMarket, byScore as signalsByScore, byHorizon as signalsByHorizon, digestKindLine, KIND_LABEL } from "./src/trackRecord.js";
 import { loadState, saveState, readJson, writeJson } from "./src/state.js";
 import { slotById, inQuietHours } from "./src/schedule.js";
-import { copilot, pullbackAlert, copilotLines, picksWeekLine, PLAN } from "./src/plan.js";
+import { copilot, pullbackAlert, copilotLines, picksWeekLine, tierEventsFrom, PLAN } from "./src/plan.js";
 import { parseAlerts, latestPrice, checkAlerts, withReached, followUp, followUpDue, digestLine as alertDigestLine } from "./src/priceAlerts.js";
 import { coreFundView, coreFundLine, drawdownTag, fillCloses } from "./src/coreFund.js";
 import { mergeCloses } from "./src/scorecard.js";
@@ -187,8 +187,10 @@ async function main() {
   const rcItems = (await readJson("data/results-check.json", null))?.items ?? {};
   for (const [sym, rc] of Object.entries(rcItems)) if (planItems[sym]) planItems[sym] = { ...planItems[sym], resultsCheck: rc };
   // Confirmed buy tiers so far (they pause the monthly reserve drip).
-  const tiers = (await readJson("history/signals.json", [])).filter((x) => x?.kind === "buy" && x.date).map((x) => x.date);
-  const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers });
+  // A tier confirmed in the last week is also a plan action (20 Nov).
+  const tierEvents = tierEventsFrom(await readJson("history/signals.json", []), CONFIG.buyTiers);
+  const tiers = tierEvents.map((x) => x.date);
+  const cp = copilot({ today, sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers, tierEvents });
   const pb = pullbackAlert(cp, state);
   if (pb) alerts.push(pb);
   // Claude's swing book (paper): a push when it places orders or closes trades.
@@ -265,7 +267,7 @@ async function main() {
   }
   for (const market of due) {
     const tz = market === "UK" ? "Europe/London" : "America/New_York";
-    const planLines = market === "UK" && (lon0.weekday === 1 || cp.actions.some((a) => a.inDays <= 1)) ? copilotLines(cp) : [];
+    const planLines = market === "UK" && (lon0.weekday === 1 || cp.actions.some((a) => a.kind !== "tier" && a.inDays <= 1)) ? copilotLines(cp) : [];
     const mode = summaryAllowed(CONFIG.alertProfile ?? "all", planLines);
     if (mode === "full") await notify({ title: `${market} open · ${reg.label}`, body: [...planLines, summaryBody({ market, reg, fg, fgOk, sp, ftse, vix, ctxLine, watchlist, research, scan })].join("\n"), priority: "default", tags: market === "UK" ? "gb" : "us" });
     else if (mode === "plan") await notify({ title: `Plan this week · ${reg.label}`, body: planLines.join("\n"), priority: "default", tags: "calendar" });
@@ -277,7 +279,7 @@ async function main() {
   const lon = partsIn("Europe/London");
   const week = isoWeek(lon.date);
   if ((slot?.digest || process.env.FORCE_DIGEST || (lon.weekday === 0 && lon.min >= 17 * 60 + 55)) && (state.digestSent !== week || process.env.FORCE_DIGEST)) {
-    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems, book: await readJson("history/swing-book.json", null), paper: { shortPot: await readJson("history/short-pot.json", null), plan: await readJson("history/plan-book.json", null), buffett: await readJson("history/buffett-book.json", null), momentum: await readJson("history/momentum-book.json", null), swing: await readJson("history/swing-book.json", null), drift: await readJson("history/drift-book.json", null), lensEvents: await readJson("history/buffett-events.json", null) } }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers }))].join("\n"), priority: "low", tags: "calendar" });
+    await notify({ title: `Weekly digest · ${reg.label}`, body: [digestBody({ reg, fg, sp, ftse, vix, world, coreFund, ctxLine, research, trackRecord, scan, priceAlerts: pa.view, planItems, book: await readJson("history/swing-book.json", null), paper: { shortPot: await readJson("history/short-pot.json", null), plan: await readJson("history/plan-book.json", null), buffett: await readJson("history/buffett-book.json", null), momentum: await readJson("history/momentum-book.json", null), swing: await readJson("history/swing-book.json", null), drift: await readJson("history/drift-book.json", null), lensEvents: await readJson("history/buffett-events.json", null) } }), "", "Coming week:", ...copilotLines(copilot({ today: addDays(today, 1), sp: pricesOk ? sp : null, ftse: pricesOk ? ftse : null, items: planItems, tiers, tierEvents }))].join("\n"), priority: "low", tags: "calendar" });
     state.digestSent = week;
     console.log("Sent weekly digest.");
   }

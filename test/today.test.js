@@ -71,3 +71,11 @@ test("today: a caught-up sell (15 Nov) is due at the next open, not its own exit
     "Sell WED at the next open (short-term pot, exit rule met)",
   ]);
 });
+
+test("today: a confirmed buy tier stays on the Today card for its week, dated (20 Nov)", () => {
+  const a = { kind: "tier", date: "2026-11-20", title: "Buy tier confirmed: S&P 500 Correction (−10%)", status: "go" };
+  assert.deepEqual(todayItems({ copilot: { actions: [{ ...a, inDays: 0 }] } }, "2026-11-20").map((x) => x.text),
+    ["Buy tier confirmed today: S&P 500 Correction (−10%). Plan: a third of the dip reserve into VWRP; log it once placed"]);
+  assert.deepEqual(todayItems({ copilot: { actions: [{ ...a, inDays: -3 }] } }, "2026-11-23").map((x) => x.text),
+    ["Buy tier confirmed Fri 20 Nov: S&P 500 Correction (−10%). Plan: a third of the dip reserve into VWRP; log it once placed"]);
+});

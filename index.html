@@ -1036,7 +1036,7 @@ function renderMoneyCheck() {
     fg != null ? chip("Fear &amp; Greed", `${fg} (${esc(d.rating ?? "")})`, fgTone) : "",
     vix?.level != null ? chip("VIX", vix.level.toFixed(1), vix.level >= 30 ? "pos" : "") : "",
   ].join("");
-  const picksLine = cp.picks.length ? `Picks: ${passing.length ? `${passing.join(", ")} ${passing.length === 1 ? "passes" : "pass"} the tranche check` : "none passes the tranche check"}${waiting.length ? `; ${waiting.join(", ")} wait` : ""}. Dip reserve: ${tierHit ? "see the buy tiers" : "no buy tier, so it stays in cash"}.` : "";
+  const picksLine = cp.picks.length ? `Picks: ${passing.length ? `${passing.join(", ")} ${passing.length === 1 ? "passes" : "pass"} the tranche check` : "none passes the tranche check"}${waiting.length ? `; ${waiting.join(", ")} wait` : ""}. Dip reserve: ${cp.actions.some((a) => a.kind === "tier") ? "a confirmed tier moves a third into VWRP (see the plan card)" : tierHit ? "see the buy tiers" : "no buy tier, so it stays in cash"}.` : "";
   const events = week.length ? `This week: ${week.map((k) => `${esc(k.title)} (${dayMon(k.date)})`).join("; ")}.` : "";
   el.hidden = false;
   el.innerHTML = `<div class="mc-head"><div class="k">This week's money check</div><span class="small muted">${esc(pricesAsOfLabel(sp, ftse, fmtDM, d.updated?.slice(0, 10)))}</span></div>
