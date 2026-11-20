@@ -1,0 +1,25 @@
+Scanning 663 companies (SP500 503, FTSE100 100, EUROSTOXX50 50, NASDAQ100 13)
+Quotes: 663
+Stage 1: 662 scored, 1 failed (2.8 min)
+Stage 2: 164 deepened, 35 of 35 Real Estate (3.8 min)
+EV/EBITDA sample: 0 fetched, 1 failed, 100% of the universe fresh (3.8 min)
+Buffett lens track record: 26 buy-zone and 89 quality events (23 and 88 still listed).
+Buffett lens: 0 fetched, 0 failed, 656 of 662 assessed (3.8 min)
+REIT cash-flow median: 15.6x from 32 REITs
+Swing book (paper): -6.79% since 2026-11-02 (S&P -8.83%), 4 open, 0 orders for the next session.
+Short-term pot: 4 open, 1 to buy, 1 to sell, -2.64% since 2026-11-12; skip list: none.
+Short-term signals: 1 drift (1 fired), 5 bounce (99 fired); log 29.
+Drift book (paper): -3.8% since 2026-11-11, 4 open, 0 orders, 0 closed.
+Momentum book (paper): US 10000, UK 10000 (first rebalance from Dec 2026).
+Buffett book (paper): 10000, 0 held, 0 orders (first review from Dec 2026).
+Plan book (paper): agreed -3.72, weakHold -3.52, reitValue -3.72, vwrp -5.36, buffettPot -3.38, momentumPot -3.38.
+Results check: 10 of 12 with a recent EPS surprise; 0 live events tagged; 11 with Yahoo's timed results dates; hand-kept dates Yahoo disagrees with: none.
+Results preview: no list names this week; 16 other S&P 500 / FTSE 100 names; just reported: INTU -12.8% 3x EPS 9.9%, KEYS -7.1% 2.4x EPS 6.8%, ROST -2.9% 2.8x EPS 2.2%.
+Swing lab volume shocks: 2 new (NVDA -14% 3.7x, GPN +9.9% 3.3x); 11 open; up 0 and down 0 closed.
+Paper trades: 132 open, 123 closed, -0.72R average.
+Core extras: TSM last 2026-10-15, 005930.KS last 2026-10-28, 000660.KS last 2026-10-27
+Data checks: 9 of 662 items flagged (forward p/e far below trailing 8, analyst target far from price 1). MU peGap: forward P/E 2.8 against 8 trailing (earnings 2.9x next year? often a stale or cyclical-peak estimate); SNDK target: target 248.16 vs price 79.24 (3.13x: stale targets after a big move?); STX peGap: forward P/E 7 against 24 trailing (earnings 3.4x next year? often a stale or cyclical-peak estimate); CHTR peGap: forward P/E 2.8 against 12.1 trailing (earnings 4.3x next year? often a stale or cyclical-peak estimate); BP peGap: forward P/E 7.4 against 22 trailing (earnings 3.0x next year? often a stale or cyclical-peak estimate); GM peGap: forward P/E 5.3 against 17.2 trailing (earnings 3.2x next year? often a stale or cyclical-peak estimate); OMC peGap: forward P/E 7.7 against 86 trailing (earnings 11.2x next year? often a stale or cyclical-peak estimate); GPN peGap: forward P/E 5.7 against 164 trailing (earnings 28.8x next year? often a stale or cyclical-peak estimate); TPL peGap: forward P/E 3.7 against 31.4 trailing (earnings 8.5x next year? often a stale or cyclical-peak estimate)
+Short-term push: already sent at 2026-11-20T21:23:56.947Z.
+Scoring (live since 10 Nov): 42 of 164 full-score verdicts differ from the old rule; Good entry lost: CTSH, PDD, GL, JPM, NWG.L, ADM, ADSK, IMB.L, EXPN.L, VICI; gained: SNDK, NVDA, STX, CVX, FFIV, TTE.PA.
+Done: 662 scored, 0 new good entries, 0 new setups, 4.1 min.
+exit=0
