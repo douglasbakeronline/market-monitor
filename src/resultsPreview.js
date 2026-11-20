@@ -150,8 +150,9 @@ function moveOn(rows, e) {
 
 // Just reported: names whose results reaction session is the latest bar.
 // move, volume against the previous 50 sessions, the surprise, and whether it
-// meets the pot's drift trigger (4%+ on 3x) as it stands. skip: names on the
-// pot's skip list (data/pot-skip.json): never a pot buy, flagged potSkip.
+// meets the pot's drift trigger (4%+ on 3x) as it stands (potRule; whether the
+// pot buys it is withPotOutcome()). skip: names on the pot's skip list
+// (data/pot-skip.json): never a pot buy, flagged potSkip.
 // live: { market: date } of sessions still trading at the scan (liveSession()
 // in src/sessions.js): that part-day bar is left out (17 Nov).
 export function justReported(items = [], { rowsBySymbol = {}, reported = {}, focus = new Set(), skip = new Set(), live = {} } = {}) {
@@ -166,9 +167,36 @@ export function justReported(items = [], { rowsBySymbol = {}, reported = {}, foc
     const avg = rows.slice(d - 50, d).reduce((a, r) => a + (r.volume || 0), 0) / 50;
     const move = Math.round((rows[d].close / rows[d - 1].close - 1) * 1000) / 10, volX = avg > 0 ? Math.round(((rows[d].volume || 0) / avg) * 10) / 10 : null;
     out.push({ symbol: it.symbol, ticker: it.ticker, name: it.name, market: it.market, date: last, move, volX, surprisePct: ev.surprisePct ?? null,
-      focus: focus.has(it.symbol), pot: POT_INDEX.has(it.index), potBuy: POT_INDEX.has(it.index) && move >= 4 && volX != null && volX >= 3 && !skip.has(it.symbol), ...(skip.has(it.symbol) ? { potSkip: true } : {}) });
+      focus: focus.has(it.symbol), pot: POT_INDEX.has(it.index), potRule: POT_INDEX.has(it.index) && move >= 4 && volX != null && volX >= 3 && !skip.has(it.symbol), ...(skip.has(it.symbol) ? { potSkip: true } : {}) });
   }
   return out.sort((a, b) => (b.focus - a.focus) || Math.abs(b.move) - Math.abs(a.move)).slice(0, 12);
+}
+
+// Whether the pot actually buys a Just reported name that meets the drift rule
+// (20 Nov: PANW met it on 19 Nov with all five slots held, and the card said
+// "a buy at the next open"). st: the scan's shortTerm list. potOutcome: buy,
+// held, full, ranked (the free slots went to higher-ranked signals), paused,
+// unlisted (not on the scan's signal list) or unknown (the pot list is from
+// another close). Only potBuy true is a pot order.
+export function withPotOutcome(just = [], st = null) {
+  const pot = st?.pot ?? null;
+  return (just ?? []).map((j) => {
+    if (!j.potRule) return j;
+    const out = (potOutcome) => ({ ...j, potBuy: potOutcome === "buy", potOutcome });
+    if (!pot || !st.date || st.date !== j.date) return out("unknown");
+    if ((pot.buys ?? []).some((b) => b.symbol === j.symbol && b.kind === "drift")) return out("buy");
+    if ((pot.open ?? []).some((o) => o?.symbol === j.symbol)) return out("held");
+    if (!(st.drift ?? []).some((x) => x.symbol === j.symbol)) return out("unlisted");
+    return out(pot.paused ? "paused" : (pot.free ?? 0) <= 0 ? "full" : "ranked");
+  });
+}
+
+// The newer of two results previews by scan time (scanned), so the evening
+// scan's list shows before the next monitor run copies it into data.json.
+export function newerPreview(fromData, fromFile) {
+  if (!fromFile?.scanned) return fromData ?? fromFile ?? null;
+  if (!fromData?.scanned) return fromFile;
+  return fromFile.scanned > fromData.scanned ? fromFile : fromData;
 }
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

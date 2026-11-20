@@ -42,7 +42,7 @@ import { allowAlert } from "./src/alertProfile.js";
 import { CONFIG } from "./src/config.js";
 import { shortPot, potSkips, potSince, potUnlisted } from "./src/shortPot.js";
 import { coreExtras, coreExtraDates } from "./src/plan.js";
-import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn } from "./src/resultsPreview.js";
+import { resultsPreview, previewCandidates, recentCandidates, justReported, surpriseOn, withPotOutcome } from "./src/resultsPreview.js";
 
 const DEEP_LONG = 70, DEEP_SWING = 40;
 const INDEX_LABEL = { SP500: "S&P 500", FTSE100: "FTSE 100", EUROSTOXX50: "Euro Stoxx 50", NASDAQ100: "Nasdaq 100" };
@@ -495,7 +495,11 @@ async function main() {
     resultsAhead = resultsPreview(out, { today, focus: focusSet, held, rowsBySymbol, reported, dates: resultsHist, afterClose: new Set(knownDates?.afterClose ?? []), known: knownDates?.dates ?? {} });
     const live = Object.fromEntries(["US", "UK", "EU"].map((m) => [m, liveSession(m)]).filter(([, d]) => d));
     resultsAhead.just = justReported([...toFetch.values()], { rowsBySymbol, reported, live, focus: focusSet, skip: new Set(potSkip.filter((x) => (x.from ?? "") <= today).map((x) => x.symbol)) });
-    console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}${r.held ? " (held)" : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names; just reported${Object.keys(live).length ? ` (part-day ${Object.keys(live).join(", ")} bars left out)` : ""}: ${resultsAhead.just.map((j) => `${j.ticker} ${j.move}% ${j.volX}x${j.surprisePct != null ? ` EPS ${j.surprisePct}%` : ""}`).join(", ") || "none"}.`);
+    // Whether the pot buys a name meeting the drift rule (20 Nov); scanned lets
+    // the Dashboard show this list over data.json's older copy.
+    resultsAhead.just = withPotOutcome(resultsAhead.just, shortTerm);
+    resultsAhead.scanned = new Date().toISOString();
+    console.log(`Results preview: ${resultsAhead.focus.map((r) => `${r.ticker} ${r.date}${r.typical != null ? ` ±${r.typical}%` : ""}${r.held ? " (held)" : ""}`).join(", ") || "no list names"} this week; ${resultsAhead.potCount} other S&P 500 / FTSE 100 names; just reported${Object.keys(live).length ? ` (part-day ${Object.keys(live).join(", ")} bars left out)` : ""}: ${resultsAhead.just.map((j) => `${j.ticker} ${j.move}% ${j.volX}x${j.surprisePct != null ? ` EPS ${j.surprisePct}%` : ""}${j.potOutcome ? ` (pot: ${j.potOutcome})` : ""}`).join(", ") || "none"}.`);
   } catch (e) { console.warn(`Results preview failed: ${e.message}`); }
   const driftSummary = { ...summariseDrift(drift), today: driftToday_ };
   console.log(`Swing lab volume shocks: ${driftToday_.length} new (${driftToday_.map((x) => `${x.ticker} ${x.movePct > 0 ? "+" : ""}${x.movePct}% ${x.volX}x`).join(", ") || "none"}); ${driftSummary.open} open; up ${driftSummary.up.n60} and down ${driftSummary.down.n60} closed.`);
@@ -543,7 +547,7 @@ async function main() {
   });
   // A small copy for the Dashboard (11 Nov evening), so tonight's orders show
   // right after the evening push rather than after the 08:15 monitor run.
-  if (shortTerm) await writeJson("history/short-term.json", { updated: new Date().toISOString(), ...shortTerm }, true).catch((e) => console.warn(`short-term.json: ${e.message}`));
+  if (shortTerm) await writeJson("history/short-term.json", { updated: new Date().toISOString(), ...shortTerm, ...(resultsAhead ? { resultsPreview: resultsAhead } : {}) }, true).catch((e) => console.warn(`short-term.json: ${e.message}`));
   const rcs = ruleChanges(out);
   if (today <= RULE_NOTE_UNTIL) console.log(`Scoring (live since 10 Nov): ${rcs.changed} of ${rcs.compared} full-score verdicts differ from the old rule; Good entry lost: ${rcs.lostGood.join(", ") || "none"}; gained: ${rcs.gainedGood.join(", ") || "none"}.`);
   console.log(`Done: ${out.length} scored, ${newGood.length} new good entries, ${newSetups.length} new setups, ${((Date.now() - t0) / 60000).toFixed(1)} min.`);

@@ -54,3 +54,11 @@ test("a forward P/E far below the trailing one is flagged (Micron, 20 Nov)", () 
   ], { asOf: "2026-11-10" });
   assert.deepEqual(dc.flags.map((f) => [f.symbol, f.key, f.detail]), [["MU", "peGap", "forward P/E 3.3 against 9.3 trailing (earnings 2.8x next year? often a stale or cyclical-peak estimate)"]]);
 });
+
+// 20 Nov: SanDisk (US, after a 73% fall) read "pence and pounds mixed?".
+test("target check: the pence hint is for London prices only", async () => {
+  const us = runDataChecks([{ ...ok, symbol: "SNDK", price: 79.24, target: { mean: 255.92, analysts: 24 } }]).flags.find((f) => f.key === "target").detail;
+  assert.match(us, /3\.23x: stale targets after a big move\?/);
+  const uk = runDataChecks([{ ...ok, symbol: "X.L", market: "UK", price: 1200, target: { mean: 12, analysts: 5 } }]).flags.find((f) => f.key === "target").detail;
+  assert.match(uk, /pence and pounds mixed\?/);
+});
