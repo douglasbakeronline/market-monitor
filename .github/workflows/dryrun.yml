@@ -1,5 +1,5 @@
 name: Dry run
-# 20 Nov 11:41 build: latest results from seen dates, forward P/E data check, price alert follow-through.
+# 20 Nov 14:41 build: bad price bar guard.
 on:
   push:
     branches: [dryrun]
@@ -19,12 +19,10 @@ jobs:
           set +e
           rm -rf dry-run
           mkdir -p dry-run
-          # dryrun-only: two old fires in the reached log so the follow-through has something due.
-          node -e 'const fs=require("fs");const s=JSON.parse(fs.readFileSync("state.json"));s.priceAlertLog=[...(s.priceAlertLog||[]),{id:"AAPL<250",symbol:"AAPL",dir:"below",level:250,price:250,at:"2026-10-15T15:00:00Z"},{id:"HSBA.L<1000",symbol:"HSBA.L",dir:"below",level:1000,price:1000,at:"2026-11-10T09:00:00Z"}];fs.writeFileSync("state.json",JSON.stringify(s,null,2))'
           DRY_RUN=1 node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           cp scan.json dry-run/
-          node -e 'console.log(JSON.stringify(JSON.parse(require("fs").readFileSync("dry-run/state.json")).priceAlertLog,null,1))' > dry-run/alertlog.txt 2>&1
+          cp trends.json dry-run/ 2>/dev/null; grep -h "Bad bar guard" dry-run/*.log > dry-run/guard.txt
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
           git config user.name "dry"; git config user.email "bot@users.noreply.github.com"

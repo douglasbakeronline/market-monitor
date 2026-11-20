@@ -71,10 +71,16 @@ export function parseYahoo(res) {
       live = true;
     }
   }
+  const badBars = dropBadBars(rows);
+  if (badBars.length) {
+    console.warn(`Bad bar guard: dropped ${badBars.map((b) => `${b.date} (${b.close} after ${b.prev})`).join(", ")}${m0(res)}`);
+    // The live quote was the bad bar: the series now ends at the last good close.
+    if (live && badBars.some((b) => b.date > rows.at(-1)?.date)) live = false;
+  }
   // "live" means the latest bar may still be moving (today, market open or
   // just closed). The caller treats the last bar as "latest", not "close".
   const asOf = m.regularMarketTime ? new Date(m.regularMarketTime * 1000).toISOString() : (rows.length ? rows[rows.length - 1].date + "T21:00:00Z" : null);
-  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null, longName: m.longName || null, splits };
+  return { currency: m.currency ?? null, tz, rows, live, asOf, name: m.shortName || m.longName || null, longName: m.longName || null, splits, badBars };
 }
 
 const m0 = (res) => (res.meta?.symbol ? ` for ${res.meta.symbol}` : "");
@@ -99,6 +105,34 @@ export function adjustSplits(rows, splits) {
     done.push(sp);
   }
   return done;
+}
+
+// Yahoo sometimes serves one impossible price: SanDisk's 19 Nov quote read
+// 755.16 after 96.5 (+678% on normal volume), which topped the Trends
+// momentum, gainers and new-highs lists. A bar is dropped when its close is 3x
+// or a third of the previous close, it traded under 3x its usual volume (real
+// news, a collapse or a takeover, comes on heavy volume; indices with no
+// volume rely on the size alone), no split explains it (adjustSplits runs
+// first), and either it is the latest bar or the next close goes back within
+// 30% of the previous one. A level that holds is kept: an unflagged split is
+// dropped for one day at most, then kept once the next bar confirms it.
+// Mutates rows; returns [{date, close, prev}] for the bars it dropped.
+export function dropBadBars(rows) {
+  const out = [];
+  const far = (x, y) => Math.abs(Math.log(x / y)) >= Math.log(3);
+  const near = (x, y) => Math.abs(Math.log(x / y)) < Math.log(1.3);
+  for (let i = 1; i < rows.length; i++) {
+    const prev = rows[i - 1], r = rows[i], next = rows[i + 1];
+    if (!(prev.close > 0) || !(r.close > 0) || !far(r.close, prev.close)) continue;
+    const past = rows.slice(Math.max(0, i - 20), i).map((b) => b.volume).filter((v) => v > 0);
+    const avg = past.length ? past.reduce((a, v) => a + v, 0) / past.length : 0;
+    if (avg > 0 && r.volume >= avg * 3) continue;
+    if (next && !(next.close > 0 && near(next.close, prev.close))) continue;
+    out.push({ date: r.date, close: r.close, prev: prev.close });
+    rows.splice(i, 1);
+    i--;
+  }
+  return out;
 }
 
 async function fetchAlphaVantage(symbol) {
