@@ -731,49 +731,5 @@
       "spNow": 0,
       "vsSp": -1.5
     }
-  },
-  {
-    "id": "2026-11-20:research-lt:JPM",
-    "kind": "research-lt",
-    "at": "2026-11-20T21:10:40.476Z",
-    "date": "2026-11-20",
-    "symbol": "JPM",
-    "ticker": "JPM",
-    "name": "JPMorgan",
-    "price": 310.5,
-    "currency": "USD",
-    "label": "Long-term good entry (72)",
-    "perf": {
-      "now": 0,
-      "nowDate": "2026-11-20",
-      "sessions": 0,
-      "spNow": 0,
-      "idx": "^GSPC",
-      "idxNow": 0,
-      "vsSp": 0,
-      "vsIdx": 0
-    }
-  },
-  {
-    "id": "2026-11-20:research-swing:SHW",
-    "kind": "research-swing",
-    "at": "2026-11-20T21:10:40.476Z",
-    "date": "2026-11-20",
-    "symbol": "SHW",
-    "ticker": "SHW",
-    "name": "Sherwin-Williams",
-    "price": 339.72,
-    "currency": "USD",
-    "label": "Swing setup (80)",
-    "perf": {
-      "now": 0,
-      "nowDate": "2026-11-20",
-      "sessions": 0,
-      "spNow": 0,
-      "idx": "^GSPC",
-      "idxNow": 0,
-      "vsSp": 0,
-      "vsIdx": 0
-    }
   }
 ]
