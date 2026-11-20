@@ -1,0 +1,296 @@
+{
+  "updated": "2026-11-20T14:49:11.512Z",
+  "date": "2026-11-19",
+  "drift": [
+    {
+      "symbol": "PANW",
+      "ticker": "PANW",
+      "name": "Palo Alto Networks, Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 33,
+      "kind": "drift",
+      "date": "2026-11-19",
+      "price": 361.73,
+      "movePct": 6.4,
+      "volX": 3.1,
+      "results": true,
+      "surprisePct": 8.2
+    }
+  ],
+  "bounce": [
+    {
+      "symbol": "VEEV",
+      "ticker": "VEEV",
+      "name": "Veeva Systems Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 47,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 262.92,
+      "rsi2": 0.1,
+      "vs200": 22.2,
+      "fall3": -12.1
+    },
+    {
+      "symbol": "ACN",
+      "ticker": "ACN",
+      "name": "Accenture plc",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 70,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 218.58,
+      "rsi2": 0.4,
+      "vs200": 15.1,
+      "fall3": -11.8
+    },
+    {
+      "symbol": "AMGN",
+      "ticker": "AMGN",
+      "name": "Amgen Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 59,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 438.82,
+      "rsi2": 0.5,
+      "vs200": 14.6,
+      "fall3": -5.1
+    },
+    {
+      "symbol": "PKG",
+      "ticker": "PKG",
+      "name": "Packaging Corporation of America",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 60,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 236.96,
+      "rsi2": 0.6,
+      "vs200": 2.4,
+      "fall3": -5.4
+    },
+    {
+      "symbol": "MRK",
+      "ticker": "MRK",
+      "name": "Merck & Co., Inc.",
+      "market": "US",
+      "index": "S&P 500",
+      "score": 62,
+      "kind": "bounce",
+      "date": "2026-11-19",
+      "price": 132.81,
+      "rsi2": 0.7,
+      "vs200": 2.8,
+      "fall3": -8.1
+    }
+  ],
+  "counts": {
+    "drift": 1,
+    "bounce": 129
+  },
+  "tested": {
+    "drift": {
+      "n": 2453,
+      "avg": 1.36,
+      "win": 54,
+      "vsIdx": 0.52,
+      "random": 0.78,
+      "edge": 0.58,
+      "yearsAhead": 6,
+      "years": 9,
+      "sd": 12
+    },
+    "bounce": {
+      "n": 33793,
+      "avg": -0.08,
+      "win": 61,
+      "vsIdx": -0.31,
+      "random": -0.24,
+      "edge": 0.16,
+      "yearsAhead": 7,
+      "years": 10,
+      "sd": 3.72
+    }
+  },
+  "live": {
+    "drift": {
+      "closed": 0,
+      "open": 5,
+      "win": null,
+      "avg": null,
+      "vsIdx": null
+    },
+    "bounce": {
+      "closed": 5,
+      "open": 15,
+      "win": 80,
+      "avg": 2.04,
+      "vsIdx": 3.04,
+      "sd": 2.11,
+      "lo": 0.49,
+      "hi": 3.59
+    }
+  },
+  "pot": {
+    "rules": {
+      "start": "2026-11-11",
+      "equity0": 10000,
+      "maxOpen": 5,
+      "pauseFall": 0.25,
+      "today": "2026-11-19",
+      "since": "2026-11-18"
+    },
+    "skipList": [],
+    "start": "2026-11-12",
+    "value": 9829.63,
+    "returnPct": -1.7,
+    "peak": 10079.03,
+    "fallPct": -2.47,
+    "paused": false,
+    "open": [
+      {
+        "id": "2026-11-12:drift:BRBY.L",
+        "kind": "drift",
+        "symbol": "BRBY.L",
+        "ticker": "BRBY",
+        "name": "Burberry Group plc",
+        "market": "UK",
+        "entryDate": "2026-11-13",
+        "entry": 1170.5,
+        "pos": 2000,
+        "sessions": 5,
+        "openPct": -0.54,
+        "openPnl": -10.8
+      },
+      {
+        "id": "2026-11-12:bounce:ABT",
+        "kind": "bounce",
+        "symbol": "ABT",
+        "ticker": "ABT",
+        "name": "Abbott Laboratories",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "entry": 108.2,
+        "pos": 2000,
+        "sessions": 5,
+        "openPct": -4.3,
+        "openPnl": -86
+      },
+      {
+        "id": "2026-11-12:bounce:AMCR",
+        "kind": "bounce",
+        "symbol": "AMCR",
+        "ticker": "AMCR",
+        "name": "Amcor plc",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "entry": 44.24,
+        "pos": 2000,
+        "sessions": 5,
+        "openPct": -4.32,
+        "openPnl": -86.4
+      },
+      {
+        "id": "2026-11-12:bounce:IFF",
+        "kind": "bounce",
+        "symbol": "IFF",
+        "ticker": "IFF",
+        "name": "International Flavors & Fragrances Inc.",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "entry": 81.04,
+        "pos": 2000,
+        "sessions": 5,
+        "openPct": -3.3,
+        "openPnl": -66
+      },
+      {
+        "id": "2026-11-18:drift:TGT",
+        "kind": "drift",
+        "symbol": "TGT",
+        "ticker": "TGT",
+        "name": "Target Corporation",
+        "market": "US",
+        "entryDate": "2026-11-19",
+        "entry": 166.97,
+        "pos": 2015.81,
+        "sessions": 1,
+        "openPct": -0.01,
+        "openPnl": -0.2
+      }
+    ],
+    "buys": [],
+    "sells": [],
+    "free": 0,
+    "closed": 2,
+    "winRate": 50,
+    "avgNetPct": 1.98,
+    "trades": [
+      {
+        "kind": "bounce",
+        "ticker": "OTIS",
+        "market": "US",
+        "entryDate": "2026-11-12",
+        "exitDate": "2026-11-16",
+        "entry": 78.18,
+        "exit": 77.72
+      },
+      {
+        "kind": "drift",
+        "ticker": "BRBY",
+        "market": "UK",
+        "entryDate": "2026-11-13",
+        "exitDate": null,
+        "entry": 1170.5
+      },
+      {
+        "kind": "bounce",
+        "ticker": "ABT",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "exitDate": null,
+        "entry": 108.2
+      },
+      {
+        "kind": "bounce",
+        "ticker": "AMCR",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "exitDate": null,
+        "entry": 44.24
+      },
+      {
+        "kind": "bounce",
+        "ticker": "IFF",
+        "market": "US",
+        "entryDate": "2026-11-13",
+        "exitDate": null,
+        "entry": 81.04
+      },
+      {
+        "kind": "bounce",
+        "ticker": "ILMN",
+        "market": "US",
+        "entryDate": "2026-11-17",
+        "exitDate": "2026-11-18",
+        "entry": 199.73,
+        "exit": 210.01
+      },
+      {
+        "kind": "drift",
+        "ticker": "TGT",
+        "market": "US",
+        "entryDate": "2026-11-19",
+        "exitDate": null,
+        "entry": 166.97
+      }
+    ]
+  },
+  "pushedAt": "2026-11-19T21:24:10.191Z"
+}

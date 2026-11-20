@@ -1,0 +1,133 @@
+{
+  "updated": "2026-11-20T14:48:55.986Z",
+  "start": "2026-11-11",
+  "equity0": 10000,
+  "realised": 10000,
+  "value": 9918.5,
+  "returnPct": -0.81,
+  "open": [
+    {
+      "id": "2026-11-10:TTWO",
+      "symbol": "TTWO",
+      "ticker": "TTWO",
+      "name": "Take-Two Interactive Software, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 227.49000549316406,
+      "movePct": 8.3,
+      "volX": 3.1,
+      "results": true,
+      "pos": 2500,
+      "sessions": 7,
+      "openPct": -8.58,
+      "openPnl": -214.5
+    },
+    {
+      "id": "2026-11-10:AKAM",
+      "symbol": "AKAM",
+      "ticker": "AKAM",
+      "name": "Akamai Technologies, Inc.",
+      "market": "US",
+      "entryDate": "2026-11-11",
+      "entry": 85.0999984741211,
+      "movePct": 4.3,
+      "volX": 4.2,
+      "results": false,
+      "pos": 2500,
+      "sessions": 7,
+      "openPct": 7.47,
+      "openPnl": 186.75
+    },
+    {
+      "id": "2026-11-12:BRBY.L",
+      "symbol": "BRBY.L",
+      "ticker": "BRBY",
+      "name": "Burberry Group plc",
+      "market": "UK",
+      "entryDate": "2026-11-13",
+      "entry": 1170.5,
+      "movePct": 8,
+      "volX": 3.8,
+      "results": false,
+      "pos": 2500,
+      "sessions": 5,
+      "openPct": -0.54,
+      "openPnl": -13.5
+    },
+    {
+      "id": "2026-11-18:CTEC.L",
+      "symbol": "CTEC.L",
+      "ticker": "CTEC",
+      "name": "Convatec Group PLC",
+      "market": "UK",
+      "entryDate": "2026-11-19",
+      "entry": 271.20001220703125,
+      "movePct": 9.4,
+      "volX": 3.6,
+      "results": false,
+      "pos": 2500,
+      "sessions": 1,
+      "openPct": -1.61,
+      "openPnl": -40.25
+    }
+  ],
+  "orders": [],
+  "waiting": 1,
+  "closed": 0,
+  "winRate": null,
+  "avgNetPct": null,
+  "recent": [],
+  "curve": [],
+  "rules": {
+    "equity0": 10000,
+    "maxOpen": 4
+  },
+  "paused": false,
+  "sp": {
+    "from": "2026-11-10",
+    "to": "2026-11-20",
+    "pct": -4.85
+  },
+  "spSeries": [
+    {
+      "date": "2026-11-11",
+      "pct": 1.31
+    },
+    {
+      "date": "2026-11-12",
+      "pct": 0.95
+    },
+    {
+      "date": "2026-11-13",
+      "pct": 0.54
+    },
+    {
+      "date": "2026-11-16",
+      "pct": -1.39
+    },
+    {
+      "date": "2026-11-17",
+      "pct": -2.4
+    },
+    {
+      "date": "2026-11-18",
+      "pct": -2.62
+    },
+    {
+      "date": "2026-11-19",
+      "pct": -4.59
+    },
+    {
+      "date": "2026-11-20",
+      "pct": -4.85
+    }
+  ],
+  "random": {
+    "runs": 200,
+    "mine": -0.81,
+    "median": -0.41,
+    "p10": -0.81,
+    "p90": -0.41,
+    "beatShare": 0
+  }
+}
