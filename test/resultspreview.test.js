@@ -108,9 +108,9 @@ test("beat record, pot holdings and just reported", async () => {
   assert.match(previewLine(p.focus[0], "2026-11-12"), /beat the forecast 6 of the last 8 times\. The short-term pot holds it/);
   // Just reported: the latest bar is the reaction day.
   const j = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true, surprisePct: 9 }] } });
-  assert.deepEqual([j[0].move, j[0].volX, j[0].surprisePct, j[0].potBuy], [6, 4, 9, true]);
+  assert.deepEqual([j[0].move, j[0].volX, j[0].surprisePct, j[0].potRule], [6, 4, 9, true]);
   const js = justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: true }] }, skip: new Set(["Q"]) });
-  assert.deepEqual([js[0].potBuy, js[0].potSkip], [false, true], "a skip-list name is never a pot buy");
+  assert.deepEqual([js[0].potRule, js[0].potSkip], [false, true], "a skip-list name is never a pot buy");
   assert.equal(justReported(items, { rowsBySymbol: { Q: rows }, reported: { Q: [{ date: rows[238].date, after: false }] } }).length, 0);
   // 17 Nov: a scan rerun while the market trades has a part-day last bar
   // (Diploma read 0.1x normal volume at 08:46). It is left out, so the card
@@ -185,4 +185,39 @@ test("timing of the next results: before the open or after the close (19 Nov)", 
   assert.equal(whenLabel({ date: "2026-11-24", after: null, estimated: true }, "2026-11-19"), "Tue 24 Nov (estimated date)");
   assert.equal(previewLine({ ticker: "KEYS", date: "2026-11-20", after: true, typical: null, moves: [] }, "2026-11-19"),
     "KEYS tomorrow, after the close (moves Mon 23 Nov): no past results day in the data yet.");
+});
+
+// 20 Nov: PANW met the drift rule on 19 Nov while all five pot slots were
+// held, and the card said "a buy at the next open". The pot decides.
+test("withPotOutcome: a drift name is a pot buy only when the pot buys it", async () => {
+  const { withPotOutcome } = await import("../src/resultsPreview.js");
+  const j = (symbol, extra = {}) => ({ symbol, ticker: symbol, date: "2026-11-19", move: 6.4, volX: 3.1, potRule: true, ...extra });
+  const st = (pot, drift = ["PANW"]) => ({ date: "2026-11-19", drift: drift.map((s) => ({ symbol: s, kind: "drift" })), pot });
+  const out = (just, s) => withPotOutcome(just, s).map((x) => [x.potBuy, x.potOutcome]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [], open: [1, 2, 3, 4, 5], free: 0 })), [[false, "full"]]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [{ symbol: "PANW", kind: "drift" }], open: [], free: 1 })), [[true, "buy"]]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [{ symbol: "GPN", kind: "drift" }], open: [], free: 1 })), [[false, "ranked"]]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [], open: [], free: 2, paused: true })), [[false, "paused"]]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [], open: [{ symbol: "PANW" }], free: 1 })), [[false, "held"]]);
+  assert.deepEqual(out([j("PANW")], st({ buys: [], open: [], free: 1 }, [])), [[false, "unlisted"]], "not on the scan's signal list");
+  // A pot list from another close (markets open, last list kept) cannot say.
+  assert.deepEqual(out([j("PANW")], { ...st({ buys: [], open: [], free: 0 }), date: "2026-11-18" }), [[false, "unknown"]]);
+  assert.deepEqual(out([j("PANW")], null), [[false, "unknown"]]);
+  // Names that miss the rule, or are on the skip list, are left alone.
+  const miss = { symbol: "WMT", date: "2026-11-19", potRule: false };
+  assert.deepEqual(withPotOutcome([miss], st({ buys: [], open: [], free: 1 })), [miss]);
+  assert.deepEqual(withPotOutcome(undefined, null), []);
+});
+
+// 20 Nov: the evening scan's list (21:24) sat behind the nightly one in
+// data.json until the next monitor run; the Dashboard shows the newer.
+test("newerPreview: the later scan wins", async () => {
+  const { newerPreview } = await import("../src/resultsPreview.js");
+  const a = { date: "2026-11-20", scanned: "2026-11-20T02:31:00Z" }, b = { date: "2026-11-20", scanned: "2026-11-20T21:24:00Z" };
+  assert.equal(newerPreview(a, b), b);
+  assert.equal(newerPreview(b, a), b);
+  assert.equal(newerPreview({ date: "2026-11-20" }, b), b, "no stamp counts as older");
+  assert.equal(newerPreview(a, null), a);
+  assert.equal(newerPreview(null, b), b);
+  assert.equal(newerPreview(a, { date: "2026-11-20" }), a);
 });

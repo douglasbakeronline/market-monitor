@@ -60,7 +60,8 @@ export const CHECKS = [
     const t = it.target?.mean, p = it.price;
     if (!(t > 0) || !(p > 0) || !((it.target?.analysts ?? 0) >= 3)) return null;
     const r = t / p;
-    return r > 3 || r < 0.33 ? `target ${t} vs price ${p} (${r.toFixed(2)}x: pence and pounds mixed?)` : null;
+    // The pence hint is for London prices; elsewhere it is usually targets not yet cut after a big fall (SanDisk, 20 Nov).
+    return r > 3 || r < 0.33 ? `target ${t} vs price ${p} (${r.toFixed(2)}x: ${it.market === "UK" || /\.L$/.test(it.symbol ?? "") ? "pence and pounds mixed?" : "stale targets after a big move?"})` : null;
   } },
   { key: "pastResults", label: "Next results date in the past", test: (it) => {
     const d = it.earnings?.days;

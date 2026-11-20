@@ -486,7 +486,7 @@ import { simulateGoal, historyCheck, cagr, levers } from "./src/goalSim.js";
 import { picksVsCore, scorecardLine, closeOn } from "./src/scorecard.js";
 import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa.js";
 import { fileWith, toGo, afterText, homeMarket } from "./src/priceAlerts.js";
-import { whenLabel, withReported } from "./src/resultsPreview.js";
+import { whenLabel, withReported, newerPreview } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
 import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
@@ -511,6 +511,7 @@ const $ = (id) => document.getElementById(id);
 function render(d) {
   CORE_NOW = d.coreFund ?? null;
   d.shortTerm = newerShort(d.shortTerm, ST_FILE);
+  d.resultsPreview = newerPreview(d.resultsPreview, ST_FILE?.resultsPreview);
   LAST_DATA = d; renderMoneyCheck();
   PICK_PRICES = Object.fromEntries((d.copilot?.picks ?? []).filter((p) => p.price > 0).map((p) => [p.ticker, p.price]));
   if (!$("tlForm")) renderTl();
@@ -710,7 +711,11 @@ let ST_FILE = null;
 fetch("history/short-term.json?t=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((j) => {
   if (!j?.date) return;
   ST_FILE = j;
-  if (LAST_DATA) { LAST_DATA.shortTerm = newerShort(LAST_DATA.shortTerm, j); renderShortTerm(LAST_DATA.shortTerm); }
+  if (LAST_DATA) {
+    LAST_DATA.shortTerm = newerShort(LAST_DATA.shortTerm, j); renderShortTerm(LAST_DATA.shortTerm);
+    const rp = newerPreview(LAST_DATA.resultsPreview, j.resultsPreview);
+    if (rp !== LAST_DATA.resultsPreview) { LAST_DATA.resultsPreview = rp; renderResultsAhead(rp); }
+  }
 });
 function renderShortTerm(st) {
   const el = $("stCard");
@@ -795,10 +800,16 @@ function renderResultsAhead(p) {
   const when = (r) => whenLabel(r, today);
   const rec = (r) => (r.record?.n >= 4 ? ` · beat the forecast ${r.record.beats} of ${r.record.n}` : "");
   const row = (r) => `<div class="st-row"><span><b>${esc(r.ticker)}</b> <span class="muted">${esc(shortName(r.name, r.ticker))}</span>${r.held ? ` <span class="pill plain">Pot holds it</span>` : ""}<span class="sub">${esc(when(r))}${r.moves?.length > 1 ? ` · last ${r.moves.length}: ${r.moves.map((m) => sg(m.pct)).join(", ")}` : ""}${r.last ? ` · last time EPS ${sg(r.last.surprisePct)} vs forecast${r.last.reaction != null ? `, ${sg(r.last.reaction)} on the day` : ""}` : ""}${rec(r)}</span>${r.held ? `<span class="sub t-caution">Results land inside the pot's trade. The rules keep it; this is a heads-up on the risk.</span>` : ""}</span><span class="num">${r.typical == null ? "n/a" : r.moves.length === 1 ? sg(r.moves[0].pct) : `\u00b1${r.typical.toFixed(1)}%`}<span class="sub">${r.typical == null ? "no results day on record" : r.moves.length === 1 ? "last results day" : "usual move"}</span></span></div>`;
-  const jtag = (j) => (j.potSkip ? `<span class="sub muted">On your skip list, so never a pot trade.</span>` : j.potBuy ? `<span class="sub t-buy">Meets the pot's drift rule: a buy at the next open (see the pot card).</span>`
+  // potOutcome (20 Nov, withPotOutcome()): only "buy" is a pot order. Older
+  // lists carry potBuy for "meets the rule", so they get the neutral line.
+  const POT_WHY = { held: "the pot already holds it", full: "every pot slot is held, so not a pot trade", ranked: "the free slots went to higher-ranked signals, so not a pot trade", paused: "new pot trades are paused (25% below the high)" };
+  const jtag = (j) => (j.potSkip ? `<span class="sub muted">On your skip list, so never a pot trade.</span>`
+    : j.potOutcome === "buy" ? `<span class="sub t-buy">Meets the pot's drift rule: a pot buy at the next open (see the pot card).</span>`
+    : POT_WHY[j.potOutcome] ? `<span class="sub muted">Meets the pot's drift rule, but ${POT_WHY[j.potOutcome]}.</span>`
+    : j.potRule || j.potBuy ? `<span class="sub muted">Meets the pot's drift rule; the pot card has tonight's orders.</span>`
     : j.pot && j.move >= 4 ? `<span class="sub muted">Up 4%+ but under 3\u00d7 normal volume, so not a pot trade.</span>` : "");
   const jrow = (j) => `<div class="st-row"><span><b>${esc(j.ticker)}</b> <span class="muted">${esc(shortName(j.name, j.ticker))}</span><span class="sub">${j.surprisePct != null ? `EPS ${sg(j.surprisePct)} vs forecast` : "No EPS forecast on record"}${j.volX != null ? ` · ${j.volX}\u00d7 normal volume` : ""}</span>${jtag(j)}</span><span class="num ${pnClass(j.move)}">${sg(j.move)}<span class="sub">on results</span></span></div>`;
-  el.innerHTML = `<div class="k">Next ${p.days ?? 7} days · from the ${esc(fmtDM(p.date))} scan</div>
+  el.innerHTML = `<div class="k">Next ${p.days ?? 7} days · ${p.scanned ? `from the scan at ${esc(fmtDate(p.scanned))}` : `from the ${esc(fmtDM(p.date))} scan`}</div>
     ${J.length ? `<div class="st-group">
       <div class="st-head"><b>Just reported</b><span class="st-rec">reaction at the last close</span></div>
       ${J.map(jrow).join("")}
