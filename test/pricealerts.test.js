@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseAlerts, latestPrice, checkAlerts, fileWith, toGo, withReached, digestLine, REARM_PCT } from "../src/priceAlerts.js";
+import { parseAlerts, latestPrice, checkAlerts, fileWith, toGo, withReached, digestLine, REARM_PCT, followUp, followUpDue, afterText } from "../src/priceAlerts.js";
 
 const NOW = new Date("2026-11-09T12:00:00Z");
 const P = (price, date = "2026-11-09") => ({ price, date, dayPct: null });
@@ -146,4 +146,45 @@ test("checkAlerts: a level firing again says when it was last reached", () => {
   const r = checkAlerts(parsed, { VICI: P(27.9) }, {}, NOW, log);
   assert.match(r.alerts[0].body, /Last reached 2 Nov at 27\.6\./);
   assert.doesNotMatch(checkAlerts(parsed, { VICI: P(27.9) }, {}, NOW).alerts[0].body, /Last reached/);
+});
+
+// Sessions from 16 Nov 2026 (weekdays only), closes rising 1 a day from 100.
+const sessions = (n, from = "2026-11-16", start = 100, step = 1) => {
+  const out = []; let d = new Date(`${from}T00:00:00Z`);
+  while (out.length < n) { const w = d.getUTCDay(); if (w && w < 6) out.push({ date: d.toISOString().slice(0, 10), close: start + step * out.length }); d = new Date(d.getTime() + 864e5); }
+  return out;
+};
+
+test("followUp: the move 1 week and 1 month after a fire, against the home index", () => {
+  const fire = { id: "ANT<90", symbol: "ANT", dir: "below", level: 90, price: 89, at: "2026-11-20T15:00:00Z" };
+  const lse = { id: "HSBA.L<1000", symbol: "HSBA.L", dir: "below", level: 1000, price: 990, at: "2026-11-20T09:00:00Z" };
+  // Not due on the day: nothing to fetch.
+  assert.deepEqual(followUpDue([fire], new Date("2026-11-24T12:00:00Z")), []);
+  assert.deepEqual(followUpDue([fire, lse], new Date("2026-11-30T12:00:00Z")), ["ANT", "HSBA.L"]);
+  const rows = { ANT: sessions(30, "2026-11-16", 90, -0.5), "HSBA.L": sessions(30, "2026-11-16", 990, 0) };
+  const idx = { US: sessions(30, "2026-11-16", 6000, 6), UK: sessions(30, "2026-11-16", 9000, 0) };
+  // Fire on Fri 20 Nov (row 4). 5 sessions on: Fri 27 Nov, row 9, close 85.5; S&P 6030 to 6060.
+  let log = followUp([fire, lse], rows, idx);
+  assert.deepEqual(log[0].after.w1, { date: "2026-11-27", pct: -3.9, idx: 0.5 });
+  assert.equal(log[1].after.w1.idx, 0, "a London stock is measured against the FTSE 100");
+  // 21 sessions on: Mon 21 Dec (row 25), close 77.5.
+  assert.deepEqual(log[0].after.m1, { date: "2026-12-21", pct: -12.9, idx: 2.1 });
+  // Short rows: only what exists is filled, and a filled figure is kept.
+  const short = followUp([fire], { ANT: rows.ANT.slice(0, 12) }, idx);
+  assert.ok(short[0].after.w1 && !short[0].after.m1);
+  assert.deepEqual(followUp(short, {}, {})[0].after.w1, short[0].after.w1);
+  // Done entries are not fetched again; no index means no comparison.
+  assert.deepEqual(followUpDue(log, new Date("2027-01-30T12:00:00Z")), []);
+  assert.equal(followUp([fire], rows, {})[0].after.w1.idx, null);
+  // A bar dated today may be part-day: it waits.
+  assert.equal(followUp([fire], rows, idx, "2026-11-27")[0].after, undefined);
+  assert.ok(followUp([fire], rows, idx, "2026-11-28")[0].after.w1);
+  assert.deepEqual(followUp(null, rows, idx), []);
+  // The view carries the latest fire's figures; the card's line.
+  const v = withReached.view([{ id: "ANT<90", price: 80 }], log);
+  assert.deepEqual(v[0].after, log[0].after);
+  assert.equal(afterText(log[0].after, "US"), "After it: \u22123.9% in a week (S&P 500 +0.5%), \u221212.9% in a month (S&P 500 +2.1%).");
+  assert.equal(afterText(short[0].after, "US"), "After it: \u22123.9% in a week (S&P 500 +0.5%).");
+  assert.equal(afterText({ w1: { pct: 2, idx: null } }, "UK"), "After it: +2% in a week.");
+  assert.equal(afterText(null), null);
 });

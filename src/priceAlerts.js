@@ -93,12 +93,63 @@ export const LOG_MAX = 40;
 export function withReached(log, fired = []) {
   return [...(Array.isArray(log) ? log : []), ...(fired ?? [])].slice(-LOG_MAX);
 }
+// Follow-through (roadmap Later, 20 Nov): the move 1 week (5 sessions) and
+// 1 month (21 sessions) after each fire, from the fire price to that close,
+// beside the home index from the fire day's close. Douglas's own levels, not a
+// tested signal, so this is a record on the card, not the track record.
+// Figures are stored on the log entry once known (`after.w1`, `after.m1`).
+const HORIZONS = { w1: 5, m1: 21 };
+const DUE_DAYS = { w1: 7, m1: 30 }, GIVE_UP_DAYS = 75;
+export const homeMarket = (sym) => (/\.L$/.test(sym) ? "UK" : /\./.test(sym) ? null : "US");
+const INDEX_NAME = { US: "S&P 500", UK: "FTSE 100" };
+const pct1 = (a, b) => Math.round((a / b - 1) * 1000) / 10;
+
+// Symbols with a log entry whose next figure is due and not yet filled.
+export function followUpDue(log = [], now = new Date()) {
+  const due = new Set();
+  for (const e of Array.isArray(log) ? log : []) {
+    const age = (now - Date.parse(e.at)) / DAY;
+    if (!(age >= DUE_DAYS.w1) || age > GIVE_UP_DAYS) continue;
+    if (Object.keys(HORIZONS).some((h) => !e.after?.[h] && age >= DUE_DAYS[h])) due.add(e.symbol);
+  }
+  return [...due];
+}
+
+// rowsBySymbol: daily rows ({date, close}) per symbol; idx: rows per market (US, UK).
+// today (YYYY-MM-DD): a bar dated today may be part-day, so it waits a day.
+export function followUp(log = [], rowsBySymbol = {}, idx = {}, today = null) {
+  return (Array.isArray(log) ? log : []).map((e) => {
+    const rows = rowsBySymbol?.[e.symbol], d = e.at?.slice(0, 10);
+    if (!rows?.length || !d || !(e.price > 0)) return e;
+    const b = rows.findLastIndex((r) => r.date <= d);
+    if (b < 0) return e;
+    const ir = idx?.[homeMarket(e.symbol)] ?? null;
+    const iClose = (date) => ir?.findLast((r) => r.date <= date)?.close ?? null;
+    const after = { ...(e.after ?? {}) };
+    for (const [h, n] of Object.entries(HORIZONS)) {
+      const t = rows[b + n];
+      if (after[h] || !(t?.close > 0) || (today && t.date >= today)) continue;
+      const i0 = iClose(d), i1 = iClose(t.date);
+      after[h] = { date: t.date, pct: pct1(t.close, e.price), idx: i0 > 0 && i1 > 0 ? pct1(i1, i0) : null };
+    }
+    return Object.keys(after).length ? { ...e, after } : e;
+  });
+}
+
+// One line for the card: "After it: −3.9% in a week (S&P 500 +0.5%)."
+export function afterText(after, market = "US") {
+  if (!after?.w1) return null;
+  const sg = (v) => `${v > 0 ? "+" : v < 0 ? "\u2212" : ""}${Math.abs(v)}%`;
+  const part = (x, span) => `${sg(x.pct)} in ${span}${x.idx != null && INDEX_NAME[market] ? ` (${INDEX_NAME[market]} ${sg(x.idx)})` : ""}`;
+  return `After it: ${[part(after.w1, "a week"), after.m1 ? part(after.m1, "a month") : null].filter(Boolean).join(", ")}.`;
+}
+
 // Decorate view rows with their latest fire: lastAt (London-agnostic ISO
 // date), lastPrice and the move since then from today's price.
 withReached.view = (view = [], log = []) => view.map((v) => {
   const hit = (log ?? []).findLast((e) => e.id === v.id);
   const since = hit && v.price > 0 && hit.price > 0 ? Math.round((v.price / hit.price - 1) * 1000) / 10 : null;
-  return { ...v, lastAt: hit ? hit.at.slice(0, 10) : null, lastPrice: hit ? hit.price : null, sincePct: since };
+  return { ...v, lastAt: hit ? hit.at.slice(0, 10) : null, lastPrice: hit ? hit.price : null, sincePct: since, after: hit?.after ?? null };
 });
 
 const sinceText = (a) => (a.lastAt ? ` (${dayMonth(a.lastAt)} at ${fmt(a.lastPrice)}${!a.sincePct ? "" : `, ${a.sincePct > 0 ? "+" : ""}${a.sincePct}% since`})` : "");

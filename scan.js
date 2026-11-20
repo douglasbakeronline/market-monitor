@@ -209,11 +209,11 @@ async function main() {
     const item = {
       symbol: u.symbol, ticker: u.symbol.replace(/\.L$/, ""), index: INDEX_LABEL[u.index], market: MARKET[u.index] ?? "US",
       name: f.name || u.name, sector: u.sector || f.sector, industry: f.industry ?? null, currency: f.currency ?? null,
-      pe: r1(f.forwardPE > 0 ? f.forwardPE : f.trailingPE > 0 ? f.trailingPE : null), price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
+      pe: r1(f.forwardPE > 0 ? f.forwardPE : f.trailingPE > 0 ? f.trailingPE : null), ...(f.forwardPE > 0 && f.trailingPE > 0 ? { peTrailing: r1(f.trailingPE) } : {}), price: r2(t.last), date: t.date, marketCap: f.marketCap ?? null, dividendYield: f.dividendYield ?? null, beta: r2(f.beta),
       perf: { day: r1(t.dayPct), week: r1(t.weekPct), month: r1(t.monthPct), m3: r1(t.m3Pct), y1: r1(t.y1Pct), mom12_1: r1(t.mom12_1) },
       tech: { rsi: r1(t.rsi), vs50: r1(t.vs50), vs200: r1(t.vs200), offHigh: r1(t.offHigh), high52: r2(t.high52), low52: r2(t.low52), atrPct: r1(t.atrPct), volRatio: r2(t.volRatio) },
       target: f.targetMean ? { mean: r2(f.targetMean), high: r2(f.targetHigh), low: r2(f.targetLow), analysts: f.analysts, rec: r2(f.recommendationMean), recKey: f.recommendationKey } : null,
-      ...earningsFields(f.nextEarnings, f.lastEarnings, today),
+      ...earningsFields(f.nextEarnings, f.lastEarnings, today, resultsHist[u.symbol]),
       longTerm: isDeep ? lt : { score: lt.score, verdict: lt.verdict, note: lt.note, gaps: lt.gaps, near: lt.near, coverage: lt.coverage, pillars: lt.pillars.map((p) => ({ key: p.key, label: p.label, score: p.score, items: [] })) },
       swing, signals, deep: isDeep, sectorValue: sv, ruleChange: rc,
       ...(buffett ? { buffett: { verdict: buffett.verdict, tone: buffett.tone, mos: buffett.mos, quality: buffett.quality ?? false } } : {}),

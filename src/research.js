@@ -375,7 +375,11 @@ export const daysUntil = (date, today) => (date ? Math.round((Date.parse(date) -
 // a day or so after the release, which showed as "-1 days" in the scan with no
 // latest-results date (ALL and CF, 5 Nov 2026). A past "next" date is really
 // the latest results: move it there and leave no next date.
-export function earningsFields(next, last, today) {
+// known: results dates already seen for the stock (history/results-dates.json):
+// Yahoo's quote carries one timestamp, so once the next date is published the
+// latest is blank (KeyCorp and 88 others, 20 Nov).
+export function earningsFields(next, last, today, known = []) {
+  last = [last, ...(known || [])].filter((d) => d && d <= today).sort().at(-1) ?? null;
   const days = daysUntil(next, today);
   if (next && days != null && days >= 0) return { earnings: { date: next, days }, lastEarnings: last ?? null };
   const past = [last, next].filter((d) => d && d <= today).sort().at(-1) ?? null;
