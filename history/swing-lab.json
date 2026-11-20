@@ -14,11 +14,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 172.8000030517578,
-    "sessions": 7,
-    "lastDate": "2026-11-19",
-    "lastPrice": 145.98,
-    "netPct": -15.82,
-    "idxPct": -4.59
+    "sessions": 8,
+    "lastDate": "2026-11-20",
+    "lastPrice": 125.53,
+    "netPct": -27.66,
+    "idxPct": -8.12
   },
   {
     "id": "2026-11-10:AKAM",
@@ -35,11 +35,11 @@
     "status": "open",
     "entryDate": "2026-11-11",
     "entry": 85.0999984741211,
-    "sessions": 7,
-    "lastDate": "2026-11-19",
-    "lastPrice": 91.71,
-    "netPct": 7.47,
-    "idxPct": -4.59
+    "sessions": 8,
+    "lastDate": "2026-11-20",
+    "lastPrice": 85.11,
+    "netPct": -0.29,
+    "idxPct": -8.12
   },
   {
     "id": "2026-11-10:TTWO",
@@ -57,11 +57,11 @@
     "surprisePct": 66.4,
     "entryDate": "2026-11-11",
     "entry": 227.49000549316406,
-    "sessions": 7,
-    "lastDate": "2026-11-19",
-    "lastPrice": 208.65,
-    "netPct": -8.58,
-    "idxPct": -4.59
+    "sessions": 8,
+    "lastDate": "2026-11-20",
+    "lastPrice": 210,
+    "netPct": -7.99,
+    "idxPct": -8.12
   },
   {
     "id": "2026-11-12:GPN",
@@ -78,11 +78,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 88.41000366210938,
-    "sessions": 5,
-    "lastDate": "2026-11-19",
-    "lastPrice": 83.52,
-    "netPct": -5.83,
-    "idxPct": -5.49
+    "sessions": 6,
+    "lastDate": "2026-11-20",
+    "lastPrice": 91.83,
+    "netPct": 3.57,
+    "idxPct": -8.98
   },
   {
     "id": "2026-11-12:BRBY.L",
@@ -99,11 +99,11 @@
     "status": "open",
     "entryDate": "2026-11-13",
     "entry": 1170.5,
-    "sessions": 5,
-    "lastDate": "2026-11-19",
-    "lastPrice": 1170,
-    "netPct": -0.54,
-    "idxPct": -3.78
+    "sessions": 6,
+    "lastDate": "2026-11-20",
+    "lastPrice": 1124.5,
+    "netPct": -4.43,
+    "idxPct": -4.76
   },
   {
     "id": "2026-11-18:UNH",
@@ -120,11 +120,11 @@
     "status": "open",
     "entryDate": "2026-11-19",
     "entry": 351.1300048828125,
-    "sessions": 1,
-    "lastDate": "2026-11-19",
-    "lastPrice": 330.48,
-    "netPct": -6.18,
-    "idxPct": -2.02
+    "sessions": 2,
+    "lastDate": "2026-11-20",
+    "lastPrice": 339.89,
+    "netPct": -3.5,
+    "idxPct": -5.64
   },
   {
     "id": "2026-11-18:TGT",
@@ -142,11 +142,11 @@
     "surprisePct": 27.2,
     "entryDate": "2026-11-19",
     "entry": 166.97000122070312,
-    "sessions": 1,
-    "lastDate": "2026-11-19",
-    "lastPrice": 167.46,
-    "netPct": -0.01,
-    "idxPct": -2.02
+    "sessions": 2,
+    "lastDate": "2026-11-20",
+    "lastPrice": 165.83,
+    "netPct": -0.98,
+    "idxPct": -5.64
   },
   {
     "id": "2026-11-18:CTEC.L",
@@ -163,11 +163,11 @@
     "status": "open",
     "entryDate": "2026-11-19",
     "entry": 271.20001220703125,
-    "sessions": 1,
-    "lastDate": "2026-11-19",
-    "lastPrice": 268.2,
-    "netPct": -1.61,
-    "idxPct": -0.93
+    "sessions": 2,
+    "lastDate": "2026-11-20",
+    "lastPrice": 265.8,
+    "netPct": -2.49,
+    "idxPct": -1.94
   },
   {
     "id": "2026-11-19:INVP.L",
@@ -181,7 +181,14 @@
     "movePct": -8.3,
     "volX": 3.7,
     "results": false,
-    "status": "pending"
+    "status": "open",
+    "entryDate": "2026-11-20",
+    "entry": 540,
+    "sessions": 1,
+    "lastDate": "2026-11-20",
+    "lastPrice": 546.5,
+    "netPct": 0.7,
+    "idxPct": -1.02
   },
   {
     "id": "2026-11-19:WSM",
@@ -195,8 +202,15 @@
     "movePct": -15.2,
     "volX": 4,
     "results": false,
-    "status": "pending",
-    "surprisePct": 7.6
+    "status": "open",
+    "surprisePct": 7.6,
+    "entryDate": "2026-11-20",
+    "entry": 217.69000244140625,
+    "sessions": 1,
+    "lastDate": "2026-11-20",
+    "lastPrice": 210.7,
+    "netPct": -3.51,
+    "idxPct": -3.7
   },
   {
     "id": "2026-11-19:PANW",
@@ -210,7 +224,14 @@
     "movePct": 6.4,
     "volX": 3,
     "results": true,
-    "status": "pending",
-    "surprisePct": 8.2
+    "status": "open",
+    "surprisePct": 8.2,
+    "entryDate": "2026-11-20",
+    "entry": 359.0400085449219,
+    "sessions": 1,
+    "lastDate": "2026-11-20",
+    "lastPrice": 343.32,
+    "netPct": -4.68,
+    "idxPct": -3.7
   }
 ]

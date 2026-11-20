@@ -1,18 +1,18 @@
 {
-  "updated": "2026-11-20T02:31:32.094Z",
+  "updated": "2026-11-20T21:23:39.769Z",
   "rules": {
     "start": "2026-11-11",
     "equity0": 10000,
     "maxOpen": 5,
     "pauseFall": 0.25,
-    "today": "2026-11-19",
-    "since": "2026-11-18"
+    "today": "2026-11-20",
+    "since": "2026-11-19"
   },
   "start": "2026-11-12",
-  "value": 9829.63,
-  "returnPct": -1.7,
+  "value": 9736.28,
+  "returnPct": -2.64,
   "peak": 10079.03,
-  "fallPct": -2.47,
+  "fallPct": -3.4,
   "paused": false,
   "open": [
     {
@@ -25,9 +25,9 @@
       "entryDate": "2026-11-13",
       "entry": 1170.5,
       "pos": 2000,
-      "sessions": 5,
-      "openPct": -0.54,
-      "openPnl": -10.8
+      "sessions": 6,
+      "openPct": -4.43,
+      "openPnl": -88.6
     },
     {
       "id": "2026-11-12:bounce:ABT",
@@ -39,9 +39,9 @@
       "entryDate": "2026-11-13",
       "entry": 108.2,
       "pos": 2000,
-      "sessions": 5,
-      "openPct": -4.3,
-      "openPnl": -86
+      "sessions": 6,
+      "openPct": -5.11,
+      "openPnl": -102.2
     },
     {
       "id": "2026-11-12:bounce:AMCR",
@@ -53,23 +53,9 @@
       "entryDate": "2026-11-13",
       "entry": 44.24,
       "pos": 2000,
-      "sessions": 5,
-      "openPct": -4.32,
-      "openPnl": -86.4
-    },
-    {
-      "id": "2026-11-12:bounce:IFF",
-      "kind": "bounce",
-      "symbol": "IFF",
-      "ticker": "IFF",
-      "name": "International Flavors & Fragrances Inc.",
-      "market": "US",
-      "entryDate": "2026-11-13",
-      "entry": 81.04,
-      "pos": 2000,
-      "sessions": 5,
-      "openPct": -3.3,
-      "openPnl": -66
+      "sessions": 6,
+      "openPct": -4.57,
+      "openPnl": -91.4
     },
     {
       "id": "2026-11-18:drift:TGT",
@@ -81,20 +67,41 @@
       "entryDate": "2026-11-19",
       "entry": 166.97,
       "pos": 2015.81,
-      "sessions": 1,
-      "openPct": -0.01,
-      "openPnl": -0.2
+      "sessions": 2,
+      "openPct": -0.98,
+      "openPnl": -19.75
     }
   ],
-  "buys": [],
+  "buys": [
+    {
+      "kind": "drift",
+      "symbol": "GPN",
+      "ticker": "GPN",
+      "name": "Global Payments Inc.",
+      "market": "US",
+      "signalDate": "2026-11-20",
+      "signalPrice": 91.83
+    }
+  ],
   "skipped": 3,
-  "free": 0,
+  "free": 1,
   "skipList": [],
   "unlisted": [],
-  "sells": [],
-  "closed": 2,
-  "winRate": 50,
-  "avgNetPct": 1.98,
+  "sells": [
+    {
+      "kind": "bounce",
+      "symbol": "IFF",
+      "ticker": "IFF",
+      "name": "International Flavors & Fragrances Inc.",
+      "market": "US",
+      "exitDate": "2026-11-20",
+      "orderDate": "2026-11-20",
+      "netPct": -2.04
+    }
+  ],
+  "closed": 3,
+  "winRate": 33,
+  "avgNetPct": 0.64,
   "recent": [
     {
       "id": "2026-11-16:bounce:ILMN",
@@ -111,6 +118,22 @@
       "vsIdx": 6.1,
       "exitDate": "2026-11-18",
       "exit": 210.01
+    },
+    {
+      "id": "2026-11-12:bounce:IFF",
+      "kind": "bounce",
+      "symbol": "IFF",
+      "ticker": "IFF",
+      "name": "International Flavors & Fragrances Inc.",
+      "market": "US",
+      "entryDate": "2026-11-13",
+      "entry": 81.04,
+      "pos": 2000,
+      "pnl": -40.8,
+      "netPct": -2.04,
+      "vsIdx": 6.94,
+      "exitDate": "2026-11-20",
+      "exit": 79.63
     },
     {
       "id": "2026-11-11:bounce:OTIS",
@@ -137,6 +160,10 @@
     {
       "date": "2026-11-18",
       "equity": 10079.03
+    },
+    {
+      "date": "2026-11-20",
+      "equity": 10038.23
     }
   ],
   "trades": [
@@ -178,8 +205,9 @@
       "ticker": "IFF",
       "market": "US",
       "entryDate": "2026-11-13",
-      "exitDate": null,
-      "entry": 81.04
+      "exitDate": "2026-11-20",
+      "entry": 81.04,
+      "exit": 79.63
     },
     {
       "kind": "bounce",

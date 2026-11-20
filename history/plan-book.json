@@ -16,46 +16,46 @@
   "variants": {
     "agreed": {
       "key": "agreed",
-      "core": 5869.86,
-      "coreLast": 138.02,
-      "reserve": 1500,
+      "core": 6178.48,
+      "coreLast": 133.52,
+      "reserve": 1000,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 993.08,
-      "shortLast": 0.9829629999999999,
+      "shortPot": 983.65,
+      "shortLast": 0.973628,
       "pending": 0,
       "picks": {
         "HSBA.L": {
           "ticker": "HSBA",
           "market": "UK",
-          "value": 94.58,
+          "value": 91.15,
           "cost": 100,
-          "last": 1280.4,
+          "last": 1234,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "META": {
           "ticker": "META",
           "market": "US",
-          "value": 95.04,
+          "value": 89.4,
           "cost": 100,
-          "last": 596.22,
+          "last": 560.84,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 90.56,
+          "value": 85.7,
           "cost": 100,
-          "last": 100.05,
+          "last": 94.68,
           "lastTranche": "2026-11",
           "tranches": 1
         }
       },
       "potLast": null,
-      "lastTier": 0,
-      "lastTierDate": null,
+      "lastTier": -10,
+      "lastTierDate": "2026-11-20",
       "lastDrip": null,
       "log": [
         {
@@ -73,6 +73,10 @@
         {
           "date": "2026-11-16",
           "what": "Tranche of NEM (1% of the book)"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Buy tier -10%: a third of the reserve into VWRP"
         }
       ],
       "curve": [
@@ -91,35 +95,39 @@
         {
           "date": "2026-11-19",
           "value": 9843.12
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9628.38
         }
       ],
-      "value": 9843.12,
+      "value": 9628.38,
       "started": "2026-11-16"
     },
     "weakHold": {
       "key": "weakHold",
-      "core": 5869.86,
-      "coreLast": 138.02,
-      "reserve": 1500,
+      "core": 6178.48,
+      "coreLast": 133.52,
+      "reserve": 1000,
       "reserve0": 1500,
       "picksCash": 1400,
-      "shortPot": 993.08,
-      "shortLast": 0.9829629999999999,
+      "shortPot": 983.65,
+      "shortLast": 0.973628,
       "pending": 0,
       "picks": {
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 90.56,
+          "value": 85.7,
           "cost": 100,
-          "last": 100.05,
+          "last": 94.68,
           "lastTranche": "2026-11",
           "tranches": 1
         }
       },
       "potLast": null,
-      "lastTier": 0,
-      "lastTierDate": null,
+      "lastTier": -10,
+      "lastTierDate": "2026-11-20",
       "lastDrip": null,
       "log": [
         {
@@ -129,6 +137,10 @@
         {
           "date": "2026-11-16",
           "what": "Tranche of NEM (1% of the book)"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Buy tier -10%: a third of the reserve into VWRP"
         }
       ],
       "curve": [
@@ -147,53 +159,57 @@
         {
           "date": "2026-11-19",
           "value": 9853.5
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9647.83
         }
       ],
-      "value": 9853.5,
+      "value": 9647.83,
       "started": "2026-11-16"
     },
     "reitValue": {
       "key": "reitValue",
-      "core": 5869.86,
-      "coreLast": 138.02,
-      "reserve": 1500,
+      "core": 6178.48,
+      "coreLast": 133.52,
+      "reserve": 1000,
       "reserve0": 1500,
       "picksCash": 1200,
-      "shortPot": 993.08,
-      "shortLast": 0.9829629999999999,
+      "shortPot": 983.65,
+      "shortLast": 0.973628,
       "pending": 0,
       "picks": {
         "HSBA.L": {
           "ticker": "HSBA",
           "market": "UK",
-          "value": 94.58,
+          "value": 91.15,
           "cost": 100,
-          "last": 1280.4,
+          "last": 1234,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "META": {
           "ticker": "META",
           "market": "US",
-          "value": 95.04,
+          "value": 89.4,
           "cost": 100,
-          "last": 596.22,
+          "last": 560.84,
           "lastTranche": "2026-11",
           "tranches": 1
         },
         "NEM": {
           "ticker": "NEM",
           "market": "US",
-          "value": 90.56,
+          "value": 85.7,
           "cost": 100,
-          "last": 100.05,
+          "last": 94.68,
           "lastTranche": "2026-11",
           "tranches": 1
         }
       },
       "potLast": null,
-      "lastTier": 0,
-      "lastTierDate": null,
+      "lastTier": -10,
+      "lastTierDate": "2026-11-20",
       "lastDrip": null,
       "log": [
         {
@@ -211,6 +227,10 @@
         {
           "date": "2026-11-16",
           "what": "Tranche of NEM (1% of the book)"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Buy tier -10%: a third of the reserve into VWRP"
         }
       ],
       "curve": [
@@ -229,15 +249,19 @@
         {
           "date": "2026-11-19",
           "value": 9843.12
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9628.38
         }
       ],
-      "value": 9843.12,
+      "value": 9628.38,
       "started": "2026-11-16"
     },
     "vwrp": {
       "key": "vwrp",
-      "core": 9783.1,
-      "coreLast": 138.02,
+      "core": 9464.13,
+      "coreLast": 133.52,
       "reserve": 0,
       "reserve0": 0,
       "picksCash": 0,
@@ -271,30 +295,38 @@
         {
           "date": "2026-11-19",
           "value": 9783.1
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9464.13
         }
       ],
-      "value": 9783.1,
+      "value": 9464.13,
       "started": "2026-11-16"
     },
     "buffettPot": {
       "key": "buffettPot",
-      "core": 5869.86,
-      "coreLast": 138.02,
-      "reserve": 1500,
+      "core": 6178.48,
+      "coreLast": 133.52,
+      "reserve": 1000,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 993.08,
-      "shortLast": 0.9829629999999999,
+      "shortPot": 983.65,
+      "shortLast": 0.973628,
       "pending": 0,
       "picks": {},
       "potLast": null,
-      "lastTier": 0,
-      "lastTierDate": null,
+      "lastTier": -10,
+      "lastTierDate": "2026-11-20",
       "lastDrip": null,
       "log": [
         {
           "date": "2026-11-16",
           "what": "Bought VWRP with 60% of the book"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Buy tier -10%: a third of the reserve into VWRP"
         }
       ],
       "curve": [
@@ -313,30 +345,38 @@
         {
           "date": "2026-11-19",
           "value": 9862.94
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9662.13
         }
       ],
-      "value": 9862.94,
+      "value": 9662.13,
       "started": "2026-11-16"
     },
     "momentumPot": {
       "key": "momentumPot",
-      "core": 5869.86,
-      "coreLast": 138.02,
-      "reserve": 1500,
+      "core": 6178.48,
+      "coreLast": 133.52,
+      "reserve": 1000,
       "reserve0": 1500,
       "picksCash": 1500,
-      "shortPot": 993.08,
-      "shortLast": 0.9829629999999999,
+      "shortPot": 983.65,
+      "shortLast": 0.973628,
       "pending": 0,
       "picks": {},
       "potLast": null,
-      "lastTier": 0,
-      "lastTierDate": null,
+      "lastTier": -10,
+      "lastTierDate": "2026-11-20",
       "lastDrip": null,
       "log": [
         {
           "date": "2026-11-16",
           "what": "Bought VWRP with 60% of the book"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Buy tier -10%: a third of the reserve into VWRP"
         }
       ],
       "curve": [
@@ -355,11 +395,15 @@
         {
           "date": "2026-11-19",
           "value": 9862.94
+        },
+        {
+          "date": "2026-11-20",
+          "value": 9662.13
         }
       ],
-      "value": 9862.94,
+      "value": 9662.13,
       "started": "2026-11-16"
     }
   },
-  "updated": "2026-11-20T12:01:29.844Z"
+  "updated": "2026-11-20T21:23:39.871Z"
 }

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20T12:01:32.682Z",
+  "updated": "2026-11-20T21:23:43.886Z",
   "items": {
     "META": {
       "quarter": "2026-09-30",
@@ -88,6 +88,51 @@
       },
       "fifth": "middle",
       "label": "EPS beat the forecast by 13.0%; the price fell 4.6% on the day",
+      "note": null,
+      "tone": "neutral"
+    },
+    "NVDA": {
+      "quarter": "2026-10-31",
+      "date": "2026-11-18",
+      "actual": 2.68,
+      "estimate": 2.47313,
+      "surprisePct": 8.4,
+      "reaction": -2.9,
+      "record": {
+        "beats": 4,
+        "of": 4,
+        "avgSurprise": 6.4,
+        "next": {
+          "date": null,
+          "epsEstimate": 2.88028,
+          "epsLow": 2.8,
+          "epsHigh": 3.11
+        }
+      },
+      "moves": {
+        "n": 4,
+        "typical": 4.2,
+        "moves": [
+          {
+            "date": "2026-02-26",
+            "pct": -5.5
+          },
+          {
+            "date": "2026-05-21",
+            "pct": -1.8
+          },
+          {
+            "date": "2026-08-27",
+            "pct": 8.7
+          },
+          {
+            "date": "2026-11-18",
+            "pct": -2.9
+          }
+        ]
+      },
+      "fifth": "middle",
+      "label": "EPS beat the forecast by 8.4%; the price fell 2.9% on the day",
       "note": null,
       "tone": "neutral"
     },
@@ -361,30 +406,6 @@
       "note": null,
       "tone": "neutral"
     },
-    "VICI": {
-      "moves": {
-        "n": 4,
-        "typical": 2.6,
-        "moves": [
-          {
-            "date": "2026-02-26",
-            "pct": -1.5
-          },
-          {
-            "date": "2026-04-30",
-            "pct": 2.1
-          },
-          {
-            "date": "2026-07-30",
-            "pct": -3
-          },
-          {
-            "date": "2026-10-29",
-            "pct": 4.3
-          }
-        ]
-      }
-    },
     "AMZN": {
       "quarter": "2026-09-30",
       "date": "2026-10-30",
@@ -429,6 +450,30 @@
       "label": "EPS missed the forecast by 3.5% (bottom fifth); the price fell 1.4% on the day",
       "note": null,
       "tone": "neutral"
+    },
+    "VICI": {
+      "moves": {
+        "n": 4,
+        "typical": 2.6,
+        "moves": [
+          {
+            "date": "2026-02-26",
+            "pct": -1.5
+          },
+          {
+            "date": "2026-04-30",
+            "pct": 2.1
+          },
+          {
+            "date": "2026-07-30",
+            "pct": -3
+          },
+          {
+            "date": "2026-10-29",
+            "pct": 4.3
+          }
+        ]
+      }
     }
   }
 }
