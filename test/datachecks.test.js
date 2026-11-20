@@ -48,6 +48,7 @@ test("a forward P/E far below the trailing one is flagged (Micron, 20 Nov)", () 
   const dc = runDataChecks([
     { ...ok, symbol: "MU", pe: 3.3, peTrailing: 9.3 },
     { ...ok, symbol: "NVDA", pe: 12.6, peTrailing: 25.3 },
+    { ...ok, symbol: "MRK", pe: 14.8, peTrailing: 134.2 },
     { ...ok, symbol: "NONE", pe: 3.3 },
     { ...ok, symbol: "TRUST", pe: 3.3, peTrailing: 30, longTerm: { score: null } },
   ], { asOf: "2026-11-10" });
