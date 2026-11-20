@@ -11,7 +11,7 @@
   "trimActive": false,
   "fearNoDipActive": false,
   "summarySent": {
-    "UK": "2026-11-19",
+    "UK": "2026-11-20",
     "US": "2026-11-19"
   },
   "digestSent": "2026-W46",
@@ -494,12 +494,12 @@
     "fg": {
       "score": 19,
       "rating": "extreme fear",
-      "asOf": "2026-11-19T23:59:41+00:00",
+      "asOf": "2026-11-20T01:00:00+00:00",
       "comparisons": {
-        "close": 25,
-        "week": 40,
-        "month": 20,
-        "year": 8
+        "close": 19,
+        "week": 37,
+        "month": 29,
+        "year": 5
       },
       "components": [
         {
@@ -541,7 +541,7 @@
         {
           "key": "junk_bond_demand",
           "label": "Junk bond demand",
-          "score": 39,
+          "score": 38,
           "rating": "fear"
         }
       ],
@@ -1793,19 +1793,24 @@
         },
         {
           "date": "2026-11-19",
-          "t": 1795132781000,
+          "t": 1795046400000,
+          "y": 19
+        },
+        {
+          "date": "2026-11-20",
+          "t": 1795136400000,
           "y": 19
         }
       ]
     },
-    "fgAt": "2026-11-20T02:35:12.353Z",
+    "fgAt": "2026-11-20T08:15:00.037Z",
     "markets": {
       "sp": {
         "name": "S&P 500",
         "symbol": "^GSPC",
         "level": 7175.83,
         "date": "2026-11-19",
-        "asOf": "2026-11-19T21:59:18.000Z",
+        "asOf": "2026-11-19T21:00:00.000Z",
         "currency": "USD",
         "drawdownPct": -8.2,
         "peak": 7818.93,
@@ -1953,7 +1958,7 @@
         "dayPct": 15.8,
         "date": "2026-11-19"
       },
-      "at": "2026-11-20T02:35:12.353Z"
+      "at": "2026-11-20T08:15:00.037Z"
     },
     "watchlist": [
       {
@@ -2513,13 +2518,13 @@
         "yahoo": "AZN.L",
         "name": "AstraZeneca",
         "currency": "GBp",
-        "price": 13304,
-        "date": "2026-11-19",
-        "dropFromHigh": -5.4,
-        "lastChange": -2.5,
+        "price": 13410,
+        "date": "2026-11-20",
+        "dropFromHigh": -4.7,
+        "lastChange": -1.7,
         "previous": -1.1,
-        "week": -4.5,
-        "month": 5.5,
+        "week": -3.7,
+        "month": 6.3,
         "series": [
           0,
           0.23,
@@ -2550,7 +2555,7 @@
           16.97,
           15.04,
           13.74,
-          10.89
+          11.77
         ],
         "rebound": false
       },
