@@ -153,6 +153,7 @@
   /* Market cards */
   .mkt .row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .mkt .lvl { color: var(--muted); font-size: 13px; }
+  .mkt .depth { margin: 10px 0 0; padding: 2px 0 2px 10px; border-left: 2px solid var(--line); color: var(--ink-2); line-height: 1.45; }
   .mkt .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
   .ladder { position: relative; height: 34px; margin: 6px 0 14px; }
   .ladder .track { position: absolute; left: 0; right: 0; top: 13px; height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--buy) 0%, var(--buylite) 33%, var(--watch) 66%, var(--line) 100%); opacity: 0.35; }
@@ -398,6 +399,7 @@
     <div class="eyebrow">Buy tiers</div>
     <div class="grid-2" id="markets"></div>
     <p class="cap">Drawdown from each index's highest close in the past year. Buy tiers start at -10%; each tier alerts once when fear (F&amp;G ≤ 25 or VIX ≥ 30) confirms it, and re-arms once the index is back within 5% of its high. A confirmed tier deploys a third of the dip reserve; in months without one, a sixth of the reserve drips into the core instead.</p>
+    <p class="cap" id="depthCap" hidden>History lines: past falls on the price index (S&amp;P 500 since 1950, FTSE 100 since 1985), each from its first close 10% or more below the 52-week high until it was back within 5%. A guide to the range of outcomes, not a forecast: the samples are small, and the deeper tiers come from a handful of falls.</p>
   </section>
 
   <!-- 5. F&G history -->
@@ -488,6 +490,7 @@ import { ISA, isaSummary, mergeCash, taxYearOf, cashChargeNote } from "./src/isa
 import { fileWith, toGo, afterText, homeMarket } from "./src/priceAlerts.js";
 import { whenLabel, withReported, newerPreview } from "./src/resultsPreview.js";
 import { todayItems } from "./src/today.js";
+import { depthLine } from "./src/tierDepth.js";
 import { earningsAsOf, shortName } from "./src/util.js";
 import { orderTiming } from "./src/sessions.js";
 import { parseDecisions, decisionsLine, inlineHtml } from "./src/decisions.js";
@@ -1404,8 +1407,10 @@ function ladder(dd) {
 }
 
 function renderMarkets(d) {
-  const card = (snap, st) => {
+  LAST_D = d;
+  const card = (snap, st, key) => {
     if (!snap) return `<div class="card muted">No data.</div>`;
+    const depth = depthLine(DEPTH?.[key], snap.drawdownPct, { name: `the ${snap.name}` });
     const tone = st?.type === "buy" ? "buy" : st?.type === "watch" ? "watch" : "neutral";
     const tag = st?.tier ? st.tier : "No tier";
     const next = st?.nextTier ? `${Math.abs(st.nextTier.distance).toFixed(1)} more points to ${esc(minus(st.nextTier.label))}` : "Deepest tier reached";
@@ -1414,6 +1419,7 @@ function renderMarkets(d) {
       <div class="row" style="margin-top:8px"><span class="big ${snap.drawdownPct <= -10 ? "neg" : ""}">${minus(snap.drawdownPct.toFixed(1))}%</span><span class="lvl">off high · ${num(snap.level, 0)} vs ${num(snap.peak, 0)} on ${fmtDM(snap.peakDate)}</span></div>
       ${ladder(snap.drawdownPct)}
       <div class="small muted">${next}</div>
+      ${depth ? `<p class="small depth">${esc(depth)}</p>` : ""}
       <div class="stats">
         <div><div class="k">vs 200-day</div><div class="v ${pnClass(snap.vs200Pct)}">${signPct(snap.vs200Pct)}</div></div>
         <div><div class="k">Month</div><div class="v ${pnClass(snap.monthPct)}">${signPct(snap.monthPct)}</div></div>
@@ -1423,8 +1429,12 @@ function renderMarkets(d) {
     </div>`;
   };
   const m = d.markets || {};
-  $("markets").innerHTML = card(m.sp, d.status?.US) + card(m.ftse, d.status?.UK);
+  $("markets").innerHTML = card(m.sp, d.status?.US, "sp") + card(m.ftse, d.status?.UK, "ftse");
+  $("depthCap").hidden = !$("markets").querySelector(".depth");
 }
+// What followed past falls from each tier (tools/tier-depth.mjs, display only).
+let DEPTH = null, LAST_D = null;
+fetch("data/tier-depth.json").then((r) => (r.ok ? r.json() : null)).then((j) => { if (j?.sp) { DEPTH = j; if (LAST_D) renderMarkets(LAST_D); } }).catch(() => {});
 
 function renderChart(history) {
   if (history.length < 2) return;
