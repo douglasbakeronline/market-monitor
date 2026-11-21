@@ -1,0 +1,31 @@
+Run at 2026-11-21T15:49:51.059Z (dry run)
+Price alerts: 4 checked, 1 fired
+ALERT BUY · S&P 500 Correction (-10%)
+
+[dry run] BUY · S&P 500 Correction (-10%)
+S&P 500 -11.6% off its 52-week high. Fear & Greed 10 (extreme fear), VIX 35.9.
+Plan: move a third of the dip reserve into VWRP. A reserve drip due in the next 30 days is skipped.
+History: of 48 falls since 1950 that reached −10%, 19 went on to −15%, 11 to −20% and 6 to −30% (median low −14%).
+Since 2020, when F&G was 5–15, the S&P was up 81% of the time 6 months later (median +12.3%, vs +8.9% on any day).
+
+ALERT CRASH WATCH · S&P 500 -3.7% today
+
+[dry run] CRASH WATCH · S&P 500 -3.7% today
+S&P 500 is down 3.7% today and 11.6% below its 52-week high. Fear & Greed 10. VIX 35.9.
+Plan: do not sell the core. The short-term pot keeps to its own rules. Next buy tier: Meaningful dip (-15%) (3.4 points away). A buy-tier alert follows if one is confirmed.
+
+ALERT CRASH WATCH · VIX spike to 35.9
+
+[dry run] CRASH WATCH · VIX spike to 35.9
+The VIX (fear gauge) jumped 26% today to 35.9. Markets are panicking.
+Plan: do not sell the core; a buy-tier alert follows if a market reaches a tier.
+
+ALERT Anthropic at or below 90
+
+[dry run] Anthropic at or below 90
+Anthropic (ANT) is 88.9 (-8.5% today), your alert level was 90.
+Your note: Below 90: tier 1 of 3, up to £200. Above 112: back over the opening high (111.50), a strength check, not a buy signal on its own.
+Check the Research page and the plan before acting (no trade within 7 days before results).
+
+F&G 10 (extreme fear) | S&P -11.6% off high | VIX 35.9 | Capitulation · Correction (-10%)
+exit=0
