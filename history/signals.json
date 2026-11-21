@@ -106,7 +106,7 @@
     "currency": "USD",
     "label": "Swing setup (68)",
     "perf": {
-      "now": -2.7,
+      "now": -2.8,
       "nowDate": "2026-11-20",
       "sessions": 15,
       "spNow": -8.8,
@@ -115,8 +115,8 @@
       "w1": 2.2,
       "w1Sp": -2.7,
       "w1Idx": -2.7,
-      "vsSp": 6.1,
-      "vsIdx": 6.1
+      "vsSp": 6,
+      "vsIdx": 6
     }
   },
   {
