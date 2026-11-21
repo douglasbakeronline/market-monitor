@@ -106,3 +106,13 @@ export function depthLine(sample, drawdown, { name = "the index" } = {}) {
   const year = sample.from.slice(0, 4);
   return `Of ${s.n} falls since ${year} that closed at ${neg(lvl)}, ${name} ${list}. The median low was ${neg(Math.abs(s.trough).toFixed(0))}; it took a median of ${months(s.rearm)} to get back within 5% of its high.`;
 }
+
+// The same history, short, for the buy-tier push: from the tier that fired.
+export function depthPushLine(sample, lvl) {
+  const s = sample?.fromLevel?.[lvl];
+  if (!s?.n || s.n < 5) return null;
+  const deeper = Object.entries(s.deeper).map(([m, v]) => [Number(m), v.n]).sort((a, b) => b[0] - a[0]);
+  const parts = deeper.map(([m, n], k) => (k ? `${n} to ${neg(m)}` : `${n} went on to ${neg(m)}`));
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
+  return `History: of ${s.n} falls since ${sample.from.slice(0, 4)} that reached ${neg(lvl)}, ${list} (median low ${neg(Math.abs(s.trough).toFixed(0))}).`;
+}

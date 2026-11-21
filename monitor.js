@@ -177,7 +177,7 @@ async function main() {
   }
 
   // --- 8. Signal alerts ----------------------------------------------------------
-  const ev = evaluateAlerts({ markets: { US: sp, UK: ftse }, fg, vix, pricesOk, fgOk }, state);
+  const ev = evaluateAlerts({ markets: { US: sp, UK: ftse }, fg, vix, pricesOk, fgOk, depth: await readJson("data/tier-depth.json", null) }, state);
   Object.assign(state, ev.state);
   alerts.push(...ev.alerts, ...researchAlerts, ...pa.alerts);
 

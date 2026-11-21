@@ -4,6 +4,7 @@ import { CONFIG } from "./config.js";
 import { sma, rsi, drawdown, lastChanges, changeOver, rebase } from "./indicators.js";
 import { pct, r1, r2, utcDate } from "./util.js";
 import { ratingFor } from "./data/feargreed.js";
+import { depthPushLine } from "./tierDepth.js";
 
 export function snapshot(name, symbol, data) {
   const rows = data?.rows;
@@ -97,10 +98,16 @@ export function marketStatus(snap, fg, vix) {
   };
 }
 
+// What followed past falls from this tier (data/tier-depth.json), if loaded.
+const histLine = (depth, market, lvl) => {
+  const line = depthPushLine(depth?.[market === "UK" ? "ftse" : "sp"], lvl);
+  return line ? `\n${line}` : "";
+};
+
 // --- Alerts -----------------------------------------------------------------
 // Each rule fires once when its condition becomes true and re-arms when the
 // condition clears (hysteresis), so you're not pinged repeatedly.
-export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
+export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk, depth = null }, state) {
   const alerts = [];
   const ns = structuredClone({ buyTier: {}, watchTier: {}, greedActive: false, trimActive: false, fearNoDipActive: false, ...state });
   const score = fg?.score;
@@ -114,7 +121,7 @@ export function evaluateAlerts({ markets, fg, vix, pricesOk, fgOk }, state) {
       if (tier && panic && tier.drawdown < lastBuy) {
         alerts.push({ kind: "buy", market, priority: "high", tags: "green_circle,moneybag",
           title: `BUY · ${snap.name} ${tier.label}`,
-          body: `${snap.name} ${dd.toFixed(1)}% off its 52-week high. Fear & Greed ${score} (${ratingFor(score)})${vix?.level ? `, VIX ${vix.level.toFixed(1)}` : ""}.\n${tier.note}` });
+          body: `${snap.name} ${dd.toFixed(1)}% off its 52-week high. Fear & Greed ${score} (${ratingFor(score)})${vix?.level ? `, VIX ${vix.level.toFixed(1)}` : ""}.\n${tier.note}${histLine(depth, market, tier.drawdown)}` });
         ns.buyTier[market] = tier.drawdown;
       } else if (tier && !panic && fgOk && tier.drawdown < lastWatch && tier.drawdown < lastBuy) {
         alerts.push({ kind: "watch", market, priority: "default", tags: "yellow_circle",
