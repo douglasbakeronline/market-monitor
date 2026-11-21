@@ -78,3 +78,23 @@ test("depth line: nothing above the first tier, at the last tier, or on a thin s
   assert.equal(depthLine(sample, -21), null, "4 episodes from -20 is too few");
   assert.equal(depthLine(null, -12), null);
 });
+
+test("push line: short history from the tier that just fired", async () => {
+  const { depthPushLine } = await import("../src/tierDepth.js");
+  assert.equal(depthPushLine(sample, -10), "History: of 24 falls since 1950 that reached −10%, 12 went on to −15%, 7 to −20% and 3 to −30% (median low −15%).");
+  assert.equal(depthPushLine(sample, -15), "History: of 12 falls since 1950 that reached −15%, 7 went on to −20% and 3 to −30% (median low −21%).");
+  assert.equal(depthPushLine(sample, -20), null, "too few falls");
+  assert.equal(depthPushLine(sample, -30), null);
+  assert.equal(depthPushLine(null, -10), null);
+});
+
+test("buy push carries the history line when the study is loaded", async () => {
+  const { evaluateAlerts } = await import("../src/signals.js");
+  const snap = { name: "S&P 500", drawdownPct: -11.6 };
+  const args = { markets: { US: snap }, fg: { score: 10 }, vix: { level: 35 }, pricesOk: true, fgOk: true };
+  const withDepth = evaluateAlerts({ ...args, depth: { sp: sample } }, {});
+  const buy = withDepth.alerts.find((a) => a.kind === "buy");
+  assert.match(buy.body, /\nHistory: of 24 falls since 1950 that reached −10%/);
+  const plain = evaluateAlerts(args, {}).alerts.find((a) => a.kind === "buy");
+  assert.doesNotMatch(plain.body, /History/);
+});
