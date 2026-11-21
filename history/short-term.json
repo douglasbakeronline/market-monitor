@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-21T02:42:24.623Z",
+  "updated": "2026-11-21T15:54:46.282Z",
   "date": "2026-11-20",
   "drift": [
     {
@@ -24,7 +24,7 @@
       "name": "Lion Finance Group PLC",
       "market": "UK",
       "index": "FTSE 100",
-      "score": 83,
+      "score": 82,
       "kind": "bounce",
       "date": "2026-11-20",
       "price": 12020,
@@ -688,6 +688,6 @@
         "potRule": false
       }
     ],
-    "scanned": "2026-11-21T02:42:23.953Z"
+    "scanned": "2026-11-21T15:54:45.603Z"
   }
 }
