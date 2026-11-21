@@ -24,6 +24,7 @@ import { PLAN } from "./src/plan.js";
 import { deepenList } from "./src/deepen.js";
 import { r1, r2, sleep, dateIn, partsIn } from "./src/util.js";
 import { liveSession } from "./src/sessions.js";
+import { unscoredEntry, unscoredLine } from "./src/unscored.js";
 import { recordResults } from "./src/stockHistory.js";
 import { smartFor } from "./src/smartMoney.js";
 import { latestSellSignals } from "./src/sellSignals.js";
@@ -69,10 +70,11 @@ async function main() {
   console.log(`Quotes: ${Object.keys(quotes).length}`);
 
   // Stage 1
-  const items = [], failed = [], rowsBySymbol = {};
+  const items = [], failed = [], unscored = [], rowsBySymbol = {};
   for (const u of universe) {
+    let prices = null;
     try {
-      const prices = await fetchDaily(u.symbol, { range: "1y", backup: false });
+      prices = await fetchDaily(u.symbol, { range: "1y", backup: false });
       rowsBySymbol[u.symbol] = prices.rows;
       const t = technicals(prices.rows);
       if (!t) throw new Error("not enough history");
@@ -82,7 +84,7 @@ async function main() {
       const earningsDays = daysUntil(f.nextEarnings, today);
       const signals = swingSignals(t);
       items.push({ u, t, f, signals, earningsDays, lt: longTermLive(f, t), swing: swingVerdict(t, signals, earningsDays), deep: false });
-    } catch (e) { failed.push(u.symbol); }
+    } catch (e) { failed.push(u.symbol); unscored.push(unscoredEntry(u, { rows: prices?.rows, error: e })); }
     await sleep(120);
   }
   // Drop stocks that have stopped trading: their last bar is days behind the market's.
@@ -90,8 +92,9 @@ async function main() {
   for (const it of items) if (!latest[it.u.index] || it.t.date > latest[it.u.index]) latest[it.u.index] = it.t.date;
   for (let i = items.length - 1; i >= 0; i--) {
     const it = items[i], behind = sessionsBehind(it.t.date, latest[it.u.index]);
-    if (behind >= STALE_SESSIONS) { console.log(`Stale: ${it.u.symbol} last traded ${it.t.date} (${behind} sessions behind), dropped.`); failed.push(it.u.symbol); items.splice(i, 1); }
+    if (behind >= STALE_SESSIONS) { console.log(`Stale: ${it.u.symbol} last traded ${it.t.date} (${behind} sessions behind), dropped.`); failed.push(it.u.symbol); unscored.push(unscoredEntry(it.u, { rows: rowsBySymbol[it.u.symbol], stale: { last: it.t.date, behind } })); items.splice(i, 1); }
   }
+  { const line = unscoredLine(unscored); if (line) console.log(line); }
   console.log(`Stage 1: ${items.length} scored, ${failed.length} failed (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
   // Results timestamps from the quotes, and a cache of timed results history
   // shared by the pot ranking, the results check and the preview (12 Nov).
@@ -541,7 +544,7 @@ async function main() {
 
   await writeJson("scan.json", {
     updated: new Date().toISOString(), minutes: r1((Date.now() - t0) / 60000),
-    universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed,
+    universe: universe.length, scored: out.length, deepened: out.filter((i) => i.deep).length, failed, unscored,
     counts: Object.fromEntries(Object.entries(cons.indices).map(([k, v]) => [INDEX_LABEL[k], v.length])),
     newGood, newSetups, paper: paperSummary, swingLab: driftSummary, sectorMedians: medians, sectorMediansByRegion: regional, scoringVersion: SCORING_VERSION, reitPocf: reitMed, evSample: { ...evMed, fetched: evFetched, failed: evFailed }, ruleChanges: today <= RULE_NOTE_UNTIL ? ruleChanges(out) : null, coreExtras: coreDates, dataChecks, shortTerm, resultsPreview: resultsAhead, items: out,
   });

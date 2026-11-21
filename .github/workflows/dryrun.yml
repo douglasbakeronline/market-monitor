@@ -1,5 +1,5 @@
 name: Dry run
-# 21 Nov 10:41 build: buy-tier push carries the tier depth history line (state.buyTier.US reset on this branch only so the -10% tier fires).
+# 21 Nov 15:41 build: scan names that fail to score say why (VYLR). Runs the scan, then the monitor.
 on:
   push:
     branches: [dryrun]
@@ -19,6 +19,8 @@ jobs:
           set +e
           rm -rf dry-run
           mkdir -p dry-run
+          node scan.js > dry-run/scan.log 2>&1; echo "exit=$?" >> dry-run/scan.log
+          cp scan.json dry-run/scan.json
           DRY_RUN=1 node monitor.js > dry-run/monitor.log 2>&1; echo "exit=$?" >> dry-run/monitor.log
           node --test test/*.test.js > dry-run/tests.log 2>&1; echo "exit=$?" >> dry-run/tests.log
       - run: |
