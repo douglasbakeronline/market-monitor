@@ -101,7 +101,8 @@ export function depthLine(sample, drawdown, { name = "the index" } = {}) {
   const s = sample.fromLevel[lvl];
   if (!s?.n || s.n < 5) return null;
   const deeper = Object.entries(s.deeper).map(([m, v]) => [Number(m), v]).sort((a, b) => b[0] - a[0]);
-  const parts = deeper.map(([m, v], k) => `${neg(m)} in ${v.n}${k === 0 && v.n && v.sessions != null ? ` (${weeks(v.sessions)})` : ""}`);
+  const parts = deeper.map(([m, v], k) => `${k ? "" : "went on to "}${neg(m)} in ${v.n}${k === 0 && v.n && v.sessions != null ? ` (${weeks(v.sessions)}, median)` : ""}`);
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
   const year = sample.from.slice(0, 4);
-  return `After a first close at ${neg(lvl)}, ${name} went on to ${parts.join(", ")} of ${s.n} falls since ${year}; the median low was ${neg(Math.abs(s.trough).toFixed(0))}, and it took a median of ${months(s.rearm)} to get back within 5% of its high.`;
+  return `Of ${s.n} falls since ${year} that closed at ${neg(lvl)}, ${name} ${list}. The median low was ${neg(Math.abs(s.trough).toFixed(0))}; it took a median of ${months(s.rearm)} to get back within 5% of its high.`;
 }

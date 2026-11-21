@@ -68,8 +68,8 @@ const sample = {
 
 test("depth line: from the deepest tier reached, in plain words", () => {
   assert.equal(depthLine(sample, -11.6, { name: "the S&P 500" }),
-    "After a first close at −10%, the S&P 500 went on to −15% in 12 (about 3 weeks later), −20% in 7, −30% in 3 of 24 falls since 1950; the median low was −15%, and it took a median of about 4 months to get back within 5% of its high.");
-  assert.match(depthLine(sample, -16, { name: "the S&P 500" }), /^After a first close at −15%, the S&P 500 went on to −20% in 7 \(about 4 weeks later\), −30% in 3 of 12 falls/);
+    "Of 24 falls since 1950 that closed at −10%, the S&P 500 went on to −15% in 12 (about 3 weeks later, median), −20% in 7 and −30% in 3. The median low was −15%; it took a median of about 4 months to get back within 5% of its high.");
+  assert.match(depthLine(sample, -16, { name: "the S&P 500" }), /^Of 12 falls since 1950 that closed at −15%, the S&P 500 went on to −20% in 7 \(about 4 weeks later, median\) and −30% in 3\./);
 });
 
 test("depth line: nothing above the first tier, at the last tier, or on a thin sample", () => {

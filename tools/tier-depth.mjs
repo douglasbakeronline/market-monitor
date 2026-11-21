@@ -26,7 +26,7 @@ const out = {
   generated: new Date().toISOString().slice(0, 10),
   note: "Episodes start at the first close 10%+ below the 52-week closing high and end at the first close back within 5% (where the tiers re-arm). Price index, no dividends. Sessions are trading days.",
   sp: tierDepth(sp, { from: "1950-01-01" }),
-  ftse: tierDepth(ftse),
+  ftse: tierDepth(ftse, { from: "1985-01-01" }),
   extra: { sp1928: tierDepth(sp), sp1990: tierDepth(sp, { from: "1990-01-01" }) },
 };
 console.log(JSON.stringify(out, null, 1));
