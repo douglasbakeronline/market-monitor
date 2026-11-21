@@ -1,10 +1,10 @@
 {
-  "updated": "2026-11-20T21:23:39.617Z",
+  "updated": "2026-11-21T02:42:11.719Z",
   "start": "2026-11-02",
   "equity0": 10000,
   "realised": 9416.98,
-  "value": 9322.88,
-  "returnPct": -6.77,
+  "value": 9321.49,
+  "returnPct": -6.79,
   "paused": false,
   "open": [
     {
@@ -40,10 +40,10 @@
       "target": 111.46,
       "riskAmt": 138.83,
       "posValue": 2422.92,
-      "lastPrice": 98.73,
+      "lastPrice": 98.71,
       "lastDate": "2026-11-20",
-      "openR": -0.22,
-      "openPnl": -30.54
+      "openR": -0.23,
+      "openPnl": -31.93
     },
     {
       "id": "2026-11-17:DHR",
@@ -275,9 +275,9 @@
   ],
   "random": {
     "runs": 200,
-    "mine": -6.77,
+    "mine": -6.79,
     "median": -3.91,
-    "p10": -9.54,
+    "p10": -9.57,
     "p90": 0.23,
     "beatShare": 24
   },
