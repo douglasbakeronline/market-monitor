@@ -223,6 +223,13 @@ function dataChecksHtml(D) {
   const list = dc.flags.map((f) => `<li><b>${esc(f.ticker)}</b>${f.list ? " (your list)" : ""}: ${esc(f.label.toLowerCase())}, ${esc(f.detail)}</li>`).join("");
   return ` <details class="dchk"><summary><b>Data checks:</b> ${dc.flagged} of ${dc.checked} flagged</summary><ul>${list}</ul>${dc.more ? `<p class="small">and ${dc.more} more</p>` : ""}<p class="small">Price, range, yield, P/E, analyst target and results-date checks run on every company each night. A flag means "check the figure before acting", not that the stock is bad.</p></details>`;
 }
+// Index members with no score tonight (21 Nov): a new listing, no prices or stopped trading.
+function unscoredHtml(D) {
+  const u = D.unscored;
+  if (!u?.length) return "";
+  if (u.length === 1) return ` <b>Not scored tonight:</b> ${esc(u[0].text)}`;
+  return ` <details class="dchk"><summary><b>Not scored tonight:</b> ${u.length} companies</summary><ul>${u.map((e) => `<li>${esc(e.text)}</li>`).join("")}</ul></details>`;
+}
 function proposalLine(D) {
   const r = D.ruleChanges;
   if (!r?.compared) return "";
@@ -455,7 +462,7 @@ async function load() {
     $("meta").innerHTML = `<span>Updated ${esc(fmtDate(D.updated))} (${ago(D.updated)})</span>${reg ? `<span class="pill bg-${REGIME_TONE[reg.key] || "neutral"}">Market: ${esc(reg.label)}</span>` : ""}`;
     const b = [];
     if (st.source === "list" && D.placeholder) b.push(`<div class="banner warn"><b>Placeholder list.</b> These are the dashboard watchlist stocks until your own research list is added.</div>`);
-    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${dataChecksHtml(D)}</div>`);
+    if (st.source === "scan") b.push(`<div class="banner warn" style="background:var(--card);color:var(--ink-2);border-color:var(--line)">Every company in the ${Object.entries(D.counts || {}).map(([k, v]) => k === "Nasdaq 100" ? `Nasdaq 100 names not in the others (${v})` : `${esc(k)} (${v})`).join(", ").replace(/, ([^,]*)$/, " and $1")}, scored after the US close. The top ${D.deepened} candidates get full fundamentals; the rest have a quick score. ${D.newGood?.length || D.newSetups?.length ? `<b>New today:</b> ${D.newGood.length} good entr${D.newGood.length === 1 ? "y" : "ies"}, ${D.newSetups.length} swing setup${D.newSetups.length === 1 ? "" : "s"}.` : ""}${proposalLine(D)}${dataChecksHtml(D)}${unscoredHtml(D)}</div>`);
     const crowd = crowdingNote(D.items);
     if (crowd) b.push(`<div class="banner warn crowd"><b>Fewer ideas than it looks.</b> ${esc(crowd.text)} Display only; the scores are unchanged.</div>`);
     if (D.failed?.length && st.source === "list") b.push(`<div class="banner warn">Couldn't load: ${esc(D.failed.join(", "))}.</div>`);
